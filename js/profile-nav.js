@@ -2304,11 +2304,18 @@ class ProfileNavigationManager {
   }
 
   async logout() {
+    // Disable any logout button that triggered this to prevent double-click
+    const logoutBtns = document.querySelectorAll('.pd-logout, [onclick*="logout"]');
+    logoutBtns.forEach(b => { b.style.pointerEvents = 'none'; b.style.opacity = '.5'; });
+
     try { if (window.supabaseConfig) await window.supabaseConfig.signOut(); } catch {}
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('user_email');
-    sessionStorage.clear();
-    window.location.href = this.rootPfx || '/';
+    try { localStorage.removeItem('user_id'); localStorage.removeItem('user_email'); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    // currentUser cleared so UI reflects logged-out state before redirect
+    this.currentUser = null;
+    try { this.showLoggedOutUI(); } catch {}
+    // Always redirect — even if signOut threw an error
+    window.location.replace(this.rootPfx || '/');
   }
 
   /* Backward-compat stubs */

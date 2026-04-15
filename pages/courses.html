@@ -1073,18 +1073,22 @@
     }
     /* Login-required state (logged out) */
     .btn-interested.login-prompt {
-      background: rgba(124,92,252,.15) !important;
-      border: 1.5px solid rgba(124,92,252,.3) !important;
-      color: rgba(200,191,255,.7) !important;
+      background: rgba(124,92,252,.22) !important;
+      border: 1.5px solid rgba(155,143,255,.55) !important;
+      color: #c8bfff !important;
       animation: none !important;
-      box-shadow: none !important;
+      box-shadow: 0 2px 10px rgba(124,92,252,.18) !important;
       cursor: pointer;
-      font-size: .73rem !important;
+      font-size: .75rem !important;
+      font-weight: 700 !important;
+      opacity: 1 !important;
     }
     .btn-interested.login-prompt:hover {
-      background: rgba(124,92,252,.25) !important;
-      color: #c8bfff !important;
+      background: rgba(124,92,252,.38) !important;
+      border-color: rgba(155,143,255,.8) !important;
+      color: #e0daff !important;
       transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(124,92,252,.32) !important;
     }
     /* Loading skeleton state */
     .btn-interested.loading {
@@ -1749,8 +1753,8 @@
       const thumb = getUpcomingIcon(c._catName, c.title);
       const durationMo = c.duration_days ? Math.round(c.duration_days / 30) : null;
       const delay = Math.min(i * 0.08, 0.56);
-      // All buttons start as "loading" — syncInterestButtons() will set correct state
-      const intBtn = `<button type="button" class="btn-interested loading" data-course-id="${c.id}" onclick="event.stopPropagation();markInterested('${c.id}',this)">🔔 Notify Me</button>`;
+      // Start as login-prompt (neutral); syncInterestButtons() sets the real state
+      const intBtn = `<button type="button" class="btn-interested login-prompt" data-course-id="${c.id}" onclick="event.stopPropagation();markInterested('${c.id}',this)">🔔 Notify Me</button>`;
       return `
       <div class="upcoming-card" style="animation-delay:${delay}s" onclick="openUpcomingDetail('${c.id}')">
         <div class="upcoming-thumb" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
@@ -1776,32 +1780,41 @@
       </div>`;
     }).join('');
 
-    // After rendering, sync button states from DB/session
-    syncInterestButtons();
+    // After rendering, sync button states from DB/session.
+    // Retry up to 3s if supabase client not ready yet.
+    (async () => {
+      let tries = 0;
+      while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
+      syncInterestButtons();
+    })();
   }
 
   // ===== SYNC INTEREST BUTTONS FROM DB SESSION =====
   async function syncInterestButtons() {
     const db = _db(); if (!db) { _setAllInterestButtons('loggedout'); return; }
+
     let session = null;
     try { ({ data: { session } } = await db.auth.getSession()); } catch(_) {}
 
     if (!session?.user) {
-      // Not logged in — show login-prompt state on all buttons
       _upcomInterestSet.clear();
       _setAllInterestButtons('loggedout');
       return;
     }
 
-    // Logged in — fetch their interests from DB
-    try {
-      const courseIds = allUpcomingCourses.map(c => c.id);
-      const { data } = await db.from('course_interests')
-        .select('course_id')
-        .eq('student_user_id', session.user.id)
-        .in('course_id', courseIds);
-      _upcomInterestSet = new Set((data || []).map(r => r.course_id));
-    } catch(_) { _upcomInterestSet.clear(); }
+    // Logged in — fetch user's existing interests from DB
+    const courseIds = allUpcomingCourses.map(c => c.id);
+    if (courseIds.length) {
+      try {
+        const { data, error } = await db
+          .from('course_interests')
+          .select('course_id')
+          .eq('student_user_id', session.user.id)
+          .in('course_id', courseIds);
+        if (!error) _upcomInterestSet = new Set((data || []).map(r => r.course_id));
+        else _upcomInterestSet.clear();
+      } catch(_) { _upcomInterestSet.clear(); }
+    }
 
     _setAllInterestButtons('loggedin');
   }
@@ -1827,81 +1840,145 @@
     });
   }
 
-  // ===== MARK INTERESTED =====
-  // Session-only: no localStorage. Only logged-in users can register interest.
+  // ===== MARK INTERESTED — Completely rebuilt =====
+  // Uses INSERT (not upsert) to avoid issues with DEFERRABLE unique constraints.
+  // Treats duplicate-key (23505) as success — user already registered interest.
   async function markInterested(courseId, btn) {
+    // Guard: ignore if already in a terminal state
+    if (btn.disabled && btn.classList.contains('done')) return;
+    if (btn.classList.contains('loading')) return;
+
     const db = _db(); if (!db) return;
+
+    // ── Step 1: Check session ──
     let session = null;
     try { ({ data: { session } } = await db.auth.getSession()); } catch(_) {}
 
-    // Not logged in → open login modal and wait
     if (!session?.user) {
-      // Show visual feedback on the button
-      const prev = btn.textContent;
+      // Not logged in → prompt login, watch for sign-in, then re-sync
+      btn.classList.remove('loading', 'done');
+      btn.classList.add('login-prompt');
+      btn.disabled = false;
       btn.textContent = '🔑 Sign in first…';
-      setTimeout(() => { if (!btn.classList.contains('done')) btn.textContent = prev; }, 1800);
-      // Open the global login modal injected by profile-nav.js
+      setTimeout(() => {
+        if (!btn.classList.contains('done')) {
+          btn.textContent = '🔒 Login to Notify';
+        }
+      }, 1800);
       window.profileNav?.openLoginModal?.();
-      // After login, re-sync all buttons
       _watchLoginThenSync();
       return;
     }
 
-    // Already marked — no-op
-    if (_upcomInterestSet.has(courseId)) return;
+    // ── Step 2: Already marked (in-memory cache) ──
+    if (_upcomInterestSet.has(courseId)) {
+      btn.classList.add('done');
+      btn.disabled = true;
+      btn.textContent = '✓ Interested';
+      return;
+    }
 
-    // Optimistic UI update
-    btn.classList.remove('login-prompt');
+    // ── Step 3: Optimistic UI ──
+    const prevText = btn.textContent;
+    btn.classList.remove('login-prompt', 'done');
     btn.classList.add('loading');
     btn.disabled = true;
-    btn.textContent = '🔔 Saving…';
+    btn.textContent = '⏳ Saving…';
 
+    const uid = session.user.id;
+    const email = session.user.email || null;
+
+    // ── Step 4: Fetch profile name (non-blocking) ──
+    let studentName = null;
     try {
-      // Fetch user profile for name/email
-      const uid   = session.user.id;
-      const email = session.user.email;
-      let studentName = null;
-      const { data: prof } = await db.from('user_profiles').select('full_name').eq('user_id', uid).maybeSingle();
+      const { data: prof } = await db
+        .from('user_profiles')
+        .select('full_name')
+        .eq('user_id', uid)
+        .maybeSingle();
       studentName = prof?.full_name || null;
+    } catch(_) {}
 
-      const { error } = await db.from('course_interests').upsert({
+    // ── Step 5: INSERT (not upsert) — handles duplicate gracefully ──
+    try {
+      const { error } = await db.from('course_interests').insert({
         course_id:       courseId,
         student_user_id: uid,
         email:           email,
         student_name:    studentName,
-      }, { onConflict: 'course_id,student_user_id' });
+      });
 
-      if (error) throw error;
+      if (error) {
+        // Unique-violation (23505) = already registered → treat as success
+        const isDuplicate =
+          error.code === '23505' ||
+          (error.message || '').toLowerCase().includes('duplicate') ||
+          (error.message || '').toLowerCase().includes('unique') ||
+          (error.message || '').toLowerCase().includes('already exists');
 
-      // Success
+        if (!isDuplicate) throw error;
+      }
+
+      // ── Step 6: Success ──
       _upcomInterestSet.add(courseId);
       btn.classList.remove('loading');
       btn.classList.add('done');
       btn.disabled = true;
       btn.textContent = '✓ Interested';
+      _showInterestToast("🔔 You'll be notified when this course launches!");
 
-      // Toast notification
-      _showInterestToast(`🔔 You'll be notified when this course launches!`);
     } catch(err) {
-      btn.classList.remove('loading');
+      // ── Step 7: Error recovery ──
+      btn.classList.remove('loading', 'done');
       btn.disabled = false;
-      btn.textContent = '🔔 Notify Me';
-      console.error('markInterested error:', err);
+      btn.textContent = prevText || '🔔 Notify Me';
+      console.error('[markInterested]', err?.code, err?.message);
+
+      const msg = (err?.message || err?.details || '').toLowerCase();
+      if (msg.includes('not exist') || msg.includes('relation') || msg.includes('undefined')) {
+        _showInterestToast('⚠️ Setup incomplete — contact support (v16 migration).');
+      } else if (msg.includes('violates') || msg.includes('policy') || msg.includes('denied') || msg.includes('rls')) {
+        _showInterestToast('⚠️ Please sign in again and retry.');
+      } else if (msg.includes('network') || msg.includes('fetch') || msg.includes('failed')) {
+        _showInterestToast('⚠️ Network error — check connection and retry.');
+      } else {
+        _showInterestToast('⚠️ Could not save interest. Please try again.');
+      }
     }
   }
 
   function _showInterestToast(msg) {
+    const isError = msg.startsWith('⚠️');
     let t = document.getElementById('_interest-toast');
     if (!t) {
       t = document.createElement('div');
       t.id = '_interest-toast';
-      t.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;padding:.7rem 1.4rem;border-radius:12px;font-size:.84rem;font-weight:700;z-index:9999;box-shadow:0 8px 24px rgba(34,197,94,.4);opacity:0;transition:all .35s;white-space:nowrap;';
+      t.style.cssText = [
+        'position:fixed;bottom:1.5rem;left:50%;',
+        'transform:translateX(-50%) translateY(20px);',
+        'color:#fff;padding:.72rem 1.5rem;border-radius:14px;',
+        'font-size:.84rem;font-weight:700;z-index:9999;',
+        'opacity:0;transition:opacity .3s,transform .3s;',
+        'max-width:88vw;text-align:center;pointer-events:none;',
+      ].join('');
       document.body.appendChild(t);
     }
     t.textContent = msg;
-    requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)'; });
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 3500);
+    t.style.background = isError
+      ? 'linear-gradient(135deg,#dc2626,#b91c1c)'
+      : 'linear-gradient(135deg,#22c55e,#16a34a)';
+    t.style.boxShadow = isError
+      ? '0 8px 28px rgba(220,38,38,.45)'
+      : '0 8px 28px rgba(34,197,94,.45)';
+    requestAnimationFrame(() => {
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(t._hideTimer);
+    t._hideTimer = setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(20px)';
+    }, isError ? 5000 : 3500);
   }
 
   // Watch for login event, then re-sync interest buttons
@@ -1909,7 +1986,6 @@
   function _watchLoginThenSync() {
     if (_loginWatchActive) return;
     _loginWatchActive = true;
-    // Listen for the auth state change event fired by profile-nav.js
     const db = _db(); if (!db) { _loginWatchActive = false; return; }
     const { data: { subscription } } = db.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {

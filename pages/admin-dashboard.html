@@ -1989,14 +1989,14 @@ function openCategoryForNew() {
   openModal('category-modal');
 }
 
-function openBatchForNew() {
+async function openBatchForNew() {
   document.getElementById('batch-id').value = '';
   const t = document.getElementById('batch-modal')?.querySelector('.modal-title');
   if (t) t.textContent = 'Create Batch';
   const btn = document.querySelector('#batch-modal .btn-primary');
   if (btn) btn.textContent = 'Create Batch';
   _resetModal('batch-modal', { 'b-max': '30' });
-  initDropdowns();
+  await initDropdowns();
   openModal('batch-modal');
 }
 
@@ -4453,15 +4453,16 @@ async function loadBatchStudents() {
   const list = document.getElementById('bsm-students-list');
   const countEl = document.getElementById('bsm-count');
   list.innerHTML = '<div class="table-empty">Loading…</div>';
+  // enrollments.student_user_id → student_profiles.user_id → user_profiles
   const { data, error } = await db.client.from('enrollments')
-    .select('id, enrollment_status, enrolled_at, user_profiles:student_user_id(user_id, full_name, email, phone)')
+    .select('id, enrollment_status, created_at, student_profiles:student_user_id(user_id, user_profiles(full_name, email, phone))')
     .eq('batch_id', _bsmBatchId)
     .neq('enrollment_status', 'cancelled')
-    .order('enrolled_at', { ascending: false });
+    .order('created_at', { ascending: false });
   if (error) { list.innerHTML = `<div style="color:#f87171;font-size:.8rem;">Error: ${error.message}</div>`; return; }
   if (countEl) countEl.textContent = `(${(data||[]).length})`;
   list.innerHTML = (data||[]).map(e => {
-    const up = e.user_profiles || {};
+    const up = e.student_profiles?.user_profiles || {};
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;background:rgba(255,255,255,.03);border:1px solid rgba(124,92,252,.1);border-radius:8px;margin-bottom:.4rem;">
       <div>
         <div style="font-weight:600;font-size:.84rem">${up.full_name||'—'}</div>
@@ -4492,25 +4493,49 @@ async function searchUsersForBatch() {
 }
 
 async function addStudentToBatch(userId, name) {
-  // Check already enrolled
+  // Guard: already enrolled in this batch?
   const { data: existing } = await db.client.from('enrollments')
     .select('id').eq('batch_id', _bsmBatchId).eq('student_user_id', userId).maybeSingle();
   if (existing) { _showAdminToast(`${name} is already enrolled in this batch.`, 'error'); return; }
-  // Get course_id from batch
-  const { data: batch } = await db.client.from('course_batches').select('course_id').eq('id', _bsmBatchId).single();
+
+  // Fetch batch → course_id
+  const { data: batch, error: bErr } = await db.client
+    .from('course_batches').select('course_id').eq('id', _bsmBatchId).single();
+  if (bErr || !batch?.course_id) { _showAdminToast('Batch has no associated course.', 'error'); return; }
+
+  // Fetch active pricing for this course (pricing_id is NOT NULL in enrollments)
+  const { data: pricing } = await db.client
+    .from('course_pricing')
+    .select('id, list_price, sale_price')
+    .eq('course_id', batch.course_id)
+    .eq('is_active', true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!pricing) { _showAdminToast('No active pricing found for this course. Set pricing first.', 'error'); return; }
+
+  const listPrice = parseFloat(pricing.list_price || 0);
+  const netAmount = parseFloat(pricing.sale_price ?? pricing.list_price ?? 0);
+
   const { error } = await db.client.from('enrollments').insert({
-    batch_id: _bsmBatchId,
-    student_user_id: userId,
-    course_id: batch?.course_id || null,
+    batch_id:          _bsmBatchId,
+    student_user_id:   userId,
+    course_id:         batch.course_id,
+    pricing_id:        pricing.id,
     enrollment_status: 'active',
-    enrolled_at: new Date().toISOString(),
+    access_status:     'active',
+    list_price:        listPrice,
+    net_amount:        netAmount,
+    paid_amount:       0,
+    due_amount:        netAmount,
   });
+
   if (error) { _showAdminToast('Error adding student: ' + error.message, 'error'); return; }
   _showAdminToast(`✓ ${name} added to batch.`, 'success');
   document.getElementById('bsm-search').value = '';
   document.getElementById('bsm-search-results').innerHTML = '';
   await loadBatchStudents();
-  loadBatches(); // Refresh count in table
+  loadBatches(); // Refresh student count in batches table
 }
 
 async function removeStudentFromBatch(enrollmentId) {
@@ -5351,12 +5376,22 @@ async function saveBatch() {
 // Loads all dropdown data once so modals work immediately on open
 async function initDropdowns() {
   try {
-    // Load courses for batch + recording dropdowns
-    const { data: courses } = await db.client.from('courses').select('id, title').order('title');
+    // Use RPC (SECURITY DEFINER) first — bypasses courses_read_policy
+    let courses;
+    const { data: rpcData, error: rpcErr } = await db.client.rpc('get_courses_for_dropdown');
+    if (!rpcErr && rpcData?.length) {
+      courses = rpcData;
+    } else {
+      // Fallback: direct query (works if admin RLS already grants access)
+      const { data: directData } = await db.client.from('courses').select('id, title').order('title');
+      courses = directData;
+    }
     const courseOpts = (courses||[]).map(c => `<option value="${c.id}">${c.title}</option>`).join('');
-    ['rec-course','b-course'].forEach(id => {
+    ['rec-course','b-course','ae-course','pr-course','disc-course'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = '<option value="">Select…</option>' + courseOpts;
+      if (!el) return;
+      const placeholder = id === 'disc-course' ? '<option value="">All Courses</option>' : '<option value="">Select course…</option>';
+      el.innerHTML = placeholder + courseOpts;
     });
 
     // Load categories for course dropdown

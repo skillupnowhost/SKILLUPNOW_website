@@ -147,15 +147,126 @@
     /* ---- Mentor spotlight ---- */
     .section-title { font-size:1.5rem; font-weight:900; margin-bottom:1.5rem; }
     .mentors-wrap { max-width:1100px; margin:0 auto 4rem; padding:0 1.5rem; }
-    .mentors-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:1rem; }
-    .mentor-card { background:var(--panel); border:1.5px solid var(--border); border-radius:var(--r3); padding:1.5rem; text-align:center; transition:transform 0.2s; }
-    .mentor-card:hover { transform:translateY(-3px); }
-    .mentor-avatar { width:72px; height:72px; border-radius:50%; object-fit:cover; margin:0 auto 0.75rem; display:block; background:var(--v5); border:3px solid var(--v3); }
-    .mentor-avatar-placeholder { width:72px; height:72px; border-radius:50%; background:var(--grad); display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:900; color:#fff; margin:0 auto 0.75rem; }
-    .mentor-name { font-size:0.95rem; font-weight:800; }
-    .mentor-exp  { font-size:0.75rem; color:var(--txt3); margin-top:0.2rem; }
-    .mentor-tags { display:flex; flex-wrap:wrap; gap:0.3rem; justify-content:center; margin-top:0.5rem; }
-    .mentor-tag  { background:var(--v5); border:1px solid var(--v3); border-radius:999px; padding:0.15rem 0.5rem; font-size:0.68rem; font-weight:700; color:var(--v1); }
+    .mentors-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:1.25rem; }
+
+    /* ── 3D mentor card ── */
+    .mentor-card {
+      background:var(--panel); border:1.5px solid var(--border); border-radius:var(--r3);
+      padding:1.5rem 1.25rem; text-align:center;
+      transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      position:relative; overflow:hidden;
+      transform-style:preserve-3d;
+    }
+    .mentor-card::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg, rgba(124,92,252,.06) 0%, rgba(61,107,255,.04) 100%);
+      opacity:0; transition:opacity .25s; pointer-events:none;
+    }
+    .mentor-card:hover { transform:translateY(-6px) rotateX(2deg); box-shadow:0 16px 48px rgba(124,92,252,.18); border-color:var(--v2); }
+    .mentor-card:hover::before { opacity:1; }
+
+    /* ── 3D Profession character icon ── */
+    .mentor-icon-wrap {
+      width:96px; height:96px; margin:0 auto 1rem;
+      position:relative; display:flex; align-items:center; justify-content:center;
+    }
+    .mentor-icon-glow {
+      position:absolute; inset:-8px; border-radius:50%;
+      background:radial-gradient(circle, rgba(124,92,252,.25) 0%, transparent 70%);
+      animation:mentorGlowPulse 3s ease-in-out infinite;
+    }
+    @keyframes mentorGlowPulse {
+      0%,100%{transform:scale(1);opacity:.6;} 50%{transform:scale(1.18);opacity:1;}
+    }
+    .mentor-icon-ring {
+      position:absolute; inset:0; border-radius:50%;
+      border:2px solid rgba(124,92,252,.35);
+      animation:mentorRingSpin 8s linear infinite;
+    }
+    @keyframes mentorRingSpin { to{transform:rotate(360deg);} }
+    .mentor-icon-char {
+      width:80px; height:80px; border-radius:50%;
+      background:linear-gradient(135deg,var(--v1,#9b8fff),var(--v2,#7c6cff));
+      display:flex; align-items:center; justify-content:center;
+      font-size:2.2rem; position:relative; z-index:2;
+      box-shadow:0 8px 24px rgba(124,92,252,.4), 0 2px 8px rgba(0,0,0,.3);
+      animation:mentorCharFloat 4s ease-in-out infinite;
+      transition:transform .2s;
+    }
+    .mentor-card:hover .mentor-icon-char {
+      animation:none; transform:scale(1.08) translateY(-4px);
+    }
+    @keyframes mentorCharFloat {
+      0%,100%{transform:translateY(0) rotate(0deg);}
+      33%{transform:translateY(-6px) rotate(-3deg);}
+      66%{transform:translateY(-3px) rotate(2deg);}
+    }
+    .mentor-icon-photo { width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid rgba(124,92,252,.45); box-shadow:0 8px 24px rgba(124,92,252,.3); position:relative; z-index:2; }
+
+    .mentor-name { font-size:0.98rem; font-weight:800; margin-bottom:.2rem; }
+    .mentor-role-badge {
+      display:inline-block; background:rgba(124,92,252,.12); border:1px solid rgba(124,92,252,.28);
+      border-radius:999px; padding:.18rem .6rem; font-size:.68rem; font-weight:700; color:var(--v1);
+      margin-bottom:.55rem;
+    }
+    .mentor-stats {
+      display:flex; gap:.5rem; justify-content:center; margin:.55rem 0;
+      flex-wrap:wrap;
+    }
+    .mentor-stat-pill {
+      display:flex; align-items:center; gap:.25rem;
+      background:var(--bg); border:1px solid var(--border); border-radius:8px;
+      padding:.2rem .55rem; font-size:.7rem; font-weight:700; color:var(--txt2);
+    }
+    .mentor-tags { display:flex; flex-wrap:wrap; gap:.3rem; justify-content:center; margin-top:.5rem; }
+    .mentor-tag  { background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22); border-radius:999px; padding:.15rem .5rem; font-size:.66rem; font-weight:700; color:var(--v1); }
+
+    /* ---- About Our Company ---- */
+    .about-wrap { max-width:1100px; margin:0 auto 4rem; padding:0 1.5rem; }
+    .about-inner {
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r3);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    @media(max-width:720px) { .about-inner { grid-template-columns:1fr; } }
+    .about-left {
+      padding: 2.5rem 2rem;
+      background: linear-gradient(145deg, rgba(124,92,252,.08) 0%, rgba(61,107,255,.05) 100%);
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .about-left::before {
+      content:''; position:absolute; top:-60px; right:-40px;
+      width:200px; height:200px; border-radius:50%;
+      background: radial-gradient(circle, rgba(124,92,252,.12) 0%, transparent 70%);
+    }
+    .about-badge { display:inline-block; background:linear-gradient(135deg,var(--v1),var(--v2)); color:#fff; border-radius:999px; padding:.28rem .85rem; font-size:.72rem; font-weight:700; margin-bottom:1rem; letter-spacing:.04em; }
+    .about-left h3 { font-size:1.45rem; font-weight:900; line-height:1.25; margin-bottom:.85rem; }
+    .about-left p { font-size:.86rem; color:var(--txt3); line-height:1.75; margin-bottom:1rem; }
+    .about-highlights { display:flex; flex-direction:column; gap:.55rem; margin-top:.5rem; }
+    .about-hl { display:flex; align-items:flex-start; gap:.65rem; font-size:.82rem; color:var(--txt2); }
+    .about-hl-icon { font-size:1.1rem; flex-shrink:0; margin-top:.05rem; }
+    .about-right { padding: 2.5rem 2rem; }
+    .about-right h4 { font-size:1rem; font-weight:800; margin-bottom:1.1rem; }
+    .coaching-grid { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
+    .coaching-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 1rem;
+      text-align: center;
+      transition: border-color .2s, transform .2s;
+    }
+    .coaching-card:hover { border-color: var(--v2); transform: translateY(-3px); }
+    .coaching-icon { font-size:1.8rem; margin-bottom:.45rem; display:block; }
+    .coaching-card h5 { font-size:.8rem; font-weight:800; margin-bottom:.25rem; }
+    .coaching-card p  { font-size:.72rem; color:var(--txt3); line-height:1.5; }
+    .mission-strip { margin-top:1.1rem; padding:.85rem 1rem; background:linear-gradient(135deg,rgba(124,92,252,.1),rgba(61,107,255,.08)); border:1px solid rgba(124,92,252,.2); border-radius:var(--r2); font-size:.8rem; color:var(--txt2); line-height:1.6; text-align:center; font-style:italic; }
 
     /* ---- Why SkillUpNow ---- */
     .why-wrap { max-width:1100px; margin:0 auto 4rem; padding:0 1.5rem; }
@@ -182,13 +293,48 @@
 
     /* ---- Print styles ---- */
     @media print {
-      .mesh-bg, .orb, nav, .navbar, .hero-actions, .toolbar, .btn-enroll, .cat-pill, .btn-print, .cta-banner, .mentors-wrap, .why-wrap { display:none !important; }
-      body { background:#fff !important; }
+      /* hide interactive/non-content elements only */
+      .mesh-bg, .orb, nav, .navbar, .hero-actions,
+      .btn-print, #btn-qr-dl, .cat-pills, .toolbar-right { display:none !important; }
+
+      body { background:#fff !important; color:#111 !important; }
       .page-wrap { padding-top:0 !important; }
+
+      /* Hero prints with colours */
       .pamphlet-hero { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+      /* Courses — 2 per row, no hover effects */
       .pam-card { break-inside:avoid; page-break-inside:avoid; }
       .pam-card:hover { transform:none; box-shadow:none; }
       .courses-grid { grid-template-columns:repeat(2,1fr); }
+
+      /* Mentors — keep visible, 3 per row */
+      .mentors-wrap { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .mentors-grid { grid-template-columns:repeat(3,1fr); }
+      .mentor-card { break-inside:avoid; page-break-inside:avoid; }
+      .mentor-card:hover { transform:none; box-shadow:none; }
+      .mentor-icon-glow, .mentor-icon-ring { display:none; }
+
+      /* About section — keep visible */
+      .about-wrap { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .about-inner { grid-template-columns:1fr 1fr; }
+      .coaching-grid { grid-template-columns:1fr 1fr; }
+      .coaching-card:hover { transform:none; }
+
+      /* Why section — keep visible */
+      .why-wrap { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .why-grid { grid-template-columns:repeat(3,1fr); }
+
+      /* CTA prints too */
+      .cta-banner { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .cta-actions { display:none !important; }
+
+      /* Toolbar title still shows */
+      .toolbar { display:flex !important; }
+      .toolbar h2 { display:block !important; }
+
+      /* remove animations for print */
+      *, *::before, *::after { animation:none !important; transition:none !important; }
     }
 
     @media(max-width:768px) {
@@ -252,6 +398,50 @@
       <div class="skel-card"><div class="skeleton skel-header"></div><div class="skel-body"><div class="skeleton skel-line" style="width:60%"></div><div class="skeleton skel-line" style="width:90%"></div><div class="skeleton skel-line" style="width:75%"></div></div></div>
       <div class="skel-card"><div class="skeleton skel-header"></div><div class="skel-body"><div class="skeleton skel-line" style="width:55%"></div><div class="skeleton skel-line" style="width:80%"></div><div class="skeleton skel-line" style="width:65%"></div></div></div>
       <div class="skel-card"><div class="skeleton skel-header"></div><div class="skel-body"><div class="skeleton skel-line" style="width:70%"></div><div class="skeleton skel-line" style="width:85%"></div><div class="skeleton skel-line" style="width:50%"></div></div></div>
+    </div>
+  </div>
+
+  <!-- About Our Company -->
+  <div class="about-wrap">
+    <div class="about-inner">
+      <div class="about-left">
+        <span class="about-badge">About SkillUpNow</span>
+        <h3>Building India's<br>Next-Gen Talent</h3>
+        <p>SkillUpNow is a mentor-led online learning platform founded with a single purpose — bridge the gap between academic knowledge and what the industry actually needs.</p>
+        <p>We believe every learner deserves a career mentor, not just a course. That's why every programme includes live sessions, hands-on projects, and 1-on-1 mentor guidance.</p>
+        <div class="about-highlights">
+          <div class="about-hl"><span class="about-hl-icon">📍</span><span>Based in India, serving learners across 15+ states</span></div>
+          <div class="about-hl"><span class="about-hl-icon">🏅</span><span>Industry-certified curriculum reviewed by senior practitioners</span></div>
+          <div class="about-hl"><span class="about-hl-icon">🤝</span><span>Dedicated placement cell with 50+ hiring partners</span></div>
+          <div class="about-hl"><span class="about-hl-icon">📈</span><span>92% of graduates report a salary hike within 6 months</span></div>
+        </div>
+      </div>
+      <div class="about-right">
+        <h4>Our Coaching Philosophy</h4>
+        <div class="coaching-grid">
+          <div class="coaching-card">
+            <span class="coaching-icon">🎯</span>
+            <h5>Outcome First</h5>
+            <p>Every module ties back to a real job skill or project deliverable.</p>
+          </div>
+          <div class="coaching-card">
+            <span class="coaching-icon">🧑‍🏫</span>
+            <h5>Mentor-Led</h5>
+            <p>Small batches. Personal attention. Real practitioner knowledge.</p>
+          </div>
+          <div class="coaching-card">
+            <span class="coaching-icon">🔄</span>
+            <h5>Learn by Doing</h5>
+            <p>70% of time is hands-on labs, case studies, and live projects.</p>
+          </div>
+          <div class="coaching-card">
+            <span class="coaching-icon">🚀</span>
+            <h5>Career Acceleration</h5>
+            <p>Mock interviews, resume reviews, and direct referrals to recruiters.</p>
+          </div>
+        </div>
+        <div class="mission-strip">"Our mission is to make quality tech education accessible, practical, and career-transforming — for every aspiring professional in India."</div>
+      </div>
     </div>
   </div>
 
@@ -319,30 +509,27 @@ let activeCategory = 'all';
 
 async function init() {
   try {
-    // Load stats
-    const [
-      { count: courseCount },
-      { count: studentCount },
-      { count: mentorCount }
-    ] = await Promise.all([
-      db.client.from('courses').select('id', { count: 'exact', head: true }).eq('is_active', true),
-      db.client.from('enrollments').select('id', { count: 'exact', head: true }),
-      db.client.from('mentors').select('id', { count: 'exact', head: true }).eq('approval_status', 'approved'),
-    ]);
-    document.getElementById('stat-courses').textContent = courseCount ?? '—';
-    document.getElementById('stat-students').textContent = (studentCount ?? 0) > 999 ? ((studentCount/1000).toFixed(1)+'K') : (studentCount ?? '—');
-    document.getElementById('stat-mentors').textContent = mentorCount ?? '—';
-
-    // Load courses with mentor + category info
+    // Load courses with pricing + category info (correct schema column names)
     const { data: courses, error } = await db.client
       .from('courses')
-      .select('id,name,description,fee,discount_percentage,level,duration_weeks,total_sessions,is_emi_available,min_emi_months,rating_average,rating_count,enrolled_count,category_id,course_categories(name,slug),mentors(id,user_id,user_profiles(full_name,profile_picture_url),areas_of_expertise)')
-      .eq('is_active', true)
-      .order('is_featured', { ascending: false })
-      .order('enrolled_count', { ascending: false });
+      .select(`
+        id, title, short_description, description, level,
+        duration_days, total_live_classes, is_trending,
+        thumbnail_url, course_status, visibility,
+        course_categories(name, slug),
+        course_pricing(list_price, sale_price, emi_installments, pricing_type, is_active)
+      `)
+      .eq('course_status', 'published')
+      .in('visibility', ['public', 'unlisted'])
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
-    allCourses = courses || [];
+    allCourses = (courses || []).map(c => {
+      // Pick the active pricing row (or first available)
+      const prices = (c.course_pricing || []);
+      const activePricing = prices.find(p => p.is_active) || prices[0] || null;
+      return { ...c, _pricing: activePricing };
+    });
 
     // Build category pills
     const cats = [...new Set(allCourses.map(c => c.course_categories?.name).filter(Boolean))];
@@ -387,44 +574,40 @@ function renderCourses(courses) {
   }
 
   grid.innerHTML = courses.map(c => {
-    const catName  = c.course_categories?.name || 'General';
-    const icon     = getCatIcon(catName);
-    const discount = parseFloat(c.discount_percentage || 0);
-    const origFee  = parseFloat(c.fee || 0);
-    const finalFee = discount > 0 ? Math.round(origFee * (1 - discount/100)) : origFee;
-    const mentorName = c.mentors?.user_profiles?.full_name || 'Expert Mentor';
-    const emiMonthly = c.is_emi_available && c.min_emi_months ? Math.ceil(finalFee / c.min_emi_months) : null;
-    const rating   = parseFloat(c.rating_average || 0).toFixed(1);
-    const rCount   = c.rating_count || 0;
+    const catName    = c.course_categories?.name || 'General';
+    const icon       = getCatIcon(catName);
+    const pricing    = c._pricing;
+    const listPrice  = parseFloat(pricing?.list_price || 0);
+    const salePrice  = parseFloat(pricing?.sale_price || listPrice);
+    const hasDiscount = listPrice > 0 && salePrice < listPrice;
+    const discPct    = hasDiscount ? Math.round((1 - salePrice/listPrice)*100) : 0;
+    const emiMonths  = pricing?.emi_installments || 0;
+    const emiMonthly = emiMonths > 0 && salePrice > 0 ? Math.ceil(salePrice / emiMonths) : null;
+    const durationMo = c.duration_days ? Math.round(c.duration_days / 30) : null;
+    const desc       = c.short_description || (c.description || '').replace(/\n+/g,' ').slice(0, 140);
 
     return `
     <div class="pam-card">
-      ${discount > 0 ? `<div class="discount-ribbon">${Math.round(discount)}% OFF</div>` : ''}
+      ${hasDiscount ? `<div class="discount-ribbon">${discPct}% OFF</div>` : ''}
+      ${c.is_trending ? `<div class="discount-ribbon" style="background:#7c5cfc;">🔥 Trending</div>` : ''}
       <div class="pam-card-header">
         <div class="course-icon">${icon}</div>
         <div class="pam-cat-badge">${catName}</div>
-        <h3>${c.name}</h3>
+        <h3>${c.title}</h3>
       </div>
       <div class="pam-card-body">
-        <p class="pam-desc">${(c.description || '').slice(0, 140)}${(c.description||'').length > 140 ? '…' : ''}</p>
+        <p class="pam-desc">${desc}${desc.length >= 140 ? '…' : ''}</p>
         <div class="pam-meta">
-          ${c.duration_weeks ? `<span class="pam-tag">📅 ${c.duration_weeks}w</span>` : ''}
-          ${c.total_sessions ? `<span class="pam-tag">🎬 ${c.total_sessions} sessions</span>` : ''}
+          ${durationMo ? `<span class="pam-tag">📅 ${durationMo} mo</span>` : ''}
+          ${c.total_live_classes ? `<span class="pam-tag">🎬 ${c.total_live_classes} sessions</span>` : ''}
           ${c.level ? `<span class="pam-tag">📶 ${c.level}</span>` : ''}
-          ${c.is_emi_available ? `<span class="pam-tag" style="border-color:var(--v3);color:var(--v1)">💳 EMI</span>` : ''}
+          ${emiMonths > 0 ? `<span class="pam-tag" style="border-color:var(--v3);color:var(--v1)">💳 EMI</span>` : ''}
         </div>
-        <div class="pam-rating">
-          <span class="stars">${stars(Math.round(rating))}</span>
-          <span style="font-weight:700">${rating > 0 ? rating : 'New'}</span>
-          ${rCount ? `<span class="rating-count">(${rCount})</span>` : ''}
-          <span style="color:var(--txt4);margin-left:auto;font-size:0.73rem">👨‍🎓 ${c.enrolled_count || 0} enrolled</span>
-        </div>
-        <div style="font-size:0.78rem;color:var(--txt3)">Mentor: <strong style="color:var(--txt2)">${mentorName}</strong></div>
       </div>
       <div class="pam-card-footer">
         <div class="price-block">
-          ${discount > 0 ? `<div class="original">${fmtINR(origFee)}</div>` : ''}
-          <div class="price">${fmtINR(finalFee)}</div>
+          ${hasDiscount ? `<div class="original">${fmtINR(listPrice)}</div>` : ''}
+          <div class="price">${salePrice > 0 ? fmtINR(salePrice) : 'Contact Us'}</div>
           ${emiMonthly ? `<div class="emi-hint">or ${fmtINR(emiMonthly)}/mo EMI</div>` : ''}
         </div>
         <a href="courses.html?enroll=${c.id}" class="btn-enroll">Enroll Now</a>
@@ -433,31 +616,98 @@ function renderCourses(courses) {
   }).join('');
 }
 
+// Profession icon map — returns emoji + gradient per expertise area
+function getProfessionIcon(areas = []) {
+  const all = (Array.isArray(areas) ? areas : [areas]).map(a => (a||'').toLowerCase()).join(' ');
+  if (all.includes('devops') || all.includes('cloud') || all.includes('aws') || all.includes('docker'))
+    return { emoji:'⚙️', grad:'linear-gradient(135deg,#0f766e,#0891b2)' };
+  if (all.includes('data') || all.includes('analytics') || all.includes('ml') || all.includes('machine'))
+    return { emoji:'📊', grad:'linear-gradient(135deg,#7c3aed,#6366f1)' };
+  if (all.includes('ai') || all.includes('genai') || all.includes('deep') || all.includes('llm'))
+    return { emoji:'🤖', grad:'linear-gradient(135deg,#7c5cfc,#3d6bff)' };
+  if (all.includes('web') || all.includes('front') || all.includes('react') || all.includes('node'))
+    return { emoji:'🌐', grad:'linear-gradient(135deg,#2563eb,#7c3aed)' };
+  if (all.includes('mobile') || all.includes('flutter') || all.includes('android') || all.includes('ios'))
+    return { emoji:'📱', grad:'linear-gradient(135deg,#0284c7,#0891b2)' };
+  if (all.includes('cyber') || all.includes('security') || all.includes('ethical'))
+    return { emoji:'🛡️', grad:'linear-gradient(135deg,#dc2626,#7c3aed)' };
+  if (all.includes('design') || all.includes('ui') || all.includes('ux'))
+    return { emoji:'🎨', grad:'linear-gradient(135deg,#ec4899,#8b5cf6)' };
+  if (all.includes('finance') || all.includes('fintech') || all.includes('accounting'))
+    return { emoji:'💹', grad:'linear-gradient(135deg,#16a34a,#059669)' };
+  if (all.includes('market') || all.includes('seo') || all.includes('digital'))
+    return { emoji:'📣', grad:'linear-gradient(135deg,#ea580c,#d97706)' };
+  // default
+  return { emoji:'🎓', grad:'linear-gradient(135deg,#9b8fff,#7c6cff)' };
+}
+
 async function loadMentors() {
-  const { data } = await db.client
-    .from('mentors')
-    .select('id,years_of_experience,areas_of_expertise,user_profiles(full_name,profile_picture_url)')
-    .eq('approval_status', 'approved')
+  const { data, error } = await db.client
+    .from('mentor_profiles')
+    .select(`
+      user_id, areas_of_expertise,
+      total_students_managed, total_classes_assigned,
+      user_profiles(full_name, profile_picture_url)
+    `)
+    .eq('status', 'approved')
     .limit(8);
 
   const grid = document.getElementById('mentors-grid');
-  if (!data?.length) { grid.innerHTML = '<p style="color:var(--txt3);grid-column:1/-1;text-align:center">No mentors available yet.</p>'; return; }
+  if (error) { console.warn('loadMentors error:', error.message); }
+  if (!data?.length) {
+    grid.innerHTML = '<p style="color:var(--txt3);grid-column:1/-1;text-align:center;padding:2rem">No mentors available yet.</p>';
+    return;
+  }
 
-  grid.innerHTML = data.map(m => {
-    const name = m.user_profiles?.full_name || 'Expert Mentor';
-    const pic  = m.user_profiles?.profile_picture_url;
-    const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-    const expertise = (m.areas_of_expertise || []).slice(0, 3);
+  // Fetch active batches separately to avoid reverse-FK join issues
+  const mentorIds = data.map(m => m.user_id);
+  const { data: batches } = await db.client
+    .from('course_batches')
+    .select('id, batch_name, is_active, primary_mentor_user_id, courses(title)')
+    .in('primary_mentor_user_id', mentorIds)
+    .eq('is_active', true);
+
+  // Group batches by mentor
+  const batchByMentor = {};
+  (batches || []).forEach(b => {
+    if (!batchByMentor[b.primary_mentor_user_id]) batchByMentor[b.primary_mentor_user_id] = [];
+    batchByMentor[b.primary_mentor_user_id].push(b);
+  });
+
+  grid.innerHTML = data.map((m, i) => {
+    const name        = m.user_profiles?.full_name || 'Expert Mentor';
+    const pic         = m.user_profiles?.profile_picture_url;
+    const prof        = getProfessionIcon(m.areas_of_expertise || []);
+    const expertise   = (m.areas_of_expertise || []).slice(0, 3);
+    const students    = m.total_students_managed || 0;
+    const classes     = m.total_classes_assigned || 0;
+    const delay       = (i * 0.15).toFixed(2);
+    const myBatches   = batchByMentor[m.user_id] || [];
+    const courseNames = [...new Set(myBatches.map(b => b.courses?.title).filter(Boolean))].slice(0, 2);
+    const roleLabel   = expertise[0] || 'Instructor';
 
     return `
-    <div class="mentor-card">
-      ${pic
-        ? `<img class="mentor-avatar" src="${pic}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        : ''
-      }
-      <div class="mentor-avatar-placeholder" ${pic ? 'style="display:none"' : ''}>${initials}</div>
+    <div class="mentor-card" style="animation-delay:${delay}s">
+      <div class="mentor-icon-wrap">
+        <div class="mentor-icon-glow"></div>
+        <div class="mentor-icon-ring"></div>
+        ${pic
+          ? `<img class="mentor-icon-photo" src="${pic}" alt="${name}" loading="lazy"
+               onerror="this.outerHTML='<div class=\\"mentor-icon-char\\" style=\\"background:${prof.grad}\\">${prof.emoji}</div>'">`
+          : `<div class="mentor-icon-char" style="background:${prof.grad}">${prof.emoji}</div>`
+        }
+      </div>
       <div class="mentor-name">${name}</div>
-      ${m.years_of_experience ? `<div class="mentor-exp">${m.years_of_experience}+ yrs experience</div>` : ''}
+      <div class="mentor-role-badge">${roleLabel}</div>
+      <div class="mentor-stats">
+        ${students > 0 ? `<span class="mentor-stat-pill">👨‍🎓 ${students} students</span>` : ''}
+        ${classes  > 0 ? `<span class="mentor-stat-pill">🎬 ${classes} classes</span>` : ''}
+        ${myBatches.length > 0 ? `<span class="mentor-stat-pill">📦 ${myBatches.length} batch${myBatches.length > 1 ? 'es' : ''}</span>` : ''}
+      </div>
+      ${courseNames.length ? `
+      <div style="margin-top:.5rem;font-size:.69rem;color:var(--txt3);line-height:1.5;">
+        ${courseNames.map(cn => `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📚 ${cn}</div>`).join('')}
+      </div>` : ''}
       <div class="mentor-tags">
         ${expertise.map(e => `<span class="mentor-tag">${e}</span>`).join('')}
       </div>

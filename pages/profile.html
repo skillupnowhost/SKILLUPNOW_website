@@ -586,6 +586,69 @@
       .profile-hero { padding: 2rem 1rem 3rem; }
       .snav-item   { font-size: .74rem; padding: .45rem .55rem; gap: .4rem; }
     }
+
+    /* ── My Mentor tab ─────────────────────────────────────── */
+    .mentor-hero-card {
+      background: linear-gradient(135deg, rgba(124,92,252,.12) 0%, rgba(61,107,255,.08) 100%);
+      border: 1.5px solid rgba(124,92,252,.28);
+      border-radius: 18px;
+      padding: 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .mentor-av-lg {
+      width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--v1), var(--v2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 800; color: #fff;
+      border: 3px solid rgba(124,92,252,.4);
+      box-shadow: 0 6px 24px rgba(124,92,252,.3);
+      overflow: hidden;
+    }
+    .mentor-av-lg img { width: 100%; height: 100%; object-fit: cover; }
+    .mentor-meta { flex: 1; min-width: 200px; }
+    .mentor-meta .mn { font-size: 1.1rem; font-weight: 800; margin-bottom: .2rem; }
+    .mentor-meta .mx { font-size: .8rem; color: var(--txt3); margin-bottom: .55rem; }
+    .mentor-tags-row { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .mentor-tag-sm { background: rgba(124,92,252,.1); border: 1px solid rgba(124,92,252,.22); border-radius: 999px; padding: .15rem .55rem; font-size: .68rem; font-weight: 700; color: var(--v1); }
+    .mentor-stat-row { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: .65rem; }
+    .mentor-stat-item { text-align: center; }
+    .mentor-stat-item .sv { font-size: 1.2rem; font-weight: 800; color: var(--v1); }
+    .mentor-stat-item .sl { font-size: .68rem; color: var(--txt3); margin-top: .1rem; font-weight: 600; }
+
+    .batch-info-card {
+      background: var(--panel); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem;
+    }
+    .batch-info-card h4 { font-size: .88rem; font-weight: 800; margin-bottom: .85rem; display: flex; align-items: center; gap: .5rem; }
+    .batch-row { display: flex; align-items: center; justify-content: space-between; padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: .82rem; }
+    .batch-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .batch-row .bl { color: var(--txt3); font-size: .76rem; }
+    .batch-row .bv { font-weight: 700; color: var(--txt); }
+    .batch-badge { background: rgba(74,222,128,.12); color: #4ade80; border: 1px solid rgba(74,222,128,.25); border-radius: 999px; padding: .15rem .6rem; font-size: .68rem; font-weight: 700; }
+
+    .class-list-card {
+      background: var(--panel); border: 1.5px solid var(--border);
+      border-radius: 14px; overflow: hidden; margin-bottom: 1.25rem;
+    }
+    .class-list-hd { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .class-list-hd h4 { font-size: .88rem; font-weight: 800; }
+    .class-item { display: flex; align-items: flex-start; gap: .85rem; padding: .85rem 1.25rem; border-bottom: 1px solid var(--border); transition: background .15s; }
+    .class-item:last-child { border-bottom: none; }
+    .class-item:hover { background: rgba(124,92,252,.04); }
+    .class-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--v1); flex-shrink: 0; margin-top: .28rem; box-shadow: 0 0 8px rgba(124,92,252,.5); }
+    .class-dot.past { background: var(--txt4); box-shadow: none; }
+    .class-info { flex: 1; min-width: 0; }
+    .class-title { font-size: .84rem; font-weight: 700; color: var(--txt); margin-bottom: .18rem; }
+    .class-meta  { font-size: .73rem; color: var(--txt3); }
+    .class-status { font-size: .7rem; font-weight: 700; border-radius: 999px; padding: .15rem .55rem; flex-shrink: 0; }
+    .class-status.upcoming { background: rgba(96,165,250,.12); color: #60a5fa; border: 1px solid rgba(96,165,250,.25); }
+    .class-status.completed { background: rgba(74,222,128,.1); color: #4ade80; border: 1px solid rgba(74,222,128,.2); }
+    .class-status.live { background: rgba(248,113,113,.12); color: #f87171; border: 1px solid rgba(248,113,113,.25); animation: pulse .9s ease-in-out infinite alternate; }
+    @keyframes pulse { from { opacity: .7; } to { opacity: 1; } }
   </style>
 </head>
 <body>
@@ -645,6 +708,7 @@
           <div class="snav-item" onclick="switchTab('payments')" data-tab="payments"><span class="snav-icon">💳</span> Payments</div>
           <div class="snav-item" onclick="switchTab('emi')" data-tab="emi"><span class="snav-icon">📅</span> EMI Tracker</div>
           <div class="snav-item" onclick="switchTab('certificates')" data-tab="certificates"><span class="snav-icon">🎓</span> Certificates</div>
+          <div class="snav-item" onclick="switchTab('mentor')" data-tab="mentor"><span class="snav-icon">👨‍🏫</span> My Mentor</div>
           <div class="snav-item" onclick="switchTab('account')" data-tab="account"><span class="snav-icon">⚙</span> Account Settings</div>
           <div style="height:1px;background:var(--border);margin:.4rem .5rem;"></div>
           <div class="snav-item" onclick="window.profileNav?.logout()" style="color:var(--txt4)"><span class="snav-icon">🚪</span> Sign Out</div>
@@ -854,6 +918,13 @@
         </div>
       </div>
 
+      <!-- MY MENTOR -->
+      <div class="tab-section" id="tab-mentor">
+        <div id="my-mentor-content">
+          <div class="empty-state"><div class="ei skeleton" style="width:3rem;height:3rem;border-radius:50%;margin:0 auto .75rem;"></div><p>Loading mentor info…</p></div>
+        </div>
+      </div>
+
     </main>
 
     <!-- ── RIGHT: Stats + Streak panel ── -->
@@ -951,6 +1022,8 @@ function switchTab(tab) {
     sec.classList.add('active');
     // Lazy-load recordings only when that tab is opened
     if (tab === 'recordings' && !sec.dataset.loaded) { sec.dataset.loaded = '1'; loadRecordings(); }
+    // Lazy-load mentor info
+    if (tab === 'mentor' && !sec.dataset.loaded) { sec.dataset.loaded = '1'; loadMyMentor(); }
   }
 }
 // Add data-tab to sidebar items
@@ -1361,6 +1434,167 @@ function loadCertificates(enrolled) {
       <div style="font-size:.73rem;color:var(--txt4)">Completed: ${fmtDate(e.completed_at)}</div>
       <button class="btn-sm btn-sm-primary" style="margin-top:.75rem" onclick="alert('Certificate generation coming soon!')">⬇ Download</button>
     </div>`).join('');
+}
+
+/* ── My Mentor ───────────────────────────────────────────── */
+async function loadMyMentor() {
+  const wrap = document.getElementById('my-mentor-content');
+  if (!wrap || !currentUser?.id) return;
+
+  wrap.innerHTML = '<div class="empty-state"><div class="ei">⏳</div><p>Loading mentor info…</p></div>';
+
+  try {
+    // Find the student's active enrollment with a batch that has a mentor
+    const { data: enrs } = await _db().from('enrollments')
+      .select(`
+        id, enrollment_status, batch_id,
+        course_batches(
+          id, batch_name, schedule_json, start_date, end_date, is_active,
+          courses(title),
+          primary_mentor_user_id
+        )
+      `)
+      .eq('student_user_id', currentUser.id)
+      .in('enrollment_status', ['active', 'pending'])
+      .not('batch_id', 'is', null)
+      .order('created_at', { ascending: false });
+
+    const activeBatchEnrolments = (enrs || []).filter(e => e.course_batches?.primary_mentor_user_id);
+
+    if (!activeBatchEnrolments.length) {
+      wrap.innerHTML = `<div class="empty-state"><div class="ei">👨‍🏫</div>
+        <p style="font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:var(--txt2)">No mentor assigned yet</p>
+        <p>You'll see your mentor details here once you're enrolled in a batch.</p></div>`;
+      return;
+    }
+
+    // Build unique mentor IDs to fetch
+    const mentorIds = [...new Set(activeBatchEnrolments.map(e => e.course_batches.primary_mentor_user_id))];
+
+    const { data: mentors } = await _db().from('mentor_profiles')
+      .select('user_id, areas_of_expertise, total_students_managed, total_classes_assigned, user_profiles(full_name, email, profile_picture_url)')
+      .in('user_id', mentorIds);
+
+    const mentorMap = {};
+    (mentors || []).forEach(m => { mentorMap[m.user_id] = m; });
+
+    // Fetch upcoming + past class sessions for these batches
+    const batchIds = activeBatchEnrolments.map(e => e.batch_id).filter(Boolean);
+    const { data: sessions } = await _db().from('class_sessions')
+      .select('id, title, scheduled_at, duration_minutes, status, batch_id, mentor_user_id')
+      .in('batch_id', batchIds)
+      .order('scheduled_at', { ascending: true })
+      .limit(30);
+
+    // Render sections
+    let html = '';
+
+    activeBatchEnrolments.forEach(enr => {
+      const b = enr.course_batches;
+      const mentor = mentorMap[b.primary_mentor_user_id];
+      if (!mentor) return;
+
+      const up = mentor.user_profiles;
+      const name = up?.full_name || 'Your Mentor';
+      const pic  = up?.profile_picture_url;
+      const exp  = (mentor.areas_of_expertise || []).slice(0, 4);
+      const initial = name[0].toUpperCase();
+      const batchSessions = (sessions || []).filter(s => s.batch_id === b.id);
+      const now = new Date();
+
+      html += `
+      <div class="mentor-hero-card">
+        <div class="mentor-av-lg">
+          ${pic ? `<img src="${pic}" alt="${name}" onerror="this.style.display='none'">` : initial}
+        </div>
+        <div class="mentor-meta">
+          <div class="mn">${name}</div>
+          <div class="mx">${up?.email || ''}</div>
+          <div class="mentor-tags-row">${exp.map(e => `<span class="mentor-tag-sm">${e}</span>`).join('')}</div>
+          <div class="mentor-stat-row">
+            ${mentor.total_students_managed > 0 ? `<div class="mentor-stat-item"><div class="sv">${mentor.total_students_managed}</div><div class="sl">Students</div></div>` : ''}
+            ${mentor.total_classes_assigned > 0 ? `<div class="mentor-stat-item"><div class="sv">${mentor.total_classes_assigned}</div><div class="sl">Classes</div></div>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="batch-info-card">
+        <h4>📦 Batch Details</h4>
+        <div class="batch-row">
+          <span class="bl">Batch Name</span>
+          <span class="bv">${b.batch_name}</span>
+        </div>
+        <div class="batch-row">
+          <span class="bl">Course</span>
+          <span class="bv">${b.courses?.title || '—'}</span>
+        </div>
+        <div class="batch-row">
+          <span class="bl">Status</span>
+          <span class="batch-badge">${b.is_active ? 'Active' : 'Inactive'}</span>
+        </div>
+        ${b.start_date ? `<div class="batch-row"><span class="bl">Start Date</span><span class="bv">${fmtDate(b.start_date)}</span></div>` : ''}
+        ${b.end_date   ? `<div class="batch-row"><span class="bl">End Date</span><span class="bv">${fmtDate(b.end_date)}</span></div>` : ''}
+        ${b.schedule_json?.notes ? `<div class="batch-row"><span class="bl">Schedule</span><span class="bv">${b.schedule_json.notes}</span></div>` : ''}
+      </div>`;
+
+      if (batchSessions.length) {
+        const upcoming = batchSessions.filter(s => new Date(s.scheduled_at) >= now);
+        const past     = batchSessions.filter(s => new Date(s.scheduled_at) < now);
+
+        html += `<div class="class-list-card">
+          <div class="class-list-hd"><h4>📅 Upcoming Classes</h4><span style="font-size:.75rem;color:var(--txt3)">${upcoming.length} scheduled</span></div>`;
+
+        if (upcoming.length) {
+          html += upcoming.map(s => {
+            const d = new Date(s.scheduled_at);
+            const isLive = s.status === 'live';
+            const statusClass = isLive ? 'live' : 'upcoming';
+            const statusLabel = isLive ? '🔴 Live Now' : 'Upcoming';
+            return `<div class="class-item">
+              <div class="class-dot ${isLive ? '' : ''}"></div>
+              <div class="class-info">
+                <div class="class-title">${s.title || 'Class Session'}</div>
+                <div class="class-meta">${d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})} · ${d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}${s.duration_minutes ? ` · ${s.duration_minutes} min` : ''}</div>
+              </div>
+              <span class="class-status ${statusClass}">${statusLabel}</span>
+            </div>`;
+          }).join('');
+        } else {
+          html += `<div style="padding:1rem 1.25rem;font-size:.82rem;color:var(--txt3)">No upcoming classes scheduled.</div>`;
+        }
+
+        html += `</div>`;
+
+        if (past.length) {
+          html += `<div class="class-list-card">
+            <div class="class-list-hd"><h4>🕐 Past Classes</h4><span style="font-size:.75rem;color:var(--txt3)">${past.length} completed</span></div>`;
+          html += past.slice(-10).reverse().map(s => {
+            const d = new Date(s.scheduled_at);
+            return `<div class="class-item">
+              <div class="class-dot past"></div>
+              <div class="class-info">
+                <div class="class-title">${s.title || 'Class Session'}</div>
+                <div class="class-meta">${d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})} · ${d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+              </div>
+              <span class="class-status completed">Done</span>
+            </div>`;
+          }).join('');
+          html += `</div>`;
+        }
+      } else {
+        html += `<div class="class-list-card">
+          <div class="class-list-hd"><h4>📅 Class Schedule</h4></div>
+          <div style="padding:1.25rem;font-size:.82rem;color:var(--txt3);text-align:center;">No sessions scheduled yet. Check back soon.</div>
+        </div>`;
+      }
+    });
+
+    wrap.innerHTML = html || `<div class="empty-state"><div class="ei">👨‍🏫</div><p>No mentor data available.</p></div>`;
+
+  } catch(err) {
+    console.error('loadMyMentor:', err);
+    wrap.innerHTML = `<div class="empty-state"><div class="ei">⚠️</div><p>Could not load mentor info. Please refresh.</p></div>`;
+  }
 }
 
 /* ── Save profile ────────────────────────────────────────── */
