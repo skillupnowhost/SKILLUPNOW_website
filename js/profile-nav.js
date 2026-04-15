@@ -1259,7 +1259,7 @@ class ProfileNavigationManager {
           </div>
           <div class="pn-forgot"><a onclick="window._pnView('forgot-pw')">Forgot password?</a></div>
           <button class="pn-btn" id="pn-ml-btn" onclick="window._pnMentorLogin()">Sign In to Portal</button>
-          <div class="pn-switch">Not a mentor yet? <a href="javascript:void(0)" onclick="window._pnClose();window.location.href=window.profileNav?.pagesPfx+'mentor-signup'">Apply to become one →</a></div>
+          <div class="pn-switch">Not a mentor yet? <a href="javascript:void(0)" onclick="window._pnClose();window.location.href=(window.profileNav?.pagesPfx??'pages/')+'mentor-signup'">Apply to become one →</a></div>
         </div>
 
         <!-- ═══════════ FORGOT PASSWORD ═══════════ -->
@@ -1288,7 +1288,7 @@ class ProfileNavigationManager {
               <div class="pn-role-name">Student</div>
               <div class="pn-role-desc">Enroll in courses &amp; learn</div>
             </div>
-            <div class="pn-role-card" onclick="window._pnClose();window.location.href=(window.profileNav?.pagesPfx||'pages/')+'mentor-signup'" role="button" tabindex="0">
+            <div class="pn-role-card" onclick="window._pnClose();window.location.href=(window.profileNav?.pagesPfx??'pages/')+'mentor-signup'" role="button" tabindex="0">
               <span class="pn-role-icon">🎓</span>
               <div class="pn-role-name">Mentor</div>
               <div class="pn-role-desc">Teach &amp; earn with SkillUpNow</div>
@@ -1746,6 +1746,17 @@ class ProfileNavigationManager {
         }
         const user = r.data?.user || r.user;
         if (!user) throw new Error('Login failed — no user returned.');
+        // Role check: block mentors from using student login
+        const { data: profile } = await window.supabaseConfig.client
+          .from('user_profiles').select('role').eq('user_id', user.id).maybeSingle();
+        if (profile?.role === 'mentor') {
+          await window.supabaseConfig.client.auth.signOut();
+          throw new Error('This is a Mentor account. Please use Mentor Login to sign in.');
+        }
+        if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+          await window.supabaseConfig.client.auth.signOut();
+          throw new Error('Admin accounts must use the Admin Login page.');
+        }
         self.currentUser = user;
         self.showLoggedInUI();
         window._pnClose();
@@ -1782,10 +1793,22 @@ class ProfileNavigationManager {
         }
         const user = r.data?.user || r.user;
         if (!user) throw new Error('Login failed — no user returned.');
+        // Role check: block students from using mentor login
+        const { data: profile } = await window.supabaseConfig.client
+          .from('user_profiles').select('role').eq('user_id', user.id).maybeSingle();
+        const role = profile?.role || 'user';
+        if (role === 'user' || role === 'student') {
+          await window.supabaseConfig.client.auth.signOut();
+          throw new Error('This is a Student account. Please use Student Login to sign in.');
+        }
+        if (role === 'admin' || role === 'super_admin') {
+          await window.supabaseConfig.client.auth.signOut();
+          throw new Error('Admin accounts must use the Admin Login page.');
+        }
         self.currentUser = user;
         self.showLoggedInUI();
         window._pnClose();
-        // Route: check mentor record
+        // Route: check mentor application record
         const { data: mentor } = await window.supabaseConfig.client
           .from('mentor_profiles').select('user_id,status').eq('user_id', user.id).maybeSingle();
         if (mentor?.status === 'approved') {
@@ -1793,14 +1816,13 @@ class ProfileNavigationManager {
         } else if (mentor) {
           // Application pending/rejected — show friendly inline message
           window._pnOpen('mentor-login');
-          const statusLabel = mentor.status === 'rejected' ? 'rejected' : (mentor.status || 'under review');
           const msg = mentor.status === 'rejected'
             ? 'Your mentor application was not approved. Please contact support.'
-            : 'Your application is ' + statusLabel + '. You\'ll be notified by email once approved.';
+            : 'Your application is under review. You\'ll be notified by email once approved.';
           _pnErr(document.getElementById('pn-ml-err'), msg);
           btn.disabled = false; btn.textContent = 'Sign In to Portal';
         } else {
-          // No mentor record — redirect to application form
+          // Mentor role exists but no application — redirect to complete the form
           window.location.href = self.pagesPfx + 'mentor-signup';
         }
       } catch(e) { _pnErr(err, e.message); btn.disabled = false; btn.textContent = 'Sign In to Portal'; }
@@ -1948,7 +1970,7 @@ class ProfileNavigationManager {
           email,
           password: pw,
           options: {
-            data: { full_name: fullName, phone, role: 'user', requested_role: 'mentor', expertise_area: expertise },
+            data: { full_name: fullName, phone, role: 'mentor', requested_role: 'mentor', expertise_area: expertise },
             emailRedirectTo: redirectTo
           }
         });
@@ -1964,7 +1986,7 @@ class ProfileNavigationManager {
         // Sync profile first while session still exists (best-effort)
         if (data?.user?.id) {
           await window.supabaseConfig.upsertUserProfile?.(data.user.id, {
-            full_name: fullName, email, phone, role: 'user', is_email_verified: false
+            full_name: fullName, email, phone, role: 'mentor', is_email_verified: false
           }).catch(() => {});
         }
 

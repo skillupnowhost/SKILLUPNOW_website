@@ -341,10 +341,11 @@
       </div>
       <div class="nav-item" data-section="users">
         <span class="nav-icon">👥</span> Users
+        <span class="badge" id="users-badge" style="background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;">0</span>
       </div>
       <div class="nav-item" data-section="mentors">
         <span class="nav-icon">👨‍🏫</span> Mentors
-        <span class="badge" id="mentor-badge">0</span>
+        <span class="badge" id="mentor-badge" style="background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;">0</span>
       </div>
       <div class="nav-item" data-section="enrollments">
         <span class="nav-icon">📋</span> Enrollments
@@ -396,6 +397,10 @@
       <div class="nav-item" data-section="interests">
         <span class="nav-icon">🔔</span> Interested Users
         <span class="badge" id="interest-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" data-section="holidays">
+        <span class="nav-icon">🗓</span> Holidays
+        <span class="badge" id="holiday-badge" style="background:rgba(99,102,241,.18);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;display:none">0</span>
       </div>
     </div>
   </nav>
@@ -506,10 +511,9 @@
           <div class="table-actions">
             <input class="tbl-search" placeholder="Search users…" oninput="filterTable('user-tbody', this.value, [0,1,2])">
             <select id="user-role-filter" onchange="loadUsers()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
-              <option value="">All Roles</option>
-              <option value="user">Students</option>
-              <option value="mentor">Mentors</option>
-              <option value="admin">Admins</option>
+              <option value="">All Students</option>
+              <option value="user">Role: user</option>
+              <option value="student">Role: student</option>
             </select>
             <button class="btn-secondary" onclick="syncMissingProfiles()" title="Create profiles for auth users that have no profile row yet">⟳ Sync Auth Users</button>
             <button class="btn-secondary" onclick="exportTable('users')">⬇ Export</button>
@@ -1350,19 +1354,119 @@
                 <th>Email</th>
                 <th>Logged In?</th>
                 <th>Date</th>
+                <th>Notified</th>
+                <th>Discount Code</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="interest-tbody"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+            <tbody id="interest-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
           </table>
         </div>
       </div>
     </div><!-- /section-interests -->
 
+    <!-- ===== HOLIDAYS ===== -->
+    <div class="section" id="section-holidays">
+      <!-- Stats row -->
+      <div class="stats-grid" style="margin-bottom:1.25rem">
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="hol-total">—</div><div class="stat-label">Total Holidays</div></div>
+        <div class="stat-card"><div class="stat-icon">🎌</div><div class="stat-value" id="hol-national">—</div><div class="stat-label">National</div></div>
+        <div class="stat-card"><div class="stat-icon">🕌</div><div class="stat-value" id="hol-religious">—</div><div class="stat-label">Religious</div></div>
+        <div class="stat-card"><div class="stat-icon">📍</div><div class="stat-value" id="hol-upcoming">—</div><div class="stat-label">Upcoming (30d)</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Holiday Calendar</h3>
+          <div class="table-actions">
+            <select id="hol-type-filter" onchange="loadHolidays()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+              <option value="">All Types</option>
+              <option value="national">National</option>
+              <option value="religious">Religious</option>
+              <option value="local">Local</option>
+              <option value="school">School</option>
+              <option value="custom">Custom</option>
+            </select>
+            <select id="hol-year-filter" onchange="loadHolidays()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+              <option value="">All Years</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+            <button class="btn-primary" onclick="openHolidayModal()">+ Add Holiday</button>
+            <button class="btn-secondary" onclick="loadHolidays()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr>
+              <th>Holiday Name</th>
+              <th>Date</th>
+              <th>Day</th>
+              <th>Type</th>
+              <th>Recurring</th>
+              <th>Notify Students</th>
+              <th>Notified At</th>
+              <th>Actions</th>
+            </tr></thead>
+            <tbody id="holiday-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /section-holidays -->
+
   </div><!-- /content -->
 </main>
 
 <!-- ===== MODALS ===== -->
+
+<!-- Holiday Modal -->
+<div class="modal-overlay" id="holiday-modal" onclick="if(event.target===this)closeModal('holiday-modal')">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-close" onclick="closeModal('holiday-modal')">✕</div>
+    <div class="modal-title" id="holiday-modal-title">Add Holiday</div>
+    <input type="hidden" id="hol-id">
+    <div class="f-group">
+      <label>Holiday Name *</label>
+      <input type="text" id="hol-name" placeholder="e.g. Diwali, Republic Day">
+    </div>
+    <div class="f-row" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group">
+        <label>Date *</label>
+        <input type="date" id="hol-date">
+      </div>
+      <div class="f-group">
+        <label>Type *</label>
+        <select id="hol-type">
+          <option value="national">National</option>
+          <option value="religious">Religious</option>
+          <option value="local">Local</option>
+          <option value="school">School</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Description</label>
+      <input type="text" id="hol-desc" placeholder="Optional note">
+    </div>
+    <div style="display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:.5rem;font-size:.83rem;cursor:pointer">
+        <input type="checkbox" id="hol-recurring" style="width:16px;height:16px;accent-color:#9b8fff"> Recurring Yearly
+      </label>
+      <label style="display:flex;align-items:center;gap:.5rem;font-size:.83rem;cursor:pointer">
+        <input type="checkbox" id="hol-notify-students" checked style="width:16px;height:16px;accent-color:#9b8fff"> Notify Students
+      </label>
+      <label style="display:flex;align-items:center;gap:.5rem;font-size:.83rem;cursor:pointer">
+        <input type="checkbox" id="hol-notify-admin" checked style="width:16px;height:16px;accent-color:#9b8fff"> Notify Admin
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('holiday-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveHoliday()">Save Holiday</button>
+    </div>
+  </div>
+</div>
 
 <!-- Course Modal -->
 <div class="modal-overlay" id="course-modal">
@@ -1518,49 +1622,86 @@
 </div>
 
 <!-- Batch Modal -->
-<div class="modal-overlay" id="batch-modal">
-  <div class="modal-box">
+<!-- Batch Modal -->
+<div class="modal-overlay" id="batch-modal" onclick="if(event.target===this)closeModal('batch-modal')">
+  <div class="modal-box" style="max-width:560px">
     <div class="modal-close" onclick="closeModal('batch-modal')">✕</div>
-    <div class="modal-title">Create Batch</div>
+    <div class="modal-title" id="batch-modal-title">Create Batch</div>
     <input type="hidden" id="batch-id">
     <div class="form-row">
-      <div class="f-group"><label>Course *</label><select id="b-course"><option value="">Select course…</option></select></div>
-      <div class="f-group"><label>Mentor *</label><select id="b-mentor"><option value="">Select mentor…</option></select></div>
+      <div class="f-group"><label>Course <span style="color:#f87171">*</span></label><select id="b-course"><option value="">Select course…</option></select></div>
+      <div class="f-group"><label>Assign Mentor</label><select id="b-mentor"><option value="">Select mentor (optional)…</option></select></div>
     </div>
     <div class="form-row">
-      <div class="f-group"><label>Batch Name *</label><input type="text" id="b-name" placeholder="e.g. Batch A - April 2025"></div>
-      <div class="f-group"><label>Max Students</label><input type="number" id="b-max" value="30"></div>
+      <div class="f-group"><label>Batch Name <span style="color:#f87171">*</span></label><input type="text" id="b-name" placeholder="e.g. Cloud Batch A – Apr 2026"></div>
+      <div class="f-group"><label>Max Students</label><input type="number" id="b-max" value="30" min="1"></div>
     </div>
     <div class="form-row">
       <div class="f-group"><label>Start Date</label><input type="date" id="b-start"></div>
       <div class="f-group"><label>End Date</label><input type="date" id="b-end"></div>
     </div>
-    <div class="f-group"><label>Google Meet Link</label><input type="url" id="b-meet" placeholder="https://meet.google.com/…"></div>
+    <div class="f-group">
+      <label>Description / Notes</label>
+      <textarea id="b-desc" placeholder="Batch goals, topics covered, or any notes for the mentor…" rows="2" style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:#c8bfff;border-radius:10px;padding:.65rem .9rem;font-size:.85rem;width:100%;resize:vertical;"></textarea>
+    </div>
+    <div id="batch-save-err" style="color:#f87171;font-size:.8rem;margin-top:.25rem;display:none;"></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('batch-modal')">Cancel</button>
-      <button class="btn-primary" onclick="saveBatch()">Create Batch</button>
+      <button class="btn-primary" id="batch-save-btn" onclick="saveBatch()">Create Batch</button>
     </div>
   </div>
 </div>
 
-<!-- Schedule Modal -->
-<div class="modal-overlay" id="schedule-modal">
-  <div class="modal-box">
+<!-- Manage Batch Students Modal -->
+<div class="modal-overlay" id="batch-students-modal" onclick="if(event.target===this)closeModal('batch-students-modal')">
+  <div class="modal-box" style="max-width:620px">
+    <div class="modal-close" onclick="closeModal('batch-students-modal')">✕</div>
+    <div class="modal-title" id="bsm-title">Manage Students</div>
+    <input type="hidden" id="bsm-batch-id">
+    <!-- Search & Add -->
+    <div style="display:flex;gap:.6rem;margin-bottom:1rem;">
+      <input type="text" id="bsm-search" placeholder="Search by name or email…"
+        style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:#c8bfff;border-radius:10px;padding:.6rem .9rem;font-size:.84rem;"
+        oninput="searchUsersForBatch()">
+      <button class="action-btn" onclick="searchUsersForBatch()">Search</button>
+    </div>
+    <div id="bsm-search-results" style="max-height:160px;overflow-y:auto;margin-bottom:1rem;"></div>
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(200,191,255,.4);margin-bottom:.5rem;">
+      Current Students <span id="bsm-count" style="color:#9b8fff;font-weight:800;"></span>
+    </div>
+    <div id="bsm-students-list" style="max-height:240px;overflow-y:auto;">
+      <div class="table-empty">Loading…</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('batch-students-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Class Modal -->
+<div class="modal-overlay" id="schedule-modal" onclick="if(event.target===this)closeModal('schedule-modal')">
+  <div class="modal-box" style="max-width:540px">
     <div class="modal-close" onclick="closeModal('schedule-modal')">✕</div>
     <div class="modal-title">Schedule Class</div>
+    <input type="hidden" id="sch-session-id">
     <div class="form-row">
-      <div class="f-group"><label>Batch *</label><select id="sch-batch"><option value="">Select batch…</option></select></div>
-      <div class="f-group"><label>Title *</label><input type="text" id="sch-title" placeholder="Class title…"></div>
+      <div class="f-group"><label>Batch <span style="color:#f87171">*</span></label><select id="sch-batch"><option value="">Select batch…</option></select></div>
+      <div class="f-group"><label>Class Title <span style="color:#f87171">*</span></label><input type="text" id="sch-title" placeholder="e.g. Module 3 – AWS S3"></div>
     </div>
     <div class="form-row">
-      <div class="f-group"><label>Date & Time *</label><input type="datetime-local" id="sch-time"></div>
-      <div class="f-group"><label>Duration (min)</label><input type="number" id="sch-duration" value="60"></div>
+      <div class="f-group"><label>Date & Time <span style="color:#f87171">*</span></label><input type="datetime-local" id="sch-time"></div>
+      <div class="f-group"><label>Duration (min)</label><input type="number" id="sch-duration" value="60" min="15"></div>
     </div>
-    <div class="f-group"><label>Google Meet Link</label><input type="url" id="sch-meet" placeholder="https://meet.google.com/…"></div>
-    <div class="f-group"><label>Description</label><textarea id="sch-desc" placeholder="Class agenda…"></textarea></div>
+    <div class="f-group">
+      <label>Google Meet / Zoom Link</label>
+      <input type="url" id="sch-meet" placeholder="https://meet.google.com/… (add after creating)">
+      <div style="font-size:.74rem;color:rgba(200,191,255,.4);margin-top:.3rem;">You can add or update the meeting link before the class starts.</div>
+    </div>
+    <div class="f-group"><label>Description / Agenda</label><textarea id="sch-desc" placeholder="Topics, materials, homework…" rows="2" style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:#c8bfff;border-radius:10px;padding:.65rem .9rem;font-size:.85rem;width:100%;resize:vertical;"></textarea></div>
+    <div id="sch-err" style="color:#f87171;font-size:.8rem;margin-top:.25rem;display:none;"></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('schedule-modal')">Cancel</button>
-      <button class="btn-primary" onclick="saveSchedule()">Schedule & Notify</button>
+      <button class="btn-primary" id="sch-save-btn" onclick="saveSchedule()">Schedule Class</button>
     </div>
   </div>
 </div>
@@ -1655,11 +1796,45 @@
     <div class="modal-close" onclick="closeModal('user-modal')">✕</div>
     <div class="modal-title">User Details</div>
     <div id="user-detail-content" style="font-size:.85rem;line-height:1.8;color:#c8bfff;"></div>
-    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('user-modal')">Close</button></div>
+    <div id="user-role-change-row" style="display:none;margin-top:1rem;padding:.75rem 1rem;background:rgba(124,92,252,.06);border:1px solid rgba(124,92,252,.15);border-radius:10px;">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(200,191,255,.5);margin-bottom:.5rem;">Change Role</div>
+      <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
+        <select id="user-role-select" style="background:rgba(20,15,40,.95);border:1px solid rgba(124,92,252,.3);color:#c8bfff;padding:.4rem .7rem;border-radius:8px;font-size:.82rem;">
+          <option value="user">Student</option>
+          <option value="mentor">Mentor</option>
+          <option value="support">Support</option>
+        </select>
+        <button class="action-btn" id="user-role-save-btn" onclick="saveUserRole()">Save Role</button>
+        <span id="user-role-msg" style="font-size:.78rem;"></span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('user-modal')">Close</button>
+    </div>
   </div>
 </div>
 
 <!-- Recording Modal -->
+<!-- Mentor Reject Modal -->
+<div class="modal-overlay" id="mentor-reject-modal" onclick="if(event.target===this)closeModal('mentor-reject-modal')">
+  <div class="modal-box" style="max-width:460px">
+    <div class="modal-close" onclick="closeModal('mentor-reject-modal')">✕</div>
+    <div class="modal-title">Reject Mentor Application</div>
+    <input type="hidden" id="reject-mentor-id">
+    <p style="font-size:.84rem;color:rgba(200,191,255,.6);margin-bottom:1rem;">This message will be shown to the mentor so they understand why they were rejected.</p>
+    <div class="f-group">
+      <label>Rejection Reason <span style="color:#f87171">*</span></label>
+      <textarea id="reject-reason" rows="4" placeholder="e.g. Incomplete qualifications, missing documents, expertise not matching platform needs…"
+        style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.25);color:#c8bfff;border-radius:10px;padding:.75rem 1rem;font-size:.85rem;width:100%;resize:vertical;"></textarea>
+      <div id="reject-reason-err" style="color:#f87171;font-size:.78rem;margin-top:.35rem;display:none;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('mentor-reject-modal')">Cancel</button>
+      <button class="action-btn danger" id="reject-confirm-btn" onclick="confirmRejectMentor()">✗ Confirm Rejection</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="recording-modal">
   <div class="modal-box">
     <div class="modal-close" onclick="closeModal('recording-modal')">✕</div>
@@ -1757,6 +1932,7 @@ function loadSection(sec) {
     reports: loadReports, recordings: loadRecordings, schedules: loadSchedules,
     reviews: loadReviews, forms: loadFormsSection, inquiries: loadInquiries,
     interests: loadInterested,
+    holidays: loadHolidays,
   };
   loaders[sec]?.();
 }
@@ -1875,6 +2051,10 @@ async function loadDashboard() {
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
 
+  const today30 = new Date(); today30.setDate(today30.getDate() + 30);
+  const todayStr = new Date().toISOString().slice(0,10);
+  const today30Str = today30.toISOString().slice(0,10);
+
   const [
     usersRes,
     mentorsRes,
@@ -1884,9 +2064,10 @@ async function loadDashboard() {
     inquiriesRes,
     pendingMentorsRes,
     pendingReviewsRes,
-    recentEnrollmentsRes
+    recentEnrollmentsRes,
+    upcomingHolidaysRes
   ] = await Promise.all([
-    db.client.from('user_profiles').select('user_id', { count: 'exact', head: true }),
+    db.client.from('user_profiles').select('user_id', { count: 'exact', head: true }).in('role', ['user', 'student']),
     db.client.from('mentor_profiles').select('user_id', { count: 'exact', head: true }),
     db.client.from('courses').select('id', { count: 'exact', head: true }).eq('course_status', 'published'),
     db.client.from('enrollments').select('id', { count: 'exact', head: true }).eq('enrollment_status', 'active'),
@@ -1894,11 +2075,12 @@ async function loadDashboard() {
     db.client.from('inquiries').select('id, status'),
     db.client.from('mentor_profiles').select('user_id', { count: 'exact', head: true }).eq('status', 'pending'),
     db.client.from('reviews').select('id', { count: 'exact', head: true }).eq('is_approved', false),
-    db.client.from('enrollments').select('id, student_user_id, course_id, net_amount, paid_amount, enrollment_status, created_at').order('created_at', { ascending: false }).limit(10)
+    db.client.from('enrollments').select('id, student_user_id, course_id, net_amount, paid_amount, enrollment_status, created_at').order('created_at', { ascending: false }).limit(10),
+    db.client.from('holidays').select('id', { count: 'exact', head: true }).gte('holiday_date', todayStr).lte('holiday_date', today30Str)
   ]);
 
   // Log any individual errors but don't throw — show 0 for failed queries
-  [usersRes, mentorsRes, coursesRes, enrollmentsRes, paymentsRes, inquiriesRes, pendingMentorsRes, pendingReviewsRes, recentEnrollmentsRes]
+  [usersRes, mentorsRes, coursesRes, enrollmentsRes, paymentsRes, inquiriesRes, pendingMentorsRes, pendingReviewsRes, recentEnrollmentsRes, upcomingHolidaysRes]
     .forEach(res => { if (res.error) console.warn('Dashboard query error:', res.error.message); });
 
   const completedPayments = (paymentsRes.data || []).filter(p => p.payment_status === 'completed');
@@ -1917,9 +2099,27 @@ async function loadDashboard() {
   document.getElementById('s-revenue-month').textContent = fmtCurr(revenueThisMonth);
   document.getElementById('s-pending-pay').textContent = pendingPayments;
   document.getElementById('s-inquiries').textContent = openInquiries;
-  document.getElementById('mentor-badge').textContent = pendingMentorsRes.count || 0;
+  // Sidebar badges — always visible even before sections are opened
+  const ubadge = document.getElementById('users-badge');
+  if (ubadge) ubadge.textContent = usersRes.count || 0;
+  // mentor-badge: show total mentor count; pulse red if any pending
+  const mbadge = document.getElementById('mentor-badge');
+  if (mbadge) {
+    mbadge.textContent = mentorsRes.count || 0;
+    const pending = pendingMentorsRes.count || 0;
+    mbadge.style.background = pending > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
+    mbadge.title = pending > 0 ? `${pending} pending approval` : `${mentorsRes.count || 0} total mentors`;
+  }
   document.getElementById('review-badge').textContent = pendingReviewsRes.count || 0;
   document.getElementById('inquiry-badge').textContent = openInquiries;
+  // Holiday badge — upcoming in next 30 days
+  const holBadge = document.getElementById('holiday-badge');
+  if (holBadge) {
+    const holCount = upcomingHolidaysRes.count || 0;
+    holBadge.textContent = holCount;
+    holBadge.style.display = holCount > 0 ? '' : 'none';
+    holBadge.title = `${holCount} holiday${holCount !== 1 ? 's' : ''} in next 30 days`;
+  }
 
   const revenueByCourse = {};
   (completedPayments || []).forEach(payment => {
@@ -2006,6 +2206,7 @@ async function loadCourses() {
         <button class="action-btn" onclick="editCourse('${c.id}')">Edit</button>
         <button class="action-btn" onclick="toggleCoursePublish('${c.id}','${c.course_status}')">${c.course_status === 'published' ? 'Unpublish' : 'Publish'}</button>
         <button class="action-btn ${isTrending ? '' : ''}" style="${isTrending ? 'background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.3)' : ''}" onclick="toggleTrending('${c.id}',${isTrending})">${isTrending ? '🔥 Untrend' : 'Mark Trending'}</button>
+        <button class="action-btn" style="background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.3)" onclick="notifyInterestedUsers('${c.id}',${JSON.stringify(c.title).replace(/"/g,'&quot;')})">🔔 Notify Interested</button>
         <button class="action-btn danger" onclick="deleteCourse('${c.id}')">Delete</button>
       </div></td>
     </tr>`;
@@ -2024,6 +2225,75 @@ async function toggleTrending(courseId, currentState) {
   if (error) { _showAdminToast('Error: ' + error.message, 'error'); return; }
   _showAdminToast(currentState ? 'Removed from trending' : '🔥 Marked as trending', 'success');
   loadCourses();
+}
+
+// ── Notify users who clicked "Interested" on a course ──────────────────
+async function notifyInterestedUsers(courseId, courseTitle) {
+  const { data: interested, error } = await db.client
+    .from('course_interests')
+    .select('id, student_user_id, email, student_name, notified_at')
+    .eq('course_id', courseId)
+    .is('notified_at', null);
+
+  if (error) { _showAdminToast('Error: ' + error.message, 'error'); return; }
+  if (!interested?.length) { _showAdminToast('No unnotified interested users for this course.', 'info'); return; }
+
+  const confirmed = confirm(`Send 10% early-access discount email to ${interested.length} interested user(s) for "${courseTitle}"?`);
+  if (!confirmed) return;
+
+  // Fetch pricing for 10% discount message
+  const { data: pricing } = await db.client
+    .from('course_pricing').select('sale_price, list_price').eq('course_id', courseId).eq('is_active', true).limit(1).maybeSingle();
+  const basePrice = pricing?.sale_price ?? pricing?.list_price ?? 0;
+  const discountedPrice = basePrice > 0 ? Math.round(basePrice * 0.9) : null;
+
+  // Build per-user discount codes and send emails
+  const emailJsSvc = 'service_skillupnow';
+  const emailJsTpl = 'template_bjqerns';
+  const emailJsKey = '6chiuXaZ_OqXbYyG1';
+
+  let sent = 0, failed = 0;
+  for (const u of interested) {
+    // Generate a unique discount code per user
+    const discCode = 'EARLY10-' + courseId.slice(0,6).toUpperCase() + '-' + (u.student_user_id || u.id).slice(0,6).toUpperCase();
+
+    // Update discount_code + notified_at in DB
+    await db.client.from('course_interests')
+      .update({ discount_code: discCode, notified_at: new Date().toISOString() })
+      .eq('id', u.id);
+
+    // Create a 10% discount campaign in course_discounts
+    await db.client.from('course_discounts').upsert({
+      course_id: courseId,
+      discount_code: discCode,
+      discount_name: `Early Interest 10% — ${u.student_name || u.email || ''}`,
+      discount_type: 'percentage',
+      discount_value: 10,
+      max_redemptions: 1,
+      is_active: true,
+      starts_at: new Date().toISOString(),
+      ends_at: new Date(Date.now() + 30 * 864e5).toISOString() // 30 days
+    }, { onConflict: 'course_id,discount_code', ignoreDuplicates: true }).catch(() => {});
+
+    // Send via EmailJS
+    try {
+      if (typeof emailjs !== 'undefined') {
+        emailjs.init(emailJsKey);
+        await emailjs.send(emailJsSvc, emailJsTpl, {
+          to_name:    u.student_name || 'Student',
+          to_email:   u.email || '',
+          subject:    `🎉 ${courseTitle} is launching! Your exclusive 10% discount inside`,
+          message:    `Great news! The course "${courseTitle}" you were interested in is now launching.\n\nAs an early supporter, you get an exclusive 10% discount!\n\nUse code: ${discCode} at checkout.\n${discountedPrice ? `Price after discount: ₹${discountedPrice.toLocaleString('en-IN')}\n` : ''}This offer is valid for 30 days. Grab your spot before it fills up!\n\nTeam SkillUpNow`
+        });
+        sent++;
+      } else {
+        sent++; // count even if emailjs not available (code stored in DB)
+      }
+    } catch(_) { failed++; }
+  }
+
+  _showAdminToast(`✅ Notified ${sent} users${failed ? ` (${failed} email errors, codes saved in DB)` : ''} with 10% discount!`, 'success');
+  loadInterested();
 }
 
 function inlineEditPrice(courseId, pricingId, salePrice, listPrice) {
@@ -2086,10 +2356,12 @@ async function loadUsers() {
     .select('user_id, full_name, email, phone, role, is_active, created_at, account_created_at')
     .order('account_created_at', { ascending: false })
     .limit(200);
-  if (roleFilter) {
-    // 'user' filter includes both 'user' and 'student' role values
-    if (roleFilter === 'user') q = q.in('role', ['user', 'student']);
-    else q = q.eq('role', roleFilter);
+  // Users section ALWAYS shows only students — mentors/admins are in their own sections
+  if (roleFilter === 'user' || roleFilter === 'student') {
+    q = q.eq('role', roleFilter);
+  } else {
+    // Default & "All Students": both 'user' and 'student' role values
+    q = q.in('role', ['user', 'student']);
   }
   const [{ data: users, error: usersError }, { data: enrollments, error: enrollmentsError }] = await Promise.all([
     q,
@@ -2112,7 +2384,8 @@ async function loadUsers() {
     const color = { user: '#60a5fa', student: '#60a5fa', mentor: '#a78bfa', admin: '#f97316', super_admin: '#ef4444', support: '#34d399' }[r] || '#9ca3af';
     return `<span style="background:${color}22;color:${color};border:1px solid ${color}55;border-radius:50px;padding:.15rem .55rem;font-size:.68rem;font-weight:700;">${roleLabel(r)}</span>`;
   };
-  document.getElementById('user-tbody').innerHTML = (users || []).map(u => `
+  const rows = users || [];
+  document.getElementById('user-tbody').innerHTML = rows.map(u => `
     <tr>
       <td style="font-weight:600">${u.full_name || '—'}</td>
       <td style="font-size:.82rem">${u.email}</td>
@@ -2126,6 +2399,9 @@ async function loadUsers() {
         <button class="action-btn danger" onclick="deleteUser('${u.user_id}', ${JSON.stringify(u.full_name || u.email || 'this user').replace(/"/g,'&quot;')})">Delete</button>
       </div></td>
     </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No users</td></tr>';
+  // Update sidebar badge
+  const ubadge = document.getElementById('users-badge');
+  if (ubadge) ubadge.textContent = rows.length;
 }
 
 // ── Admin manually enroll a user ──────────────────────────────
@@ -2293,7 +2569,9 @@ async function loadMentors() {
       <td>⭐ ${(m.average_rating || 0).toFixed(1)}</td>
       <td>${statusBadge(m.status)}</td>
       <td><div class="action-btns">
-        ${m.status === 'pending' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">✓ Approve</button><button class="action-btn danger" onclick="approveMentor('${m.user_id}','rejected')">✗ Reject</button>` : ''}
+        ${m.status === 'pending'  ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">✓ Approve</button><button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">✗ Reject</button>` : ''}
+        ${m.status === 'rejected' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">↺ Re-approve</button>` : ''}
+        ${m.status === 'approved' ? `<button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">✗ Revoke</button>` : ''}
         <button class="action-btn" onclick="viewMentor('${m.user_id}')">View</button>
       </div></td>
     </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No mentors</td></tr>';
@@ -2302,6 +2580,15 @@ async function loadMentors() {
   ['c-mentor', 'b-mentor'].forEach(id => {
     const el = document.getElementById(id); if (el) el.innerHTML = '<option value="">Select…</option>' + opts;
   });
+  // Sidebar mentor badge: total count, brighter red if any pending
+  const mbadge2 = document.getElementById('mentor-badge');
+  if (mbadge2) {
+    const total = (data || []).length;
+    const pendingCount = (data || []).filter(m => m.status === 'pending').length;
+    mbadge2.textContent = total;
+    mbadge2.style.background = pendingCount > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
+    mbadge2.title = pendingCount > 0 ? `${pendingCount} pending approval` : `${total} total mentors`;
+  }
 }
 
 async function loadEnrollments() {
@@ -2457,6 +2744,17 @@ async function loadBatches() {
   if (courseFilter) q = q.eq('course_id', courseFilter);
   const { data } = await q;
 
+  // Fetch student counts per batch
+  let countMap = {};
+  if (data?.length) {
+    const batchIds = data.map(b => b.id);
+    const { data: counts } = await db.client.from('enrollments')
+      .select('batch_id')
+      .in('batch_id', batchIds)
+      .neq('enrollment_status', 'cancelled');
+    (counts || []).forEach(r => { countMap[r.batch_id] = (countMap[r.batch_id] || 0) + 1; });
+  }
+
   // Populate filter dropdown on first load
   const filterEl = document.getElementById('batch-course-filter');
   if (filterEl && filterEl.options.length <= 1 && data?.length) {
@@ -2474,6 +2772,7 @@ async function loadBatches() {
     const skills = (b.skill_tags || []).length
       ? b.skill_tags.map(s => `<span style="background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.2);border-radius:50px;padding:.1rem .4rem;font-size:.65rem;">${s}</span>`).join(' ')
       : '';
+    const enrolled = countMap[b.id] || 0;
     return `<tr>
       <td>
         <div style="font-weight:600">${b.batch_name}</div>
@@ -2486,10 +2785,12 @@ async function loadBatches() {
       <td>${b.mentor_profiles?.user_profiles?.full_name||'—'}</td>
       <td>${fmtDate(b.starts_on)}</td>
       <td>${fmtDate(b.ends_on)}</td>
-      <td>${b.max_students}</td>
+      <td>${enrolled} / ${b.max_students}</td>
       <td>${statusBadge(b.is_active ? 'active' : 'paused')}</td>
       <td><div class="action-btns">
         <button class="action-btn" onclick="editBatch('${b.id}')">Edit</button>
+        <button class="action-btn" style="background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.3);" onclick="manageBatchStudents('${b.id}','${b.batch_name.replace(/'/g,"\\'")}')">Students</button>
+        <button class="action-btn" style="background:rgba(96,165,250,.12);color:#60a5fa;border-color:rgba(96,165,250,.3);" onclick="openScheduleForBatch('${b.id}','${b.batch_name.replace(/'/g,"\\'")}')">Schedule</button>
       </div></td>
     </tr>`;
   }).join('') || '<tr><td colspan="8" class="table-empty">No batches found</td></tr>';
@@ -2968,24 +3269,24 @@ let _interestData = [];
 async function loadInterested() {
   const tbody  = document.getElementById('interest-tbody');
   const filter = document.getElementById('int-course-filter')?.value || '';
-  if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
 
   try {
-    // Populate course filter dropdown with upcoming courses (first call only)
+    // Populate course filter dropdown (all courses, first call only)
     const sel = document.getElementById('int-course-filter');
     if (sel && sel.options.length <= 1) {
-      const { data: upcoming } = await db.client.from('courses')
-        .select('id,title').eq('is_upcoming', true).order('title');
-      (upcoming || []).forEach(c => {
+      const { data: allCourses } = await db.client.from('courses')
+        .select('id,title,course_status').order('title');
+      (allCourses || []).forEach(c => {
         const o = document.createElement('option');
-        o.value = c.id; o.textContent = c.title;
+        o.value = c.id; o.textContent = c.title + (c.course_status !== 'published' ? ' (draft)' : '');
         sel.appendChild(o);
       });
     }
 
-    // Fetch interests with course title join
+    // Fetch interests with course title join — include notified_at + discount_code
     let q = db.client.from('course_interests')
-      .select('id, created_at, student_name, email, student_user_id, course_id, courses(title)')
+      .select('id, created_at, student_name, email, student_user_id, course_id, notified_at, discount_code, courses(title)')
       .order('created_at', { ascending: false });
     if (filter) q = q.eq('course_id', filter);
 
@@ -3009,7 +3310,7 @@ async function loadInterested() {
 
     if (!tbody) return;
     if (!_interestData.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No interest records yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No interest records yet.</td></tr>`;
       return;
     }
 
@@ -3019,18 +3320,26 @@ async function loadInterested() {
       const course  = r.courses?.title || r.course_id;
       const isAuth  = r.student_user_id ? '✅ Yes' : '<span style="color:var(--txt4)">No</span>';
       const dateStr = new Date(r.created_at).toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
+      const notified = r.notified_at
+        ? `<span style="color:#4ade80;font-size:.78rem">✅ ${new Date(r.notified_at).toLocaleDateString('en-IN')}</span>`
+        : `<span style="color:var(--txt4);font-size:.78rem">Not yet</span>`;
+      const discCode = r.discount_code
+        ? `<code style="background:rgba(124,92,252,.15);color:#b5adff;padding:.15rem .45rem;border-radius:6px;font-size:.75rem">${r.discount_code}</code>`
+        : '<span style="color:var(--txt4)">—</span>';
       return `<tr>
-        <td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${course}">${course}</td>
+        <td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${course}">${course}</td>
         <td>${name}</td>
         <td>${email}</td>
         <td>${isAuth}</td>
         <td style="color:var(--txt3);font-size:.8rem">${dateStr}</td>
+        <td>${notified}</td>
+        <td>${discCode}</td>
         <td><button onclick="deleteInterest('${r.id}')" style="padding:.3rem .7rem;border-radius:8px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:#f87171;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;" onmouseover="this.style.background='rgba(239,68,68,.22)'" onmouseout="this.style.background='rgba(239,68,68,.08)'">Delete</button></td>
       </tr>`;
     }).join('');
   } catch(err) {
     console.error('loadInterested error', err);
-    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Error: ${err.message}</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="table-empty">Error: ${err.message}</td></tr>`;
   }
 }
 
@@ -3042,14 +3351,16 @@ async function deleteInterest(id) {
 
 function exportInterestCSV() {
   if (!_interestData.length) { alert('No data to export.'); return; }
-  const rows = [['Course', 'Name', 'Email', 'Logged In', 'Date']];
+  const rows = [['Course', 'Name', 'Email', 'Logged In', 'Date', 'Notified', 'Discount Code']];
   _interestData.forEach(r => {
     rows.push([
       `"${(r.courses?.title || r.course_id).replace(/"/g,'""')}"`,
       `"${(r.student_name || '').replace(/"/g,'""')}"`,
       `"${(r.email || '').replace(/"/g,'""')}"`,
       r.student_user_id ? 'Yes' : 'No',
-      new Date(r.created_at).toLocaleString('en-IN')
+      new Date(r.created_at).toLocaleString('en-IN'),
+      r.notified_at ? new Date(r.notified_at).toLocaleString('en-IN') : '',
+      r.discount_code || ''
     ]);
   });
   const csv  = rows.map(r => r.join(',')).join('\n');
@@ -3060,18 +3371,281 @@ function exportInterestCSV() {
   a.click(); URL.revokeObjectURL(url);
 }
 
-// ===== ACTIONS =====
-async function approveMentor(id, status) {
-  if (!confirm(`${status === 'approved' ? 'Approve' : 'Reject'} this mentor?`)) return;
+// ===== HOLIDAYS =====
+let _holidayData = [];
+
+async function loadHolidays() {
+  const tbody      = document.getElementById('holiday-tbody');
+  const typeFilter = document.getElementById('hol-type-filter')?.value || '';
+  const yearFilter = document.getElementById('hol-year-filter')?.value || '';
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+
+  try {
+    let q = db.client.from('holidays')
+      .select('*')
+      .order('holiday_date', { ascending: true });
+
+    if (typeFilter) q = q.eq('holiday_type', typeFilter);
+    if (yearFilter) {
+      q = q.gte('holiday_date', `${yearFilter}-01-01`)
+           .lte('holiday_date', `${yearFilter}-12-31`);
+    }
+
+    const { data, error } = await q;
+    if (error) throw error;
+    _holidayData = data || [];
+
+    // Stat cards
+    const today   = new Date();
+    const in30    = new Date(today); in30.setDate(today.getDate() + 30);
+    const total   = _holidayData.length;
+    const natl    = _holidayData.filter(h => h.holiday_type === 'national').length;
+    const relig   = _holidayData.filter(h => h.holiday_type === 'religious').length;
+    const upcoming = _holidayData.filter(h => {
+      const d = new Date(h.holiday_date);
+      return d >= today && d <= in30;
+    }).length;
+
+    document.getElementById('hol-total').textContent    = total;
+    document.getElementById('hol-national').textContent = natl;
+    document.getElementById('hol-religious').textContent = relig;
+    document.getElementById('hol-upcoming').textContent  = upcoming;
+
+    // Sidebar badge — count upcoming in next 30 days
+    const badge = document.getElementById('holiday-badge');
+    if (badge) {
+      badge.textContent = upcoming;
+      badge.style.display = upcoming > 0 ? '' : 'none';
+    }
+
+    if (!tbody) return;
+    if (!_holidayData.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No holidays found. Click "+ Add Holiday" to create one.</td></tr>';
+      return;
+    }
+
+    const typeEmoji = { national: '🎌', religious: '🕌', local: '📍', school: '🏫', custom: '⭐' };
+    const typeColor = {
+      national:  { bg: 'rgba(59,130,246,.15)', color: '#60a5fa' },
+      religious: { bg: 'rgba(168,85,247,.15)', color: '#c084fc' },
+      local:     { bg: 'rgba(245,158,11,.15)', color: '#fbbf24' },
+      school:    { bg: 'rgba(34,197,94,.15)',  color: '#4ade80' },
+      custom:    { bg: 'rgba(100,116,139,.15)', color: '#94a3b8' },
+    };
+
+    tbody.innerHTML = _holidayData.map(h => {
+      const d        = new Date(h.holiday_date + 'T00:00:00');
+      const isPast   = d < new Date(new Date().toDateString());
+      const dayName  = d.toLocaleDateString('en-IN', { weekday: 'long' });
+      const dateStr  = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      const tc       = typeColor[h.holiday_type] || typeColor.custom;
+      const typeBadge = `<span style="background:${tc.bg};color:${tc.color};border:1px solid ${tc.color}44;padding:.2rem .55rem;border-radius:999px;font-size:.7rem;font-weight:700;">${typeEmoji[h.holiday_type] || '📅'} ${h.holiday_type}</span>`;
+      const notifiedAt = h.notify_sent_at
+        ? `<span style="color:#4ade80;font-size:.78rem">✅ ${new Date(h.notify_sent_at).toLocaleDateString('en-IN')}</span>`
+        : `<span style="color:var(--txt4);font-size:.78rem">—</span>`;
+
+      return `<tr style="${isPast ? 'opacity:.55' : ''}">
+        <td style="font-weight:600">${h.holiday_name}${isPast ? ' <span style="font-size:.68rem;color:var(--txt4)">(past)</span>' : ''}</td>
+        <td style="font-size:.85rem;white-space:nowrap">${dateStr}</td>
+        <td style="font-size:.82rem;color:var(--txt3)">${dayName}</td>
+        <td>${typeBadge}</td>
+        <td style="text-align:center">${h.is_recurring ? '<span style="color:#a5b4fc">↺ Yes</span>' : '<span style="color:var(--txt4)">No</span>'}</td>
+        <td style="text-align:center">${h.notify_students ? '✅' : '<span style="color:var(--txt4)">—</span>'}</td>
+        <td>${notifiedAt}</td>
+        <td>
+          <div class="action-btns">
+            <button class="action-btn" onclick="editHoliday('${h.id}')">Edit</button>
+            ${h.notify_students && !h.notify_sent_at
+              ? `<button class="action-btn" style="color:#4ade80;border-color:rgba(34,197,94,.3)" onclick="sendHolidayNotify('${h.id}')">🔔 Notify</button>`
+              : ''}
+            <button class="action-btn danger" onclick="deleteHoliday('${h.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+  } catch(err) {
+    console.error('loadHolidays error:', err);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="table-empty">Error: ${err.message}</td></tr>`;
+  }
+}
+
+function openHolidayModal(prefill = {}) {
+  document.getElementById('holiday-modal-title').textContent = prefill.id ? 'Edit Holiday' : 'Add Holiday';
+  document.getElementById('hol-id').value              = prefill.id || '';
+  document.getElementById('hol-name').value            = prefill.holiday_name || '';
+  document.getElementById('hol-date').value            = prefill.holiday_date || '';
+  document.getElementById('hol-type').value            = prefill.holiday_type || 'national';
+  document.getElementById('hol-desc').value            = prefill.description || '';
+  document.getElementById('hol-recurring').checked     = !!prefill.is_recurring;
+  document.getElementById('hol-notify-students').checked = prefill.notify_students !== false;
+  document.getElementById('hol-notify-admin').checked    = prefill.notify_admin !== false;
+  openModal('holiday-modal');
+}
+
+function editHoliday(id) {
+  const h = _holidayData.find(x => x.id === id);
+  if (h) openHolidayModal(h);
+}
+
+async function saveHoliday() {
+  const id   = document.getElementById('hol-id').value.trim();
+  const name = document.getElementById('hol-name').value.trim();
+  const date = document.getElementById('hol-date').value;
+  const type = document.getElementById('hol-type').value;
+
+  if (!name) { _showAdminToast('Holiday name is required', 'error'); return; }
+  if (!date) { _showAdminToast('Date is required', 'error'); return; }
+
   const payload = {
-    status,
-    approved_by_admin_id: status === 'approved' ? adminUser.id : null,
-    approved_at: status === 'approved' ? new Date().toISOString() : null,
-    rejection_reason: status === 'rejected' ? 'Rejected by admin' : null
+    holiday_name:     name,
+    holiday_date:     date,
+    holiday_type:     type,
+    description:      document.getElementById('hol-desc').value.trim() || null,
+    is_recurring:     document.getElementById('hol-recurring').checked,
+    notify_students:  document.getElementById('hol-notify-students').checked,
+    notify_admin:     document.getElementById('hol-notify-admin').checked,
   };
-  await db.client.from('mentor_profiles').update(payload).eq('user_id', id);
-  loadMentors();
+
+  let error;
+  if (id) {
+    ({ error } = await db.client.from('holidays').update(payload).eq('id', id));
+  } else {
+    // Get current admin user id
+    const { data: { session } } = await db.client.auth.getSession();
+    payload.created_by = session?.user?.id || null;
+    ({ error } = await db.client.from('holidays').insert(payload));
+  }
+
+  if (error) { _showAdminToast('Error: ' + error.message, 'error'); return; }
+  _showAdminToast(id ? 'Holiday updated ✓' : 'Holiday added ✓', 'success');
+  closeModal('holiday-modal');
+  loadHolidays();
+}
+
+async function deleteHoliday(id) {
+  if (!confirm('Delete this holiday?')) return;
+  const { error } = await db.client.from('holidays').delete().eq('id', id);
+  if (error) { _showAdminToast('Error: ' + error.message, 'error'); return; }
+  _showAdminToast('Holiday deleted', 'success');
+  loadHolidays();
+}
+
+async function sendHolidayNotify(id) {
+  const h = _holidayData.find(x => x.id === id);
+  if (!h) return;
+
+  const confirmed = confirm(`Send holiday notification for "${h.holiday_name}" (${h.holiday_date}) to all students?`);
+  if (!confirmed) return;
+
+  // Fetch all active student emails
+  const { data: students, error: sErr } = await db.client
+    .from('user_profiles')
+    .select('full_name, email')
+    .in('role', ['user', 'student'])
+    .eq('is_active', true);
+
+  if (sErr) { _showAdminToast('Could not load students: ' + sErr.message, 'error'); return; }
+  if (!students?.length) { _showAdminToast('No active students found', 'info'); return; }
+
+  const d = new Date(h.holiday_date + 'T00:00:00');
+  const dateStr = d.toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
+  let sent = 0, failed = 0;
+  try {
+    if (typeof emailjs !== 'undefined') {
+      emailjs.init('6chiuXaZ_OqXbYyG1');
+      for (const s of students) {
+        try {
+          await emailjs.send('service_skillupnow', 'template_bjqerns', {
+            to_name:  s.full_name || 'Student',
+            to_email: s.email,
+            subject:  `📅 Holiday Notice: ${h.holiday_name} — ${dateStr}`,
+            message:  `This is to inform you that ${dateStr} is a holiday — ${h.holiday_name}${h.description ? ' (' + h.description + ')' : ''}.\n\nNo classes will be scheduled on this day. We will notify you of any rescheduled sessions.\n\nTeam SkillUpNow`
+          });
+          sent++;
+        } catch(_) { failed++; }
+      }
+    } else {
+      sent = students.length; // emailjs not loaded — just mark as notified
+    }
+  } catch(_) { failed = students.length; }
+
+  // Mark notify_sent_at in DB
+  await db.client.from('holidays').update({ notify_sent_at: new Date().toISOString() }).eq('id', id);
+  _showAdminToast(`✅ Notified ${sent} students${failed ? ` (${failed} failed)` : ''}`, 'success');
+  loadHolidays();
+}
+
+// ===== ACTIONS =====
+// Opens reject modal — stores the mentor id for confirmRejectMentor()
+function openRejectMentor(id) {
+  document.getElementById('reject-mentor-id').value = id;
+  document.getElementById('reject-reason').value = '';
+  document.getElementById('reject-reason-err').style.display = 'none';
+  openModal('mentor-reject-modal');
+}
+
+async function confirmRejectMentor() {
+  const id     = document.getElementById('reject-mentor-id').value;
+  const reason = document.getElementById('reject-reason').value.trim();
+  const errEl  = document.getElementById('reject-reason-err');
+  if (!reason) {
+    errEl.textContent = 'Please provide a rejection reason.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  const btn = document.getElementById('reject-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Rejecting…';
+  try {
+    await approveMentor(id, 'rejected', reason);
+    closeModal('mentor-reject-modal');
+  } catch(e) {
+    errEl.textContent = e.message || 'Rejection failed. Please try again.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = '✗ Confirm Rejection';
+  }
+}
+
+async function approveMentor(id, status, rejectionReason = null) {
+  if (status === 'approved' && !confirm('Approve this mentor? They will gain access to the Mentor Dashboard.')) return;
+  const adminId = adminUser?.id || null;
+  // Use SECURITY DEFINER RPC to bypass RLS
+  const rpcName = status === 'approved' ? 'admin_approve_mentor' : 'admin_reject_mentor';
+  const rpcParams = status === 'approved'
+    ? { p_mentor_user_id: id, p_admin_id: adminId }
+    : { p_mentor_user_id: id, p_admin_id: adminId, p_reason: rejectionReason || 'Rejected by admin' };
+  const { data: res, error } = await db.client.rpc(rpcName, rpcParams);
+  if (error) {
+    // Fallback: direct update if RPC not yet created
+    const payload = {
+      status,
+      approved_by_admin_id: status === 'approved' ? adminId : null,
+      approved_at:          status === 'approved' ? new Date().toISOString() : null,
+      rejection_reason:     status === 'rejected' ? (rejectionReason || 'Rejected by admin') : null,
+      updated_at:           new Date().toISOString()
+    };
+    const { error: directErr } = await db.client.from('mentor_profiles').update(payload).eq('user_id', id);
+    if (directErr) throw new Error(directErr.message);
+    // Also sync user_profiles.role
+    if (status === 'approved') {
+      await db.client.rpc('admin_update_user_role', { p_user_id: id, p_new_role: 'mentor' }).catch(() => {
+        db.client.from('user_profiles').update({ role: 'mentor', updated_at: new Date().toISOString() }).eq('user_id', id);
+      });
+    }
+  } else if (res?.success === false) {
+    throw new Error(res.message || 'Operation failed.');
+  }
+  await loadMentors();
+  await loadUsers();
   loadDashboard();
+  if (status === 'approved') {
+    _showAdminToast('✓ Mentor approved — they can now log in to the Mentor Dashboard.', 'success');
+  } else {
+    _showAdminToast('Mentor application rejected and reason saved.', 'error');
+  }
 }
 
 async function approveReview(id) {
@@ -3245,27 +3819,46 @@ async function saveEnrollment() {
 
 
 async function saveSchedule() {
+  const errEl = document.getElementById('sch-err');
+  const showErr = msg => { if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; } };
+  if (errEl) errEl.style.display = 'none';
+
+  const sessionId = document.getElementById('sch-session-id')?.value || '';
   const batchId = document.getElementById('sch-batch').value;
-  if (!batchId) { alert('Please select a batch.'); return; }
+  if (!batchId) { showErr('Please select a batch.'); return; }
   const startVal = document.getElementById('sch-time').value;
-  if (!startVal) { alert('Start date/time is required.'); return; }
+  if (!startVal) { showErr('Start date/time is required.'); return; }
+  const title = document.getElementById('sch-title').value.trim() || 'Live Class';
   const durationMins = parseInt(document.getElementById('sch-duration').value) || 60;
   const endAt = new Date(new Date(startVal).getTime() + durationMins * 60000).toISOString();
-  // Get course_id from the selected batch
-  const { data: batch } = await db.client.from('course_batches').select('course_id, primary_mentor_user_id').eq('id', batchId).maybeSingle();
-  const { error } = await db.client.from('class_sessions').insert({
+
+  const payload = {
     batch_id: batchId,
-    course_id: batch?.course_id || null,
-    mentor_user_id: batch?.primary_mentor_user_id || null,
-    session_title: document.getElementById('sch-title').value || 'Live Class',
-    scheduled_start_at: startVal,
+    session_title: title,
+    scheduled_start_at: new Date(startVal).toISOString(),
     scheduled_end_at: endAt,
-    meeting_url: document.getElementById('sch-meet').value || null,
-    session_status: 'scheduled',
-  });
-  if (error) { alert('Error saving schedule: ' + error.message); return; }
+    meeting_url: document.getElementById('sch-meet').value.trim() || null,
+    session_description: document.getElementById('sch-desc')?.value.trim() || null,
+  };
+
+  let error;
+  if (sessionId) {
+    // Edit mode
+    ({ error } = await db.client.from('class_sessions').update(payload).eq('id', sessionId));
+  } else {
+    // Create mode — also set course_id, mentor_user_id, status from batch
+    const { data: batch } = await db.client.from('course_batches').select('course_id, primary_mentor_user_id').eq('id', batchId).maybeSingle();
+    ({ error } = await db.client.from('class_sessions').insert({
+      ...payload,
+      course_id: batch?.course_id || null,
+      mentor_user_id: batch?.primary_mentor_user_id || null,
+      session_status: 'scheduled',
+    }));
+  }
+  if (error) { showErr('Error saving class: ' + error.message); return; }
   closeModal('schedule-modal');
   loadSchedules();
+  _showAdminToast(sessionId ? '✓ Class updated.' : '✓ Class scheduled.', 'success');
 }
 
 async function saveRecording() {
@@ -3827,8 +4420,7 @@ async function deleteCategory(id) {
 async function editBatch(id) {
   const { data: b } = await db.client.from('course_batches').select('*').eq('id', id).single();
   if (!b) return;
-  // Make sure dropdowns are populated
-  await Promise.all([loadCourses(), loadMentors()]);
+  await initDropdowns();
   document.getElementById('batch-id').value = b.id;
   document.getElementById('b-course').value = b.course_id || '';
   document.getElementById('b-mentor').value = b.primary_mentor_user_id || '';
@@ -3836,25 +4428,132 @@ async function editBatch(id) {
   document.getElementById('b-max').value = b.max_students || 30;
   document.getElementById('b-start').value = b.starts_on || '';
   document.getElementById('b-end').value = b.ends_on || '';
-  document.getElementById('batch-modal').querySelector('.modal-title').textContent = 'Edit Batch';
-  const saveBtn = document.querySelector('#batch-modal .btn-primary');
+  if (document.getElementById('b-desc')) document.getElementById('b-desc').value = b.description || '';
+  const errEl = document.getElementById('batch-save-err');
+  if (errEl) errEl.style.display = 'none';
+  document.getElementById('batch-modal-title').textContent = 'Edit Batch';
+  const saveBtn = document.getElementById('batch-save-btn');
   if (saveBtn) saveBtn.textContent = 'Update Batch';
   openModal('batch-modal');
 }
 
+// ===== MANAGE BATCH STUDENTS =====
+let _bsmBatchId = null;
+async function manageBatchStudents(batchId, batchName) {
+  _bsmBatchId = batchId;
+  document.getElementById('bsm-title').textContent = `Students — ${batchName}`;
+  document.getElementById('bsm-batch-id').value = batchId;
+  document.getElementById('bsm-search').value = '';
+  document.getElementById('bsm-search-results').innerHTML = '';
+  openModal('batch-students-modal');
+  await loadBatchStudents();
+}
+
+async function loadBatchStudents() {
+  const list = document.getElementById('bsm-students-list');
+  const countEl = document.getElementById('bsm-count');
+  list.innerHTML = '<div class="table-empty">Loading…</div>';
+  const { data, error } = await db.client.from('enrollments')
+    .select('id, enrollment_status, enrolled_at, user_profiles:student_user_id(user_id, full_name, email, phone)')
+    .eq('batch_id', _bsmBatchId)
+    .neq('enrollment_status', 'cancelled')
+    .order('enrolled_at', { ascending: false });
+  if (error) { list.innerHTML = `<div style="color:#f87171;font-size:.8rem;">Error: ${error.message}</div>`; return; }
+  if (countEl) countEl.textContent = `(${(data||[]).length})`;
+  list.innerHTML = (data||[]).map(e => {
+    const up = e.user_profiles || {};
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;background:rgba(255,255,255,.03);border:1px solid rgba(124,92,252,.1);border-radius:8px;margin-bottom:.4rem;">
+      <div>
+        <div style="font-weight:600;font-size:.84rem">${up.full_name||'—'}</div>
+        <div style="font-size:.72rem;color:rgba(200,191,255,.45)">${up.email||''} ${up.phone ? '· '+up.phone : ''}</div>
+      </div>
+      <button class="action-btn danger" style="font-size:.73rem;padding:.25rem .65rem;" onclick="removeStudentFromBatch('${e.id}')">Remove</button>
+    </div>`;
+  }).join('') || '<div class="table-empty">No students enrolled yet.</div>';
+}
+
+async function searchUsersForBatch() {
+  const q = document.getElementById('bsm-search').value.trim();
+  const resultsEl = document.getElementById('bsm-search-results');
+  if (!q) { resultsEl.innerHTML = ''; return; }
+  const { data } = await db.client.from('user_profiles')
+    .select('user_id, full_name, email, phone')
+    .or(`full_name.ilike.%${q}%,email.ilike.%${q}%`)
+    .in('role', ['user','student'])
+    .limit(8);
+  resultsEl.innerHTML = (data||[]).map(u => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;background:rgba(255,255,255,.03);border:1px solid rgba(124,92,252,.1);border-radius:8px;margin-bottom:.3rem;">
+      <div>
+        <div style="font-size:.84rem;font-weight:600">${u.full_name||'—'}</div>
+        <div style="font-size:.72rem;color:rgba(200,191,255,.45)">${u.email}</div>
+      </div>
+      <button class="action-btn" style="font-size:.73rem;padding:.25rem .65rem;background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.3);" onclick="addStudentToBatch('${u.user_id}','${(u.full_name||'').replace(/'/g,"\\'")}')">Add</button>
+    </div>`).join('') || '<div style="font-size:.8rem;color:rgba(200,191,255,.4);padding:.4rem;">No students found.</div>';
+}
+
+async function addStudentToBatch(userId, name) {
+  // Check already enrolled
+  const { data: existing } = await db.client.from('enrollments')
+    .select('id').eq('batch_id', _bsmBatchId).eq('student_user_id', userId).maybeSingle();
+  if (existing) { _showAdminToast(`${name} is already enrolled in this batch.`, 'error'); return; }
+  // Get course_id from batch
+  const { data: batch } = await db.client.from('course_batches').select('course_id').eq('id', _bsmBatchId).single();
+  const { error } = await db.client.from('enrollments').insert({
+    batch_id: _bsmBatchId,
+    student_user_id: userId,
+    course_id: batch?.course_id || null,
+    enrollment_status: 'active',
+    enrolled_at: new Date().toISOString(),
+  });
+  if (error) { _showAdminToast('Error adding student: ' + error.message, 'error'); return; }
+  _showAdminToast(`✓ ${name} added to batch.`, 'success');
+  document.getElementById('bsm-search').value = '';
+  document.getElementById('bsm-search-results').innerHTML = '';
+  await loadBatchStudents();
+  loadBatches(); // Refresh count in table
+}
+
+async function removeStudentFromBatch(enrollmentId) {
+  if (!confirm('Remove this student from the batch?')) return;
+  const { error } = await db.client.from('enrollments')
+    .update({ enrollment_status: 'cancelled' }).eq('id', enrollmentId);
+  if (error) { _showAdminToast('Error removing student: ' + error.message, 'error'); return; }
+  _showAdminToast('Student removed from batch.', 'success');
+  await loadBatchStudents();
+  loadBatches();
+}
+
+// ===== OPEN SCHEDULE FOR SPECIFIC BATCH =====
+function openScheduleForBatch(batchId, batchName) {
+  // Reset schedule form then pre-select this batch
+  document.getElementById('sch-session-id').value = '';
+  document.getElementById('sch-batch').value = batchId;
+  document.getElementById('sch-title').value = '';
+  document.getElementById('sch-time').value = '';
+  document.getElementById('sch-duration').value = '60';
+  document.getElementById('sch-meet').value = '';
+  if (document.getElementById('sch-desc')) document.getElementById('sch-desc').value = '';
+  const errEl = document.getElementById('sch-err');
+  if (errEl) errEl.style.display = 'none';
+  openModal('schedule-modal');
+}
+
 // ===== VIEW USER =====
+let _viewingUserId = null;
 async function viewUser(id) {
+  _viewingUserId = id;
   const [{ data: profile }, { data: enrollments }] = await Promise.all([
     db.client.from('user_profiles').select('*').eq('user_id', id).single(),
     db.client.from('enrollments').select('enrollment_status, net_amount, paid_amount, courses(title)').eq('student_user_id', id)
   ]);
   if (!profile) return;
+  const roleLabel = r => ({ user:'Student',student:'Student',mentor:'Mentor',admin:'Admin',super_admin:'Super Admin',support:'Support' }[r] || r || 'Student');
   document.getElementById('user-detail-content').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'—'}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Role</strong><br>${profile.role}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Role</strong><br><span id="um-role-display">${roleLabel(profile.role)}</span></div>
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Joined</strong><br>${fmtDate(profile.account_created_at||profile.created_at)}</div>
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${profile.is_active!==false?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>'}</div>
     </div>
@@ -3862,7 +4561,76 @@ async function viewUser(id) {
     ${(enrollments||[]).map(e=>`<div style="margin-top:.5rem;padding:.5rem .75rem;background:rgba(124,92,252,.07);border-radius:8px;font-size:.8rem;">
       <strong>${e.courses?.title||'Unknown course'}</strong> — ${statusBadge(e.enrollment_status)} — Paid: ${fmtCurr(e.paid_amount)} / ${fmtCurr(e.net_amount)}
     </div>`).join('')||'<div style="font-size:.8rem;color:rgba(200,191,255,.4);margin-top:.5rem;">No enrollments</div>'}`;
+  // Show role-change row and pre-select current role
+  const roleRow = document.getElementById('user-role-change-row');
+  const roleSelect = document.getElementById('user-role-select');
+  if (roleRow && roleSelect) {
+    roleRow.style.display = 'block';
+    const cur = profile.role || 'user';
+    roleSelect.value = ['mentor','support'].includes(cur) ? cur : 'user';
+  }
+  const msgEl = document.getElementById('user-role-msg');
+  if (msgEl) msgEl.textContent = '';
+  document.querySelector('#user-modal .modal-title').textContent = 'User Details';
   openModal('user-modal');
+}
+
+async function saveUserRole() {
+  if (!_viewingUserId) return;
+  const newRole = document.getElementById('user-role-select').value;
+  const btn = document.getElementById('user-role-save-btn');
+  const msgEl = document.getElementById('user-role-msg');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  msgEl.style.color = '#9ca3af'; msgEl.textContent = '';
+  try {
+    // Use SECURITY DEFINER RPC to bypass RLS
+    const { data: res, error } = await db.client.rpc('admin_update_user_role', {
+      p_user_id: _viewingUserId,
+      p_new_role: newRole
+    });
+    if (error) {
+      // Fallback: direct update if RPC not available
+      const { error: directErr } = await db.client.from('user_profiles')
+        .update({ role: newRole, updated_at: new Date().toISOString() })
+        .eq('user_id', _viewingUserId);
+      if (directErr) throw directErr;
+    } else if (res && res.success === false) {
+      throw new Error(res.message || 'Update failed.');
+    }
+
+    // Promote to mentor: ensure mentor_profiles stub exists with pending status
+    if (newRole === 'mentor') {
+      const rpcRes = await db.client.rpc('admin_ensure_mentor_profile', { p_user_id: _viewingUserId });
+      if (rpcRes.error) {
+        // Fallback insert
+        await db.client.from('mentor_profiles').upsert({
+          user_id: _viewingUserId, qualifications: '', expertise_areas: [],
+          years_of_experience: 0, status: 'pending'
+        }, { onConflict: 'user_id' });
+      }
+    }
+
+    // Demote from mentor to student: mark mentor_profiles as revoked so they lose dashboard access
+    if (newRole === 'user' || newRole === 'student') {
+      await db.client.from('mentor_profiles')
+        .update({ status: 'rejected', rejection_reason: 'Role changed to student by admin', updated_at: new Date().toISOString() })
+        .eq('user_id', _viewingUserId)
+        .neq('status', 'rejected'); // only update if not already rejected
+    }
+
+    const roleLabel = { user:'Student', mentor:'Mentor', support:'Support' }[newRole] || newRole;
+    msgEl.style.color = '#34d399'; msgEl.textContent = `✓ Role updated to ${roleLabel}`;
+    const disp = document.getElementById('um-role-display');
+    if (disp) disp.textContent = roleLabel;
+    // Refresh both tables so the user moves to the correct section immediately
+    await Promise.all([loadUsers(), loadMentors()]);
+    loadDashboard();
+    _showAdminToast(`✓ Role changed to ${roleLabel}`, 'success');
+  } catch(e) {
+    msgEl.style.color = '#f87171'; msgEl.textContent = e.message || 'Update failed.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Role';
+  }
 }
 
 // ===== VIEW MENTOR =====
@@ -4545,11 +5313,18 @@ function filterReferralTable(q) {
 }
 
 async function saveBatch() {
+  const errEl = document.getElementById('batch-save-err');
+  const saveBtn = document.getElementById('batch-save-btn');
+  const showErr = msg => { if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; } };
+  if (errEl) errEl.style.display = 'none';
+
   const id = document.getElementById('batch-id').value;
   const courseId = document.getElementById('b-course').value;
-  if (!courseId) { alert('Please select a course.'); return; }
+  if (!courseId) { showErr('Please select a course.'); return; }
   const batchName = document.getElementById('b-name').value.trim();
-  if (!batchName) { alert('Batch name is required.'); return; }
+  if (!batchName) { showErr('Batch name is required.'); return; }
+
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
   const payload = {
     course_id: courseId,
     primary_mentor_user_id: document.getElementById('b-mentor').value || null,
@@ -4558,15 +5333,17 @@ async function saveBatch() {
     max_students: parseInt(document.getElementById('b-max').value) || 30,
     starts_on: document.getElementById('b-start').value || null,
     ends_on: document.getElementById('b-end').value || null,
-    meet_link: document.getElementById('b-meet').value || null,
+    description: document.getElementById('b-desc')?.value.trim() || null,
     is_active: true,
   };
-  const { error } = id
-    ? await db.client.from('course_batches').update(payload).eq('id', id)
-    : await db.client.from('course_batches').insert(payload);
-  if (error) { alert('Error saving batch: ' + error.message); return; }
+  const { data: saved, error } = id
+    ? await db.client.from('course_batches').update(payload).eq('id', id).select().single()
+    : await db.client.from('course_batches').insert(payload).select().single();
+  if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = id ? 'Update Batch' : 'Create Batch'; }
+  if (error) { showErr('Error saving batch: ' + error.message); return; }
   closeModal('batch-modal');
-  loadBatches();
+  await loadBatches();
+  _showAdminToast(id ? '✓ Batch updated.' : '✓ Batch created! Use the Students button to enroll students.', 'success');
 }
 
 

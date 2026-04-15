@@ -1192,15 +1192,17 @@ async function verifyOtp() {
     const verifyRes = await db.verifySignupOtp(pendingSignup.email, code);
     if (!verifyRes.success) throw new Error(verifyRes.error || 'Invalid code. Please try again.');
 
-    // Create account
+    const isMentor = pendingSignup.role === 'mentor';
+
+    // Create account — use the actual role so the RPC sets user_profiles.role correctly
     const createRes = await db.registerVerifiedUser({
       email: pendingSignup.email,
       password: pendingSignup.password,
       full_name: pendingSignup.name,
       phone: pendingSignup.phone,
       username: pendingSignup.username,
-      role: 'user',
-      metadata: { requested_role: pendingSignup.role === 'mentor' ? 'mentor' : null }
+      role: isMentor ? 'mentor' : 'user',
+      metadata: { requested_role: isMentor ? 'mentor' : null }
     });
     if (!createRes.success) throw new Error(createRes.error || 'Unable to create account. Please try again.');
 
@@ -1210,15 +1212,26 @@ async function verifyOtp() {
 
     const currentUser = loginRes.data?.user || loginRes.user;
 
-    // Sync profile
+    // Sync profile with the correct role
     await db.syncUserProfile(currentUser.id, {
       full_name: pendingSignup.name,
       username: pendingSignup.username,
       email: pendingSignup.email,
       phone: pendingSignup.phone,
-      role: 'user',
+      role: isMentor ? 'mentor' : 'user',
       is_email_verified: true
     });
+
+    // If mentor: create a pending mentor_profiles stub so the mentor count is tracked
+    if (isMentor) {
+      await db.client.from('mentor_profiles').upsert({
+        user_id: currentUser.id,
+        qualifications: '',
+        expertise_areas: [],
+        years_of_experience: 0,
+        status: 'pending'
+      }, { onConflict: 'user_id' }).catch(() => {});
+    }
 
     // Save form submission
     await db.saveFormSubmission(currentUser.id, 'registration', null, {
@@ -1242,9 +1255,9 @@ async function verifyOtp() {
         `You received +${referralBonus} bonus points for using the referral code "${pendingSignup.refCode}"!`;
     }
 
-    // Redirect after 2.5s
+    // Redirect: mentor → complete full application, student → profile
     setTimeout(() => {
-      window.location.href = pendingSignup.role === 'mentor' ? 'mentor-signup.html' : 'profile.html';
+      window.location.href = isMentor ? 'mentor-signup' : 'profile';
     }, 2500);
 
   } catch (err) {

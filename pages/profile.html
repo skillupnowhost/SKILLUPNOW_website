@@ -1365,33 +1365,97 @@ function loadCertificates(enrolled) {
 
 /* ── Save profile ────────────────────────────────────────── */
 async function saveProfile() {
-  const payload = {
-    full_name:    document.getElementById('edit-name').value.trim(),
-    username:     document.getElementById('edit-username').value.trim(),
-    phone:        document.getElementById('edit-phone').value.trim(),
-    date_of_birth: document.getElementById('edit-dob').value || null,
-    gender:       document.getElementById('edit-gender').value || null,
-    city:         document.getElementById('edit-city').value.trim(),
-    state:        document.getElementById('edit-state').value.trim(),
-    postal_code:  document.getElementById('edit-pincode').value.trim(),
-    address:      document.getElementById('edit-address').value.trim(),
-  };
-  const { error } = await _db().from('user_profiles').update(payload).eq('user_id', currentUser.id);
-  if (error) { showMsg('err', 'Save failed: ' + error.message); return; }
-  showMsg('success', '✓ Profile updated!');
-  document.getElementById('hero-name').textContent = payload.full_name || document.getElementById('hero-name').textContent;
+  if (!currentUser?.id) { showMsg('err', 'Not logged in. Please refresh.'); return; }
+  const fullName = document.getElementById('edit-name').value.trim();
+  const phone    = document.getElementById('edit-phone').value.trim();
+  if (!fullName) { showMsg('err', 'Full name is required.'); return; }
+  if (phone && !/^[6-9]\d{9}$/.test(phone.replace(/\D/g, ''))) {
+    showMsg('err', 'Enter a valid 10-digit phone number.'); return;
+  }
+  const btn = document.querySelector('[onclick="saveProfile()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    const payload = {
+      full_name:     fullName,
+      username:      document.getElementById('edit-username').value.trim() || null,
+      phone:         phone || null,
+      date_of_birth: document.getElementById('edit-dob').value || null,
+      gender:        document.getElementById('edit-gender').value || null,
+      city:          document.getElementById('edit-city').value.trim() || null,
+      state:         document.getElementById('edit-state').value.trim() || null,
+      postal_code:   document.getElementById('edit-pincode').value.trim() || null,
+      address:       document.getElementById('edit-address').value.trim() || null,
+      updated_at:    new Date().toISOString()
+    };
+    // Try RPC first (bypasses RLS); fall back to direct update if RPC not available
+    let saveError = null;
+    const { data: rpcData, error: rpcErr } = await _db().rpc('update_own_profile', {
+      p_full_name:     payload.full_name,
+      p_username:      payload.username,
+      p_phone:         payload.phone,
+      p_date_of_birth: payload.date_of_birth,
+      p_gender:        payload.gender,
+      p_city:          payload.city,
+      p_state:         payload.state,
+      p_postal_code:   payload.postal_code,
+      p_address:       payload.address
+    });
+    if (rpcErr) {
+      // RPC not found — fall back to direct update
+      const { error: directErr } = await _db().from('user_profiles')
+        .update(payload).eq('user_id', currentUser.id);
+      saveError = directErr;
+    } else if (rpcData?.success === false) {
+      saveError = { message: rpcData.message || 'Update failed.' };
+    }
+    if (saveError) throw new Error(saveError.message);
+    showMsg('success', '✓ Profile updated successfully!');
+    // Update visible name in the page header
+    const heroName = document.getElementById('hero-name');
+    if (heroName) heroName.textContent = fullName;
+    userProfile = { ...(userProfile || {}), ...payload };
+  } catch(e) {
+    showMsg('err', 'Save failed: ' + (e.message || 'Unknown error. Please try again.'));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
+  }
 }
 
 /* ── Change password ─────────────────────────────────────── */
 async function changePassword() {
-  const newP = document.getElementById('new-pass').value;
-  const conf = document.getElementById('conf-pass').value;
-  if (!newP || newP !== conf) { showMsg('err', 'New passwords do not match.'); return; }
-  if (newP.length < 8) { showMsg('err', 'Password must be at least 8 characters.'); return; }
-  const { error } = await _db().auth.updateUser({ password: newP });
-  if (error) { showMsg('err', error.message); return; }
-  showMsg('success', '✓ Password updated!');
-  ['curr-pass','new-pass','conf-pass'].forEach(id => { document.getElementById(id).value = ''; });
+  if (!currentUser?.email) { showMsg('err', 'Not logged in. Please refresh.'); return; }
+  const currP = document.getElementById('curr-pass').value;
+  const newP  = document.getElementById('new-pass').value;
+  const conf  = document.getElementById('conf-pass').value;
+  if (!currP) { showMsg('err', 'Please enter your current password.'); return; }
+  if (!newP)  { showMsg('err', 'Please enter a new password.'); return; }
+  if (newP.length < 8) { showMsg('err', 'New password must be at least 8 characters.'); return; }
+  if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newP)) {
+    showMsg('err', 'New password must include uppercase, lowercase, and a number.'); return;
+  }
+  if (newP !== conf) { showMsg('err', 'New passwords do not match.'); return; }
+  if (currP === newP) { showMsg('err', 'New password must be different from the current one.'); return; }
+  const btn = document.querySelector('[onclick="changePassword()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Updating…'; }
+  try {
+    // Re-authenticate with current password first
+    const { error: authErr } = await _db().auth.signInWithPassword({
+      email: currentUser.email, password: currP
+    });
+    if (authErr) throw new Error('Current password is incorrect. Please try again.');
+    // Now update to new password
+    const { error: updateErr } = await _db().auth.updateUser({ password: newP });
+    if (updateErr) throw new Error(updateErr.message || 'Failed to update password.');
+    showMsg('success', '✓ Password updated successfully!');
+    ['curr-pass', 'new-pass', 'conf-pass'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  } catch(e) {
+    showMsg('err', e.message || 'Password update failed. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+  }
 }
 
 /* ── Upload avatar — pencil triggers directly ────────────── */

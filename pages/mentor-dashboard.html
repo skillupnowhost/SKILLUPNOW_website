@@ -346,29 +346,65 @@ let mentorId = null, mentorUserId = null, myBatches = [];
 
 async function checkAuth() {
   const { data: { session } } = await db.client.auth.getSession();
-  if (!session) return window.location.href = '/pages/admin-login.html';
+  if (!session) {
+    window.location.href = '../index.html';
+    return;
+  }
   mentorUserId = session.user.id;
-  const { data: m } = await db.client.from('mentors').select('id,approval_status').eq('user_id', session.user.id).single();
-  if (!m || m.approval_status !== 'approved') {
-    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;color:#f0eeff;font-family:inherit">
-      <div style="font-size:3rem">⏳</div>
-      <h2>Pending Approval</h2>
-      <p style="color:rgba(200,191,255,0.5)">Your mentor application is under review by the admin.</p>
-      <a href="../index.html" style="color:#9b8fff">← Back to Website</a>
+
+  // Check user_profiles role first
+  const { data: userProfile } = await db.client
+    .from('user_profiles').select('role, full_name').eq('user_id', session.user.id).maybeSingle();
+
+  if (!userProfile || (userProfile.role !== 'mentor' && userProfile.role !== 'admin' && userProfile.role !== 'super_admin')) {
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;color:#f0eeff;font-family:inherit;background:#0d0b1a;">
+      <div style="font-size:3rem">🚫</div>
+      <h2 style="font-size:1.4rem;font-weight:800;">Access Denied</h2>
+      <p style="color:rgba(200,191,255,0.5);font-size:.9rem;">This dashboard is only available to mentors.</p>
+      <a href="../index.html" style="color:#9b8fff;font-size:.9rem;">← Back to Website</a>
     </div>`;
     return;
   }
-  mentorId = m.id;
-  const { data: profile } = await db.client.from('user_profiles').select('full_name').eq('id', session.user.id).single();
-  const name = profile?.full_name || session.user.email;
+
+  // Check mentor application status in mentor_profiles
+  const { data: m } = await db.client
+    .from('mentor_profiles').select('user_id, status, rejection_reason').eq('user_id', session.user.id).maybeSingle();
+
+  if (!m || m.status !== 'approved') {
+    const isPending  = !m || m.status === 'pending';
+    const isRejected = m?.status === 'rejected';
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;color:#f0eeff;font-family:inherit;background:#0d0b1a;text-align:center;padding:2rem;">
+      <div style="font-size:3rem">${isPending ? '⏳' : '❌'}</div>
+      <h2 style="font-size:1.5rem;font-weight:800;">${isPending ? 'Pending Approval' : 'Application Rejected'}</h2>
+      <p style="color:rgba(200,191,255,0.55);font-size:.88rem;max-width:400px;line-height:1.7;">
+        ${isPending
+          ? 'Your mentor application is under review by the admin. You will be notified once approved.'
+          : (m?.rejection_reason
+              ? 'Your application was not approved.<br><strong style="color:#f87171;">Reason: ' + m.rejection_reason + '</strong>'
+              : 'Your mentor application was not approved. Please contact support.')}
+      </p>
+      <a href="../index.html" style="color:#9b8fff;font-size:.9rem;margin-top:.5rem;">← Back to Website</a>
+    </div>`;
+    return;
+  }
+
+  // Approved — set mentor identifier to user_id (UUID)
+  mentorId = mentorUserId;
+
+  const name = userProfile?.full_name || session.user.email;
   document.getElementById('m-name').textContent = name;
-  document.getElementById('m-initial').textContent = name[0].toUpperCase();
+  document.getElementById('m-initial').textContent = (name[0] || 'M').toUpperCase();
   loadMyBatches();
 }
 
 async function loadMyBatches() {
-  const { data } = await db.client.from('mentor_batches').select('*, courses(name)').eq('mentor_id', mentorId).eq('is_active', true);
-  myBatches = data || [];
+  const { data } = await db.client
+    .from('course_batches')
+    .select('*, courses(title)')
+    .eq('primary_mentor_user_id', mentorUserId)
+    .eq('is_active', true);
+  // Normalise field names so the rest of the dashboard works regardless of schema
+  myBatches = (data || []).map(b => ({ ...b, batch_name: b.batch_name || b.batch_code || 'Batch', courses: { name: b.courses?.title || b.courses?.name || '' } }));
   const opts = myBatches.map(b => `<option value="${b.id}">${b.batch_name} — ${b.courses?.name||''}</option>`).join('');
   ['sch-batch','batch-filter-students','att-class-select'].forEach(id => {
     const el = document.getElementById(id); if (el) el.innerHTML = '<option value="">Select…</option>' + opts;
@@ -383,8 +419,8 @@ async function loadOverview() {
   document.getElementById('ov-courses').textContent = [...new Set(myBatches.map(b => b.course_id))].length;
   const { data: sessions } = await db.client.from('class_schedules').select('id').eq('mentor_id', mentorId).eq('status','completed');
   document.getElementById('ov-sessions').textContent = sessions?.length || 0;
-  const { data: m } = await db.client.from('mentors').select('avg_rating').eq('id', mentorId).single();
-  document.getElementById('ov-rating').textContent = (m?.avg_rating||0).toFixed(1) + '★';
+  const { data: mp } = await db.client.from('mentor_profiles').select('average_rating').eq('user_id', mentorUserId).maybeSingle();
+  document.getElementById('ov-rating').textContent = (mp?.average_rating||0).toFixed(1) + '★';
 
   // Upcoming
   const { data: upcoming } = await db.client.from('class_schedules').select('*').eq('mentor_id', mentorId).eq('status','scheduled').gte('scheduled_at', new Date().toISOString()).order('scheduled_at').limit(5);
