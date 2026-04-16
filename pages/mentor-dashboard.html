@@ -1115,35 +1115,23 @@ async function addStudentToBatch(userId, batchId) {
   const b = myBatches.find(x => x.id === batchId);
   if (!b) return;
 
-  // Need pricing_id — get default active pricing for the course
-  const { data: pricing } = await client.from('course_pricing')
-    .select('id, list_price, sale_price')
-    .eq('course_id', b.course_id)
-    .eq('is_active', true)
-    .limit(1)
-    .maybeSingle();
-
-  if (!pricing) { showToast('No active pricing found for this course. Set pricing first.', 'e'); return; }
-  const netAmt = pricing.sale_price ?? pricing.list_price ?? 0;
-
-  const { error } = await client.from('enrollments').upsert({
-    student_user_id:  userId,
-    course_id:        b.course_id,
-    batch_id:         batchId,
-    pricing_id:       pricing.id,
-    enrollment_status:'active',
-    access_status:    'active',
-    list_price:       pricing.list_price || 0,
-    net_amount:       netAmt,
-    paid_amount:      0,
-    due_amount:       netAmt,
-  }, { onConflict: 'student_user_id,course_id' });
+  const { data: assignedEnrollment, error } = await client.rpc('assign_student_to_batch', {
+    p_student_user_id: userId,
+    p_batch_id: batchId,
+  });
 
   if (error) { showToast('Error: ' + error.message, 'e'); return; }
-  showToast('Student added to batch ✓', 's');
-  loadBatchCurrentStudents(batchId);
-  searchStudentsForBatch();
-  myBatches = myBatches.map(b2 => b2.id === batchId ? { ...b2, current_student_count: (b2.current_student_count||0)+1 } : b2);
+  if (!assignedEnrollment?.id || assignedEnrollment.batch_id !== batchId) {
+    showToast('Student was not saved to this batch. Refresh and try again.', 'e');
+    return;
+  }
+
+  await Promise.all([
+    loadBatchCurrentStudents(batchId),
+    searchStudentsForBatch(),
+    loadBatches(),
+  ]);
+  showToast('Student added to batch', 's');
 
   // Notify student via email
   try {
@@ -1162,10 +1150,11 @@ async function addStudentToBatch(userId, batchId) {
 
 async function removeFromBatch(enrollId, batchId) {
   if (!confirm('Remove this student from the batch?')) return;
-  const { error } = await client.from('enrollments').update({ enrollment_status:'cancelled', access_status:'revoked' }).eq('id', enrollId);
+  const { error } = await client.from('enrollments').update({ batch_id: null, enrollment_status:'pending' }).eq('id', enrollId);
   if (error) { showToast('Error: ' + error.message, 'e'); return; }
   showToast('Student removed', 's');
   loadBatchCurrentStudents(batchId);
+  loadBatches();
 }
 
 // ── VIEW BATCH STUDENTS ──────────────────────────────────────────────────────

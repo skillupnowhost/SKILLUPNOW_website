@@ -4704,50 +4704,28 @@ async function addStudentToBatch(userId, name) {
     .select('id').eq('batch_id', _bsmBatchId).eq('student_user_id', userId).maybeSingle();
   if (existing) { _showAdminToast(`${name} is already enrolled in this batch.`, 'error'); return; }
 
-  // Fetch batch → course_id
-  const { data: batch, error: bErr } = await db.client
-    .from('course_batches').select('course_id').eq('id', _bsmBatchId).single();
-  if (bErr || !batch?.course_id) { _showAdminToast('Batch has no associated course.', 'error'); return; }
-
-  // Fetch active pricing for this course (pricing_id is NOT NULL in enrollments)
-  const { data: pricing } = await db.client
-    .from('course_pricing')
-    .select('id, list_price, sale_price')
-    .eq('course_id', batch.course_id)
-    .eq('is_active', true)
-    .limit(1)
-    .maybeSingle();
-
-  if (!pricing) { _showAdminToast('No active pricing found for this course. Set pricing first.', 'error'); return; }
-
-  const listPrice = parseFloat(pricing.list_price || 0);
-  const netAmount = parseFloat(pricing.sale_price ?? pricing.list_price ?? 0);
-
-  const { error } = await db.client.from('enrollments').insert({
-    batch_id:          _bsmBatchId,
-    student_user_id:   userId,
-    course_id:         batch.course_id,
-    pricing_id:        pricing.id,
-    enrollment_status: 'active',
-    access_status:     'active',
-    list_price:        listPrice,
-    net_amount:        netAmount,
-    paid_amount:       0,
-    due_amount:        netAmount,
+  const { data: assignedEnrollment, error } = await db.client.rpc('assign_student_to_batch', {
+    p_student_user_id: userId,
+    p_batch_id: _bsmBatchId,
   });
 
   if (error) { _showAdminToast('Error adding student: ' + error.message, 'error'); return; }
-  _showAdminToast(`✓ ${name} added to batch.`, 'success');
+  if (!assignedEnrollment?.id || assignedEnrollment.batch_id !== _bsmBatchId) {
+    _showAdminToast('Student was not saved to this batch. Refresh and try again.', 'error');
+    return;
+  }
+
   document.getElementById('bsm-search').value = '';
   document.getElementById('bsm-search-results').innerHTML = '';
-  await loadBatchStudents();
+  await Promise.all([loadBatchStudents(), loadCourseStudentsForBatch()]);
   loadBatches(); // Refresh student count in batches table
+  _showAdminToast(`${name} added to batch.`, 'success');
 }
 
 async function removeStudentFromBatch(enrollmentId) {
   if (!confirm('Remove this student from the batch?')) return;
   const { error } = await db.client.from('enrollments')
-    .update({ enrollment_status: 'cancelled' }).eq('id', enrollmentId);
+    .update({ batch_id: null, enrollment_status: 'pending' }).eq('id', enrollmentId);
   if (error) { _showAdminToast('Error removing student: ' + error.message, 'error'); return; }
   _showAdminToast('Student removed from batch.', 'success');
   await loadBatchStudents();
