@@ -159,6 +159,26 @@ table.dt tr:hover td{background:rgba(124,92,252,.04);}
 .tbl-search{background:var(--panel2);border:1px solid var(--border2);border-radius:var(--r3);padding:.38rem .75rem;color:var(--txt);font-size:.8rem;outline:none;font-family:inherit;min-width:160px;}
 .tbl-search::placeholder{color:var(--txt4);}
 
+/* ── SEARCH DROPDOWN ── */
+.search-dd-wrap{position:relative;display:inline-block;}
+.search-suggestions{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:300;
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r3);
+  list-style:none;margin:0;padding:4px 0;
+  max-height:220px;overflow-y:auto;
+  box-shadow:0 12px 32px rgba(0,0,0,.45),0 2px 8px rgba(124,92,252,.18);
+  display:none;min-width:200px;
+}
+.search-suggestions.dd-open{display:block;}
+.search-suggestions li{
+  padding:.42rem .85rem;cursor:pointer;font-size:.81rem;color:var(--txt2);
+  display:flex;align-items:center;gap:.45rem;transition:background .14s;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.search-suggestions li:hover{background:rgba(124,92,252,.14);color:var(--txt);}
+.search-suggestions li .sug-icon{font-size:.78rem;flex-shrink:0;}
+.search-suggestions li .sug-email{font-size:.7rem;color:var(--txt4);margin-left:auto;flex-shrink:0;}
+
 /* ── HOLIDAY TYPES ── */
 .htype{display:inline-flex;align-items:center;padding:.18rem .55rem;border-radius:999px;font-size:.68rem;font-weight:700;}
 .ht-national{background:rgba(59,130,246,.15);color:#60a5fa;}
@@ -250,7 +270,7 @@ table.dt tr:hover td{background:rgba(124,92,252,.04);}
   <header class="topbar">
     <button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
     <div class="topbar-title" id="topbar-title">Overview</div>
-    <button class="tb-btn primary" onclick="openModal('session-modal')">+ Schedule Class</button>
+    <button class="tb-btn primary" onclick="openSessionForNew()">+ Schedule Class</button>
     <button class="tb-btn" onclick="window.open('../index.html','_blank')">↗ Website</button>
   </header>
 
@@ -283,7 +303,7 @@ table.dt tr:hover td{background:rgba(124,92,252,.04);}
 
       <div class="tcard">
         <div class="tcard-hd"><h3>📅 Today's & Upcoming Classes</h3>
-          <button class="btn btn-p" onclick="openModal('session-modal')">+ Schedule</button>
+          <button class="btn btn-p" onclick="openSessionForNew()">+ Schedule</button>
         </div>
         <div style="padding:1.1rem" id="upcoming-list"><div class="empty">Loading…</div></div>
       </div>
@@ -323,7 +343,7 @@ table.dt tr:hover td{background:rgba(124,92,252,.04);}
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            <button class="btn btn-p" onclick="openModal('session-modal')">+ New Session</button>
+            <button class="btn btn-p" onclick="openSessionForNew()">+ New Session</button>
           </div>
         </div>
         <div id="sessions-list" style="padding:1.1rem"><div class="empty">Loading…</div></div>
@@ -336,7 +356,13 @@ table.dt tr:hover td{background:rgba(124,92,252,.04);}
         <div class="tcard-hd">
           <h3>Enrolled Students</h3>
           <div class="tcard-actions">
-            <input class="tbl-search" placeholder="Search name…" oninput="filterDt('student-tbody',this.value,[0,1])">
+            <div class="search-dd-wrap">
+              <input class="tbl-search" id="stu-name-search" placeholder="Search name…" autocomplete="off"
+                oninput="filterDt('student-tbody',this.value,[0,1]);showStuSuggestions(this.value)"
+                onfocus="showStuSuggestions(this.value)"
+                onkeydown="if(event.key==='Escape')hideStuSuggestions()">
+              <ul class="search-suggestions" id="stu-name-suggestions"></ul>
+            </div>
             <select class="tbl-search" id="stu-batch-filter" onchange="loadStudents()" style="min-width:140px">
               <option value="">All Batches</option>
             </select>
@@ -542,15 +568,55 @@ table.dt tr:hover td{background:rgba(124,92,252,.04);}
     <div class="mclose" onclick="closeModal('add-students-modal')">✕</div>
     <div class="mtitle">Add Students to Batch</div>
     <input type="hidden" id="asb-batch-id">
+    <input type="hidden" id="asb-course-id">
     <div class="info-box" id="asb-batch-info">Batch: —</div>
-    <div class="fg" style="display:flex;gap:.5rem">
-      <input class="tbl-search" id="asb-search" placeholder="Search by name or email…" style="flex:1" oninput="searchStudentsForBatch()">
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:0;background:var(--bg2);border-radius:var(--r1);padding:3px;margin-bottom:.85rem">
+      <button class="asb-tab active" onclick="asbTab('course',this)" style="flex:1;padding:.4rem;border-radius:calc(var(--r1) - 2px);border:none;cursor:pointer;font-size:.8rem;font-weight:700;background:var(--v1);color:#fff">Course Students</button>
+      <button class="asb-tab" onclick="asbTab('search',this)" style="flex:1;padding:.4rem;border-radius:calc(var(--r1) - 2px);border:none;cursor:pointer;font-size:.8rem;font-weight:700;background:transparent;color:var(--txt3)">Search All</button>
     </div>
-    <div id="asb-results" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r3);margin-bottom:.75rem;"></div>
-    <div class="fg"><label>Current Students in Batch <span id="asb-count" style="color:var(--v1);font-weight:800"></span></label></div>
-    <div id="asb-current" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r3);margin-bottom:.75rem;"></div>
+
+    <!-- Tab: Course students -->
+    <div id="asb-tab-course">
+      <div style="font-size:.75rem;color:var(--txt3);margin-bottom:.5rem">Students enrolled in this course (add to batch)</div>
+      <div id="asb-course-students" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r2);margin-bottom:.75rem">
+        <div class="empty" style="padding:.85rem">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Tab: Search -->
+    <div id="asb-tab-search" style="display:none">
+      <div class="fg" style="display:flex;gap:.5rem">
+        <input class="tbl-search" id="asb-search" placeholder="Search by name or email…" style="flex:1" oninput="searchStudentsForBatch()">
+      </div>
+      <div id="asb-results" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r2);margin-bottom:.75rem;"></div>
+    </div>
+
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);margin-bottom:.4rem">
+      Current Students in Batch <span id="asb-count" style="color:var(--v1);font-weight:800"></span>
+    </div>
+    <div id="asb-current" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r2);margin-bottom:.75rem;"></div>
     <div class="mactions">
       <button class="btn btn-s" onclick="closeModal('add-students-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Batch Students Modal -->
+<div class="overlay" id="view-students-modal" onclick="if(event.target===this)closeModal('view-students-modal')">
+  <div class="mbox wide" style="max-width:780px">
+    <div class="mclose" onclick="closeModal('view-students-modal')">✕</div>
+    <div class="mtitle" id="vsm-title">Students</div>
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;flex-wrap:wrap">
+      <input class="tbl-search" id="vsm-search" placeholder="Search by name or email…" style="flex:1;min-width:160px" oninput="filterVsm(this.value)">
+      <span id="vsm-count" style="font-size:.75rem;color:var(--txt3);white-space:nowrap"></span>
+    </div>
+    <div id="vsm-body" style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r2)">
+      <div class="empty" style="padding:1.2rem">Loading…</div>
+    </div>
+    <div class="mactions" style="margin-top:.75rem">
+      <button class="btn btn-s" onclick="closeModal('view-students-modal')">Close</button>
     </div>
   </div>
 </div>
@@ -796,7 +862,7 @@ async function loadOverview() {
 
   const upEl = document.getElementById('upcoming-list');
   if (!upcoming?.length) {
-    upEl.innerHTML = `<div class="empty">No upcoming classes. <button class="btn btn-p" style="margin-left:.5rem" onclick="openModal('session-modal')">Schedule Now</button></div>`;
+    upEl.innerHTML = `<div class="empty">No upcoming classes. <button class="btn btn-p" style="margin-left:.5rem" onclick="openSessionForNew()">Schedule Now</button></div>`;
   } else {
     upEl.innerHTML = '<div class="sched-list">' + upcoming.map(s => {
       const d = new Date(s.scheduled_start_at);
@@ -845,8 +911,8 @@ async function loadBatches() {
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1">No batches yet. <button class="btn btn-p" style="margin-left:.5rem" onclick="openModal('batch-modal')">Create First Batch</button></div>`;
     return;
   }
-  // Fetch enrollment counts per batch
-  const { data: counts } = await client.from('enrollments').select('batch_id').in('batch_id', batchIds()).eq('enrollment_status','active');
+  // Fetch enrollment counts per batch (include pending + completed, not just active)
+  const { data: counts } = await client.from('enrollments').select('batch_id').in('batch_id', batchIds()).in('enrollment_status',['active','pending','completed']);
   const cntMap = {};
   (counts||[]).forEach(r => { cntMap[r.batch_id] = (cntMap[r.batch_id]||0)+1; });
 
@@ -877,39 +943,120 @@ async function loadBatches() {
       </div>
       <div style="display:flex;gap:.4rem;flex-wrap:wrap">
         <button class="btn btn-p" style="font-size:.72rem;flex:1" onclick="openAddStudentsModal('${b.id}')">+ Add Students</button>
+        <button class="act-btn" style="font-size:.72rem" onclick="openViewStudentsModal('${b.id}')">View Students</button>
         <button class="act-btn" onclick="editBatch('${b.id}')">Edit</button>
       </div>
     </div>`;
   }).join('');
 }
 
+function asbTab(tab, btn) {
+  document.querySelectorAll('.asb-tab').forEach(t => { t.classList.remove('active'); t.style.background='transparent'; t.style.color='var(--txt3)'; });
+  btn.classList.add('active'); btn.style.background='var(--v1)'; btn.style.color='#fff';
+  document.getElementById('asb-tab-course').style.display = tab === 'course' ? '' : 'none';
+  document.getElementById('asb-tab-search').style.display  = tab === 'search'  ? '' : 'none';
+}
+
 function openAddStudentsModal(batchId) {
   const b = myBatches.find(x => x.id === batchId);
-  document.getElementById('asb-batch-id').value = batchId;
+  document.getElementById('asb-batch-id').value  = batchId;
+  document.getElementById('asb-course-id').value = b?.course_id || '';
   document.getElementById('asb-batch-info').textContent = `Batch: ${b?.batch_name || batchId} — ${b?._courseName||''}`;
   document.getElementById('asb-search').value = '';
   document.getElementById('asb-results').innerHTML = '';
+  asbTab('course', document.querySelector('.asb-tab'));
+  loadCourseStudentsForBatch(batchId, b?.course_id);
   loadBatchCurrentStudents(batchId);
   openModal('add-students-modal');
 }
 
+async function loadCourseStudentsForBatch(batchId, courseId) {
+  const el = document.getElementById('asb-course-students');
+  if (!courseId) { el.innerHTML = '<div class="empty" style="padding:.85rem">No course linked to this batch</div>'; return; }
+  el.innerHTML = '<div class="empty" style="padding:.85rem">Loading…</div>';
+
+  // Get all students enrolled in this course (any batch)
+  const { data: allEnr, error } = await client.from('enrollments')
+    .select('id,student_user_id,batch_id,enrollment_status,student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email))')
+    .eq('course_id', courseId)
+    .in('enrollment_status',['active','pending','completed']);
+
+  if (error) { el.innerHTML = `<div class="empty" style="padding:.85rem;color:var(--red)">Error: ${error.message}</div>`; return; }
+
+  // Get students already in THIS batch
+  const { data: inBatch } = await client.from('enrollments').select('student_user_id').eq('batch_id', batchId);
+  const inBatchSet = new Set((inBatch||[]).map(r => r.student_user_id));
+
+  // De-duplicate by student_user_id
+  const seen = new Set();
+  const students = (allEnr||[]).filter(e => {
+    if (seen.has(e.student_user_id)) return false;
+    seen.add(e.student_user_id);
+    return true;
+  });
+
+  if (!students.length) { el.innerHTML = '<div class="empty" style="padding:.85rem">No students enrolled in this course yet</div>'; return; }
+
+  el.innerHTML = students.map(e => {
+    const up = e.student_profiles?.user_profiles || {};
+    const already = inBatchSet.has(e.student_user_id);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:.45rem .75rem;border-bottom:1px solid var(--border);font-size:.8rem">
+      <div>
+        <span style="color:var(--txt2);font-weight:600">${up.full_name||'—'}</span>
+        <span style="color:var(--txt4);margin-left:.4rem">${up.email||''}</span>
+      </div>
+      ${already
+        ? '<span style="font-size:.7rem;color:var(--green)">✓ In batch</span>'
+        : `<button class="btn btn-g" style="font-size:.7rem;padding:.25rem .65rem" onclick="addStudentToBatch('${e.student_user_id}','${batchId}')">+ Add</button>`}
+    </div>`;
+  }).join('');
+}
+
 async function loadBatchCurrentStudents(batchId) {
-  const { data } = await client.from('enrollments')
-    .select('id, student_user_id, student_profiles:student_user_id(user_profiles(full_name,email))')
+  const { data, error } = await client.from('enrollments')
+    .select('id, student_user_id, enrollment_status, access_status, recording_access, student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email))')
     .eq('batch_id', batchId)
-    .in('enrollment_status',['active','pending']);
+    .in('enrollment_status',['active','pending','completed']);
+
+  if (error) {
+    document.getElementById('asb-count').textContent = '!';
+    document.getElementById('asb-current').innerHTML =
+      `<div class="empty" style="padding:1rem;color:var(--red)">
+        ⚠️ Error loading students: ${error.message}<br>
+        <span style="font-size:.72rem;color:var(--txt3)">Run db/v23-permissions-audit.sql in Supabase SQL Editor to fix.</span>
+      </div>`;
+    return;
+  }
 
   const cnt = data?.length || 0;
   document.getElementById('asb-count').textContent = cnt;
   document.getElementById('asb-current').innerHTML = !cnt
     ? `<div class="empty" style="padding:1rem">No students yet</div>`
     : `<table style="width:100%;border-collapse:collapse;font-size:.78rem">
+        <thead><tr style="font-size:.68rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em">
+          <th style="padding:.3rem .6rem;text-align:left">Student</th>
+          <th style="padding:.3rem .6rem;text-align:left">Access</th>
+          <th style="padding:.3rem .6rem;text-align:left">Videos</th>
+          <th style="padding:.3rem .6rem;text-align:left">Actions</th>
+        </tr></thead>
         ${(data||[]).map(e => {
           const up = e.student_profiles?.user_profiles || {};
+          const recOn = e.recording_access !== false;
+          const accCls = {active:'color:var(--green)',restricted:'color:var(--yellow)',revoked:'color:var(--red)',pending:'color:var(--txt3)'}[e.access_status]||'';
           return `<tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:.45rem .75rem;color:var(--txt2)">${up.full_name||'—'}</td>
-            <td style="padding:.45rem .75rem;color:var(--txt3)">${up.email||'—'}</td>
-            <td style="padding:.45rem .75rem"><button class="act-btn" style="color:var(--red);border-color:rgba(239,68,68,.3)" onclick="removeFromBatch('${e.id}','${batchId}')">Remove</button></td>
+            <td style="padding:.4rem .6rem">
+              <div style="font-weight:600;color:var(--txt2)">${up.full_name||'—'}</div>
+              <div style="font-size:.7rem;color:var(--txt4)">${up.email||''}</div>
+            </td>
+            <td style="padding:.4rem .6rem"><span style="font-size:.72rem;${accCls}">${e.access_status}</span></td>
+            <td style="padding:.4rem .6rem">
+              <button onclick="toggleRecordingAccess('${e.id}',${recOn})" style="background:none;border:1px solid ${recOn?'rgba(34,197,94,.4)':'rgba(239,68,68,.3)'};border-radius:var(--r1);padding:.2rem .5rem;font-size:.68rem;cursor:pointer;color:${recOn?'var(--green)':'var(--red)'}">
+                ${recOn?'🎬 On':'🚫 Off'}
+              </button>
+            </td>
+            <td style="padding:.4rem .6rem">
+              <button class="act-btn" style="color:var(--red);border-color:rgba(239,68,68,.3);font-size:.7rem" onclick="removeFromBatch('${e.id}','${batchId}')">Remove</button>
+            </td>
           </tr>`;
         }).join('')}
       </table>`;
@@ -924,7 +1071,7 @@ async function searchStudentsForBatch() {
   // Query via student_profiles → user_profiles join (RLS allows mentors to see student records)
   const { data: spData, error: spErr } = await client
     .from('student_profiles')
-    .select('user_id, user_profiles(user_id, full_name, email)')
+    .select('user_id, user_profiles!student_profiles_user_id_fkey(user_id, full_name, email)')
     .or(`user_profiles.full_name.ilike.%${q}%,user_profiles.email.ilike.%${q}%`)
     .limit(10);
 
@@ -1021,6 +1168,122 @@ async function removeFromBatch(enrollId, batchId) {
   loadBatchCurrentStudents(batchId);
 }
 
+// ── VIEW BATCH STUDENTS ──────────────────────────────────────────────────────
+let _vsmBatchId = null;
+let _vsmData    = [];
+
+async function openViewStudentsModal(batchId) {
+  _vsmBatchId = batchId;
+  const b = myBatches.find(x => x.id === batchId);
+  document.getElementById('vsm-title').textContent = `Students — ${b?.batch_name || 'Batch'}`;
+  document.getElementById('vsm-search').value = '';
+  document.getElementById('vsm-count').textContent = '';
+  document.getElementById('vsm-body').innerHTML = '<div class="empty" style="padding:1.2rem">Loading…</div>';
+  openModal('view-students-modal');
+  await loadVsmStudents(batchId);
+}
+
+async function loadVsmStudents(batchId) {
+  const { data, error } = await client.from('enrollments')
+    .select('id,student_user_id,enrollment_status,access_status,recording_access,progress_percentage,net_amount,paid_amount,due_amount,created_at,student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email,phone))')
+    .eq('batch_id', batchId)
+    .in('enrollment_status',['active','pending','completed'])
+    .order('created_at', { ascending: false });
+
+  const el = document.getElementById('vsm-body');
+  if (error) { el.innerHTML = `<div class="empty" style="padding:1rem;color:var(--red)">Error: ${error.message}</div>`; return; }
+  _vsmData = data || [];
+  document.getElementById('vsm-count').textContent = `${_vsmData.length} student${_vsmData.length !== 1 ? 's' : ''}`;
+  renderVsm(_vsmData);
+}
+
+function renderVsm(rows) {
+  const el = document.getElementById('vsm-body');
+  if (!rows.length) { el.innerHTML = '<div class="empty" style="padding:1.2rem">No students in this batch yet</div>'; return; }
+  const accColor = { active:'#4ade80', restricted:'#facc15', revoked:'#f87171', pending:'rgba(200,191,255,.4)', expired:'rgba(200,191,255,.4)' };
+  const statusColor = { active:'#4ade80', completed:'#60a5fa', pending:'#facc15' };
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:.78rem">
+    <thead><tr style="font-size:.67rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border)">
+      <th style="padding:.4rem .75rem;text-align:left">Student</th>
+      <th style="padding:.4rem .6rem;text-align:left">Phone</th>
+      <th style="padding:.4rem .6rem;text-align:left">Status</th>
+      <th style="padding:.4rem .6rem;text-align:left">Access</th>
+      <th style="padding:.4rem .6rem;text-align:left">Progress</th>
+      <th style="padding:.4rem .6rem;text-align:left">Videos</th>
+      <th style="padding:.4rem .6rem;text-align:left">Fees</th>
+      <th style="padding:.4rem .6rem;text-align:left">Actions</th>
+    </tr></thead>
+    <tbody>
+    ${rows.map(e => {
+      const up   = e.student_profiles?.user_profiles || {};
+      const prog = e.progress_percentage || 0;
+      const recOn = e.recording_access !== false;
+      const ac   = accColor[e.access_status]    || 'rgba(200,191,255,.4)';
+      const sc   = statusColor[e.enrollment_status] || 'rgba(200,191,255,.4)';
+      const due  = e.due_amount > 0 ? `<span style="color:#f87171;font-size:.7rem">₹${Number(e.due_amount).toLocaleString('en-IN')} due</span>` : `<span style="color:#4ade80;font-size:.7rem">Paid</span>`;
+      return `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:.45rem .75rem">
+          <div style="font-weight:700;color:var(--txt)">${up.full_name||'—'}</div>
+          <div style="font-size:.7rem;color:var(--txt4)">${up.email||''}</div>
+        </td>
+        <td style="padding:.45rem .6rem;font-size:.75rem;color:var(--txt3)">${up.phone||'—'}</td>
+        <td style="padding:.45rem .6rem"><span style="font-size:.7rem;font-weight:700;color:${sc}">${e.enrollment_status}</span></td>
+        <td style="padding:.45rem .6rem"><span style="font-size:.7rem;font-weight:700;color:${ac}">${e.access_status||'—'}</span></td>
+        <td style="padding:.45rem .6rem;min-width:80px">
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <div class="pbar" style="flex:1"><div class="pbar-fill" style="width:${prog}%"></div></div>
+            <span style="font-size:.68rem;color:var(--v1)">${prog}%</span>
+          </div>
+        </td>
+        <td style="padding:.45rem .6rem">
+          <button onclick="toggleRecordingAccessVsm('${e.id}',${recOn})" style="background:none;border:1px solid ${recOn?'rgba(34,197,94,.4)':'rgba(239,68,68,.3)'};border-radius:var(--r1);padding:.18rem .45rem;font-size:.68rem;cursor:pointer;color:${recOn?'var(--green)':'var(--red)'}">
+            ${recOn?'On':'Off'}
+          </button>
+        </td>
+        <td style="padding:.45rem .6rem">${due}</td>
+        <td style="padding:.45rem .6rem">
+          <button class="act-btn" style="color:var(--red);border-color:rgba(239,68,68,.3);font-size:.68rem" onclick="removeFromBatchVsm('${e.id}')">Remove</button>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function filterVsm(q) {
+  if (!q.trim()) { renderVsm(_vsmData); return; }
+  const lq = q.toLowerCase();
+  renderVsm(_vsmData.filter(e => {
+    const up = e.student_profiles?.user_profiles || {};
+    return (up.full_name||'').toLowerCase().includes(lq) || (up.email||'').toLowerCase().includes(lq);
+  }));
+}
+
+async function toggleRecordingAccessVsm(enrollId, currentlyOn) {
+  const newVal = !currentlyOn;
+  const { error } = await client.from('enrollments').update({ recording_access: newVal }).eq('id', enrollId);
+  if (error) { showToast('Error: ' + error.message, 'e'); return; }
+  showToast(newVal ? 'Recording access enabled ✓' : 'Recording access disabled', newVal ? 's' : 'w');
+  await loadVsmStudents(_vsmBatchId);
+}
+
+async function removeFromBatchVsm(enrollId) {
+  if (!confirm('Remove this student from the batch?')) return;
+  const { error } = await client.from('enrollments').update({ batch_id: null, enrollment_status: 'pending' }).eq('id', enrollId);
+  if (error) { showToast('Error: ' + error.message, 'e'); return; }
+  showToast('Student removed from batch', 's');
+  await loadVsmStudents(_vsmBatchId);
+  loadBatches();
+}
+
+async function toggleRecordingAccess(enrollId, currentlyOn) {
+  const newVal = !currentlyOn;
+  const { error } = await client.from('enrollments').update({ recording_access: newVal }).eq('id', enrollId);
+  if (error) { showToast('Error: ' + error.message, 'e'); return; }
+  showToast(newVal ? 'Recording access enabled ✓' : 'Recording access disabled', newVal ? 's' : 'w');
+  loadStudents();
+}
+
 async function openBatchModal(prefill = {}) {
   document.getElementById('batch-modal-title').textContent = prefill.id ? 'Edit Batch' : 'Create New Batch';
   document.getElementById('b-id').value  = prefill.id || '';
@@ -1080,6 +1343,43 @@ function generateMeetUrl(batchCode) {
   return `https://meet.jit.si/SUN-${code}-${ts}`;
 }
 
+let _sessionsMap = {};
+
+function openSessionForNew() {
+  document.getElementById('sess-id').value = '';
+  document.getElementById('session-modal-title').textContent = 'Schedule New Class';
+  document.getElementById('sess-save-btn').textContent = 'Schedule & Send Invites';
+  document.getElementById('sess-batch').value = '';
+  document.getElementById('sess-title').value = '';
+  document.getElementById('sess-start').value = '';
+  document.getElementById('sess-end').value = '';
+  document.getElementById('sess-notes').value = '';
+  const info = document.getElementById('sess-meet-info');
+  if (info) info.style.display = '';
+  openModal('session-modal');
+}
+
+function editSession(id) {
+  const s = _sessionsMap[id];
+  if (!s) return;
+  const toLocalDT = iso => {
+    const d = new Date(iso);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0')
+      + 'T' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  };
+  document.getElementById('sess-id').value = s.id;
+  document.getElementById('session-modal-title').textContent = 'Edit Class';
+  document.getElementById('sess-save-btn').textContent = 'Update Class';
+  document.getElementById('sess-batch').value = s.batch_id || '';
+  document.getElementById('sess-title').value = s.session_title || '';
+  document.getElementById('sess-start').value = s.scheduled_start_at ? toLocalDT(s.scheduled_start_at) : '';
+  document.getElementById('sess-end').value   = s.scheduled_end_at   ? toLocalDT(s.scheduled_end_at)   : '';
+  document.getElementById('sess-notes').value = s.session_description || '';
+  const info = document.getElementById('sess-meet-info');
+  if (info) info.style.display = s.meeting_url ? 'none' : '';
+  openModal('session-modal');
+}
+
 async function loadSessions() {
   const batchFilter  = document.getElementById('sess-batch-filter')?.value  || '';
   const statusFilter = document.getElementById('sess-status-filter')?.value || '';
@@ -1100,7 +1400,9 @@ async function loadSessions() {
   const { data } = await q;
   const el = document.getElementById('sessions-list');
 
-  if (!data?.length) { el.innerHTML = `<div class="empty">No sessions found. <button class="btn btn-p" style="margin-left:.5rem" onclick="openModal('session-modal')">Schedule One</button></div>`; return; }
+  if (!data?.length) { el.innerHTML = `<div class="empty">No sessions found. <button class="btn btn-p" style="margin-left:.5rem" onclick="openSessionForNew()">Schedule One</button></div>`; return; }
+
+  _sessionsMap = Object.fromEntries(data.map(s => [s.id, s]));
 
   el.innerHTML = '<div class="sched-list">' + data.map(s => {
     const d    = new Date(s.scheduled_start_at);
@@ -1108,17 +1410,18 @@ async function loadSessions() {
     const dur  = Math.round((dEnd - d) / 60000);
     const stCls = {scheduled:'bb',ongoing:'by',completed:'bg',cancelled:'br',rescheduled:'bv'}[s.session_status]||'bx';
     return `<div class="sched-card">
-      <div class="sched-date">
+      <div class="sched-date" onclick="editSession('${s.id}')" style="cursor:pointer">
         <div class="sd">${d.getDate()}</div>
         <div class="sm">${d.toLocaleString('en-IN',{month:'short'})}</div>
         <div class="sy">${d.getFullYear()}</div>
       </div>
-      <div class="sched-info">
+      <div class="sched-info" onclick="editSession('${s.id}')" style="cursor:pointer;flex:1">
         <h4>${s.session_title}</h4>
         <p>${d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} · ${dur} min · ${s.course_batches?.batch_name||'—'} · <span class="badge ${stCls}">${s.session_status}</span></p>
         ${s.meeting_url ? `<p style="font-size:.7rem;color:var(--v1);margin-top:.2rem">🔗 ${s.meeting_url}</p>` : ''}
       </div>
       <div class="sched-acts">
+        <button class="act-btn" onclick="openViewStudentsModal('${s.batch_id}')" style="font-size:.68rem">Students</button>
         ${s.meeting_url && s.session_status==='scheduled' ? `<a href="${s.meeting_url}" target="_blank"><button class="btn btn-p" style="font-size:.72rem">▶ Join</button></a>` : ''}
         ${s.session_status==='scheduled' ? `<button class="act-btn" onclick="markSessionDone('${s.id}')">✓ Done</button><button class="act-btn" style="color:var(--red);border-color:rgba(239,68,68,.3)" onclick="openCancelModal('${s.id}')">Cancel</button>` : ''}
       </div>
@@ -1162,9 +1465,8 @@ async function saveSession() {
     session_status:     'scheduled',
     ...(meetUrl ? { meeting_url: meetUrl } : {}),
   };
-  if (document.getElementById('sess-notes').value.trim()) {
-    payload.cancellation_reason = null; // ensure blank
-  }
+  const notes = document.getElementById('sess-notes').value.trim();
+  if (notes) payload.session_description = notes;
 
   const { error } = sessId
     ? await client.from('class_sessions').update(payload).eq('id', sessId)
@@ -1182,6 +1484,8 @@ async function saveSession() {
   showToast(sessId ? 'Session updated ✓' : 'Class scheduled! Invites sending…', 's');
   closeModal('session-modal');
   document.getElementById('sess-id').value = '';
+  document.getElementById('session-modal-title').textContent = 'Schedule New Class';
+  document.getElementById('sess-save-btn').textContent = 'Schedule & Send Invites';
   loadSessions();
   loadOverview();
 }
@@ -1189,7 +1493,7 @@ async function saveSession() {
 async function sendSessionInvites(batchId, title, meetUrl, startTime) {
   const { data: enrollments } = await client
     .from('enrollments')
-    .select('student_user_id, user_profiles(full_name, email)')
+    .select('student_user_id, student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email))')
     .eq('batch_id', batchId)
     .eq('enrollment_status', 'active');
   if (!enrollments?.length) return;
@@ -1199,7 +1503,7 @@ async function sendSessionInvites(batchId, title, meetUrl, startTime) {
   if (typeof emailjs !== 'undefined') {
     emailjs.init('6chiuXaZ_OqXbYyG1');
     for (const e of enrollments) {
-      const p = e.user_profiles || {};
+      const p = e.student_profiles?.user_profiles || {};
       try {
         await emailjs.send('service_skillupnow','template_bjqerns', {
           to_name:  p.full_name || 'Student',
@@ -1278,20 +1582,28 @@ async function loadStudents() {
   if (!ids.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No batches assigned</td></tr>'; return; }
 
   const { data, error } = await client.from('enrollments')
-    .select('id,student_user_id,course_id,batch_id,enrollment_status,access_status,progress_percentage,net_amount,paid_amount,due_amount,access_restriction_until,user_profiles(full_name,email),courses(title),course_batches(batch_name)')
+    .select('id,student_user_id,course_id,batch_id,enrollment_status,access_status,recording_access,progress_percentage,net_amount,paid_amount,due_amount,access_restriction_until,student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email)),courses(title),course_batches(batch_name)')
     .in('batch_id', ids)
     .in('enrollment_status',['active','pending','completed'])
     .order('created_at', { ascending: false })
     .limit(100);
 
-  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="empty">Error: ${error.message}</td></tr>`; return; }
+  if (error) {
+    const hint = error.message.includes('permission denied')
+      ? ' — Run db/v23-permissions-audit.sql in Supabase SQL Editor to grant student_profiles access.'
+      : '';
+    tbody.innerHTML = `<tr><td colspan="7" class="empty" style="color:var(--red)">⚠️ ${error.message}${hint}</td></tr>`;
+    return;
+  }
 
   tbody.innerHTML = (data||[]).map(e => {
     const prog = e.progress_percentage || 0;
+    const up = e.student_profiles?.user_profiles || {};
     const accCls = {active:'bg',restricted:'by',revoked:'br',expired:'bx',pending:'bv'}[e.access_status]||'bx';
+    const recOn = e.recording_access !== false;
     return `<tr>
-      <td style="font-weight:600">${e.user_profiles?.full_name||'—'}</td>
-      <td style="font-size:.78rem;color:var(--txt3)">${e.user_profiles?.email||'—'}</td>
+      <td style="font-weight:600">${up.full_name||'—'}</td>
+      <td style="font-size:.78rem;color:var(--txt3)">${up.email||'—'}</td>
       <td>${e.courses?.title||'—'}</td>
       <td>${e.course_batches?.batch_name||'—'}</td>
       <td>
@@ -1300,10 +1612,18 @@ async function loadStudents() {
           <span style="font-size:.72rem;color:var(--v1);white-space:nowrap">${prog}%</span>
         </div>
       </td>
-      <td><span class="badge ${accCls}">${e.access_status}</span>
+      <td>
+        <span class="badge ${accCls}">${e.access_status}</span>
         ${e.access_restriction_until ? `<span style="font-size:.65rem;color:var(--txt4);display:block">until ${fmtD(e.access_restriction_until)}</span>` : ''}
       </td>
-      <td><button class="act-btn" onclick="openAccessModal('${e.id}','${e.user_profiles?.full_name||'Student'}','${e.access_status}')">Manage Access</button></td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:.3rem">
+          <button class="act-btn" onclick="openAccessModal('${e.id}','${up.full_name||'Student'}','${e.access_status}')">Access</button>
+          <button class="act-btn" style="font-size:.68rem;${recOn?'color:var(--green);border-color:rgba(34,197,94,.3)':'color:var(--txt4)'}" onclick="toggleRecordingAccess('${e.id}',${recOn})">
+            ${recOn?'🎬 Rec: On':'🎬 Rec: Off'}
+          </button>
+        </div>
+      </td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" class="empty">No students found</td></tr>';
 }
@@ -1355,7 +1675,7 @@ async function loadAttendancePanel() {
 
   const ids = batchIds();
   const [{ data: enrollments }, { data: existing }, { data: sess }] = await Promise.all([
-    client.from('enrollments').select('student_user_id, user_profiles(full_name,email)').in('batch_id', ids).eq('enrollment_status','active'),
+    client.from('enrollments').select('student_user_id, student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email))').in('batch_id', ids).eq('enrollment_status','active'),
     client.from('class_attendance').select('*').eq('class_session_id', sessId),
     client.from('class_sessions').select('session_title,scheduled_start_at,batch_id').eq('id', sessId).maybeSingle()
   ]);
@@ -1391,8 +1711,8 @@ async function loadAttendancePanel() {
           const st  = att?.attendance_status || 'absent';
           const sc  = {present:'bg',absent:'br',late:'by',excused:'bb'}[st]||'bx';
           return `<tr>
-            <td style="font-weight:600">${e.user_profiles?.full_name||'—'}</td>
-            <td style="font-size:.75rem;color:var(--txt3)">${e.user_profiles?.email||'—'}</td>
+            <td style="font-weight:600">${e.student_profiles?.user_profiles?.full_name||'—'}</td>
+            <td style="font-size:.75rem;color:var(--txt3)">${e.student_profiles?.user_profiles?.email||'—'}</td>
             <td><span class="badge ${sc}" id="att-${uid}">${st}</span></td>
             <td><div class="att-btns">
               ${['present','absent','late','excused'].map(s =>
@@ -1535,7 +1855,7 @@ async function loadEmi() {
   const tbody = document.getElementById('emi-tbody');
   if (!ids.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No batches</td></tr>'; return; }
 
-  const { data: enrIds } = await client.from('enrollments').select('id,student_user_id,user_profiles(full_name),courses(title)').in('batch_id', ids);
+  const { data: enrIds } = await client.from('enrollments').select('id,student_user_id,student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name)),courses(title)').in('batch_id', ids);
   if (!enrIds?.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No enrollments</td></tr>'; return; }
 
   let q = client.from('payment_schedules')
@@ -1553,7 +1873,7 @@ async function loadEmi() {
     const due = new Date(ps.due_at);
     const isPast = due < new Date() && ps.schedule_status !== 'paid';
     return `<tr>
-      <td>${e.user_profiles?.full_name||'—'}</td>
+      <td>${e.student_profiles?.user_profiles?.full_name||'—'}</td>
       <td>${e.courses?.title||'—'}</td>
       <td>#${ps.installment_number || (i+1)}</td>
       <td style="color:${isPast?'var(--red)':'var(--txt2)'}">${fmtD(ps.due_at)}</td>
@@ -1567,8 +1887,8 @@ async function loadEmi() {
 }
 
 async function sendEmiReminder(enrollId) {
-  const { data: enr } = await client.from('enrollments').select('user_profiles(full_name,email),courses(title)').eq('id',enrollId).maybeSingle();
-  const p = enr?.user_profiles || {};
+  const { data: enr } = await client.from('enrollments').select('student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email)),courses(title)').eq('id',enrollId).maybeSingle();
+  const p = enr?.student_profiles?.user_profiles || {};
   if (!p.email) { showToast('No email found for student', 'e'); return; }
   if (typeof emailjs !== 'undefined') {
     emailjs.init('6chiuXaZ_OqXbYyG1');
@@ -1591,7 +1911,7 @@ async function loadReports() {
 
   const [{ data: enrollments }, { data: sessions }] = await Promise.all([
     ids.length
-      ? client.from('enrollments').select('id,student_user_id,progress_percentage,enrollment_status,due_amount,user_profiles(full_name),courses(title),course_batches(batch_name)').in('batch_id', ids)
+      ? client.from('enrollments').select('id,student_user_id,progress_percentage,enrollment_status,due_amount,student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name)),courses(title),course_batches(batch_name)').in('batch_id', ids)
       : { data: [] },
     client.from('class_sessions').select('id,session_status').eq('mentor_user_id', mentorUserId)
   ]);
@@ -1622,7 +1942,7 @@ async function loadReports() {
     const prog = e.progress_percentage || 0;
     const st   = {active:'bg',completed:'bg',cancelled:'br',suspended:'br'}[e.enrollment_status]||'bx';
     return `<tr>
-      <td style="font-weight:600">${e.user_profiles?.full_name||'—'}</td>
+      <td style="font-weight:600">${e.student_profiles?.user_profiles?.full_name||'—'}</td>
       <td>${e.courses?.title||'—'}</td>
       <td>${e.course_batches?.batch_name||'—'}</td>
       <td>
@@ -1644,7 +1964,7 @@ async function sendReportToAdmin() {
   showToast('Generating report…', 'i');
 
   const { data: enrollments } = ids.length
-    ? await client.from('enrollments').select('id,student_user_id,progress_percentage,enrollment_status,due_amount,user_profiles(full_name,email),courses(title)').in('batch_id', ids)
+    ? await client.from('enrollments').select('id,student_user_id,progress_percentage,enrollment_status,due_amount,student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email)),courses(title)').in('batch_id', ids)
     : { data: [] };
 
   const { data: sessions } = await client.from('class_sessions').select('id,session_status,session_title').eq('mentor_user_id', mentorUserId);
@@ -1785,6 +2105,45 @@ function filterDt(tbodyId, q, cols) {
     row.style.display = text.includes(term) ? '' : 'none';
   });
 }
+
+// ── STUDENT SEARCH DROPDOWN ──────────────────
+function showStuSuggestions(q) {
+  const ul = document.getElementById('stu-name-suggestions');
+  if (!ul) return;
+  const term = q.trim().toLowerCase();
+  if (!term) { hideStuSuggestions(); return; }
+
+  const seen = new Map(); // name → email
+  document.querySelectorAll('#student-tbody tr').forEach(row => {
+    const name  = row.cells[0]?.textContent?.trim();
+    const email = row.cells[1]?.textContent?.trim();
+    if (name && name !== '—' && !seen.has(name) && name.toLowerCase().includes(term)) {
+      seen.set(name, email || '');
+    }
+  });
+
+  if (!seen.size) { hideStuSuggestions(); return; }
+  ul.innerHTML = [...seen.entries()].slice(0, 8).map(([name, email]) =>
+    `<li onclick="pickStuSuggestion(${JSON.stringify(name)})">
+       <span class="sug-icon">👤</span>
+       <span>${name}</span>
+       ${email ? `<span class="sug-email">${email}</span>` : ''}
+     </li>`
+  ).join('');
+  ul.classList.add('dd-open');
+}
+function hideStuSuggestions() {
+  const ul = document.getElementById('stu-name-suggestions');
+  if (ul) ul.classList.remove('dd-open');
+}
+function pickStuSuggestion(name) {
+  const inp = document.getElementById('stu-name-search');
+  if (inp) { inp.value = name; filterDt('student-tbody', name, [0, 1]); }
+  hideStuSuggestions();
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-dd-wrap')) hideStuSuggestions();
+});
 
 // ── TOAST ──────────────────────────────────────
 function showToast(msg, type = 's') {

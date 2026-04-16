@@ -14,11 +14,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.course_mentor_assignments T
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.course_batches TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.class_sessions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.live_recordings TO authenticated;
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.enrollments TO authenticated;
-GRANT SELECT ON TABLE public.user_profiles TO authenticated;
-GRANT SELECT ON TABLE public.user_role_assignments TO authenticated;
-GRANT SELECT ON TABLE public.admin_profiles TO authenticated;
-GRANT SELECT ON TABLE public.admin_portal_access TO authenticated;
-GRANT SELECT ON TABLE public.mentor_profiles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.enrollments        TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.student_profiles   TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.class_attendance   TO authenticated;
+GRANT SELECT                          ON TABLE public.user_profiles      TO authenticated;
+GRANT SELECT                          ON TABLE public.user_role_assignments TO authenticated;
+GRANT SELECT                          ON TABLE public.admin_profiles     TO authenticated;
+GRANT SELECT                          ON TABLE public.admin_portal_access TO authenticated;
+GRANT SELECT                          ON TABLE public.mentor_profiles    TO authenticated;
 
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
