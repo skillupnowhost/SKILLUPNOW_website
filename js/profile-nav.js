@@ -375,7 +375,7 @@ class ProfileNavigationManager {
 
     return `
       <a href="${r || '/'}" class="nav-logo" aria-label="SkillUpNow Home" style="padding:0;background:none;gap:0;">
-        <img src="${r}icon/Main logo.png" alt="SkillUpNow" style="height:44px;width:auto;object-fit:contain;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <img src="${r}icon/Logo.png" alt="SkillUpNow" style="height:44px;width:auto;object-fit:contain;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
         <span style="display:none;align-items:center;gap:.5rem;font-size:1.1rem;font-weight:800;">SkillUpNow</span>
       </a>
 
@@ -494,7 +494,7 @@ class ProfileNavigationManager {
         <!-- Logo -->
         <div class="pn-f-logo">
           <a href="${r || '/'}" aria-label="SkillUpNow Home" style="display:block;">
-            <img src="${r}icon/Main logo.png" alt="SkillUpNow" style="height:48px;width:auto;object-fit:contain;" onerror="this.alt='SkillUpNow';this.style.display='none';">
+            <img src="${r}icon/Logo.png" alt="SkillUpNow" style="height:48px;width:auto;object-fit:contain;" onerror="this.alt='SkillUpNow';this.style.display='none';">
           </a>
         </div>
 
