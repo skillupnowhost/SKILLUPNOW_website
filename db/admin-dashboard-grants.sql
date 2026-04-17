@@ -17,10 +17,18 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.live_recordings TO authenti
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.enrollments        TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.student_profiles   TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.class_attendance   TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.reviews            TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.feedback           TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.form_submissions   TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.holidays           TO authenticated;
 GRANT SELECT                          ON TABLE public.user_profiles      TO authenticated;
 GRANT SELECT                          ON TABLE public.user_role_assignments TO authenticated;
 GRANT SELECT                          ON TABLE public.admin_profiles     TO authenticated;
 GRANT SELECT                          ON TABLE public.admin_portal_access TO authenticated;
 GRANT SELECT                          ON TABLE public.mentor_profiles    TO authenticated;
+
+GRANT SELECT ON TABLE public.reviews TO anon;
+GRANT INSERT ON TABLE public.feedback TO anon;
+GRANT INSERT ON TABLE public.form_submissions TO anon;
 
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;

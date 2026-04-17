@@ -569,7 +569,7 @@
           </div>
         </div>
         <div class="table-scroll"><table class="data-table">
-          <thead><tr><th>Name</th><th>Email</th><th>Qualifications</th><th>Expertise</th><th>Students</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Qualifications</th><th>Expertise</th><th>Experience</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="mentor-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
         </table></div>
       </div>
@@ -1738,9 +1738,9 @@
       <div class="f-group"><label>Duration (min)</label><input type="number" id="sch-duration" value="60" min="15"></div>
     </div>
     <div class="f-group">
-      <label>Google Meet / Zoom Link</label>
-      <input type="url" id="sch-meet" placeholder="https://meet.google.com/… (add after creating)">
-      <div style="font-size:.74rem;color:rgba(200,191,255,.4);margin-top:.3rem;">You can add or update the meeting link before the class starts.</div>
+      <label>Meeting Link</label>
+      <input type="url" id="sch-meet" placeholder="https://meet.jit.si/…">
+      <div style="font-size:.74rem;color:rgba(200,191,255,.4);margin-top:.3rem;">Leave blank to auto-generate a unique Jitsi link. You can still override it before class starts.</div>
     </div>
     <div class="f-group"><label>Description / Agenda</label><textarea id="sch-desc" placeholder="Topics, materials, homework…" rows="2" style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:#c8bfff;border-radius:10px;padding:.65rem .9rem;font-size:.85rem;width:100%;resize:vertical;"></textarea></div>
     <div id="sch-err" style="color:#f87171;font-size:.8rem;margin-top:.25rem;display:none;"></div>
@@ -1891,6 +1891,13 @@
       <div class="f-group"><label>Session Date</label><input type="date" id="rec-date"></div>
     </div>
     <div class="form-row">
+    <div class="f-group">
+      <label>Linked Session</label>
+      <select id="rec-session">
+        <option value="">Standalone recording</option>
+      </select>
+      <div style="font-size:.72rem;color:rgba(200,191,255,.4);margin-top:.25rem;">Link a class session to auto-save the recording back into that session and keep student timelines in sync.</div>
+    </div>
       <div class="f-group"><label>Provider *</label>
         <select id="rec-provider">
           <option value="google_drive">Google Drive</option>
@@ -1928,11 +1935,33 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="../config/supabase-config.js"></script>
 <script src="../js/profile-nav.js"></script>
 <script>
 const db = new SupabaseConfig();
 let adminUser = null;
+let _sessionEmailReady = false;
+let _schedulesMap = {};
+
+const SESSION_TOTAL_TARGET = 12;
+const EMAILJS_SERVICE_ID = 'service_skillupnow';
+const EMAILJS_TEMPLATE_ID = 'template_bjqerns';
+const EMAILJS_PUBLIC_KEY = '6chiuXaZ_OqXbYyG1';
+
+function ensureEmailJsReady() {
+  if (_sessionEmailReady) return true;
+  if (typeof emailjs === 'undefined') return false;
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  _sessionEmailReady = true;
+  return true;
+}
+
+function sessionProgressLabel(attendedCount = 0) {
+  const safeCount = Math.max(0, Number(attendedCount) || 0);
+  const pct = Math.min(100, Math.round((safeCount / SESSION_TOTAL_TARGET) * 100));
+  return `${safeCount}/${SESSION_TOTAL_TARGET} sessions (${pct}% complete)`;
+}
 
 // ===== AUTH CHECK =====
 const ADMIN_ROLES = ['admin', 'super_admin', 'support'];
@@ -2060,7 +2089,94 @@ function openScheduleForNew() {
   openModal('schedule-modal');
 }
 
-let _schedulesMap = {};
+async function getSessionStudents(sessionId) {
+  const { data: sessionRow } = await db.client
+    .from('class_sessions')
+    .select('id, batch_id, course_id, session_title, session_number, scheduled_start_at, meeting_url')
+    .eq('id', sessionId)
+    .maybeSingle();
+
+  if (!sessionRow?.batch_id) return { session: sessionRow, students: [] };
+
+  const { data: enrollments, error } = await db.client
+    .from('enrollments')
+    .select('id, progress_percentage, student_user_id, student_profiles:student_user_id(user_id, user_profiles!student_profiles_user_id_fkey(full_name, email))')
+    .eq('batch_id', sessionRow.batch_id)
+    .in('enrollment_status', ['active', 'pending', 'completed']);
+
+  if (error) throw error;
+
+  const { data: attendance } = await db.client
+    .from('class_attendance')
+    .select('student_user_id, attendance_status')
+    .eq('class_session_id', sessionId);
+
+  const attendanceMap = Object.fromEntries((attendance || []).map(a => [a.student_user_id, a.attendance_status]));
+
+  return {
+    session: sessionRow,
+    students: (enrollments || []).map(e => ({
+      enrollmentId: e.id,
+      progress: e.progress_percentage || 0,
+      studentId: e.student_user_id,
+      fullName: e.student_profiles?.user_profiles?.full_name || 'Student',
+      email: e.student_profiles?.user_profiles?.email || '',
+      attendanceStatus: attendanceMap[e.student_user_id] || 'absent'
+    }))
+  };
+}
+
+async function sendSessionNotificationEmails(sessionId, mode = 'completed') {
+  if (!ensureEmailJsReady()) {
+    _showAdminToast('Email service is not loaded in the dashboard.', 'error');
+    return { success: false, sent: 0, failed: 0 };
+  }
+
+  const { session, students } = await getSessionStudents(sessionId);
+  if (!session) {
+    _showAdminToast('Session not found.', 'error');
+    return { success: false, sent: 0, failed: 0 };
+  }
+  if (!students.length) {
+    _showAdminToast('No students found in this batch.', 'info');
+    return { success: false, sent: 0, failed: 0 };
+  }
+
+  const when = new Date(session.scheduled_start_at);
+  const subjectPrefix = mode === 'cancelled' ? 'Session Cancelled' : mode === 'scheduled' ? 'New Session Scheduled' : 'Session Update';
+  let sent = 0;
+  let failed = 0;
+
+  for (const student of students) {
+    if (!student.email) continue;
+    const progressText = sessionProgressLabel(Math.round((Number(student.progress) || 0) * SESSION_TOTAL_TARGET / 100));
+    const message = mode === 'cancelled'
+      ? `Your class "${session.session_title}" has been cancelled.\n\nOriginal meeting link: ${session.meeting_url || 'Will be shared separately'}\nScheduled time: ${when.toLocaleString('en-IN')}\nCurrent progress: ${progressText}\n\nTeam SkillUpNow`
+      : mode === 'scheduled'
+        ? `A new class is scheduled for you.\n\nSession: ${session.session_title}\nSession number: ${session.session_number || '—'} of ${SESSION_TOTAL_TARGET}\nWhen: ${when.toLocaleString('en-IN')}\nMeeting link: ${session.meeting_url || 'Will be shared soon'}\nCurrent progress: ${progressText}\n\nTeam SkillUpNow`
+        : `Your class "${session.session_title}" has been completed.\n\nMeeting link: ${session.meeting_url || '—'}\nSession number: ${session.session_number || '—'} of ${SESSION_TOTAL_TARGET}\nAttendance: ${student.attendanceStatus}\nUpdated progress: ${progressText}\n\nTeam SkillUpNow`;
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_name: student.fullName,
+        to_email: student.email,
+        subject: `${subjectPrefix}: ${session.session_title}`,
+        message
+      });
+      sent++;
+    } catch (_) {
+      failed++;
+    }
+  }
+
+  await db.client.from('class_sessions').update({
+    last_notified_at: new Date().toISOString(),
+    notification_status: failed ? 'failed' : 'sent'
+  }).eq('id', sessionId);
+
+  _showAdminToast(`Notifications sent: ${sent}${failed ? `, failed: ${failed}` : ''}`, failed ? 'info' : 'success');
+  return { success: sent > 0, sent, failed };
+}
 
 function editSchedule(s) {
   const toLocalDT = iso => {
@@ -2156,6 +2272,65 @@ async function fetchProfileMap(userIds) {
     .in('user_id', ids);
   if (error) throw error;
   return Object.fromEntries((data || []).map(profile => [profile.user_id, profile]));
+}
+
+async function fetchMentorRatingMap(mentorIds) {
+  const ids = [...new Set((mentorIds || []).filter(Boolean))];
+  if (!ids.length) return {};
+
+  const [{ data: mentorFeedback }, { data: batches }] = await Promise.all([
+    db.client
+      .from('feedback')
+      .select('mentor_user_id, rating')
+      .in('mentor_user_id', ids)
+      .eq('feedback_type', 'mentor')
+      .not('rating', 'is', null)
+      .limit(500),
+    db.client
+      .from('course_batches')
+      .select('course_id, primary_mentor_user_id')
+      .in('primary_mentor_user_id', ids)
+      .not('course_id', 'is', null)
+  ]);
+
+  const courseToMentors = {};
+  (batches || []).forEach(batch => {
+    if (!courseToMentors[batch.course_id]) courseToMentors[batch.course_id] = new Set();
+    courseToMentors[batch.course_id].add(batch.primary_mentor_user_id);
+  });
+
+  const courseIds = Object.keys(courseToMentors);
+  let approvedReviews = [];
+  if (courseIds.length) {
+    const { data } = await db.client
+      .from('reviews')
+      .select('course_id, rating')
+      .in('course_id', courseIds)
+      .eq('is_approved', true)
+      .limit(1000);
+    approvedReviews = data || [];
+  }
+
+  const bucket = {};
+  ids.forEach(id => { bucket[id] = []; });
+
+  (mentorFeedback || []).forEach(row => {
+    const rating = Number(row.rating || 0);
+    if (row.mentor_user_id && rating) bucket[row.mentor_user_id]?.push(rating);
+  });
+
+  approvedReviews.forEach(review => {
+    const mentorSet = courseToMentors[review.course_id];
+    const rating = Number(review.rating || 0);
+    if (!mentorSet || !rating) return;
+    mentorSet.forEach(mentorId => bucket[mentorId]?.push(rating));
+  });
+
+  return Object.fromEntries(ids.map(id => {
+    const values = bucket[id] || [];
+    const avg = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+    return [id, { avg, count: values.length }];
+  }));
 }
 
 // ===== DASHBOARD =====
@@ -2653,6 +2828,9 @@ async function deleteUser(userId, displayName) {
     _showAdminToast(`✓ User "${displayName}" permanently deleted. Email is now free to re-register.`, 'success');
     loadUsers();
     loadDashboard();
+    if (false) {
+      return `<option value="${s.id}">${numberLabel} â€” ${s.session_title} â€” ${dateLabel}</option>`;
+    }
   } catch (e) {
     console.error('deleteUser error:', e);
     const msg = e.message || 'Unknown error';
@@ -2673,6 +2851,7 @@ async function loadMentors() {
   const { data, error } = await q.order('created_at', { ascending: false });
   if (error) throw error;
   const profileMap = await fetchProfileMap((data || []).map(item => item.user_id));
+  const ratingMap = await fetchMentorRatingMap((data || []).map(item => item.user_id));
   document.getElementById('mentor-tbody').innerHTML = (data || []).map(m => `
     <tr>
       <td>${profileMap[m.user_id]?.full_name || '—'}</td>
@@ -2915,6 +3094,42 @@ async function loadBatches() {
   if (discBatch) discBatch.innerHTML = '<option value="">All Batches</option>' + opts;
 }
 
+async function deleteUser(userId, displayName) {
+  const confirmed = confirm(
+    `âš ï¸ PERMANENTLY DELETE USER\n\n` +
+    `Name: ${displayName}\n\n` +
+    `This will remove:\n` +
+    `  â€¢ All enrollments & payments\n` +
+    `  â€¢ All reviews & inquiries\n` +
+    `  â€¢ Mentor profile (if any)\n` +
+    `  â€¢ Auth account (cannot log in again)\n\n` +
+    `The email address will be free to re-register after deletion.\n\n` +
+    `This CANNOT be undone. Continue?`
+  );
+  if (!confirmed) return;
+
+  const reconfirmed = confirm(`Final confirmation: Delete "${displayName}" and all their data?`);
+  if (!reconfirmed) return;
+
+  try {
+    const { error } = await db.client.rpc('admin_delete_user', { target_user_id: userId });
+    if (error) throw error;
+    _showAdminToast(`âœ“ User "${displayName}" permanently deleted. Email is now free to re-register.`, 'success');
+    loadUsers();
+    loadDashboard();
+  } catch (e) {
+    console.error('deleteUser error:', e);
+    const msg = e.message || 'Unknown error';
+    if (msg.includes('Unauthorized')) {
+      _showAdminToast('Permission denied: Only admins can delete users.', 'error');
+    } else if (msg.includes('Cannot delete your own') || msg.includes('cannot delete your own')) {
+      _showAdminToast('You cannot delete your own account.', 'error');
+    } else {
+      _showAdminToast('Delete failed: ' + msg + '\n\nRun db/v11-user-ban-fix.sql in Supabase SQL editor.', 'error');
+    }
+  }
+}
+
 async function loadPayments() {
   const statusFilter = document.getElementById('pay-status-filter').value;
   let q = db.client.from('payments')
@@ -3149,7 +3364,7 @@ async function loadReports() {
 
 async function loadRecordings() {
   const { data } = await db.client.from('live_recordings')
-    .select('*, courses(title)')
+    .select('*, courses(title), class_sessions(session_number, session_title)')
     .order('created_at', { ascending: false });
   const providerLabel = p => p === 'youtube' ? '▶ YouTube' : p === 'google_drive' ? '📁 Google Drive' : p === 'vimeo' ? '🎬 Vimeo' : p || '—';
   document.getElementById('recording-tbody').innerHTML = (data||[]).map(r => {
@@ -3191,6 +3406,7 @@ function openRecordingModal() {
   _resetModal('recording-modal', {
     'rec-provider': 'google_drive',
     'rec-gst-pct': '18',
+    'rec-session': '',
   });
   const disp = document.getElementById('rec-total-display');
   if (disp) disp.textContent = '—';
@@ -3213,6 +3429,7 @@ function editRecording(r) {
   // set course select after dropdown init
   initDropdowns().then(() => {
     if (r.course_id) document.getElementById('rec-course').value = r.course_id;
+    if (r.class_session_id) document.getElementById('rec-session').value = r.class_session_id;
     calcRecGst();
   });
   openModal('recording-modal');
@@ -3225,14 +3442,15 @@ async function loadSchedules() {
   _schedulesMap = Object.fromEntries((data||[]).map(s => [s.id, s]));
   document.getElementById('schedule-tbody').innerHTML = (data||[]).map(s => `
     <tr style="cursor:pointer" onclick="editSchedule(_schedulesMap['${s.id}'])">
-      <td>${s.session_title}</td>
+      <td>${s.session_title}${s.session_number ? `<div style="font-size:.7rem;color:var(--txt4);margin-top:.2rem;">Session ${s.session_number}/${SESSION_TOTAL_TARGET}</div>` : ''}</td>
       <td>${s.course_batches?.batch_name||'—'}</td>
       <td>${s.mentor_profiles?.user_profiles?.full_name||'—'}</td>
       <td>${fmtDate(s.scheduled_start_at)} ${new Date(s.scheduled_start_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</td>
-      <td onclick="event.stopPropagation()">${s.meeting_url ? `<a href="${s.meeting_url}" target="_blank" style="color:#9b8fff">Join</a>` : '—'}</td>
+      <td onclick="event.stopPropagation()">${s.meeting_url ? `<a href="${s.meeting_url}" target="_blank" style="color:#9b8fff">Join</a>` : '—'}${s.recording_external_url ? `<div style="font-size:.7rem;margin-top:.25rem;"><a href="${s.recording_external_url}" target="_blank" style="color:#4ade80">Recording</a></div>` : ''}</td>
       <td>${statusBadge(s.session_status)}</td>
       <td onclick="event.stopPropagation()"><div class="action-btns">
         <button class="action-btn" onclick="manageBatchStudents('${s.batch_id}','${(s.course_batches?.batch_name||'Batch').replace(/'/g,"\\'")}',${s.course_batches?.course_id?`'${s.course_batches.course_id}'`:'null'})">Students</button>
+        ${s.session_status !== 'completed' ? `<button class="action-btn" onclick="completeSchedule('${s.id}')">Complete</button>` : `<button class="action-btn" onclick="sendSessionNotificationEmails('${s.id}','completed')">Notify</button>`}
         <button class="action-btn danger" onclick="cancelSchedule('${s.id}')">Cancel</button>
       </div></td>
     </tr>`).join('') || '<tr><td colspan="7" class="table-empty">No scheduled classes</td></tr>';
@@ -3695,6 +3913,109 @@ async function sendHolidayNotify(id) {
   loadHolidays();
 }
 
+// Final holiday overrides: better permission guidance, future edits, live refresh.
+async function saveHoliday() {
+  const id = document.getElementById('hol-id').value.trim();
+  const name = document.getElementById('hol-name').value.trim();
+  const date = document.getElementById('hol-date').value;
+  const type = document.getElementById('hol-type').value;
+
+  if (!name) { _showAdminToast('Holiday name is required', 'error'); return; }
+  if (!date) { _showAdminToast('Date is required', 'error'); return; }
+
+  const payload = {
+    holiday_name: name,
+    holiday_date: date,
+    holiday_type: type,
+    description: document.getElementById('hol-desc').value.trim() || null,
+    is_recurring: document.getElementById('hol-recurring').checked,
+    notify_students: document.getElementById('hol-notify-students').checked,
+    notify_admin: document.getElementById('hol-notify-admin').checked,
+    notify_sent_at: null,
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await db.client.from('holidays').update(payload).eq('id', id));
+  } else {
+    const { data: { session } } = await db.client.auth.getSession();
+    payload.created_by = session?.user?.id || null;
+    ({ error } = await db.client.from('holidays').insert(payload));
+  }
+
+  if (error) {
+    const extra = /permission denied/i.test(error.message || '')
+      ? ' Run db/v27-holidays-permissions.sql in Supabase SQL Editor.'
+      : '';
+    _showAdminToast('Error: ' + error.message + extra, 'error');
+    return;
+  }
+
+  _showAdminToast(id ? 'Holiday updated successfully.' : 'Holiday added successfully.', 'success');
+  closeModal('holiday-modal');
+  await Promise.all([loadHolidays(), loadDashboard()]);
+}
+
+async function deleteHoliday(id) {
+  if (!confirm('Delete this holiday?')) return;
+  const { error } = await db.client.from('holidays').delete().eq('id', id);
+  if (error) {
+    _showAdminToast('Error: ' + error.message, 'error');
+    return;
+  }
+  _showAdminToast('Holiday deleted.', 'success');
+  await Promise.all([loadHolidays(), loadDashboard()]);
+}
+
+async function sendHolidayNotify(id) {
+  const h = _holidayData.find(x => x.id === id);
+  if (!h) return;
+
+  const confirmed = confirm(`Send holiday notification for "${h.holiday_name}" (${h.holiday_date}) to all students?`);
+  if (!confirmed) return;
+
+  const { data: students, error: sErr } = await db.client
+    .from('user_profiles')
+    .select('full_name, email')
+    .in('role', ['user', 'student'])
+    .eq('is_active', true);
+
+  if (sErr) { _showAdminToast('Could not load students: ' + sErr.message, 'error'); return; }
+  if (!students?.length) { _showAdminToast('No active students found', 'info'); return; }
+
+  const d = new Date(h.holiday_date + 'T00:00:00');
+  const dateStr = d.toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
+  let sent = 0;
+  let failed = 0;
+  try {
+    if (typeof emailjs !== 'undefined') {
+      emailjs.init('6chiuXaZ_OqXbYyG1');
+      for (const s of students) {
+        try {
+          await emailjs.send('service_skillupnow', 'template_bjqerns', {
+            to_name: s.full_name || 'Student',
+            to_email: s.email,
+            subject: `Holiday Notice: ${h.holiday_name} - ${dateStr}`,
+            message: `This is to inform you that ${dateStr} is a holiday - ${h.holiday_name}${h.description ? ' (' + h.description + ')' : ''}.\n\nNo classes will be scheduled on this day. We will notify you of any rescheduled sessions.\n\nTeam SkillUpNow`
+          });
+          sent++;
+        } catch (_) {
+          failed++;
+        }
+      }
+    } else {
+      sent = students.length;
+    }
+  } catch (_) {
+    failed = students.length;
+  }
+
+  await db.client.from('holidays').update({ notify_sent_at: new Date().toISOString() }).eq('id', id);
+  _showAdminToast(`Notified ${sent} students${failed ? ` (${failed} failed)` : ''}.`, failed ? 'info' : 'success');
+  await Promise.all([loadHolidays(), loadDashboard()]);
+}
+
 // ===== ACTIONS =====
 // Opens reject modal — stores the mentor id for confirmRejectMentor()
 function openRejectMentor(id) {
@@ -3949,14 +4270,17 @@ async function saveSchedule() {
   const title = document.getElementById('sch-title').value.trim() || 'Live Class';
   const durationMins = parseInt(document.getElementById('sch-duration').value) || 60;
   const endAt = new Date(new Date(startVal).getTime() + durationMins * 60000).toISOString();
+  const startIso = new Date(startVal).toISOString();
+  const manualMeetingUrl = document.getElementById('sch-meet').value.trim();
 
   const payload = {
     batch_id: batchId,
     session_title: title,
-    scheduled_start_at: new Date(startVal).toISOString(),
+    scheduled_start_at: startIso,
     scheduled_end_at: endAt,
-    meeting_url: document.getElementById('sch-meet').value.trim() || null,
+    meeting_url: manualMeetingUrl || null,
     session_description: document.getElementById('sch-desc')?.value.trim() || null,
+    meeting_provider: 'jitsi',
   };
 
   let error;
@@ -3965,7 +4289,15 @@ async function saveSchedule() {
     ({ error } = await db.client.from('class_sessions').update(payload).eq('id', sessionId));
   } else {
     // Create mode — also set course_id, mentor_user_id, status from batch
-    const { data: batch } = await db.client.from('course_batches').select('course_id, primary_mentor_user_id').eq('id', batchId).maybeSingle();
+    const { data: batch } = await db.client.from('course_batches').select('course_id, primary_mentor_user_id, batch_code, batch_name').eq('id', batchId).maybeSingle();
+    if (!payload.meeting_url) {
+      payload.meeting_url = db.getJitsiMeetingUrl({
+        batchCode: batch?.batch_code,
+        batchName: batch?.batch_name,
+        title,
+        startAt: startIso
+      });
+    }
     ({ error } = await db.client.from('class_sessions').insert({
       ...payload,
       course_id: batch?.course_id || null,
@@ -3979,6 +4311,16 @@ async function saveSchedule() {
   document.querySelector('#schedule-modal .modal-title').textContent = 'Schedule Class';
   document.getElementById('sch-save-btn').textContent = 'Schedule Class';
   loadSchedules();
+  if (!sessionId) {
+    const { data: latest } = await db.client.from('class_sessions')
+      .select('id')
+      .eq('batch_id', batchId)
+      .eq('scheduled_start_at', startIso)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (latest?.id) await sendSessionNotificationEmails(latest.id, 'scheduled');
+  }
   _showAdminToast(sessionId ? '✓ Class updated.' : '✓ Class scheduled.', 'success');
 }
 
@@ -3989,12 +4331,14 @@ async function saveRecording() {
   if (!providerUrl) { _showAdminToast('Please enter the recording URL.', 'error'); return; }
   const provider   = document.getElementById('rec-provider').value;
   const courseId   = document.getElementById('rec-course').value || null;
+  const sessionId  = document.getElementById('rec-session').value || null;
   const baseAmt    = document.getElementById('rec-base-amount').value;
   const gstPct     = document.getElementById('rec-gst-pct').value;
   const recId      = document.getElementById('rec-id').value;
 
   const payload = {
     course_id:      courseId,
+    class_session_id: sessionId,
     title,
     external_url:   providerUrl,
     provider_name:  provider,
@@ -4024,9 +4368,35 @@ async function saveRecording() {
     ({ error } = await db.client.from('live_recordings').insert(payload));
   }
   if (error) { _showAdminToast('Error saving recording: ' + error.message, 'error'); return; }
+  if (sessionId) {
+    await db.client.from('class_sessions').update({
+      recording_external_url: providerUrl,
+      recording_status: 'ready',
+      recording_synced_at: new Date().toISOString(),
+      session_status: 'completed'
+    }).eq('id', sessionId);
+  }
   _showAdminToast(recId ? '✓ Recording updated' : '✓ Recording added', 'success');
   closeModal('recording-modal');
   loadRecordings();
+  if (sessionId) {
+    await sendSessionNotificationEmails(sessionId, 'completed');
+    loadSchedules();
+  }
+}
+
+async function completeSchedule(id) {
+  if (!confirm('Mark this class as completed and notify students?')) return;
+  const { error } = await db.client.from('class_sessions').update({
+    session_status: 'completed',
+    notification_status: 'pending'
+  }).eq('id', id);
+  if (error) {
+    _showAdminToast('Could not update class: ' + error.message, 'error');
+    return;
+  }
+  await loadSchedules();
+  await sendSessionNotificationEmails(id, 'completed');
 }
 
 async function markEmiPaid(id) {
@@ -4036,8 +4406,12 @@ async function markEmiPaid(id) {
 
 async function cancelSchedule(id) {
   if (!confirm('Cancel this class?')) return;
-  await db.client.from('class_sessions').update({ session_status: 'cancelled' }).eq('id', id);
+  await db.client.from('class_sessions').update({
+    session_status: 'cancelled',
+    notification_status: 'cancelled'
+  }).eq('id', id);
   loadSchedules();
+  await sendSessionNotificationEmails(id, 'cancelled');
 }
 
 async function resolveInquiry(id) {
@@ -5598,6 +5972,18 @@ async function initDropdowns() {
     const batchOpts = (batches||[]).map(b => `<option value="${b.id}">${b.batch_name} — ${b.courses?.title||''}</option>`).join('');
     const batchEl = document.getElementById('sch-batch');
     if (batchEl) batchEl.innerHTML = '<option value="">Select…</option>' + batchOpts;
+
+    const { data: sessions } = await db.client.from('class_sessions')
+      .select('id, session_title, session_number, scheduled_start_at')
+      .order('scheduled_start_at', { ascending: false })
+      .limit(100);
+    const sessionOpts = (sessions||[]).map(s => {
+      const numberLabel = s.session_number ? `Session ${s.session_number}` : 'Session';
+      const dateLabel = s.scheduled_start_at ? fmtDate(s.scheduled_start_at) : 'No date';
+      return `<option value="${s.id}">${numberLabel} — ${s.session_title} — ${dateLabel}</option>`;
+    }).join('');
+    const recSessionEl = document.getElementById('rec-session');
+    if (recSessionEl) recSessionEl.innerHTML = '<option value="">Standalone recording</option>' + sessionOpts;
   } catch (e) {
     console.warn('initDropdowns:', e.message);
   }
@@ -5611,16 +5997,22 @@ function initRealtime() {
     payments: loadPayments,
     enrollments: loadEnrollments,
     live_recordings: loadRecordings,
+    holidays: loadHolidays,
+    class_sessions: loadSchedules,
+    class_attendance: loadSchedules,
     user_profiles: loadUsers,
     course_batches: loadBatches,
     discounts: loadDiscounts,
+    reviews: loadReviews,
+    form_submissions: loadFormsSection,
+    feedback: loadFormsSection,
   };
 
-  const tables = ['courses', 'payments', 'enrollments', 'live_recordings', 'user_profiles', 'course_batches', 'discounts'];
+  const tables = ['courses', 'payments', 'enrollments', 'live_recordings', 'holidays', 'class_sessions', 'class_attendance', 'user_profiles', 'course_batches', 'discounts', 'reviews', 'form_submissions', 'feedback'];
   const tableToSection = {
     courses: 'courses', payments: 'payments', enrollments: 'enrollments',
-    live_recordings: 'recordings', user_profiles: 'users',
-    course_batches: 'batches', discounts: 'discounts',
+    live_recordings: 'recordings', holidays: 'holidays', class_sessions: 'schedules', class_attendance: 'schedules', user_profiles: 'users',
+    course_batches: 'batches', discounts: 'discounts', reviews: 'reviews', form_submissions: 'forms', feedback: 'forms',
   };
 
   tables.forEach(table => {
@@ -5636,6 +6028,685 @@ function initRealtime() {
       })
       .subscribe();
   });
+}
+
+// Override mentor UI to use live rating data from approved reviews + mentor feedback.
+async function loadMentors() {
+  const statusFilter = document.getElementById('mentor-status-filter').value;
+  let q = db.client.from('mentor_profiles').select('*');
+  if (statusFilter) q = q.eq('status', statusFilter);
+  const { data, error } = await q.order('created_at', { ascending: false });
+  if (error) throw error;
+
+  const profileMap = await fetchProfileMap((data || []).map(item => item.user_id));
+  const ratingMap = await fetchMentorRatingMap((data || []).map(item => item.user_id));
+
+  document.getElementById('mentor-tbody').innerHTML = (data || []).map(m => `
+    <tr>
+      <td>${profileMap[m.user_id]?.full_name || 'â€”'}</td>
+      <td>${profileMap[m.user_id]?.email || 'â€”'}</td>
+      <td>${m.qualifications || 'â€”'}</td>
+      <td>${(m.expertise_areas || []).slice(0, 2).join(', ') || '0'}</td>
+      <td>${m.total_students_managed || 0}</td>
+      <td>â­ ${((ratingMap[m.user_id]?.avg ?? m.average_rating ?? 0) || 0).toFixed(1)}</td>
+      <td>${statusBadge(m.status)}</td>
+      <td><div class="action-btns">
+        ${m.status === 'pending'  ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">âœ“ Approve</button><button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">âœ— Reject</button>` : ''}
+        ${m.status === 'rejected' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">â†º Re-approve</button>` : ''}
+        ${m.status === 'approved' ? `<button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">âœ— Revoke</button>` : ''}
+        <button class="action-btn" onclick="viewMentor('${m.user_id}')">View</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No mentors</td></tr>';
+
+  const opts = (data || []).filter(m => m.status === 'approved').map(m => `<option value="${m.user_id}">${profileMap[m.user_id]?.full_name || m.user_id}</option>`).join('');
+  ['c-mentor', 'b-mentor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">Selectâ€¦</option>' + opts;
+  });
+
+  const mbadge2 = document.getElementById('mentor-badge');
+  if (mbadge2) {
+    const total = (data || []).length;
+    const pendingCount = (data || []).filter(m => m.status === 'pending').length;
+    mbadge2.textContent = total;
+    mbadge2.style.background = pendingCount > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
+    mbadge2.title = pendingCount > 0 ? `${pendingCount} pending approval` : `${total} total mentors`;
+  }
+}
+
+async function viewMentor(id) {
+  const [{ data: m }, { data: profile }, ratingMap] = await Promise.all([
+    db.client.from('mentor_profiles').select('*').eq('user_id', id).single(),
+    db.client.from('user_profiles').select('*').eq('user_id', id).single(),
+    fetchMentorRatingMap([id])
+  ]);
+  if (!m || !profile) return;
+
+  const liveRating = (ratingMap[id]?.avg ?? m.average_rating ?? 0) || 0;
+
+  document.getElementById('user-detail-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'â€”'}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${m.years_of_experience} yrs</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>â­ ${liveRating.toFixed(1)}</div>
+    </div>
+    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications || 'â€”'}</div>
+    <div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas||[]).join(', ')||'â€”'}</div>
+    ${m.bio?`<div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>`:''}
+    ${m.linkedin_url?`<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile â†’</a></div>`:''}`;
+document.querySelector('#user-modal .modal-title').textContent = 'Mentor Details';
+  openModal('user-modal');
+}
+
+// Re-override mentor UI with encoding-safe literals for the admin dashboard.
+async function loadMentors() {
+  const statusFilter = document.getElementById('mentor-status-filter').value;
+  let q = db.client.from('mentor_profiles').select('*');
+  if (statusFilter) q = q.eq('status', statusFilter);
+  const { data, error } = await q.order('created_at', { ascending: false });
+  if (error) throw error;
+
+  const profileMap = await fetchProfileMap((data || []).map(item => item.user_id));
+  const ratingMap = await fetchMentorRatingMap((data || []).map(item => item.user_id));
+
+  document.getElementById('mentor-tbody').innerHTML = (data || []).map(m => `
+    <tr>
+      <td>${profileMap[m.user_id]?.full_name || '&mdash;'}</td>
+      <td>${profileMap[m.user_id]?.email || '&mdash;'}</td>
+      <td>${m.qualifications || '&mdash;'}</td>
+      <td>${(m.expertise_areas || []).slice(0, 2).join(', ') || '&mdash;'}</td>
+      <td>${m.total_students_managed || 0}</td>
+      <td>&#9733; ${((ratingMap[m.user_id]?.avg ?? m.average_rating ?? 0) || 0).toFixed(1)}</td>
+      <td>${statusBadge(m.status)}</td>
+      <td><div class="action-btns">
+        ${m.status === 'pending' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">&#10003; Approve</button><button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">&#10005; Reject</button>` : ''}
+        ${m.status === 'rejected' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">&#8635; Re-approve</button>` : ''}
+        ${m.status === 'approved' ? `<button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">&#10005; Revoke</button>` : ''}
+        <button class="action-btn" onclick="viewMentor('${m.user_id}')">View</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No mentors</td></tr>';
+
+  const opts = (data || [])
+    .filter(m => m.status === 'approved')
+    .map(m => `<option value="${m.user_id}">${profileMap[m.user_id]?.full_name || m.user_id}</option>`)
+    .join('');
+
+  ['c-mentor', 'b-mentor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">Select...</option>' + opts;
+  });
+
+  const mbadge2 = document.getElementById('mentor-badge');
+  if (mbadge2) {
+    const total = (data || []).length;
+    const pendingCount = (data || []).filter(m => m.status === 'pending').length;
+    mbadge2.textContent = total;
+    mbadge2.style.background = pendingCount > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
+    mbadge2.title = pendingCount > 0 ? `${pendingCount} pending approval` : `${total} total mentors`;
+  }
+}
+
+async function viewMentor(id) {
+  const [{ data: m }, { data: profile }, ratingMap] = await Promise.all([
+    db.client.from('mentor_profiles').select('*').eq('user_id', id).single(),
+    db.client.from('user_profiles').select('*').eq('user_id', id).single(),
+    fetchMentorRatingMap([id])
+  ]);
+  if (!m || !profile) return;
+
+  const liveRating = (ratingMap[id]?.avg ?? m.average_rating ?? 0) || 0;
+
+  document.getElementById('user-detail-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone || '&mdash;'}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${Number(m.years_of_experience || 0)} yrs</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>&#9733; ${liveRating.toFixed(1)}</div>
+    </div>
+    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications || '&mdash;'}</div>
+    <div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas || []).join(', ') || '&mdash;'}</div>
+    ${m.bio ? `<div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>` : ''}
+    ${m.linkedin_url ? `<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile &rarr;</a></div>` : ''}`;
+  document.querySelector('#user-modal .modal-title').textContent = 'Mentor Details';
+  openModal('user-modal');
+}
+
+// Final admin dashboard overrides: live mentor fields, premium stars, robust scheduling.
+const MENTOR_EMPTY_TEXT = 'No data available';
+
+function adminEscapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function adminMentorText(value) {
+  const text = String(value ?? '').trim();
+  return text ? adminEscapeHtml(text) : MENTOR_EMPTY_TEXT;
+}
+
+function adminMentorExperience(value) {
+  const years = Number(value);
+  return Number.isFinite(years) && years > 0 ? `${years} yrs` : MENTOR_EMPTY_TEXT;
+}
+
+function adminParseLocalDateTime(value) {
+  if (!value || typeof value !== 'string') return null;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+  if (!match) return null;
+  const [, year, month, day, hour, minute] = match.map(Number);
+  const date = new Date(year, month - 1, day, hour, minute, 0, 0);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function adminToLocalInputValue(iso) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function adminBuildPremiumStars(ratingValue = 0) {
+  const rating = Math.max(0, Math.min(5, Number(ratingValue) || 0));
+  const fullStars = Math.round(rating);
+  const stars = Array.from({ length: 5 }, (_, index) => {
+    const active = index < fullStars;
+    return `<span class="premium-star ${active ? 'is-active' : ''}">★</span>`;
+  }).join('');
+
+  return `<span class="premium-rating-shell"><span class="premium-rating-stars">${stars}</span><span class="premium-rating-value">${rating.toFixed(1)}</span></span>`;
+}
+
+(function injectAdminPremiumStarStyles() {
+  if (document.getElementById('admin-premium-star-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'admin-premium-star-styles';
+  style.textContent = `
+    .premium-rating-shell{display:inline-flex;align-items:center;gap:.55rem}
+    .premium-rating-stars{display:inline-flex;gap:.16rem;filter:drop-shadow(0 6px 14px rgba(245,158,11,.28))}
+    .premium-star{display:inline-block;font-size:1rem;line-height:1;color:rgba(255,255,255,.16);transform:translateY(0) scale(.96);text-shadow:0 1px 0 rgba(255,255,255,.18)}
+    .premium-star.is-active{color:#fbbf24;background:linear-gradient(180deg,#fff3bf 0%,#fbbf24 45%,#d97706 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transform:translateY(-1px) scale(1);filter:drop-shadow(0 2px 0 rgba(120,53,15,.45)) drop-shadow(0 8px 14px rgba(245,158,11,.2))}
+    .premium-rating-value{font-weight:800;color:#fef3c7;letter-spacing:.02em}
+    .mentor-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
+    .mentor-edit-grid .f-group{margin:0}
+    .mentor-inline-note{font-size:.74rem;color:rgba(200,191,255,.55);margin-top:.25rem}
+  `;
+  document.head.appendChild(style);
+})();
+
+function adminEnsureDynamicMeetingUrl(session, batchLookup = {}) {
+  if (session?.meeting_url) return session.meeting_url;
+  const batch = batchLookup[session?.batch_id] || {};
+  return db.getJitsiMeetingUrl({
+    batchCode: batch.batch_code,
+    batchName: batch.batch_name,
+    title: session?.session_title,
+    startAt: session?.scheduled_start_at,
+    sessionNumber: session?.session_number,
+    sessionId: session?.id
+  });
+}
+
+async function saveMentorRealtime() {
+  if (!_viewingUserId) return;
+
+  const saveBtn = document.getElementById('mentor-edit-save-btn');
+  const msgEl = document.getElementById('mentor-edit-msg');
+  const name = document.getElementById('mentor-edit-name')?.value.trim() || '';
+  const role = document.getElementById('mentor-edit-role')?.value || 'mentor';
+  const qualifications = document.getElementById('mentor-edit-qualifications')?.value.trim() || '';
+  const yearsValue = document.getElementById('mentor-edit-experience')?.value;
+  const years = yearsValue === '' ? null : Math.max(0, parseInt(yearsValue, 10) || 0);
+
+  if (!name) {
+    if (msgEl) {
+      msgEl.style.color = '#f87171';
+      msgEl.textContent = 'Name is required.';
+    }
+    return;
+  }
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+  }
+  if (msgEl) {
+    msgEl.style.color = '#9ca3af';
+    msgEl.textContent = 'Saving mentor details...';
+  }
+
+  try {
+    const { error: profileErr } = await db.client
+      .from('user_profiles')
+      .update({
+        full_name: name,
+        role,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', _viewingUserId);
+    if (profileErr) throw profileErr;
+
+    const mentorPayload = {
+      user_id: _viewingUserId,
+      qualifications,
+      years_of_experience: years || 0,
+      updated_at: new Date().toISOString()
+    };
+
+    const { error: mentorErr } = await db.client
+      .from('mentor_profiles')
+      .upsert(mentorPayload, { onConflict: 'user_id' });
+    if (mentorErr) throw mentorErr;
+
+    if (role !== 'mentor') {
+      const { error: demoteErr } = await db.client
+        .from('mentor_profiles')
+        .update({
+          status: 'rejected',
+          rejection_reason: 'Role changed by admin',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', _viewingUserId);
+      if (demoteErr) throw demoteErr;
+    }
+
+    const { error: roleRpcErr } = await db.client.rpc('admin_update_user_role', {
+      p_user_id: _viewingUserId,
+      p_new_role: role
+    });
+    if (roleRpcErr) {
+      const { error: roleDirectErr } = await db.client
+        .from('user_profiles')
+        .update({ role, updated_at: new Date().toISOString() })
+        .eq('user_id', _viewingUserId);
+      if (roleDirectErr) throw roleDirectErr;
+    }
+
+    await Promise.all([loadMentors(), loadUsers(), loadDashboard()]);
+    await viewMentor(_viewingUserId, true);
+
+    if (msgEl) {
+      msgEl.style.color = '#34d399';
+      msgEl.textContent = 'Mentor details updated in real time.';
+    }
+    _showAdminToast('Mentor details updated.', 'success');
+  } catch (error) {
+    if (msgEl) {
+      msgEl.style.color = '#f87171';
+      msgEl.textContent = error.message || 'Failed to update mentor.';
+    }
+    _showAdminToast('Failed to update mentor: ' + (error.message || 'Unknown error'), 'error');
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Mentor';
+    }
+  }
+}
+
+function editMentor(id) {
+  return viewMentor(id, true);
+}
+
+async function loadMentors() {
+  const statusFilter = document.getElementById('mentor-status-filter').value;
+  let q = db.client.from('mentor_profiles').select('*');
+  if (statusFilter) q = q.eq('status', statusFilter);
+  const { data, error } = await q.order('created_at', { ascending: false });
+  if (error) throw error;
+
+  const mentors = data || [];
+  const profileMap = await fetchProfileMap(mentors.map(item => item.user_id));
+  const ratingMap = await fetchMentorRatingMap(mentors.map(item => item.user_id));
+
+  document.getElementById('mentor-tbody').innerHTML = mentors.map(m => `
+    <tr>
+      <td>${adminMentorText(profileMap[m.user_id]?.full_name)}</td>
+      <td>${adminMentorText(profileMap[m.user_id]?.email)}</td>
+      <td>${adminMentorText(m.qualifications)}</td>
+      <td>${adminMentorText((m.expertise_areas || []).slice(0, 2).join(', '))}</td>
+      <td>${adminMentorExperience(m.years_of_experience)}</td>
+      <td>${adminBuildPremiumStars(ratingMap[m.user_id]?.avg ?? m.average_rating ?? 0)}</td>
+      <td>${statusBadge(m.status)}</td>
+      <td><div class="action-btns">
+        ${m.status === 'pending' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">&#10003; Approve</button><button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">&#10005; Reject</button>` : ''}
+        ${m.status === 'rejected' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">&#8635; Re-approve</button>` : ''}
+        ${m.status === 'approved' ? `<button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">&#10005; Revoke</button>` : ''}
+        <button class="action-btn" onclick="editMentor('${m.user_id}')">Edit</button>
+        <button class="action-btn" onclick="viewMentor('${m.user_id}')">View</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No mentors</td></tr>';
+
+  const opts = mentors
+    .filter(m => m.status === 'approved')
+    .map(m => `<option value="${m.user_id}">${adminMentorText(profileMap[m.user_id]?.full_name)}</option>`)
+    .join('');
+
+  ['c-mentor', 'b-mentor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">Select...</option>' + opts;
+  });
+
+  const mbadge2 = document.getElementById('mentor-badge');
+  if (mbadge2) {
+    const total = mentors.length;
+    const pendingCount = mentors.filter(m => m.status === 'pending').length;
+    mbadge2.textContent = total;
+    mbadge2.style.background = pendingCount > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
+    mbadge2.title = pendingCount > 0 ? `${pendingCount} pending approval` : `${total} total mentors`;
+  }
+}
+
+async function viewMentor(id, editMode = false) {
+  _viewingUserId = id;
+  const [{ data: m }, { data: profile }, ratingMap] = await Promise.all([
+    db.client.from('mentor_profiles').select('*').eq('user_id', id).single(),
+    db.client.from('user_profiles').select('*').eq('user_id', id).single(),
+    fetchMentorRatingMap([id])
+  ]);
+  if (!m || !profile) return;
+
+  const liveRating = (ratingMap[id]?.avg ?? m.average_rating ?? 0) || 0;
+  const roleLabel = ({ user: 'Student', student: 'Student', mentor: 'Mentor', admin: 'Admin', super_admin: 'Super Admin', support: 'Support' }[profile.role] || profile.role || 'Mentor');
+  const roleRow = document.getElementById('user-role-change-row');
+  if (roleRow) roleRow.style.display = 'none';
+
+  document.getElementById('user-detail-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${adminMentorText(profile.full_name)}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${adminMentorText(profile.email)}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${adminMentorText(profile.phone)}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${adminMentorExperience(m.years_of_experience)}</div>
+      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>${adminBuildPremiumStars(liveRating)}</div>
+    </div>
+    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${adminMentorText(m.qualifications)}</div>
+    <div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${adminMentorText((m.expertise_areas || []).join(', '))}</div>
+    ${m.bio ? `<div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${adminEscapeHtml(m.bio)}</div>` : ''}
+    ${m.linkedin_url ? `<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile &rarr;</a></div>` : ''}
+    <div style="margin-top:1rem;padding:1rem;border:1px solid rgba(124,92,252,.18);border-radius:12px;background:rgba(124,92,252,.05);">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(200,191,255,.52);">Mentor Editor</div>
+          <div class="mentor-inline-note">Updates save directly to the live database and refresh the table immediately.</div>
+        </div>
+        ${!editMode ? `<button class="action-btn" onclick="editMentor('${id}')">Edit Mentor</button>` : '<span class="badge badge-green">Editing</span>'}
+      </div>
+      <div class="mentor-edit-grid">
+        <div class="f-group">
+          <label>Name</label>
+          <input type="text" id="mentor-edit-name" value="${adminEscapeHtml(profile.full_name || '')}">
+        </div>
+        <div class="f-group">
+          <label>Role</label>
+          <select id="mentor-edit-role">
+            <option value="mentor" ${profile.role === 'mentor' ? 'selected' : ''}>Mentor</option>
+            <option value="support" ${profile.role === 'support' ? 'selected' : ''}>Support</option>
+            <option value="user" ${['user', 'student'].includes(profile.role) ? 'selected' : ''}>Student</option>
+          </select>
+          <div class="mentor-inline-note">Current role: ${adminEscapeHtml(roleLabel)}</div>
+        </div>
+        <div class="f-group" style="grid-column:1/-1">
+          <label>Qualifications</label>
+          <textarea id="mentor-edit-qualifications" rows="3" placeholder="${MENTOR_EMPTY_TEXT}">${adminEscapeHtml(m.qualifications || '')}</textarea>
+        </div>
+        <div class="f-group">
+          <label>Experience (years)</label>
+          <input type="number" id="mentor-edit-experience" min="0" value="${Number(m.years_of_experience || 0)}">
+        </div>
+      </div>
+      <div style="display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;margin-top:1rem;">
+        <button class="btn-primary" id="mentor-edit-save-btn" onclick="saveMentorRealtime()">Save Mentor</button>
+        <span id="mentor-edit-msg" style="font-size:.78rem;color:rgba(200,191,255,.62);">${editMode ? 'Edit the fields and save when ready.' : ''}</span>
+      </div>
+    </div>`;
+
+  document.querySelector('#user-modal .modal-title').textContent = editMode ? 'Edit Mentor' : 'Mentor Details';
+  openModal('user-modal');
+}
+
+function openScheduleForBatch(batchId) {
+  document.getElementById('sch-session-id').value = '';
+  document.getElementById('sch-batch').value = batchId;
+  document.getElementById('sch-title').value = '';
+  document.getElementById('sch-time').value = '';
+  document.getElementById('sch-duration').value = '60';
+  document.getElementById('sch-meet').value = '';
+  if (document.getElementById('sch-desc')) document.getElementById('sch-desc').value = '';
+  const timeInput = document.getElementById('sch-time');
+  if (timeInput) {
+    timeInput.step = '60';
+    timeInput.min = adminToLocalInputValue(new Date().toISOString());
+  }
+  const errEl = document.getElementById('sch-err');
+  if (errEl) {
+    errEl.style.display = 'none';
+    errEl.textContent = '';
+  }
+  openModal('schedule-modal');
+}
+
+async function loadSchedules() {
+  const { data } = await db.client.from('class_sessions')
+    .select('*, course_batches:batch_id(batch_name, batch_code, course_id), mentor_profiles:mentor_user_id(user_profiles(full_name))')
+    .order('scheduled_start_at', { ascending: false })
+    .limit(50);
+
+  const sessions = data || [];
+  _schedulesMap = Object.fromEntries(sessions.map(s => [s.id, s]));
+  const batchLookup = Object.fromEntries(sessions.map(s => [s.batch_id, s.course_batches || {}]));
+
+  document.getElementById('schedule-tbody').innerHTML = sessions.map(s => {
+    const startDate = new Date(s.scheduled_start_at);
+    const meetingUrl = adminEnsureDynamicMeetingUrl(s, batchLookup);
+    return `
+      <tr style="cursor:pointer" onclick="editSchedule(_schedulesMap['${s.id}'])">
+        <td>${adminEscapeHtml(s.session_title || 'Live Class')}${s.session_number ? `<div style="font-size:.7rem;color:var(--txt4);margin-top:.2rem;">Session ${s.session_number}/${SESSION_TOTAL_TARGET}</div>` : ''}</td>
+        <td>${adminMentorText(s.course_batches?.batch_name)}</td>
+        <td>${adminMentorText(s.mentor_profiles?.user_profiles?.full_name)}</td>
+        <td>${fmtDate(s.scheduled_start_at)} ${startDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</td>
+        <td onclick="event.stopPropagation()">${meetingUrl ? `<a href="${meetingUrl}" target="_blank" style="color:#9b8fff">Join</a>` : MENTOR_EMPTY_TEXT}${s.recording_external_url ? `<div style="font-size:.7rem;margin-top:.25rem;"><a href="${s.recording_external_url}" target="_blank" style="color:#4ade80">Recording</a></div>` : ''}</td>
+        <td>${statusBadge(s.session_status)}</td>
+        <td onclick="event.stopPropagation()"><div class="action-btns">
+          <button class="action-btn" onclick="editSchedule(_schedulesMap['${s.id}'])">Reschedule</button>
+          <button class="action-btn" onclick="manageBatchStudents('${s.batch_id}','${(s.course_batches?.batch_name || 'Batch').replace(/'/g, "\\'")}',${s.course_batches?.course_id ? `'${s.course_batches.course_id}'` : 'null'})">Students</button>
+          ${s.session_status !== 'completed' ? `<button class="action-btn" onclick="completeSchedule('${s.id}')">Complete</button>` : `<button class="action-btn" onclick="sendSessionNotificationEmails('${s.id}','completed')">Notify</button>`}
+          <button class="action-btn danger" onclick="cancelSchedule('${s.id}')">Cancel</button>
+        </div></td>
+      </tr>`;
+  }).join('') || '<tr><td colspan="7" class="table-empty">No scheduled classes</td></tr>';
+}
+
+async function sendSessionNotificationEmails(sessionId, mode = 'completed') {
+  if (!ensureEmailJsReady()) {
+    _showAdminToast('Email service is not loaded in the dashboard.', 'error');
+    return { success: false, sent: 0, failed: 0, status: 'failed' };
+  }
+
+  const { session, students } = await getSessionStudents(sessionId);
+  if (!session) {
+    _showAdminToast('Session not found.', 'error');
+    return { success: false, sent: 0, failed: 0, status: 'failed' };
+  }
+  if (!students.length) {
+    _showAdminToast('No students found in this batch.', 'info');
+    return { success: false, sent: 0, failed: 0, status: 'skipped' };
+  }
+
+  const when = new Date(session.scheduled_start_at);
+  const subjectPrefix = mode === 'cancelled' ? 'Session Cancelled' : mode === 'scheduled' ? 'New Session Scheduled' : 'Session Update';
+  let sent = 0;
+  let failed = 0;
+  const failures = [];
+
+  for (const student of students) {
+    if (!student.email) {
+      failed++;
+      failures.push(`${student.fullName}: missing email`);
+      continue;
+    }
+
+    const progressText = sessionProgressLabel(Math.round((Number(student.progress) || 0) * SESSION_TOTAL_TARGET / 100));
+    const message = mode === 'cancelled'
+      ? `Your class "${session.session_title}" has been cancelled.\n\nOriginal meeting link: ${session.meeting_url || 'Will be shared separately'}\nScheduled time: ${when.toLocaleString('en-IN')}\nCurrent progress: ${progressText}\n\nTeam SkillUpNow`
+      : mode === 'scheduled'
+        ? `A new class is scheduled for you.\n\nSession: ${session.session_title}\nSession number: ${session.session_number || '—'} of ${SESSION_TOTAL_TARGET}\nWhen: ${when.toLocaleString('en-IN')}\nMeeting link: ${session.meeting_url || 'Will be shared soon'}\nCurrent progress: ${progressText}\n\nTeam SkillUpNow`
+        : `Your class "${session.session_title}" has been updated.\n\nMeeting link: ${session.meeting_url || '—'}\nSession number: ${session.session_number || '—'} of ${SESSION_TOTAL_TARGET}\nAttendance: ${student.attendanceStatus}\nUpdated progress: ${progressText}\n\nTeam SkillUpNow`;
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_name: student.fullName,
+        to_email: student.email,
+        subject: `${subjectPrefix}: ${session.session_title}`,
+        message
+      });
+      sent++;
+    } catch (error) {
+      failed++;
+      failures.push(`${student.fullName}: ${error?.message || 'delivery error'}`);
+    }
+  }
+
+  const notificationStatus = failed && sent ? 'partial_failed' : failed ? 'failed' : 'sent';
+  const persistedStatus = failed ? 'failed' : 'sent';
+  await db.client.from('class_sessions').update({
+    last_notified_at: new Date().toISOString(),
+    notification_status: persistedStatus
+  }).eq('id', sessionId);
+
+  const toastType = failed && sent ? 'info' : failed ? 'error' : 'success';
+  const message = failed && sent
+    ? `Notifications partially sent: ${sent} delivered, ${failed} failed.`
+    : failed
+      ? `Notifications failed for ${failed} recipients.`
+      : `Notifications sent to ${sent} recipients.`;
+  _showAdminToast(message, toastType);
+  return { success: sent > 0, sent, failed, status: notificationStatus };
+}
+
+async function saveSchedule() {
+  const errEl = document.getElementById('sch-err');
+  const showErr = msg => {
+    if (errEl) {
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+  };
+  if (errEl) {
+    errEl.style.display = 'none';
+    errEl.textContent = '';
+  }
+
+  const sessionId = document.getElementById('sch-session-id')?.value || '';
+  const batchId = document.getElementById('sch-batch').value;
+  if (!batchId) { showErr('Please select a batch.'); return; }
+
+  const startInput = document.getElementById('sch-time').value;
+  const startDate = adminParseLocalDateTime(startInput);
+  if (!startDate) { showErr('Please choose a valid start date and time.'); return; }
+
+  const title = document.getElementById('sch-title').value.trim() || 'Live Class';
+  const durationMins = Math.max(15, parseInt(document.getElementById('sch-duration').value, 10) || 60);
+  const endDate = new Date(startDate.getTime() + durationMins * 60000);
+  const startIso = startDate.toISOString();
+  const endIso = endDate.toISOString();
+  const manualMeetingUrl = document.getElementById('sch-meet').value.trim();
+
+  const { data: batch } = await db.client
+    .from('course_batches')
+    .select('course_id, primary_mentor_user_id, batch_code, batch_name')
+    .eq('id', batchId)
+    .maybeSingle();
+
+  const payload = {
+    batch_id: batchId,
+    session_title: title,
+    scheduled_start_at: startIso,
+    scheduled_end_at: endIso,
+    meeting_url: manualMeetingUrl || db.getJitsiMeetingUrl({
+      batchCode: batch?.batch_code,
+      batchName: batch?.batch_name,
+      title,
+      startAt: startIso,
+      sessionId: sessionId || undefined
+    }),
+    session_description: document.getElementById('sch-desc')?.value.trim() || null,
+    meeting_provider: 'jitsi'
+  };
+
+  let error;
+  if (sessionId) {
+    ({ error } = await db.client.from('class_sessions').update(payload).eq('id', sessionId));
+  } else {
+    ({ error } = await db.client.from('class_sessions').insert({
+      ...payload,
+      course_id: batch?.course_id || null,
+      mentor_user_id: batch?.primary_mentor_user_id || null,
+      session_status: 'scheduled',
+      notification_status: 'pending'
+    }));
+  }
+  if (error) { showErr('Error saving class: ' + error.message); return; }
+
+  closeModal('schedule-modal');
+  document.getElementById('sch-session-id').value = '';
+  document.querySelector('#schedule-modal .modal-title').textContent = 'Schedule Class';
+  document.getElementById('sch-save-btn').textContent = 'Schedule Class';
+  await loadSchedules();
+
+  const targetId = sessionId || (await db.client.from('class_sessions')
+    .select('id')
+    .eq('batch_id', batchId)
+    .eq('scheduled_start_at', startIso)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()).data?.id;
+
+  if (targetId) {
+    const notifyResult = await sendSessionNotificationEmails(targetId, sessionId ? 'scheduled' : 'scheduled');
+    if (notifyResult.failed && notifyResult.sent) {
+      _showAdminToast('Class saved. Some notifications could not be delivered.', 'info');
+    }
+  }
+
+  _showAdminToast(sessionId ? 'Class rescheduled successfully.' : 'Class scheduled successfully.', 'success');
+}
+
+async function completeSchedule(id) {
+  if (!confirm('Mark this class as completed and notify students?')) return;
+  const { error } = await db.client.from('class_sessions').update({
+    session_status: 'completed',
+    notification_status: 'pending'
+  }).eq('id', id);
+  if (error) {
+    _showAdminToast('Could not update class: ' + error.message, 'error');
+    return;
+  }
+  await loadSchedules();
+  const result = await sendSessionNotificationEmails(id, 'completed');
+  if (result.status === 'failed') return;
+}
+
+async function cancelSchedule(id) {
+  if (!confirm('Cancel this class?')) return;
+  const { error } = await db.client.from('class_sessions').update({
+    session_status: 'cancelled',
+    notification_status: 'pending'
+  }).eq('id', id);
+  if (error) {
+    _showAdminToast('Could not cancel class: ' + error.message, 'error');
+    return;
+  }
+  await loadSchedules();
+  await sendSessionNotificationEmails(id, 'cancelled');
 }
 
 // ===== SIDEBAR TOGGLE =====

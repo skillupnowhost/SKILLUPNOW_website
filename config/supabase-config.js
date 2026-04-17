@@ -225,6 +225,64 @@ class SupabaseConfig {
     }
   }
 
+  getSiteOrigin() {
+    if (typeof window === 'undefined' || !window.location?.origin) return '';
+    return window.location.origin.replace(/\/+$/, '');
+  }
+
+  getPasswordResetRedirectUrl() {
+    const origin = this.getSiteOrigin();
+    return origin ? `${origin}/pages/reset-password.html` : undefined;
+  }
+
+  async sendPasswordResetEmail(email, options = {}) {
+    try {
+      const redirectTo = options.redirectTo || this.getPasswordResetRedirectUrl();
+      const { error } = await this.client.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) throw error;
+      return { success: true, redirectTo };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      const raw = (error && (error.message || error.name)) ? String(error.message || error.name) : '';
+      const isFetchError =
+        error instanceof TypeError ||
+        /failed to fetch|networkerror|load failed/i.test(raw);
+
+      return {
+        success: false,
+        error: isFetchError
+          ? 'Could not reach the password reset service. Please check your internet connection and confirm the site URL is allowed in Supabase Auth Redirect URLs.'
+          : raw || 'Failed to send password reset email.'
+      };
+    }
+  }
+
+  getJitsiMeetingUrl(sessionData = {}) {
+    const clean = value => String(value || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 24);
+
+    const batch = clean(sessionData.batchCode || sessionData.batchName || 'batch');
+    const title = clean(sessionData.title || 'class');
+    const date = sessionData.startAt
+      ? new Date(sessionData.startAt).toISOString().slice(0, 10).replace(/-/g, '')
+      : new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const sessionNo = Number(sessionData.sessionNumber || 0);
+    const suffix = clean(sessionData.sessionId || `${Date.now()}`).slice(-10);
+    const room = [
+      'skillupnow',
+      batch,
+      sessionNo ? `s${sessionNo}` : '',
+      title,
+      date,
+      suffix
+    ].filter(Boolean).join('-').slice(0, 90);
+
+    return `https://meet.jit.si/${room}`;
+  }
+
   async getCurrentUser() {
     try {
       const { data: { user } } = await this.client.auth.getUser();

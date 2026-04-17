@@ -1991,10 +1991,8 @@
       btn.textContent = 'Sending…';
       btn.disabled = true;
       try {
-        const { error } = await window.supabaseConfig.client.auth.resetPasswordForEmail(user.email, {
-          redirectTo: window.location.origin + '/pages/profile'
-        });
-        if (error) throw error;
+        const result = await window.supabaseConfig.sendPasswordResetEmail(user.email);
+        if (!result.success) throw new Error(result.error);
         msg.style.display = 'block';
         msg.style.background = 'rgba(74,222,128,0.15)';
         msg.style.color = '#4ade80';

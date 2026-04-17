@@ -981,7 +981,7 @@
    PROFILE PAGE — JAVASCRIPT
 ════════════════════════════════════════════════════════════ */
 function _db() { return window.supabaseConfig?.client || null; }
-let currentUser = null, userProfile = null, _upcomingDates = [];
+let currentUser = null, userProfile = null, _upcomingDates = [], _profileRealtimeChannel = null;
 const fmtCurr = v => '₹' + Number(v || 0).toLocaleString('en-IN');
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
@@ -1039,6 +1039,7 @@ async function init() {
   const { data: { session } } = await _db().auth.getSession();
   if (!session) { window.location.href = '../index.html?login=1'; return; }
   currentUser = session.user;
+  initRealtimeProfile();
 
   // Handle URL params
   const params = new URLSearchParams(window.location.search);
@@ -1056,6 +1057,24 @@ async function init() {
   loadLearningPath();
   loadStreakData();
   loadReferralStats();
+}
+
+function initRealtimeProfile() {
+  if (_profileRealtimeChannel || !_db() || !currentUser?.id) return;
+
+  const refresh = async () => {
+    await loadLearningPath();
+    if (document.getElementById('tab-recordings')?.classList.contains('active')) {
+      await loadRecordings();
+    }
+  };
+
+  _profileRealtimeChannel = _db().channel('profile-live-updates')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'enrollments', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'class_attendance', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'class_sessions' }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'live_recordings' }, refresh)
+    .subscribe();
 }
 
 /* ── Load profile ────────────────────────────────────────── */
@@ -1292,7 +1311,7 @@ async function loadSchedule(enrollments) {
     .order('scheduled_start_at').limit(10);
 
   const { data: past } = await _db().from('class_sessions')
-    .select('*, live_recordings(external_url)')
+    .select('*, live_recordings(external_url), recording_external_url')
     .in('batch_id', batches)
     .eq('session_status', 'completed')
     .lt('scheduled_start_at', now)
@@ -1316,7 +1335,7 @@ async function loadSchedule(enrollments) {
           <div class="sched-mon">${d.toLocaleString('en-IN', { month: 'short' })}</div>
         </div>
         <div class="sched-info">
-          <h4>${s.session_title}${isToday ? ' <span style="font-size:.68rem;background:rgba(245,158,11,.18);color:#f59e0b;padding:.1rem .45rem;border-radius:50px;font-weight:700;">Today</span>' : ''}</h4>
+          <h4>${s.session_title}${s.session_number ? ` <span style="font-size:.68rem;background:rgba(124,92,252,.16);color:#9b8fff;padding:.1rem .45rem;border-radius:50px;font-weight:700;">${s.session_number}/12</span>` : ''}${isToday ? ' <span style="font-size:.68rem;background:rgba(245,158,11,.18);color:#f59e0b;padding:.1rem .45rem;border-radius:50px;font-weight:700;">Today</span>' : ''}</h4>
           <p>${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST · ${dur}</p>
         </div>
         <div class="sched-action">
@@ -1331,7 +1350,7 @@ async function loadSchedule(enrollments) {
   if (past?.length) {
     document.getElementById('past-list').innerHTML = past.map(s => {
       const d = new Date(s.scheduled_start_at);
-      const recUrl = s.live_recordings?.[0]?.external_url;
+      const recUrl = s.recording_external_url || s.live_recordings?.[0]?.external_url;
       return `<div class="sched-item" style="opacity:.75">
         <div class="sched-date">
           <div class="sched-day">${d.getDate()}</div>
@@ -1340,7 +1359,7 @@ async function loadSchedule(enrollments) {
         <div class="sched-info"><h4>${s.session_title}</h4><p>${fmtDate(s.scheduled_start_at)}</p></div>
         <div class="sched-action">
           ${recUrl
-            ? `<a href="recording-videos" target="_blank"><button class="btn-sm btn-sm-outline">▶ Watch</button></a>`
+            ? `<a href="${recUrl}" target="_blank"><button class="btn-sm btn-sm-outline">▶ Watch</button></a>`
             : '<span style="font-size:.74rem;color:var(--txt4)">No recording</span>'}
         </div>
       </div>`;

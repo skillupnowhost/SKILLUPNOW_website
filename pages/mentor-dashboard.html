@@ -782,6 +782,35 @@ function startRealtimeSubscriptions() {
       if (activeSection === 'section-batches') loadBatches();
     })
     .subscribe();
+
+  client.channel('md-reviews-rt')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'reviews',
+    }, async (payload) => {
+      const courseIds = [...new Set((myBatches || []).map(b => b.course_id).filter(Boolean))];
+      const reviewCourseId = payload?.new?.course_id || payload?.old?.course_id;
+      if (!courseIds.includes(reviewCourseId)) return;
+
+      loadOverview();
+      const activeSection = document.querySelector('.section.active')?.id;
+      if (activeSection === 'section-reports') loadReports();
+    })
+    .subscribe();
+
+  client.channel('md-feedback-rt')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'feedback',
+      filter: `mentor_user_id=eq.${mentorUserId}`
+    }, () => {
+      loadOverview();
+      const activeSection = document.querySelector('.section.active')?.id;
+      if (activeSection === 'section-reports') loadReports();
+    })
+    .subscribe();
 }
 
 function _accessDenied(msg) {
@@ -2155,6 +2184,594 @@ async function logout() {
 }
 
 // ── BOOT ──────────────────────────────────────
+// Override rating summary to include live approved reviews and mentor feedback.
+async function loadOverview() {
+  const ids = batchIds();
+  const courseIds = [...new Set((myBatches || []).map(b => b.course_id).filter(Boolean))];
+
+  const [studentsRes, sessionsRes, mpRes, reviewsRes, feedbackRes] = await Promise.all([
+    ids.length ? client.from('enrollments').select('id', { count: 'exact', head: true }).in('batch_id', ids).eq('enrollment_status', 'active') : { count: 0 },
+    client.from('class_sessions').select('id', { count: 'exact', head: true }).eq('mentor_user_id', mentorUserId).eq('session_status', 'completed'),
+    client.from('mentor_profiles').select('average_rating').eq('user_id', mentorUserId).maybeSingle(),
+    courseIds.length ? client.from('reviews').select('rating').in('course_id', courseIds).eq('is_approved', true).limit(200) : { data: [] },
+    client.from('feedback').select('rating').eq('mentor_user_id', mentorUserId).eq('feedback_type', 'mentor').limit(200)
+  ]);
+
+  const combinedRatings = [
+    ...((reviewsRes.data || []).map(r => Number(r.rating)).filter(Boolean)),
+    ...((feedbackRes.data || []).map(r => Number(r.rating)).filter(Boolean))
+  ];
+  const liveAverageRating = combinedRatings.length
+    ? combinedRatings.reduce((sum, val) => sum + val, 0) / combinedRatings.length
+    : Number(mpRes.data?.average_rating || 0);
+
+  document.getElementById('ov-students').textContent = studentsRes.count || 0;
+  document.getElementById('ov-batches').textContent = myBatches.filter(b => b.is_active).length;
+  document.getElementById('ov-sessions').textContent = sessionsRes.count || 0;
+  document.getElementById('ov-rating').textContent = (liveAverageRating || 0).toFixed(1) + '★';
+
+  const { data: upcoming } = await client
+    .from('class_sessions')
+    .select('*, course_batches(batch_name)')
+    .eq('mentor_user_id', mentorUserId)
+    .in('session_status', ['scheduled', 'ongoing'])
+    .gte('scheduled_start_at', new Date().toISOString())
+    .order('scheduled_start_at')
+    .limit(6);
+
+  const upEl = document.getElementById('upcoming-list');
+  if (!upcoming?.length) {
+    upEl.innerHTML = `<div class="empty">No upcoming classes. <button class="btn btn-p" style="margin-left:.5rem" onclick="openSessionForNew()">Schedule Now</button></div>`;
+  } else {
+    upEl.innerHTML = upcoming.map(s => {
+      const d = new Date(s.scheduled_start_at);
+      const date = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+      const time = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      return `<div class="sched-card">
+        <div class="sched-date"><div class="sd">${String(d.getDate()).padStart(2, '0')}</div><div class="sm">${d.toLocaleDateString('en-IN', { month: 'short' })}</div><div class="sy">${d.getFullYear()}</div></div>
+        <div class="sched-info"><h4>${s.session_title || 'Live Class'}</h4><p>${s.course_batches?.batch_name || 'Batch'} • ${date}, ${time}</p></div>
+        <div class="sched-acts">${s.meeting_url ? `<a class="btn btn-p" href="${s.meeting_url}" target="_blank">Join</a>` : '<span class="badge bx">Link pending</span>'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const { data: holidays } = await client
+    .from('holidays')
+    .select('*')
+    .gte('holiday_date', new Date().toISOString().slice(0, 10))
+    .order('holiday_date')
+    .limit(6);
+
+  const hEl = document.getElementById('overview-holidays');
+  if (!holidays?.length) {
+    hEl.innerHTML = `<div class="empty" style="width:100%">No upcoming holidays</div>`;
+  } else {
+    hEl.innerHTML = holidays.map(h => `
+      <div class="chip">${new Date(h.holiday_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} • ${h.holiday_name}</div>
+    `).join('');
+  }
+}
+
+const MENTOR_PROFILE_EMPTY = 'No data available';
+
+function mentorEscapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function mentorText(value) {
+  const text = String(value ?? '').trim();
+  return text ? mentorEscapeHtml(text) : MENTOR_PROFILE_EMPTY;
+}
+
+function mentorExperience(value) {
+  const years = Number(value);
+  return Number.isFinite(years) && years > 0 ? `${years} yrs` : MENTOR_PROFILE_EMPTY;
+}
+
+function mentorParseLocalDateTime(value) {
+  if (!value || typeof value !== 'string') return null;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+  if (!match) return null;
+  const [, year, month, day, hour, minute] = match.map(Number);
+  const date = new Date(year, month - 1, day, hour, minute, 0, 0);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function mentorToLocalInputValue(iso) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function mentorBuildPremiumStars(ratingValue = 0) {
+  const rating = Math.max(0, Math.min(5, Number(ratingValue) || 0));
+  const fullStars = Math.round(rating);
+  const stars = Array.from({ length: 5 }, (_, index) => {
+    const active = index < fullStars;
+    return `<span class="mentor-premium-star ${active ? 'is-active' : ''}">★</span>`;
+  }).join('');
+  return `<span class="mentor-premium-rating"><span class="mentor-premium-stars">${stars}</span><span class="mentor-premium-value">${rating.toFixed(1)}</span></span>`;
+}
+
+(function injectMentorPremiumStyles() {
+  if (document.getElementById('mentor-premium-star-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'mentor-premium-star-styles';
+  style.textContent = `
+    .mentor-premium-rating{display:inline-flex;align-items:center;gap:.5rem;justify-content:center}
+    .mentor-premium-stars{display:inline-flex;gap:.15rem;filter:drop-shadow(0 6px 14px rgba(245,158,11,.24))}
+    .mentor-premium-star{display:inline-block;font-size:1rem;line-height:1;color:rgba(255,255,255,.16);transform:translateY(0) scale(.96)}
+    .mentor-premium-star.is-active{color:#fbbf24;background:linear-gradient(180deg,#fff6c2 0%,#fbbf24 45%,#d97706 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transform:translateY(-1px) scale(1);filter:drop-shadow(0 2px 0 rgba(120,53,15,.42)) drop-shadow(0 8px 14px rgba(245,158,11,.18))}
+    .mentor-premium-value{font-weight:800;color:#fde68a}
+    .mentor-profile-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.85rem;padding:1.1rem}
+    .mentor-profile-cell{padding:.85rem 1rem;border-radius:14px;background:rgba(124,92,252,.06);border:1px solid rgba(124,92,252,.16)}
+    .mentor-profile-cell label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--txt4);margin-bottom:.35rem}
+    .mentor-profile-cell strong{display:block;color:var(--txt);font-size:.92rem;line-height:1.5}
+  `;
+  document.head.appendChild(style);
+})();
+
+function mentorEnsureDynamicMeetingUrl(session, batchLookup = {}) {
+  if (session?.meeting_url) return session.meeting_url;
+  const batch = batchLookup[session?.batch_id] || {};
+  return db.getJitsiMeetingUrl({
+    batchCode: batch.batch_code,
+    batchName: batch.batch_name,
+    title: session?.session_title,
+    startAt: session?.scheduled_start_at,
+    sessionNumber: session?.session_number,
+    sessionId: session?.id
+  });
+}
+
+async function fetchCurrentMentorProfile() {
+  const [{ data: profile }, { data: mentorProfile }] = await Promise.all([
+    client.from('user_profiles').select('full_name,role').eq('user_id', mentorUserId).maybeSingle(),
+    client.from('mentor_profiles').select('qualifications,years_of_experience,average_rating,status').eq('user_id', mentorUserId).maybeSingle()
+  ]);
+  return { profile: profile || {}, mentorProfile: mentorProfile || {} };
+}
+
+function renderMentorProfileSummary(profile = {}, mentorProfile = {}) {
+  const overviewSection = document.getElementById('section-overview');
+  if (!overviewSection) return;
+
+  let card = document.getElementById('mentor-profile-summary-card');
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'mentor-profile-summary-card';
+    card.className = 'tcard';
+    card.innerHTML = `
+      <div class="tcard-hd"><h3>Mentor Snapshot</h3></div>
+      <div class="mentor-profile-summary" id="mentor-profile-summary-body"></div>
+    `;
+    const statsGrid = overviewSection.querySelector('.stats-grid');
+    if (statsGrid?.nextSibling) overviewSection.insertBefore(card, statsGrid.nextSibling);
+    else overviewSection.appendChild(card);
+  }
+
+  const body = document.getElementById('mentor-profile-summary-body');
+  if (!body) return;
+  body.innerHTML = `
+    <div class="mentor-profile-cell"><label>Name</label><strong>${mentorText(profile.full_name || _mentorName)}</strong></div>
+    <div class="mentor-profile-cell"><label>Role</label><strong>${mentorText(profile.role || 'mentor')}</strong></div>
+    <div class="mentor-profile-cell"><label>Qualifications</label><strong>${mentorText(mentorProfile.qualifications)}</strong></div>
+    <div class="mentor-profile-cell"><label>Experience</label><strong>${mentorExperience(mentorProfile.years_of_experience)}</strong></div>
+  `;
+}
+
+function openSessionForNew() {
+  document.getElementById('sess-id').value = '';
+  document.getElementById('session-modal-title').textContent = 'Schedule New Class';
+  document.getElementById('sess-save-btn').textContent = 'Schedule & Send Invites';
+  document.getElementById('sess-batch').value = '';
+  document.getElementById('sess-title').value = '';
+  document.getElementById('sess-start').value = '';
+  document.getElementById('sess-end').value = '';
+  document.getElementById('sess-notes').value = '';
+  const startEl = document.getElementById('sess-start');
+  const endEl = document.getElementById('sess-end');
+  if (startEl) {
+    startEl.step = '60';
+    startEl.min = mentorToLocalInputValue(new Date().toISOString());
+  }
+  if (endEl) {
+    endEl.step = '60';
+    endEl.min = mentorToLocalInputValue(new Date().toISOString());
+  }
+  const info = document.getElementById('sess-meet-info');
+  if (info) info.style.display = '';
+  openModal('session-modal');
+}
+
+function editSession(id) {
+  const s = _sessionsMap[id];
+  if (!s) return;
+  document.getElementById('sess-id').value = s.id;
+  document.getElementById('session-modal-title').textContent = 'Edit Class';
+  document.getElementById('sess-save-btn').textContent = 'Update Class';
+  document.getElementById('sess-batch').value = s.batch_id || '';
+  document.getElementById('sess-title').value = s.session_title || '';
+  document.getElementById('sess-start').value = mentorToLocalInputValue(s.scheduled_start_at);
+  document.getElementById('sess-end').value = mentorToLocalInputValue(s.scheduled_end_at);
+  document.getElementById('sess-notes').value = s.session_description || '';
+  const startEl = document.getElementById('sess-start');
+  const endEl = document.getElementById('sess-end');
+  if (startEl) startEl.step = '60';
+  if (endEl) endEl.step = '60';
+  const info = document.getElementById('sess-meet-info');
+  if (info) info.style.display = s.meeting_url ? 'none' : '';
+  openModal('session-modal');
+}
+
+async function sendMentorSessionNotifications(sessionId, mode = 'scheduled') {
+  const { data: session } = await client
+    .from('class_sessions')
+    .select('id,batch_id,session_title,session_number,scheduled_start_at,meeting_url')
+    .eq('id', sessionId)
+    .maybeSingle();
+  if (!session?.batch_id) return { sent: 0, failed: 0, status: 'failed' };
+
+  const { data: enrollments } = await client
+    .from('enrollments')
+    .select('student_user_id,student_profiles:student_user_id(user_profiles!student_profiles_user_id_fkey(full_name,email)),progress_percentage')
+    .eq('batch_id', session.batch_id)
+    .in('enrollment_status', ['active', 'pending', 'completed']);
+
+  const recipients = enrollments || [];
+  if (!recipients.length) return { sent: 0, failed: 0, status: 'skipped' };
+  if (typeof emailjs === 'undefined') return { sent: 0, failed: recipients.length, status: 'failed' };
+
+  emailjs.init('6chiuXaZ_OqXbYyG1');
+  let sent = 0;
+  let failed = 0;
+  const errors = [];
+  const when = new Date(session.scheduled_start_at);
+  const meetingUrl = session.meeting_url || mentorEnsureDynamicMeetingUrl(session);
+
+  for (const row of recipients) {
+    const user = row.student_profiles?.user_profiles || {};
+    if (!user.email) {
+      failed++;
+      errors.push(`${user.full_name || 'Student'}: missing email`);
+      continue;
+    }
+
+    const progress = Math.max(0, Math.min(100, Number(row.progress_percentage) || 0));
+    const message = mode === 'cancelled'
+      ? `The class "${session.session_title}" scheduled on ${when.toLocaleString('en-IN')} has been cancelled.\n\nReason: Please check your dashboard for the latest update.\n\nTeam SkillUpNow`
+      : mode === 'completed'
+        ? `Your class "${session.session_title}" has been completed.\n\nSession number: ${session.session_number || '—'}\nUpdated progress: ${progress}%\nMeeting link: ${meetingUrl}\n\nTeam SkillUpNow`
+        : `Your class "${session.session_title}" has been ${mode === 'rescheduled' ? 'rescheduled' : 'scheduled'}.\n\nDate & Time: ${when.toLocaleString('en-IN')}\nJoin Link: ${meetingUrl}\nCurrent progress: ${progress}%\n\nTeam SkillUpNow`;
+
+    try {
+      await emailjs.send('service_skillupnow', 'template_bjqerns', {
+        to_name: user.full_name || 'Student',
+        to_email: user.email,
+        subject: `${mode === 'cancelled' ? 'Class Cancelled' : mode === 'completed' ? 'Class Completed' : mode === 'rescheduled' ? 'Class Rescheduled' : 'Class Scheduled'}: ${session.session_title}`,
+        message
+      });
+      sent++;
+    } catch (error) {
+      failed++;
+      errors.push(`${user.full_name || 'Student'}: ${error?.message || 'delivery error'}`);
+    }
+  }
+
+  const status = failed && sent ? 'partial_failed' : failed ? 'failed' : 'sent';
+  const persistedStatus = failed ? 'failed' : 'sent';
+  await client.from('class_sessions').update({
+    notification_status: persistedStatus,
+    last_notified_at: new Date().toISOString()
+  }).eq('id', sessionId);
+
+  return { sent, failed, status };
+}
+
+function startRealtimeSubscriptions() {
+  client.channel('md-enrollments-rt-final')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'enrollments' }, async payload => {
+      const ids = batchIds();
+      const batchId = payload?.new?.batch_id || payload?.old?.batch_id;
+      if (!ids.includes(batchId)) return;
+      loadStudents();
+      loadBatches();
+      loadOverview();
+    })
+    .subscribe();
+
+  client.channel('md-sessions-rt-final')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'class_sessions', filter: `mentor_user_id=eq.${mentorUserId}` }, () => {
+      loadSessions();
+      loadOverview();
+    })
+    .subscribe();
+
+  client.channel('md-mentor-profile-rt-final')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'mentor_profiles', filter: `user_id=eq.${mentorUserId}` }, () => {
+      loadOverview();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'user_profiles', filter: `user_id=eq.${mentorUserId}` }, async () => {
+      const { data: profile } = await client.from('user_profiles').select('full_name').eq('user_id', mentorUserId).maybeSingle();
+      if (profile?.full_name) {
+        _mentorName = profile.full_name;
+        const nameEl = document.getElementById('m-name');
+        if (nameEl) nameEl.textContent = _mentorName;
+      }
+      loadOverview();
+    })
+    .subscribe();
+
+  client.channel('md-feedback-rating-rt-final')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'reviews' }, () => loadOverview())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'feedback', filter: `mentor_user_id=eq.${mentorUserId}` }, () => loadOverview())
+    .subscribe();
+
+  client.channel('md-holidays-rt-final')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'holidays' }, () => {
+      loadOverview();
+      const activeSection = document.querySelector('.section.active')?.id;
+      if (activeSection === 'section-holidays') loadHolidays();
+    })
+    .subscribe();
+}
+
+async function loadOverview() {
+  const ids = batchIds();
+  const courseIds = [...new Set((myBatches || []).map(b => b.course_id).filter(Boolean))];
+
+  const [studentsRes, sessionsRes, mpRes, reviewsRes, feedbackRes, mentorSnapshot, upcomingRes, holidaysRes] = await Promise.all([
+    ids.length ? client.from('enrollments').select('id', { count: 'exact', head: true }).in('batch_id', ids).eq('enrollment_status', 'active') : { count: 0 },
+    client.from('class_sessions').select('id', { count: 'exact', head: true }).eq('mentor_user_id', mentorUserId).eq('session_status', 'completed'),
+    client.from('mentor_profiles').select('average_rating').eq('user_id', mentorUserId).maybeSingle(),
+    courseIds.length ? client.from('reviews').select('rating').in('course_id', courseIds).eq('is_approved', true).limit(200) : { data: [] },
+    client.from('feedback').select('rating').eq('mentor_user_id', mentorUserId).eq('feedback_type', 'mentor').limit(200),
+    fetchCurrentMentorProfile(),
+    client.from('class_sessions').select('*, course_batches(batch_name,batch_code)').eq('mentor_user_id', mentorUserId).in('session_status', ['scheduled', 'ongoing', 'rescheduled']).gte('scheduled_start_at', new Date().toISOString()).order('scheduled_start_at').limit(6),
+    client.from('holidays').select('*').gte('holiday_date', new Date().toISOString().slice(0, 10)).order('holiday_date').limit(6)
+  ]);
+
+  const combinedRatings = [
+    ...((reviewsRes.data || []).map(r => Number(r.rating)).filter(Boolean)),
+    ...((feedbackRes.data || []).map(r => Number(r.rating)).filter(Boolean))
+  ];
+  const liveAverageRating = combinedRatings.length
+    ? combinedRatings.reduce((sum, val) => sum + val, 0) / combinedRatings.length
+    : Number(mpRes.data?.average_rating || 0);
+
+  document.getElementById('ov-students').textContent = studentsRes.count || 0;
+  document.getElementById('ov-batches').textContent = myBatches.filter(b => b.is_active).length;
+  document.getElementById('ov-sessions').textContent = sessionsRes.count || 0;
+  document.getElementById('ov-rating').innerHTML = mentorBuildPremiumStars(liveAverageRating || 0);
+  renderMentorProfileSummary(mentorSnapshot.profile, mentorSnapshot.mentorProfile);
+
+  const upcoming = upcomingRes.data || [];
+  const batchLookup = Object.fromEntries(upcoming.map(s => [s.batch_id, s.course_batches || {}]));
+  const upEl = document.getElementById('upcoming-list');
+  if (!upcoming.length) {
+    upEl.innerHTML = `<div class="empty">No upcoming classes. <button class="btn btn-p" style="margin-left:.5rem" onclick="openSessionForNew()">Schedule Now</button></div>`;
+  } else {
+    upEl.innerHTML = '<div class="sched-list">' + upcoming.map(s => {
+      const d = new Date(s.scheduled_start_at);
+      const meetingUrl = mentorEnsureDynamicMeetingUrl(s, batchLookup);
+      const statusClass = { scheduled: 'bb', ongoing: 'by', completed: 'bg', cancelled: 'br', rescheduled: 'bv' }[s.session_status] || 'bx';
+      return `<div class="sched-card">
+        <div class="sched-date" onclick="editSession('${s.id}')" style="cursor:pointer">
+          <div class="sd">${String(d.getDate()).padStart(2, '0')}</div>
+          <div class="sm">${d.toLocaleDateString('en-IN', { month: 'short' })}</div>
+          <div class="sy">${d.getFullYear()}</div>
+        </div>
+        <div class="sched-info" onclick="editSession('${s.id}')" style="cursor:pointer">
+          <h4>${mentorText(s.session_title || 'Live Class')}</h4>
+          <p>${mentorText(s.course_batches?.batch_name)} • ${d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })} • <span class="badge ${statusClass}">${s.session_status}</span></p>
+        </div>
+        <div class="sched-acts">
+          <button class="act-btn" onclick="editSession('${s.id}')">Reschedule</button>
+          ${meetingUrl ? `<a class="btn btn-p" href="${meetingUrl}" target="_blank">Join</a>` : '<span class="badge bx">Link pending</span>'}
+          ${['scheduled', 'rescheduled'].includes(s.session_status) ? `<button class="act-btn" onclick="openCancelModal('${s.id}')">Cancel</button>` : ''}
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+  }
+
+  const holidays = holidaysRes.data || [];
+  const hEl = document.getElementById('overview-holidays');
+  if (!holidays.length) {
+    hEl.innerHTML = `<div class="empty" style="width:100%">No upcoming holidays</div>`;
+  } else {
+    hEl.innerHTML = holidays.map(h => `
+      <div class="chip">${new Date(h.holiday_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} • ${mentorEscapeHtml(h.holiday_name)}</div>
+    `).join('');
+  }
+}
+
+async function loadSessions() {
+  const batchFilter = document.getElementById('sess-batch-filter')?.value || '';
+  const statusFilter = document.getElementById('sess-status-filter')?.value || '';
+
+  let q = client.from('class_sessions')
+    .select('*, course_batches(batch_name, batch_code)')
+    .eq('mentor_user_id', mentorUserId)
+    .order('scheduled_start_at', { ascending: false })
+    .limit(50);
+
+  if (batchFilter) q = q.eq('batch_id', batchFilter);
+  if (statusFilter) q = q.eq('session_status', statusFilter);
+
+  const ids = batchIds();
+  if (!batchFilter && ids.length) q = q.in('batch_id', ids);
+
+  const { data } = await q;
+  const sessions = data || [];
+  const el = document.getElementById('sessions-list');
+
+  if (!sessions.length) {
+    el.innerHTML = `<div class="empty">No sessions found. <button class="btn btn-p" style="margin-left:.5rem" onclick="openSessionForNew()">Schedule One</button></div>`;
+    return;
+  }
+
+  _sessionsMap = Object.fromEntries(sessions.map(s => [s.id, s]));
+  const batchLookup = Object.fromEntries(sessions.map(s => [s.batch_id, s.course_batches || {}]));
+
+  el.innerHTML = '<div class="sched-list">' + sessions.map(s => {
+    const start = new Date(s.scheduled_start_at);
+    const end = new Date(s.scheduled_end_at);
+    const duration = Math.max(0, Math.round((end - start) / 60000));
+    const statusClass = { scheduled: 'bb', ongoing: 'by', completed: 'bg', cancelled: 'br', rescheduled: 'bv' }[s.session_status] || 'bx';
+    const meetingUrl = mentorEnsureDynamicMeetingUrl(s, batchLookup);
+    return `<div class="sched-card">
+      <div class="sched-date" onclick="editSession('${s.id}')" style="cursor:pointer">
+        <div class="sd">${start.getDate()}</div>
+        <div class="sm">${start.toLocaleString('en-IN', { month: 'short' })}</div>
+        <div class="sy">${start.getFullYear()}</div>
+      </div>
+      <div class="sched-info" onclick="editSession('${s.id}')" style="cursor:pointer;flex:1">
+        <h4>${mentorText(s.session_title || 'Live Class')}</h4>
+        <p>${start.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} • ${duration} min • ${mentorText(s.course_batches?.batch_name)} • <span class="badge ${statusClass}">${s.session_status}</span></p>
+        <p style="font-size:.7rem;color:var(--v1);margin-top:.2rem">${meetingUrl ? '🔗 ' + mentorEscapeHtml(meetingUrl) : MENTOR_PROFILE_EMPTY}</p>
+      </div>
+      <div class="sched-acts">
+        <button class="act-btn" onclick="openViewStudentsModal('${s.batch_id}')">Students</button>
+        <button class="act-btn" onclick="editSession('${s.id}')">Reschedule</button>
+        ${meetingUrl && ['scheduled', 'rescheduled'].includes(s.session_status) ? `<a href="${meetingUrl}" target="_blank"><button class="btn btn-p" style="font-size:.72rem">Join</button></a>` : ''}
+        ${['scheduled', 'rescheduled'].includes(s.session_status) ? `<button class="act-btn" onclick="markSessionDone('${s.id}')">Done</button><button class="act-btn" style="color:var(--red);border-color:rgba(239,68,68,.3)" onclick="openCancelModal('${s.id}')">Cancel</button>` : ''}
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+
+  const sessOpts = sessions
+    .filter(s => s.session_status !== 'cancelled')
+    .map(s => `<option value="${s.id}">${mentorEscapeHtml(s.session_title || 'Session')} — ${fmtD(s.scheduled_start_at)}</option>`)
+    .join('');
+  const attSel = document.getElementById('att-sess-select');
+  if (attSel) attSel.innerHTML = '<option value="">Select a session...</option>' + sessOpts;
+}
+
+async function saveSession() {
+  const sessId = document.getElementById('sess-id').value.trim();
+  const batchId = document.getElementById('sess-batch').value;
+  const title = document.getElementById('sess-title').value.trim();
+  const startInput = document.getElementById('sess-start').value;
+  const endInput = document.getElementById('sess-end').value;
+
+  if (!batchId) { showToast('Select a batch', 'e'); return; }
+  if (!title) { showToast('Session title required', 'e'); return; }
+
+  const startDate = mentorParseLocalDateTime(startInput);
+  const endDate = mentorParseLocalDateTime(endInput);
+  if (!startDate || !endDate) { showToast('Start and end time are required.', 'e'); return; }
+  if (endDate <= startDate) { showToast('End must be after start', 'e'); return; }
+
+  const btn = document.getElementById('sess-save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  const batch = myBatches.find(x => x.id === batchId);
+  const startIso = startDate.toISOString();
+  const endIso = endDate.toISOString();
+  const payload = {
+    batch_id: batchId,
+    course_id: batch?.course_id,
+    mentor_user_id: mentorUserId,
+    session_title: title,
+    scheduled_start_at: startIso,
+    scheduled_end_at: endIso,
+    session_status: sessId ? 'rescheduled' : 'scheduled',
+    meeting_url: db.getJitsiMeetingUrl({
+      batchCode: batch?.batch_code,
+      batchName: batch?.batch_name,
+      title,
+      startAt: startIso,
+      sessionId: sessId || undefined
+    }),
+    meeting_provider: 'jitsi',
+    notification_status: 'pending'
+  };
+  const notes = document.getElementById('sess-notes').value.trim();
+  payload.session_description = notes || null;
+
+  const { error } = sessId
+    ? await client.from('class_sessions').update(payload).eq('id', sessId)
+    : await client.from('class_sessions').insert(payload);
+
+  btn.disabled = false;
+  btn.textContent = 'Schedule & Send Invites';
+  if (error) { showToast('Error: ' + error.message, 'e'); return; }
+
+  const targetId = sessId || (await client.from('class_sessions')
+    .select('id')
+    .eq('batch_id', batchId)
+    .eq('scheduled_start_at', startIso)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()).data?.id;
+
+  let toastMessage = sessId ? 'Session rescheduled.' : 'Class scheduled.';
+  if (targetId) {
+    const notifyResult = await sendMentorSessionNotifications(targetId, sessId ? 'rescheduled' : 'scheduled');
+    if (notifyResult.failed && notifyResult.sent) toastMessage += ` ${notifyResult.failed} notification(s) failed.`;
+    if (notifyResult.status === 'failed') toastMessage = 'Class saved, but notifications failed.';
+  }
+
+  closeModal('session-modal');
+  document.getElementById('sess-id').value = '';
+  document.getElementById('session-modal-title').textContent = 'Schedule New Class';
+  await loadSessions();
+  await loadOverview();
+  showToast(toastMessage, 's');
+}
+
+async function confirmCancelSession() {
+  const sessId = document.getElementById('cancel-sess-id').value;
+  const reason = document.getElementById('cancel-reason').value;
+  const note = document.getElementById('cancel-note').value.trim();
+  if (!reason) { showToast('Select a reason', 'e'); return; }
+
+  const fullReason = reason + (note ? ': ' + note : '');
+  const { error } = await client.from('class_sessions').update({
+    session_status: 'cancelled',
+    cancellation_reason: fullReason,
+    notification_status: 'pending'
+  }).eq('id', sessId);
+
+  if (error) { showToast('Error: ' + error.message, 'e'); return; }
+
+  const result = await sendMentorSessionNotifications(sessId, 'cancelled');
+  const msg = result.failed && result.sent
+    ? `Session cancelled. ${result.failed} notification(s) failed.`
+    : result.status === 'failed'
+      ? 'Session cancelled, but notifications failed.'
+      : 'Session cancelled. Students notified.';
+  showToast(msg, result.status === 'failed' ? 'e' : 's');
+  closeModal('cancel-session-modal');
+  await loadSessions();
+  await loadOverview();
+}
+
+async function markSessionDone(sessId) {
+  const { error } = await client.from('class_sessions').update({
+    session_status: 'completed',
+    notification_status: 'pending'
+  }).eq('id', sessId);
+  if (error) { showToast('Error: ' + error.message, 'e'); return; }
+
+  const result = await sendMentorSessionNotifications(sessId, 'completed');
+  const msg = result.failed && result.sent
+    ? `Session completed. ${result.failed} notification(s) failed.`
+    : result.status === 'failed'
+      ? 'Session completed, but notifications failed.'
+      : 'Session marked as completed.';
+  showToast(msg, result.status === 'failed' ? 'e' : 's');
+  await loadSessions();
+  await loadOverview();
+}
+
 init();
 </script>
 </body>

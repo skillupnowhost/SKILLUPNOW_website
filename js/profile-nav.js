@@ -563,7 +563,7 @@ class ProfileNavigationManager {
       <div class="footer-bottom">
         <p class="footer-copy">© 2026, SkillUpNow, Chennai. All rights reserved.</p>
         <div class="footer-socials">
-          <a href="https://www.instagram.com/skillupnow" class="footer-social-icon" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener">
+          <a href="https://www.instagram.com/skillupnowofficial" class="footer-social-icon" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
           </a>
           <a href="https://www.linkedin.com/company/skillupnow" class="footer-social-icon" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener">
@@ -1637,17 +1637,14 @@ class ProfileNavigationManager {
       btn.textContent = 'Sending…';
 
       try {
-        const { error } = await client.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + '/pages/reset-password.html'
-        });
+        const result = await window.supabaseConfig.sendPasswordResetEmail(email);
 
-        if (error) {
-          /* Map common Supabase error messages to friendly text */
-          const msg = error.message || '';
+        if (!result.success) {
+          const msg = result.error || '';
           if (msg.includes('60 seconds') || msg.includes('rate') || msg.includes('too many')) {
             throw new Error('Too many requests. Please wait 60 seconds before trying again.');
           }
-          throw error;
+          throw new Error(msg);
         }
 
         /* Success */
