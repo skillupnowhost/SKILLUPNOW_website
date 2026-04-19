@@ -213,6 +213,11 @@
       .courses-hero { min-height:0; padding:0 1rem; }
       .hero-inner-grid { padding:1.5rem 0 1.25rem; }
       .hero-feat-grid { grid-template-columns:repeat(2,1fr); }
+      .course-name { font-size: 1.08rem; }
+      .course-desc { font-size: .8rem; }
+      .course-thumb .thumb-icon { gap: .45rem; }
+      .thumb-icon svg { width: 84px; height: 84px; }
+      .thumb-icon .cat-label { font-size: .68rem; }
     }
 
     /* ===== FILTER BAR ===== */
@@ -312,14 +317,24 @@
     .course-card .course-thumb { transform-style: preserve-3d; }
     /* 3D floating animation for icons */
     @keyframes icon3dFloat {
-      0%,100% { transform: translateZ(18px) translateY(0) rotateX(0deg) rotateY(0deg); filter: drop-shadow(0 8px 24px rgba(0,0,0,.4)); }
-      25%      { transform: translateZ(28px) translateY(-5px) rotateX(-7deg) rotateY(8deg); filter: drop-shadow(0 16px 32px rgba(124,92,252,.5)); }
-      50%      { transform: translateZ(22px) translateY(-3px) rotateX(0deg) rotateY(0deg); }
-      75%      { transform: translateZ(28px) translateY(-5px) rotateX(7deg) rotateY(-8deg); filter: drop-shadow(0 16px 32px rgba(155,143,255,.5)); }
+      0%,100% { transform: translateZ(18px) translateY(0) rotateX(0deg) rotateY(0deg) scale(1); filter: drop-shadow(0 10px 26px rgba(0,0,0,.38)); }
+      20%      { transform: translateZ(24px) translateY(-4px) rotateX(-5deg) rotateY(6deg) scale(1.01); filter: drop-shadow(0 16px 32px rgba(124,92,252,.34)); }
+      50%      { transform: translateZ(30px) translateY(-7px) rotateX(0deg) rotateY(0deg) scale(1.035); filter: drop-shadow(0 18px 34px rgba(61,107,255,.32)); }
+      80%      { transform: translateZ(24px) translateY(-3px) rotateX(5deg) rotateY(-6deg) scale(1.01); filter: drop-shadow(0 16px 32px rgba(155,143,255,.34)); }
     }
     @keyframes iconGlowPulse {
       0%,100% { opacity:.5; transform: scale(1) translateZ(0); }
       50%      { opacity:.9; transform: scale(1.15) translateZ(0); }
+    }
+    @keyframes iconReflectDrift {
+      0% { transform: translate3d(-130%, -24%, 0) rotate(18deg); opacity: 0; }
+      20% { opacity: .35; }
+      60% { opacity: .18; }
+      100% { transform: translate3d(145%, 22%, 0) rotate(18deg); opacity: 0; }
+    }
+    @keyframes iconShadowBreath {
+      0%,100% { transform: translateY(0) scaleX(1); opacity: .34; }
+      50% { transform: translateY(2px) scaleX(1.12); opacity: .5; }
     }
     @keyframes cardShimmer {
       0%   { background-position: -200% center; }
@@ -329,10 +344,40 @@
       display: flex; flex-direction: column; align-items: center; gap: .5rem;
       transform-style: preserve-3d;
       animation: icon3dFloat 4.5s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+    .course-thumb .thumb-icon::before {
+      content: '';
+      position: absolute;
+      width: 88px;
+      height: 16px;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(12,10,28,.34), transparent 72%);
+      filter: blur(5px);
+      animation: iconShadowBreath 4.5s ease-in-out infinite;
+      z-index: -1;
+    }
+    .course-thumb .thumb-icon::after {
+      content: '';
+      position: absolute;
+      width: 52px;
+      height: 140px;
+      top: -28px;
+      left: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0));
+      filter: blur(2px);
+      transform: translate3d(-130%, -24%, 0) rotate(18deg);
+      opacity: 0;
+      animation: iconReflectDrift 5.6s linear infinite;
+      pointer-events: none;
     }
     .thumb-icon svg {
       width: 76px; height: 76px;
-      filter: drop-shadow(0 8px 24px rgba(0,0,0,.4)) drop-shadow(0 0 12px rgba(155,143,255,.3));
+      filter: drop-shadow(0 10px 26px rgba(0,0,0,.35)) drop-shadow(0 0 18px rgba(155,143,255,.24));
     }
     .thumb-icon .cat-label {
       font-size: .62rem; font-weight: 800; letter-spacing: .12em;
@@ -354,7 +399,8 @@
       pointer-events: none;
     }
     .course-card:hover::after { opacity: 1; animation: cardShimmer .7s linear; }
-    .course-card:hover .thumb-icon { animation-play-state: paused; transform: scale(1.14) translateY(-4px) translateZ(30px); }
+    .course-card:hover .thumb-icon { animation-play-state: paused; transform: scale(1.11) translateY(-6px) translateZ(34px) rotateX(3deg); }
+    .course-card:hover .thumb-icon::after { animation-duration: 1.8s; opacity: .34; }
     .course-badge {
       position: absolute; top: .75rem; left: .75rem;
       background: rgba(0,0,0,.52); backdrop-filter: blur(8px);
@@ -386,6 +432,31 @@
       font-size: .82rem; color: var(--txt3); line-height: 1.65; flex: 1;
       overflow: hidden; display: -webkit-box;
       -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    }
+    .course-tags, .upcoming-tags {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+      margin-top: .1rem;
+    }
+    .pam-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: .24rem .58rem;
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--txt2);
+      line-height: 1;
+      white-space: nowrap;
+    }
+    :root[data-theme="dark"] .pam-tag {
+      background: rgba(255,255,255,.04);
+      border-color: rgba(124,92,252,.2);
+      color: var(--txt2);
     }
     .course-meta { display: flex; gap: .75rem; font-size: .78rem; color: var(--txt3); flex-wrap: wrap; }
     .course-meta span { display: flex; align-items: center; gap: .3rem; }
@@ -1753,6 +1824,11 @@
       const thumb = getUpcomingIcon(c._catName, c.title);
       const durationMo = c.duration_days ? Math.round(c.duration_days / 30) : null;
       const delay = Math.min(i * 0.08, 0.56);
+      const upcomingTags = [
+        durationMo ? `<span class="pam-tag">⏱ ${durationMo} mo</span>` : (c.duration_hours ? `<span class="pam-tag">⏱ ${c.duration_hours} hrs</span>` : ''),
+        c.total_live_classes ? `<span class="pam-tag">🎬 ${c.total_live_classes} sessions</span>` : '',
+        c.level ? `<span class="pam-tag">📶 ${c.level}</span>` : ''
+      ].filter(Boolean).join('');
       // Start as login-prompt (neutral); syncInterestButtons() sets the real state
       const intBtn = `<button type="button" class="btn-interested login-prompt" data-course-id="${c.id}" onclick="event.stopPropagation();markInterested('${c.id}',this)">🔔 Notify Me</button>`;
       return `
@@ -1768,6 +1844,7 @@
           <div class="upcoming-cat">${c._catName || 'Course'}</div>
           <div class="upcoming-name">${c.title}</div>
           <div class="upcoming-desc">${c.short_description || (c.description || '').replace(/\n+/g,' ').substring(0,120)}</div>
+          ${upcomingTags ? `<div class="upcoming-tags">${upcomingTags}</div>` : ''}
           <div class="upcoming-meta">
             ${durationMo ? `<span>⏱ ${durationMo} mo</span>` : c.duration_hours ? `<span>⏱ ${c.duration_hours} hrs</span>` : ''}
             ${c.total_live_classes ? `<span>📹 ${c.total_live_classes} sessions</span>` : ''}
@@ -2364,6 +2441,12 @@
       const enrolled = !!c._enrolled;
       const isPending = c._enrollStatus === 'pending';
       const featured = !!c.is_featured;
+      const courseTags = [
+        durationMo ? `<span class="pam-tag">⏱ ${durationMo} mo</span>` : (c.duration_hours ? `<span class="pam-tag">⏱ ${c.duration_hours} hrs</span>` : ''),
+        c.total_live_classes ? `<span class="pam-tag">🎬 ${c.total_live_classes} sessions</span>` : '',
+        c.level ? `<span class="pam-tag">📶 ${c.level}</span>` : '',
+        c._pricingType === 'emi' ? `<span class="pam-tag">💳 EMI</span>` : ''
+      ].filter(Boolean).join('');
       const delay = Math.min(i * 0.07, 0.56); // stagger up to 560ms
       return `<div class="course-card${featured ? ' featured' : ''}" onclick="openCourseDetail('${c.id}')" style="animation-delay:${delay}s">
         <div class="course-thumb" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
@@ -2384,11 +2467,8 @@
           ${c.is_trending ? `<div class="trend-pill">🔥 Trending</div>` : ''}
           <div class="course-name">${c.title}</div>
           <div class="course-desc">${c.short_description || (c.description || '').replace(/\n+/g, ' ').substring(0, 160)}</div>
-          <div class="course-meta">
-            ${durationMo ? `<span>⏱ ${durationMo} mo</span>` : c.duration_hours ? `<span>⏱ ${c.duration_hours} hrs</span>` : ''}
-            ${c.total_live_classes ? `<span>📹 ${c.total_live_classes} sessions</span>` : ''}
-            ${c.rating ? `<span>⭐ ${Number(c.rating).toFixed(1)}</span>` : ''}
-          </div>
+          ${courseTags ? `<div class="course-tags">${courseTags}</div>` : ''}
+          
         </div>
         <div class="course-footer" style="justify-content:flex-end;">
           <div class="card-actions">
@@ -2403,6 +2483,11 @@
         </div>
       </div>`;
     }).join('');
+    // <div class="course-meta">
+    //         ${durationMo ? `<span>⏱ ${durationMo} mo</span>` : c.duration_hours ? `<span>⏱ ${c.duration_hours} hrs</span>` : ''}
+    //         ${c.total_live_classes ? `<span>📹 ${c.total_live_classes} sessions</span>` : ''}
+    //         ${c.rating ? `<span>⭐ ${Number(c.rating).toFixed(1)}</span>` : ''}
+    //       </div>
     // Init 3D tilt on all rendered cards
     requestAnimationFrame(() => init3DTilt(document.querySelectorAll('.course-card')));
   }

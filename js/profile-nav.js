@@ -431,12 +431,13 @@ class ProfileNavigationManager {
         <!-- Auth buttons: shown when logged out (visible by default, hidden on login) -->
         <div id="login-wrapper" style="display:flex;align-items:center;gap:.6rem;">
           <button id="login-btn" class="nav-signin" onclick="window.profileNav && window.profileNav.openLoginModal()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            Login
+            <span class="nav-btn-icon nav-btn-icon--login" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 19c1.7-3.2 4.3-4.8 7-4.8S17.3 15.8 19 19"></path></svg></span>
+            <span>Login</span>
           </button>
           <button id="cta-btn" class="nav-cta nav-signup-btn" onclick="window.profileNav && window.profileNav.openRegister()">
-            Sign Up
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span class="nav-btn-icon nav-btn-icon--signup" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></span>
+            <span class="nav-signup-text">Sign Up</span>
+            <svg class="nav-signup-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
 
@@ -907,7 +908,46 @@ class ProfileNavigationManager {
         box-shadow: 0 8px 28px rgba(124,92,252,.15);
       }
       .pn-role-card:hover::after { opacity: 1; }
-      .pn-role-icon { font-size: 2.1rem; margin-bottom: .5rem; display: block; }
+      @keyframes pn-role-float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-4px) scale(1.04); }
+      }
+      @keyframes pn-role-ring {
+        0%, 100% { transform: scale(1); opacity: .26; }
+        50% { transform: scale(1.1); opacity: .48; }
+      }
+      .pn-role-icon {
+        width: 68px; height: 68px; margin: 0 auto .7rem;
+        display: flex; align-items: center; justify-content: center;
+        position: relative; border-radius: 20px;
+        background:
+          radial-gradient(circle at 32% 28%, rgba(255,255,255,.72), transparent 28%),
+          linear-gradient(145deg, rgba(255,255,255,.94), rgba(240,236,255,.82));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 12px 28px rgba(124,92,252,.18);
+      }
+      .pn-role-icon::before {
+        content: '';
+        position: absolute;
+        inset: -6px;
+        border-radius: 24px;
+        border: 1px solid rgba(124,92,252,.18);
+        animation: pn-role-ring 3s ease-in-out infinite;
+      }
+      .pn-role-icon svg {
+        width: 34px; height: 34px; position: relative; z-index: 1;
+        animation: pn-role-float 3.6s ease-in-out infinite;
+        filter: drop-shadow(0 8px 12px rgba(124,92,252,.16));
+      }
+      .pn-role-card:nth-child(2) .pn-role-icon svg { animation-duration: 4.1s; }
+      :root[data-theme="dark"] .pn-role-icon,
+      html[data-theme="dark"] .pn-role-icon {
+        background:
+          radial-gradient(circle at 32% 28%, rgba(255,255,255,.16), transparent 30%),
+          linear-gradient(145deg, rgba(124,92,252,.2), rgba(61,107,255,.08));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 28px rgba(0,0,0,.28);
+      }
+      :root[data-theme="dark"] .pn-role-icon::before,
+      html[data-theme="dark"] .pn-role-icon::before { border-color: rgba(167,139,250,.22); }
       .pn-role-name { font-size: .88rem; font-weight: 800; color: #12103a; margin-bottom: .2rem; }
       .pn-role-desc { font-size: .7rem; color: #9ca3af; line-height: 1.4; }
 
@@ -1190,6 +1230,8 @@ class ProfileNavigationManager {
     wrap.setAttribute('aria-modal', 'true');
     wrap.setAttribute('aria-label', 'Sign in to SkillUpNow');
 
+    const pnStudentIcon = `<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><defs><linearGradient id="pnStudentGrad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#7C5CFC"/><stop offset="1" stop-color="#3D6BFF"/></linearGradient></defs><path d="M10 16.5C10 14.6 11.6 13 13.5 13H24.5C28 13 31.3 14.2 34 16.4V33.4C31.3 31.2 28 30 24.5 30H13.5C11.6 30 10 31.4 10 33.3V16.5Z" fill="url(#pnStudentGrad)"/><path d="M38 17.2V33.8C38 35.2 36.4 36 35.2 35.2C32.4 33.4 28.9 32.5 25.4 32.5H13.8" stroke="#F8FAFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 19H25M16 23.5H27M16 28H23" stroke="#F8FAFF" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+    const pnMentorIcon = `<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><defs><linearGradient id="pnMentorGrad" x1="10" y1="10" x2="38" y2="38" gradientUnits="userSpaceOnUse"><stop stop-color="#F59E0B"/><stop offset="1" stop-color="#FB7185"/></linearGradient></defs><path d="M7 18.5L24 10L41 18.5L24 27L7 18.5Z" fill="url(#pnMentorGrad)"/><path d="M14 22.5V29.2C14 31.2 18.5 34 24 34C29.5 34 34 31.2 34 29.2V22.5" stroke="#FFF9F2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M41 18.5V27.5" stroke="#FFF9F2" stroke-width="2.4" stroke-linecap="round"/><circle cx="41" cy="30.5" r="2.4" fill="#FFF9F2"/></svg>`;
     wrap.innerHTML = `
       <div class="pn-box" role="document">
         <button class="pn-close" id="pn-close-btn" aria-label="Close">✕</button>
@@ -1474,6 +1516,9 @@ class ProfileNavigationManager {
       </div><!-- /.pn-box -->
     `;
     document.body.appendChild(wrap);
+    wrap.querySelectorAll('#pn-v-welcome .pn-role-icon, #pn-v-signup-role .pn-role-icon').forEach((icon, index) => {
+      icon.innerHTML = index % 2 === 0 ? pnStudentIcon : pnMentorIcon;
+    });
 
     /* ── Close button ── */
     document.getElementById('pn-close-btn').addEventListener('click', () => window._pnClose());
