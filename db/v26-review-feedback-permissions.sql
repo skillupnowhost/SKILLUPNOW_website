@@ -20,6 +20,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.form_submissions TO authent
 --   Landing page + footer review sections read approved reviews using the anon key.
 --   Website/admin feedback forms may be submitted without login, so anon needs INSERT.
 GRANT SELECT ON TABLE public.reviews TO anon;
+GRANT INSERT ON TABLE public.reviews TO anon;
 GRANT INSERT ON TABLE public.feedback TO anon;
 GRANT INSERT ON TABLE public.form_submissions TO anon;
 
@@ -36,7 +37,7 @@ CREATE POLICY reviews_read_policy ON public.reviews
 DROP POLICY IF EXISTS reviews_insert_policy ON public.reviews;
 CREATE POLICY reviews_insert_policy ON public.reviews
   FOR INSERT
-  WITH CHECK (user_id = auth.uid() OR public.is_admin());
+  WITH CHECK (user_id = auth.uid() OR user_id IS NULL OR public.is_admin());
 
 DROP POLICY IF EXISTS reviews_update_policy ON public.reviews;
 CREATE POLICY reviews_update_policy ON public.reviews

@@ -1296,109 +1296,6 @@ nav {
   white-space: nowrap;
 }
 
-/* ── Site Footer classes ── */
-.site-footer {
-  background: rgba(8,6,18,0.95);
-  border-top: 1px solid var(--border);
-  padding: 5rem 5vw 2.5rem;
-  margin-top: 6rem;
-  position: relative;
-  z-index: 1;
-}
-:root[data-theme="light"] .site-footer {
-  background: rgba(244,243,255,0.97);
-}
-
-.footer-col-title {
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--txt2);
-  margin-bottom: 1.3rem;
-}
-
-.footer-col-links {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.footer-link {
-  font-size: 0.84rem;
-  color: var(--txt4);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.footer-link:hover { color: #ff85c0; }
-
-.footer-contact-link {
-  font-size: 0.8rem;
-  color: var(--txt4);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  transition: color 0.2s;
-}
-.footer-contact-link:hover { color: #ff85c0; }
-
-.footer-bottom {
-  padding-top: 2rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.footer-copy {
-  font-size: 0.78rem;
-  color: var(--txt4);
-}
-
-.footer-socials {
-  display: flex;
-  gap: 0.65rem;
-}
-
-.footer-social-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--r1);
-  border: 1px solid var(--border);
-  background: var(--panel);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-size: 1rem;
-  transition: border-color 0.25s, transform 0.2s;
-}
-.footer-social-icon:hover {
-  border-color: var(--v1);
-  transform: translateY(-2px);
-}
-
-/* Footer 4-col responsive */
-@media (max-width: 1024px) {
-  .footer-grid-main {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 2.5rem !important;
-  }
-}
-@media (max-width: 640px) {
-  .footer-grid-main {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 2rem !important;
-  }
-  /* Brand takes full width on mobile; Platform and Company stay side-by-side */
-  .footer-grid-main > div:first-child {
-    grid-column: 1 / -1 !important;
-  }
-}
 
 /* Modern custom dropdowns */
 select.styled-select {
@@ -1940,6 +1837,10 @@ nav {
   overflow: hidden;
   transition: transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s ease, border-color .4s ease;
   box-shadow: 0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.07);
+  /* equal height */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 .testimonial-card::before {
   content: '\201C';

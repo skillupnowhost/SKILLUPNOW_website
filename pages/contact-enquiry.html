@@ -3,32 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Us — SkillUpNow</title>
+  <title>Contact & Forms — SkillUpNow</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/responsive.css">
   <style>
-    .page-wrap { position:relative; z-index:1; padding-top:0; min-height:100vh; }
-
-    /* ── Premium Cinematic Hero (THEME-RESPONSIVE) ── */
-    @keyframes chHeroOrb {
-      0%,100% { opacity:1; transform:translateY(0) scale(1); }
-      50%      { opacity:.75; transform:translateY(-22px) scale(1.05); }
+    /* ════════════════════════════════════════════════
+       HERO
+    ════════════════════════════════════════════════ */
+    @keyframes ch-float {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-22px) scale(1.05); }
     }
+    @keyframes ch-pulse {
+      0%,100% { opacity:1; transform:scale(1); box-shadow:0 0 6px #c084fc; }
+      50%      { opacity:.5; transform:scale(1.5); box-shadow:0 0 14px #c084fc; }
+    }
+    @keyframes ceShimmer {
+      0%   { transform: translateX(-130%); }
+      100% { transform: translateX(130%); }
+    }
+    @keyframes ceSpin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes ceFadeUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes cePanelIn {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
     .contact-hero {
       position: relative; overflow: hidden; text-align: center;
       padding: 5.5rem 2rem 4.5rem;
       background: linear-gradient(170deg,#0d0621 0%,#0c1433 55%,#06021a 100%);
-      transition: background .4s;
     }
     :root[data-theme="light"] .contact-hero {
       background: linear-gradient(155deg,#f8f6ff 0%,#f0ecff 28%,#e8e2ff 58%,#f5f3ff 100%);
     }
-    /* Deep layered background */
     .contact-hero::before {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
+      content:''; position:absolute; inset:0; pointer-events:none;
       background:
         radial-gradient(ellipse 80% 60% at 20% 30%, rgba(109,40,217,.35) 0%, transparent 55%),
         radial-gradient(ellipse 70% 50% at 82% 70%, rgba(16,90,220,.28) 0%, transparent 50%),
@@ -40,225 +58,509 @@
         radial-gradient(ellipse 70% 50% at 82% 70%, rgba(16,90,220,.10) 0%, transparent 50%),
         radial-gradient(ellipse 55% 45% at 55% 10%, rgba(236,72,153,.07) 0%, transparent 45%);
     }
-    /* Animated noise/grain texture */
     .contact-hero::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .04;
+      content:''; position:absolute; inset:0; pointer-events:none; opacity:.04;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       background-size: 160px;
     }
-    /* Floating orb accents */
-    .ch-orb {
-      position: absolute; border-radius: 50%; pointer-events: none;
-      animation: ch-float 8s ease-in-out infinite;
-    }
-    .ch-orb1 {
-      width: 420px; height: 420px; left: -140px; top: -100px;
-      background: radial-gradient(circle, rgba(124,58,237,.22) 0%, transparent 70%);
-      animation-delay: 0s;
-    }
-    .ch-orb2 {
-      width: 320px; height: 320px; right: -80px; bottom: -60px;
-      background: radial-gradient(circle, rgba(37,99,235,.20) 0%, transparent 70%);
-      animation-delay: -3s;
-    }
-    .ch-orb3 {
-      width: 200px; height: 200px; left: 45%; top: 5%;
-      background: radial-gradient(circle, rgba(236,72,153,.12) 0%, transparent 70%);
-      animation-delay: -5.5s;
-    }
-    @keyframes ch-float {
-      0%,100% { transform: translateY(0) scale(1); }
-      50%      { transform: translateY(-22px) scale(1.05); }
-    }
-    /* Grid lines overlay */
+    .ch-orb { position:absolute; border-radius:50%; pointer-events:none; animation:ch-float 8s ease-in-out infinite; }
+    .ch-orb1 { width:420px; height:420px; left:-140px; top:-100px; background:radial-gradient(circle,rgba(124,58,237,.22) 0%,transparent 70%); animation-delay:0s; }
+    .ch-orb2 { width:320px; height:320px; right:-80px; bottom:-60px; background:radial-gradient(circle,rgba(37,99,235,.20) 0%,transparent 70%); animation-delay:-3s; }
+    .ch-orb3 { width:200px; height:200px; left:45%; top:5%; background:radial-gradient(circle,rgba(236,72,153,.12) 0%,transparent 70%); animation-delay:-5.5s; }
+    :root[data-theme="light"] .ch-orb1 { background:radial-gradient(circle,rgba(124,58,237,.1) 0%,transparent 70%); }
+    :root[data-theme="light"] .ch-orb2 { background:radial-gradient(circle,rgba(37,99,235,.08) 0%,transparent 70%); }
+    :root[data-theme="light"] .ch-orb3 { background:radial-gradient(circle,rgba(236,72,153,.06) 0%,transparent 70%); }
     .ch-grid {
-      position: absolute; inset: 0; pointer-events: none; opacity: .06;
-      background-image:
-        linear-gradient(rgba(168,85,247,.6) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(168,85,247,.6) 1px, transparent 1px);
+      position:absolute; inset:0; pointer-events:none; opacity:.06;
+      background-image: linear-gradient(rgba(168,85,247,.6) 1px,transparent 1px), linear-gradient(90deg,rgba(168,85,247,.6) 1px,transparent 1px);
       background-size: 60px 60px;
-      -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 30%, transparent 100%);
-      mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, black 30%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 50%,black 30%,transparent 100%);
+      mask-image: radial-gradient(ellipse 85% 80% at 50% 50%,black 30%,transparent 100%);
     }
-    /* Hero content wrapper */
-    .ch-inner { position: relative; z-index: 2; max-width: 780px; margin: 0 auto; }
-    /* Pill badge */
+    :root[data-theme="light"] .ch-grid { opacity:.04; }
+    .ch-inner { position:relative; z-index:2; max-width:780px; margin:0 auto; }
     .contact-hero-tag {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .35rem 1.1rem; border-radius: 50px;
-      background: rgba(168,85,247,.1);
-      border: 1px solid rgba(168,85,247,.35);
-      font-size: .68rem; font-weight: 700; color: #c084fc;
-      letter-spacing: .12em; text-transform: uppercase; margin-bottom: 1.4rem;
-      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-      box-shadow: 0 0 16px rgba(168,85,247,.15), inset 0 1px 0 rgba(255,255,255,.06);
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.35rem 1.1rem; border-radius:50px;
+      background:rgba(168,85,247,.1); border:1px solid rgba(168,85,247,.35);
+      font-size:.68rem; font-weight:700; color:#c084fc;
+      letter-spacing:.12em; text-transform:uppercase; margin-bottom:1.4rem;
+      -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+      box-shadow:0 0 16px rgba(168,85,247,.15),inset 0 1px 0 rgba(255,255,255,.06);
     }
-    /* Pulsing dot in badge */
-    .ch-dot {
-      width: 6px; height: 6px; border-radius: 50%; background: #c084fc;
-      box-shadow: 0 0 6px #c084fc;
-      animation: ch-pulse 2.2s ease-in-out infinite;
-    }
-    @keyframes ch-pulse {
-      0%,100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #c084fc; }
-      50%      { opacity: .5; transform: scale(1.5); box-shadow: 0 0 14px #c084fc; }
-    }
-    /* Main headline */
+    :root[data-theme="light"] .contact-hero-tag { background:rgba(124,58,237,.08); border-color:rgba(124,58,237,.28); color:#7c3aed; }
+    .ch-dot { width:6px; height:6px; border-radius:50%; background:#c084fc; box-shadow:0 0 6px #c084fc; animation:ch-pulse 2.2s ease-in-out infinite; }
+    :root[data-theme="light"] .ch-dot { background:#7c3aed; box-shadow:0 0 6px #7c3aed; }
     .contact-hero h1 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: clamp(2.1rem, 5.5vw, 4rem);
-      font-weight: 900; letter-spacing: .02em; line-height: 1.12;
-      margin-bottom: .5rem; position: relative;
-      background: linear-gradient(135deg, #ffffff 0%, #e0d4ff 30%, #c084fc 60%, #67e8f9 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      filter: drop-shadow(0 0 40px rgba(192,132,252,.25));
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:clamp(2.1rem,5.5vw,4rem); font-weight:900; letter-spacing:.02em; line-height:1.12; margin-bottom:.5rem;
+      background:linear-gradient(135deg,#ffffff 0%,#e0d4ff 30%,#c084fc 60%,#67e8f9 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      filter:drop-shadow(0 0 40px rgba(192,132,252,.25));
     }
     :root[data-theme="light"] .contact-hero h1 {
-      background: linear-gradient(135deg, #1a0a3d 0%, #4c1d95 40%, #7c3aed 70%, #2563eb 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      filter: drop-shadow(0 0 24px rgba(124,58,237,.18));
+      background:linear-gradient(135deg,#1a0a3d 0%,#4c1d95 40%,#7c3aed 70%,#2563eb 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      filter:drop-shadow(0 0 24px rgba(124,58,237,.18));
     }
-    /* Underline accent */
     .ch-underline {
-      display: block; width: 72px; height: 3px; margin: .8rem auto 1.4rem;
-      background: linear-gradient(90deg, #7c3aed, #c084fc, #67e8f9);
-      border-radius: 2px;
-      box-shadow: 0 0 12px rgba(192,132,252,.55);
+      display:block; width:72px; height:3px; margin:.8rem auto 1.4rem;
+      background:linear-gradient(90deg,#7c3aed,#c084fc,#67e8f9); border-radius:2px;
+      box-shadow:0 0 12px rgba(192,132,252,.55);
     }
-    :root[data-theme="light"] .ch-underline {
-      box-shadow: 0 0 10px rgba(124,58,237,.3);
-    }
-    /* Subtitle */
+    :root[data-theme="light"] .ch-underline { box-shadow:0 0 10px rgba(124,58,237,.3); }
     .contact-hero p {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: clamp(.92rem, 1.8vw, 1.08rem);
-      line-height: 1.8;
-      color: rgba(210,195,255,.72); max-width: 520px; margin: 0 auto 2rem;
-      position: relative;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:clamp(.92rem,1.8vw,1.08rem); line-height:1.8;
+      color:rgba(210,195,255,.72); max-width:520px; margin:0 auto 2rem;
     }
-    :root[data-theme="light"] .contact-hero p { color: rgba(30,15,60,.62); }
-    /* Light theme: grid lines + orbs toned down */
-    :root[data-theme="light"] .ch-grid { opacity: .04; }
-    :root[data-theme="light"] .ch-orb1 { background: radial-gradient(circle, rgba(124,58,237,.1) 0%, transparent 70%); }
-    :root[data-theme="light"] .ch-orb2 { background: radial-gradient(circle, rgba(37,99,235,.08) 0%, transparent 70%); }
-    :root[data-theme="light"] .ch-orb3 { background: radial-gradient(circle, rgba(236,72,153,.06) 0%, transparent 70%); }
-    /* Light theme: kicker pill */
-    :root[data-theme="light"] .contact-hero-tag {
-      background: rgba(124,58,237,.08); border-color: rgba(124,58,237,.28); color: #7c3aed;
+    :root[data-theme="light"] .contact-hero p { color:rgba(30,15,60,.62); }
+
+    /* ════════════════════════════════════════════════
+       TRUST BAR
+    ════════════════════════════════════════════════ */
+    .ce-trust-bar {
+      display:flex; justify-content:center; align-items:center; gap:0; flex-wrap:wrap;
+      background:var(--panel); border-bottom:1.5px solid var(--border);
     }
-    :root[data-theme="light"] .ch-dot { background: #7c3aed; box-shadow: 0 0 6px #7c3aed; }
-    /* Stat pills row */
-    .ch-stats {
-      display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap;
-      position: relative;
+    .ce-trust-item {
+      display:flex; align-items:center; gap:.65rem;
+      padding:1rem 2rem; flex:1; min-width:160px; max-width:280px;
+      border-right:1px solid var(--border);
     }
-    .ch-stat {
-      display: flex; align-items: center; gap: .55rem;
-      padding: .45rem 1.1rem;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 50px;
-      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-      font-size: .78rem; font-weight: 700; color: rgba(220,210,255,.9);
-      box-shadow: 0 2px 12px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
-    }
-    .ch-stat-icon {
-      width: 22px; height: 22px; border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .ch-stat-icon.green {
-      background: linear-gradient(145deg,#22c55e,#15803d);
-      box-shadow: 0 2px 0 #14532d, 0 3px 8px rgba(34,197,94,.35);
-    }
-    .ch-stat-icon.purple {
-      background: linear-gradient(145deg,#7c5cfc,#4f2dca);
-      box-shadow: 0 2px 0 #3b1fa3, 0 3px 8px rgba(124,92,252,.35);
-    }
-    .ch-stat-icon.amber {
-      background: linear-gradient(145deg,#f59e0b,#b45309);
-      box-shadow: 0 2px 0 #92400e, 0 3px 8px rgba(245,158,11,.35);
-    }
-    /* ── Section titles ── */
-    .form-card h2, .info-card h3 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      letter-spacing: 0;
-    }
-    /* ── Icon-only — no background ── */
-    .ci-icon-3d {
-      flex-shrink:0;
+    .ce-trust-item:last-child { border-right:none; }
+    .ce-trust-icon {
+      width:36px; height:36px; border-radius:12px; flex-shrink:0;
       display:flex; align-items:center; justify-content:center;
-      transition: opacity .18s;
     }
-    .ci-icon-3d:hover { opacity:.65; }
-    .ci-icon-phone { color:#16a34a; }
-    .ci-icon-email { color:#4f46e5; }
-    .ci-icon-loc   { color:#ea580c; }
-    /* Clickable contact links */
-    .ci-info .value a, .ci-info .sub a {
-      color:inherit; text-decoration:none; transition:color .15s;
+    .ce-trust-icon.purple { background:linear-gradient(135deg,rgba(124,92,252,.25),rgba(61,107,255,.2)); color:#7c5cfc; }
+    .ce-trust-icon.green  { background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(21,128,61,.15)); color:#22c55e; }
+    .ce-trust-icon.amber  { background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(180,83,9,.15)); color:#f59e0b; }
+    .ce-trust-icon.blue   { background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(37,99,235,.15)); color:#3b82f6; }
+    .ce-trust-label { font-size:.72rem; color:var(--txt4); font-weight:600; text-transform:uppercase; letter-spacing:.06em; line-height:1; }
+    .ce-trust-value { font-size:1rem; font-weight:800; color:var(--txt); line-height:1.2; margin-top:.15rem; }
+
+    /* ════════════════════════════════════════════════
+       MAIN LAYOUT
+    ════════════════════════════════════════════════ */
+    .ce-wrap {
+      max-width:1160px; margin:0 auto; padding:2.5rem 1.5rem 5rem;
+      display:grid; grid-template-columns:1fr 360px; gap:2rem;
     }
-    .ci-info .value a:hover { color:var(--v1) !important; text-decoration:underline; text-underline-offset:2px; }
-    .ci-info .sub   a:hover { color:var(--v1) !important; }
-    /* Download QR button */
-    /* .btn-qr-dl {
-      display:inline-flex; align-items:center; gap:.45rem;
-      padding:.45rem 1rem; border:none; border-radius:var(--r1); cursor:pointer;
-      background:linear-gradient(135deg,#7c3aed,#4f46e5);
-      color:#fff; font-size:.78rem; font-weight:700; font-family:inherit;
-      box-shadow:0 2px 0 #312e81,0 4px 12px rgba(124,58,237,.35);
-      transition:opacity .2s, transform .15s;
+
+    /* ════════════════════════════════════════════════
+       TAB BAR
+    ════════════════════════════════════════════════ */
+    .ce-tab-bar {
+      display:flex; background:var(--panel); border:1.5px solid var(--border);
+      border-radius:18px; padding:.35rem; gap:.25rem; margin-bottom:1.5rem;
     }
-    .btn-qr-dl:hover:not(:disabled) { opacity:.88; transform:translateY(-1px); }
-    .btn-qr-dl:disabled { opacity:.5; cursor:not-allowed; } */
-
-    .contact-wrap { max-width:1100px; margin:2.5rem auto; padding:0 1.5rem 4rem; display:grid; grid-template-columns:1fr 380px; gap:2rem; }
-
-    /* Form */
-    .form-card { background:var(--panel); border:1.5px solid var(--border); border-radius:var(--r3); padding:2rem; }
-    .form-card h2 { font-size:1.2rem; font-weight:800; margin-bottom:0.25rem; }
-    .form-card p  { font-size:0.85rem; color:var(--txt3); margin-bottom:1.5rem; }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; }
-    .f-group { margin-bottom:0.85rem; }
-    .f-group label { display:block; font-size:0.8rem; font-weight:700; color:var(--txt2); margin-bottom:0.35rem; }
-    .f-group label span { color:#ef4444; }
-    .f-group input, .f-group select, .f-group textarea {
-      width:100%; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--r1);
-      padding:0.65rem 0.9rem; color:var(--txt); font-size:0.88rem; outline:none; font-family:inherit; transition:border-color 0.2s;
+    .ce-tab {
+      flex:1; display:flex; align-items:center; justify-content:center; gap:.45rem;
+      padding:.65rem .5rem; border:none; border-radius:12px;
+      font-size:.82rem; font-weight:700; cursor:pointer; font-family:inherit;
+      color:var(--txt3); background:transparent;
+      transition:background .2s, color .2s, box-shadow .2s;
+      white-space:nowrap;
     }
-    .f-group input:focus, .f-group select:focus, .f-group textarea:focus { border-color:var(--v1); box-shadow:0 0 0 3px var(--v5); }
-    .f-group textarea { resize:vertical; min-height:120px; }
-    .f-group.full { grid-column:1/-1; }
-    .btn-submit { background:linear-gradient(135deg,#16a34a,#22c55e); color:#fff; border:none; border-radius:var(--r1); padding:0.8rem 2rem; font-size:0.93rem; font-weight:700; cursor:pointer; transition:all 0.25s; font-family:inherit; display:flex; align-items:center; gap:0.5rem; }
-    .btn-submit:hover:not(:disabled) { opacity:0.88; transform:scale(1.01); }
-    .btn-submit:disabled { opacity:0.5; cursor:not-allowed; }
+    .ce-tab:hover { color:var(--txt); background:rgba(124,92,252,.07); }
+    .ce-tab.active {
+      color:#fff; background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      box-shadow:0 4px 16px rgba(124,92,252,.35);
+    }
+    :root[data-theme="light"] .ce-tab.active { color:#fff; }
 
-    /* Alert */
-    .alert { padding:0.75rem 1rem; border-radius:var(--r1); font-size:0.83rem; margin-bottom:1rem; display:none; }
-    .alert.success { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); color:#16a34a; }
-    .alert.error   { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#dc2626; }
-    .alert.show { display:block; }
+    /* ════════════════════════════════════════════════
+       FORM CARD
+    ════════════════════════════════════════════════ */
+    .ce-form-card {
+      background:var(--panel); border:1.5px solid var(--border);
+      border-radius:20px; padding:2rem;
+      animation:cePanelIn .3s ease;
+    }
+    .ce-panel { display:none; }
+    .ce-panel.active { display:block; animation:cePanelIn .3s ease; }
+    .ce-panel-hdr { margin-bottom:1.75rem; }
+    .ce-panel-hdr h2 { font-family:'Plus Jakarta Sans',sans-serif; font-size:1.25rem; font-weight:800; margin:0 0 .3rem; color:var(--txt); }
+    .ce-panel-hdr p  { font-size:.85rem; color:var(--txt3); margin:0; }
+    .ce-panel-tag {
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:.22rem .8rem; border-radius:50px;
+      font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      margin-bottom:.7rem;
+    }
+    .ce-panel-tag.purple { background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.2); color:#7c5cfc; }
+    .ce-panel-tag.green  { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); color:#16a34a; }
+    .ce-panel-tag.amber  { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.2); color:#b45309; }
+    .ce-panel-tag.blue   { background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.2); color:#2563eb; }
 
-    /* Sidebar info */
-    .info-card { background:var(--panel); border:1.5px solid var(--border); border-radius:var(--r3); padding:1.75rem; margin-bottom:1.25rem; }
-    .info-card h3 { font-size:1rem; font-weight:800; margin-bottom:1.25rem; }
-    .contact-item { display:flex; gap:0.85rem; align-items:flex-start; margin-bottom:1.1rem; }
-    .ci-icon { width:40px; height:40px; background:var(--v5); border:1px solid var(--v3); border-radius:var(--r1); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-    .ci-info .label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--txt4); margin-bottom:0.15rem; }
-    .ci-info .value { font-size:0.88rem; font-weight:600; color:var(--txt2); }
-    .ci-info .sub   { font-size:0.75rem; color:var(--txt4); }
+    /* ── Floating label field ── */
+    .fl-row { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
+    .fl-group { position:relative; margin-bottom:1.1rem; }
+    .fl-group.full { grid-column:1/-1; }
+    .fl-group label {
+      position:absolute; left:.95rem; top:50%; transform:translateY(-50%);
+      font-size:.88rem; font-weight:500; color:var(--txt4); pointer-events:none;
+      transition:top .18s ease, transform .18s ease, font-size .18s ease, color .18s ease;
+      z-index:1;
+    }
+    .fl-group.textarea-group label { top:1.1rem; transform:none; }
+    .fl-group input, .fl-group select, .fl-group textarea {
+      width:100%; box-sizing:border-box;
+      background:var(--bg); border:1.5px solid var(--border);
+      border-radius:12px; padding:1.35rem .95rem .45rem;
+      color:var(--txt); font-size:.9rem; outline:none;
+      font-family:inherit; transition:border-color .2s, box-shadow .2s;
+      -webkit-appearance:none; appearance:none;
+    }
+    .fl-group select { padding-right:2rem; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .9rem center; }
+    .fl-group textarea { resize:vertical; min-height:110px; padding-top:1.5rem; }
+    .fl-group input:focus, .fl-group select:focus, .fl-group textarea:focus {
+      border-color:var(--v1); box-shadow:0 0 0 3px rgba(124,92,252,.12);
+    }
+    /* Float label up */
+    .fl-group input:focus ~ label,
+    .fl-group input:not(:placeholder-shown) ~ label,
+    .fl-group select:focus ~ label,
+    .fl-group select.has-value ~ label,
+    .fl-group textarea:focus ~ label,
+    .fl-group textarea:not(:placeholder-shown) ~ label {
+      top:.5rem; transform:none; font-size:.7rem; color:var(--v1); font-weight:700;
+    }
+    .fl-group.textarea-group input:focus ~ label,
+    .fl-group.textarea-group textarea:focus ~ label { top:.5rem; }
+    /* Icon prefix */
+    .fl-icon {
+      position:absolute; left:.85rem; top:50%; transform:translateY(-50%);
+      color:var(--txt4); pointer-events:none; z-index:2; display:flex;
+      transition:color .2s;
+    }
+    .fl-group:has(.fl-icon) input,
+    .fl-group:has(.fl-icon) select { padding-left:2.4rem; }
+    .fl-group:has(.fl-icon) label { left:2.4rem; }
+    .fl-group:focus-within .fl-icon { color:var(--v1); }
+    /* Validation states */
+    .fl-group.valid input, .fl-group.valid select, .fl-group.valid textarea { border-color:#22c55e; }
+    .fl-group.invalid input, .fl-group.invalid select, .fl-group.invalid textarea { border-color:#ef4444; box-shadow:0 0 0 3px rgba(239,68,68,.1); }
+    .fl-err { font-size:.72rem; color:#ef4444; margin-top:.3rem; display:none; }
+    .fl-group.invalid .fl-err { display:block; }
+    .fl-ok { position:absolute; right:.9rem; top:50%; transform:translateY(-50%); color:#22c55e; display:none; }
+    .fl-group.valid .fl-ok { display:flex; }
 
-    /* Quick FAQ */
-    .faq-item { border-bottom:1px solid var(--border); }
-    .faq-q { padding:0.85rem 0; font-size:0.87rem; font-weight:700; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
-    .faq-q:hover { color:var(--v1); }
-    .faq-a { font-size:0.83rem; color:var(--txt3); padding-bottom:0.85rem; display:none; line-height:1.7; }
-    .faq-a.open { display:block; }
+    /* ── Alert ── */
+    .ce-alert { padding:.85rem 1.1rem; border-radius:12px; font-size:.85rem; margin-bottom:1.1rem; display:none; animation:ceFadeUp .3s ease; }
+    .ce-alert.success { background:rgba(34,197,94,.08); border:1.5px solid rgba(34,197,94,.25); color:#16a34a; }
+    .ce-alert.error   { background:rgba(239,68,68,.08); border:1.5px solid rgba(239,68,68,.25); color:#dc2626; }
+    .ce-alert.show    { display:flex; align-items:flex-start; gap:.65rem; }
 
-    @media(max-width:768px) {
-      .contact-wrap { grid-template-columns:1fr; }
-      .form-row { grid-template-columns:1fr; }
-      .contact-hero h1 { font-size:1.7rem; }
+    /* ── Submit button ── */
+    .ce-submit-btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:.6rem;
+      padding:.85rem 2.2rem; border:none; border-radius:50px; cursor:pointer;
+      font-family:inherit; font-size:.95rem; font-weight:800;
+      position:relative; overflow:hidden;
+      transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s, opacity .2s;
+    }
+    .ce-submit-btn.purple {
+      background:linear-gradient(135deg,#7c5cfc 0%,#3d6bff 60%,#7c5cfc 100%);
+      background-size:200% 100%;
+      color:#fff; box-shadow:0 8px 28px rgba(124,92,252,.45), 0 0 0 3px rgba(124,92,252,.1);
+    }
+    .ce-submit-btn.green {
+      background:linear-gradient(135deg,#16a34a 0%,#22c55e 60%,#16a34a 100%);
+      background-size:200% 100%;
+      color:#fff; box-shadow:0 8px 28px rgba(34,197,94,.4), 0 0 0 3px rgba(34,197,94,.1);
+    }
+    .ce-submit-btn.amber {
+      background:linear-gradient(135deg,#d97706 0%,#f59e0b 60%,#d97706 100%);
+      background-size:200% 100%;
+      color:#fff; box-shadow:0 8px 28px rgba(245,158,11,.4), 0 0 0 3px rgba(245,158,11,.1);
+    }
+    .ce-submit-btn::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.25) 50%,transparent 100%);
+      transform:translateX(-130%); transition:transform .55s ease;
+    }
+    .ce-submit-btn:hover::before { transform:translateX(130%); }
+    .ce-submit-btn:hover { transform:translateY(-2px) scale(1.03); }
+    .ce-submit-btn:disabled { opacity:.55; cursor:not-allowed; transform:none !important; }
+    .ce-spin { width:16px; height:16px; border:2.5px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:ceSpin .7s linear infinite; flex-shrink:0; }
+
+    /* ════════════════════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════════════════════ */
+    .ce-sidebar-col { display:flex; flex-direction:column; gap:1.25rem; }
+
+    /* Quick Contact CTA */
+    .ce-qc-card {
+      background:linear-gradient(135deg,#0d0b1e,#0c1433);
+      border:1.5px solid rgba(124,92,252,.25); border-radius:20px;
+      padding:1.6rem; overflow:hidden; position:relative;
+    }
+    :root[data-theme="light"] .ce-qc-card {
+      background:linear-gradient(135deg,#f8f6ff,#ede9ff);
+      border-color:rgba(124,92,252,.2);
+    }
+    .ce-qc-card::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(ellipse 80% 60% at 15% 30%,rgba(124,92,252,.2) 0%,transparent 65%);
+    }
+    .ce-qc-card h3 { font-size:.92rem; font-weight:800; color:#fff; margin:0 0 .3rem; position:relative; }
+    :root[data-theme="light"] .ce-qc-card h3 { color:var(--txt); }
+    .ce-qc-card p { font-size:.8rem; color:rgba(200,185,255,.65); margin:0 0 1.1rem; position:relative; }
+    :root[data-theme="light"] .ce-qc-card p { color:var(--txt3); }
+    .ce-qc-btns { display:flex; flex-direction:column; gap:.6rem; position:relative; }
+    .ce-wa-btn, .ce-call-btn {
+      display:flex; align-items:center; justify-content:center; gap:.6rem;
+      padding:.75rem 1.2rem; border-radius:12px; font-size:.88rem; font-weight:700;
+      text-decoration:none; transition:transform .2s, box-shadow .2s, opacity .2s;
+      font-family:inherit;
+    }
+    .ce-wa-btn {
+      background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff; box-shadow:0 6px 20px rgba(37,211,102,.35);
+    }
+    .ce-call-btn {
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      color:#fff;
+    }
+    :root[data-theme="light"] .ce-call-btn { background:rgba(124,92,252,.08); border-color:rgba(124,92,252,.2); color:var(--txt); }
+    .ce-wa-btn:hover, .ce-call-btn:hover { transform:translateY(-2px); opacity:.9; }
+
+    /* Info card */
+    .ce-info-card {
+      background:var(--panel); border:1.5px solid var(--border);
+      border-radius:20px; padding:1.6rem;
+    }
+    .ce-info-card h3 { font-size:.95rem; font-weight:800; color:var(--txt); margin:0 0 1.1rem; }
+    .ce-contact-item { display:flex; gap:.75rem; align-items:flex-start; margin-bottom:1rem; }
+    .ce-contact-item:last-child { margin-bottom:0; }
+    .ce-ci-icon {
+      width:38px; height:38px; border-radius:12px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .ce-ci-icon.email  { background:rgba(79,70,229,.12); color:#4f46e5; }
+    .ce-ci-icon.phone  { background:rgba(22,163,74,.12); color:#16a34a; }
+    .ce-ci-icon.loc    { background:rgba(234,88,12,.12); color:#ea580c; }
+    .ce-ci-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--txt4); margin-bottom:.15rem; }
+    .ce-ci-value { font-size:.86rem; font-weight:600; color:var(--txt2); }
+    .ce-ci-value a { color:inherit; text-decoration:none; }
+    .ce-ci-value a:hover { color:var(--v1); }
+    .ce-ci-sub { font-size:.76rem; color:var(--txt4); }
+    .ce-ci-sub a { color:inherit; text-decoration:none; }
+    .ce-ci-sub a:hover { color:var(--v1); }
+
+    /* FAQ */
+    .ce-faq-item { border-bottom:1px solid var(--border); }
+    .ce-faq-item:last-child { border-bottom:none; }
+    .ce-faq-q {
+      padding:.85rem 0; font-size:.87rem; font-weight:700; cursor:pointer;
+      display:flex; justify-content:space-between; align-items:center; gap:.5rem;
+      color:var(--txt2); transition:color .15s;
+    }
+    .ce-faq-q:hover { color:var(--v1); }
+    .ce-faq-icon { flex-shrink:0; transition:transform .25s ease; }
+    .ce-faq-q.open .ce-faq-icon { transform:rotate(45deg); }
+    .ce-faq-a {
+      font-size:.83rem; color:var(--txt3); line-height:1.7;
+      max-height:0; overflow:hidden; transition:max-height .3s ease, padding-bottom .3s ease;
+    }
+    .ce-faq-a.open { max-height:200px; padding-bottom:.85rem; }
+
+    /* Feedback redirect card */
+    .ce-feedback-redirect {
+      background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(251,191,36,.04));
+      border:1.5px solid rgba(245,158,11,.25); border-radius:16px;
+      padding:2rem; text-align:center;
+    }
+    .ce-fb-icon { font-size:2.5rem; margin-bottom:.8rem; }
+    .ce-feedback-redirect h3 { font-size:1.1rem; font-weight:800; margin:0 0 .5rem; color:var(--txt); }
+    .ce-feedback-redirect p { font-size:.88rem; color:var(--txt3); margin:0 0 1.25rem; line-height:1.65; }
+    .ce-fb-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.75rem 1.8rem; background:linear-gradient(135deg,#d97706,#f59e0b);
+      color:#fff; border-radius:50px; font-weight:700; font-size:.88rem;
+      text-decoration:none; box-shadow:0 6px 20px rgba(245,158,11,.35);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .ce-fb-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(245,158,11,.45); }
+
+    /* ════════════════════════════════════════════════
+       TESTIMONIALS
+    ════════════════════════════════════════════════ */
+    .test-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; margin-top:2.5rem; }
+    .test-card {
+      background:var(--panel); border:1.5px solid var(--border);
+      border-radius:var(--r2); padding:1.6rem;
+      display:flex; flex-direction:column; gap:1rem;
+      transition:border-color .25s, transform .25s;
+    }
+    .test-card:hover { border-color:var(--v3); transform:translateY(-3px); }
+    .test-stars { color:#fbbf24; font-size:1rem; letter-spacing:.05em; }
+    .test-body { font-size:.9rem; color:var(--txt3); line-height:1.7; flex:1; }
+    .test-author { display:flex; align-items:center; gap:.75rem; }
+    .test-avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700; color:#fff; flex-shrink:0; }
+    .test-name { font-size:.88rem; font-weight:700; color:var(--txt2); }
+    .test-meta { font-size:.75rem; color:var(--txt4); }
+
+    /* ════════════════════════════════════════════════
+       FORMS CARDS SECTION (matches forms page)
+    ════════════════════════════════════════════════ */
+    .qf-section {
+      padding: 4rem 5vw 5rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .qf-header { max-width: 1280px; margin: 0 auto 2.5rem; text-align: center; }
+    .qf-kicker {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .3rem .95rem; border-radius: 999px;
+      background: rgba(124,92,252,.1); border: 1px solid rgba(124,92,252,.3);
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--v1); margin-bottom: 1rem;
+    }
+    :root[data-theme="light"] .qf-kicker { background: rgba(124,92,252,.08); border-color: rgba(124,92,252,.25); }
+    .qf-header h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(1.6rem,3.5vw,2.4rem); font-weight: 800; line-height: 1.18;
+      color: var(--txt); margin: 0 0 .5rem;
+    }
+    .qf-header h2 span {
+      background: linear-gradient(135deg,#7c5cfc,#3d6bff,#67e8f9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .qf-header p { font-size: .95rem; color: var(--txt3); max-width: 520px; margin: 0 auto; line-height: 1.65; }
+
+    /* Grid + card — identical to forms.html */
+    .qf-grid {
+      max-width: 1280px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .form-card {
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 1.8rem 1.6rem 1.5rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: transform .25s, box-shadow .25s, border-color .25s;
+      position: relative; overflow: hidden;
+    }
+    .form-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--grad); border-radius: 20px 20px 0 0;
+    }
+    .form-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(124,92,252,.14);
+      border-color: rgba(124,92,252,.35);
+    }
+    .form-card-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg,rgba(124,92,252,.15),rgba(61,107,255,.1));
+      border: 1.5px solid rgba(124,92,252,.2);
+      display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+    }
+    .form-card-title { font-size: 1.05rem; font-weight: 800; color: var(--txt); line-height: 1.3; }
+    .form-card-desc  { font-size: .85rem; color: var(--txt3); line-height: 1.65; flex: 1; }
+    .form-card-actions { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: .25rem; }
+    .fc-btn {
+      flex: 1; min-width: 100px; padding: .65rem .9rem; border-radius: 50px;
+      font-size: .83rem; font-weight: 700; border: 1.5px solid var(--border);
+      background: var(--bg); color: var(--txt3); cursor: pointer;
+      transition: all .2s; text-align: center; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: .4rem;
+      font-family: inherit;
+    }
+    .fc-btn:hover { background: var(--v1); border-color: var(--v1); color: #fff; }
+    .fc-btn.primary { background: var(--grad); border-color: transparent; color: #fff; }
+    .fc-btn.primary:hover { opacity: .9; transform: translateY(-1px); }
+    .fc-btn.qr {
+      background: linear-gradient(135deg,rgba(124,92,252,.12),rgba(61,107,255,.08));
+      border-color: rgba(124,92,252,.3); color: var(--v1);
+    }
+    .fc-btn.qr:hover { background: var(--grad); border-color: transparent; color: #fff; }
+    /* skeleton */
+    .form-card-skeleton {
+      background: var(--panel); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 1.8rem 1.6rem; height: 220px;
+      animation: qfPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes qfPulse { 0%,100%{opacity:1;} 50%{opacity:.55;} }
+    /* empty state */
+    .qf-empty { grid-column: 1/-1; text-align: center; padding: 4rem 2rem; color: var(--txt3); }
+    .qf-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    /* QR overlay */
+    #ce-qr-overlay {
+      position: fixed; inset: 0; z-index: 99990;
+      background: rgba(6,3,18,.7);
+      -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; visibility: hidden; transition: opacity .28s, visibility .28s;
+    }
+    #ce-qr-overlay.open { opacity: 1; visibility: visible; }
+    #ce-qr-box {
+      background: var(--panel); border: 1.5px solid rgba(124,92,252,.3);
+      border-radius: 28px; padding: 2.5rem 2.2rem 2rem;
+      max-width: 420px; width: 94vw; text-align: center; position: relative;
+      box-shadow: 0 40px 80px rgba(60,20,160,.25);
+      transform: scale(.93) translateY(18px);
+      transition: transform .3s cubic-bezier(.22,1,.36,1);
+    }
+    #ce-qr-overlay.open #ce-qr-box { transform: scale(1) translateY(0); }
+    .ce-qr-close {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1.5px solid rgba(124,92,252,.3); background: rgba(124,92,252,.1);
+      color: var(--v1); font-size: .9rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .ce-qr-close:hover { background: var(--v1); color: #fff; transform: rotate(90deg); }
+    .ce-qr-title { font-size: 1.15rem; font-weight: 800; color: var(--txt); margin-bottom: .2rem; }
+    .ce-qr-sub { font-size: .82rem; color: var(--txt3); margin-bottom: 1.4rem; }
+    #ce-qr-canvas-wrap {
+      display: inline-block; padding: 16px; background: #fff;
+      border-radius: 18px; border: 3px solid rgba(124,92,252,.2);
+      box-shadow: 0 8px 28px rgba(124,92,252,.15);
+    }
+    #ce-qr-canvas-wrap canvas, #ce-qr-canvas-wrap img { display: block; border-radius: 8px; }
+    .ce-qr-url {
+      margin: 1rem 0 .75rem;
+      background: rgba(124,92,252,.07); border: 1px solid rgba(124,92,252,.15);
+      border-radius: 12px; padding: .6rem .9rem;
+      font-size: .73rem; color: var(--txt3); word-break: break-all; text-align: left;
+    }
+    .ce-qr-btns { display: flex; gap: .65rem; justify-content: center; flex-wrap: wrap; }
+    .ce-qr-btn {
+      padding: .6rem 1.4rem; border-radius: 50px;
+      font-size: .83rem; font-weight: 700; border: 1.5px solid var(--border);
+      background: var(--bg); color: var(--txt3); cursor: pointer;
+      transition: all .2s; font-family: inherit;
+    }
+    .ce-qr-btn:hover { background: var(--v1); border-color: var(--v1); color: #fff; }
+    .ce-qr-btn.primary { background: var(--grad); border-color: transparent; color: #fff; }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════════════════ */
+    @media (max-width:900px) {
+      .ce-wrap { grid-template-columns:1fr; }
+      .ce-sidebar-col { order:-1; }
+      .ce-qc-btns { flex-direction:row; }
+      .ce-wa-btn, .ce-call-btn { flex:1; }
+    }
+    @media (max-width:640px) {
+      .ce-trust-bar { gap:0; }
+      .ce-trust-item { min-width:50%; border-right:none; border-bottom:1px solid var(--border); padding:.85rem 1.25rem; }
+      .ce-trust-item:nth-child(odd) { border-right:1px solid var(--border); }
+      .ce-trust-item:last-child, .ce-trust-item:nth-last-child(2):nth-child(odd) { border-bottom:none; }
+      .fl-row { grid-template-columns:1fr; }
+      .ce-tab { font-size:.76rem; gap:.3rem; padding:.6rem .3rem; }
+      .ce-form-card { padding:1.5rem; }
+      .contact-hero { padding:4rem 1.5rem 3.5rem; }
+      .ce-qc-btns { flex-direction:column; }
     }
   </style>
 </head>
@@ -268,297 +570,463 @@
 <div class="orb orb2"></div>
 <nav></nav>
 
-<div class="page-wrap">
+<div class="page-wrap" style="position:relative;z-index:1;min-height:100vh;padding-top:0;">
+
+  <!-- ── Hero ── -->
   <section class="contact-hero">
-    <!-- Background layers -->
     <div class="ch-orb ch-orb1"></div>
     <div class="ch-orb ch-orb2"></div>
     <div class="ch-orb ch-orb3"></div>
     <div class="ch-grid"></div>
-
     <div class="ch-inner">
       <div class="contact-hero-tag">
         <span class="ch-dot"></span>
-        SkillUpNow Support
+        Contact &amp; Forms
       </div>
-
-      <h1>Get in Touch<br>With Our Team</h1>
+      <h1>We're Here<br>to Help You</h1>
       <span class="ch-underline"></span>
-
-      <p>Have questions about courses, payments, or career guidance?<br>
-         Our dedicated team responds within 24 hours.</p>
-
-      <!-- <div class="ch-stats">
-        <div class="ch-stat">
-          <div class="ch-stat-icon green">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          24h Response Time
-        </div>
-        <div class="ch-stat">
-          <div class="ch-stat-icon purple">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.17 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.08 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg>
-          </div>
-          3 Phone Lines
-        </div>
-        <div class="ch-stat">
-          <div class="ch-stat-icon amber">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          Chennai, India
-        </div>
-      </div> -->
+      <p>Enquiries, quick registrations, EMI applications, or feedback — reach us all in one place.</p>
     </div>
   </section>
 
-  <div class="contact-wrap">
-    <!-- Form -->
-    <div>
-      <div class="form-card">
-        <h2>Send Us an Enquiry</h2>
-        <p>We respond to all enquiries within 24 hours on business days.</p>
-        <div class="alert success" id="suc-alert"></div>
-        <div class="alert error"   id="err-alert"></div>
-
-        <form id="contact-form">
-          <div class="form-row">
-            <div class="f-group"><label>Full Name <span>*</span></label><input type="text" id="c-name" placeholder="Your full name" required></div>
-            <div class="f-group"><label>Email <span>*</span></label><input type="email" id="c-email" placeholder="you@email.com" required></div>
-          </div>
-          <div class="form-row">
-            <div class="f-group"><label>Phone</label><input type="tel" id="c-phone" placeholder="10-digit number"></div>
-            <div class="f-group"><label>Enquiry Type <span>*</span></label>
-              <select id="c-type" required>
-                <option value="">Select type…</option>
-                <option value="course">Course Enquiry</option>
-                <option value="payment">Payment / Fee</option>
-                <option value="admission">Admission</option>
-                <option value="technical">Technical Support</option>
-                <option value="complaint">Complaint</option>
-                <option value="general">General</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
-          <div class="f-group"><label>Related Course (optional)</label>
-            <select id="c-course">
-              <option value="">Not applicable</option>
-            </select>
-          </div>
-          <div class="f-group full"><label>Subject <span>*</span></label><input type="text" id="c-subject" placeholder="Brief subject of your enquiry" required></div>
-          <div class="f-group full"><label>Message <span>*</span></label><textarea id="c-message" placeholder="Describe your enquiry in detail…" required></textarea></div>
-          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
-            <button type="submit" class="btn-submit" id="submit-btn">
-              <span id="submit-label">Send Message</span>
-            </button>
-            <span style="font-size:0.78rem;color:var(--txt4)">🔒 Your data is safe and never shared.</span>
-          </div>
-          <!-- <div style="margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-            <button type="button" class="btn-qr-dl" id="btn-contact-qr" onclick="downloadContactQR()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
-              Download QR Code
-            </button>
-            <span style="font-size:.72rem;color:var(--txt4)">Share this contact page via QR</span>
-          </div> -->
-        </form>
+  <!-- ── Trust Bar ── -->
+  <div class="ce-trust-bar">
+    <div class="ce-trust-item">
+      <div class="ce-trust-icon purple">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div>
+        <div class="ce-trust-label">Response Time</div>
+        <div class="ce-trust-value">Within 24 hrs</div>
       </div>
     </div>
-
-    <!-- Sidebar -->
-    <div>
-      <div class="info-card">
-        <h3>Contact Information</h3>
-        <div class="contact-item">
-          <div class="ci-icon-3d ci-icon-email">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          </div>
-          <div class="ci-info">
-            <div class="label">Email</div>
-            <div class="value"><a href="mailto:skillupnowoff@gmail.com">skillupnowoff@gmail.com</a></div>
-            <!-- <div class="sub"><a href="mailto:admin@skillupnowadmin.org">admin@skillupnowadmin.org</a></div> -->
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="ci-icon-3d ci-icon-phone">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.17 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.08 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg>
-          </div>
-          <div class="ci-info">
-            <div class="label">Phone</div>
-            <div class="sub"><a href="tel:+916383633054">+91 6383 633 054</a></div>
-            <div class="sub"><a href="tel:+916381721061">+91 6381 721 061</a></div>
-            <div class="sub"><a href="tel:+918754470742">+91 8754 470 742</a></div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="ci-icon-3d ci-icon-loc">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          </div>
-          <div class="ci-info">
-            <div class="label">Office</div>
-            <div class="value">SkillUpNow Learning</div>
-            <div class="sub">Chennai, Tamil Nadu, India</div>
-          </div>
-        </div>
+    <div class="ce-trust-item">
+      <div class="ce-trust-icon green">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-
-      <div class="info-card">
-        <h3>Quick FAQs</h3>
-        <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">How do I enroll in a course? <span>+</span></div>
-          <div class="faq-a">Browse our courses page, click "Enroll Now", log in or create an account, choose full or EMI payment, and pay via Razorpay to get instant access.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">What payment methods are accepted? <span>+</span></div>
-          <div class="faq-a">We accept UPI, Credit/Debit Cards, Net Banking, Wallets (via Razorpay), Bank Transfer, and Cash at our office. EMI is available on select courses.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">Can I get a refund? <span>+</span></div>
-          <div class="faq-a">Refunds are processed within 7 days of request if within the first 3 days of enrollment. Please contact us for specific cases.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">How are live classes conducted? <span>+</span></div>
-          <div class="faq-a">All live classes are conducted via Google Meet. Links are sent by email before each session. Recordings are uploaded to your dashboard after class.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">How do I become a mentor? <span>+</span></div>
-          <div class="faq-a">Visit our <a href="mentor-signup.html" style="color:var(--v1)">Mentor Signup</a> page, complete your profile, upload credentials, and await admin approval.</div>
-        </div>
+      <div>
+        <div class="ce-trust-label">Students</div>
+        <div class="ce-trust-value">Growing Cohort</div>
+      </div>
+    </div>
+    <div class="ce-trust-item">
+      <div class="ce-trust-icon amber">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div>
+        <div class="ce-trust-label">Rating</div>
+        <div class="ce-trust-value">5 Stars</div>
+      </div>
+    </div>
+    <div class="ce-trust-item">
+      <div class="ce-trust-icon blue">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div>
+        <div class="ce-trust-label">EMI Available</div>
+        <div class="ce-trust-value">Flexible Plans</div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../config/supabase-config.js"></script>
-<script src="../js/theme.js"></script>
-<script src="../js/profile-nav.js"></script>
-<script>
-function _db() { return window.supabaseConfig?.client || null; }
+  <!-- ── Main Content ── -->
+  <div class="ce-wrap">
 
-// Load courses for dropdown
-async function loadCourses() {
-  let tries = 0;
-  while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
-  if (!_db()) return;
-  const { data } = await _db().from('courses').select('id,title').eq('course_status','published').order('title');
-  const sel = document.getElementById('c-course');
-  (data||[]).forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.title; sel.appendChild(o); });
-}
+    <!-- ── Forms Column ── -->
+    <div>
+      <!-- Tab Bar -->
+      <div class="ce-tab-bar" role="tablist">
+        <button class="ce-tab active" data-tab="enquiry" role="tab" aria-selected="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Enquiry
+        </button>
+        <button class="ce-tab" data-tab="register" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Register
+        </button>
+        <button class="ce-tab" data-tab="emi" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          EMI Plan
+        </button>
+        <button class="ce-tab" data-tab="feedback" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Feedback
+        </button>
+      </div>
 
-// Pre-fill if logged in
-(async () => {
-  let tries = 0;
-  while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
-  if (!_db()) return;
-  const { data: { session } } = await _db().auth.getSession();
-  if (session?.user) {
-    const { data: p } = await _db().from('user_profiles').select('full_name,email,phone').eq('user_id', session.user.id).single();
-    if (p) {
-      document.getElementById('c-name').value  = p.full_name || '';
-      document.getElementById('c-email').value = p.email || '';
-      document.getElementById('c-phone').value = p.phone || '';
-    }
-  }
-  loadCourses();
-})();
+      <!-- ── Enquiry Panel ── -->
+      <div class="ce-form-card">
 
-document.getElementById('contact-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('submit-btn');
-  const label = document.getElementById('submit-label');
-  const sucEl = document.getElementById('suc-alert');
-  const errEl = document.getElementById('err-alert');
-  sucEl.classList.remove('show');
-  errEl.classList.remove('show');
-  btn.disabled = true;
-  label.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle"></span> Sending…';
+        <div class="ce-panel active" id="tab-enquiry">
+          <div class="ce-panel-hdr">
+            <div class="ce-panel-tag purple">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              General Enquiry
+            </div>
+            <h2>Send Us an Enquiry</h2>
+            <p>We respond to all messages within 24 business hours.</p>
+          </div>
+          <div class="ce-alert success" id="enq-suc"></div>
+          <div class="ce-alert error"   id="enq-err"></div>
+          <form id="contact-form" novalidate>
+            <div class="fl-row">
+              <div class="fl-group" id="fg-name">
+                <div class="fl-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <input type="text" id="c-name" placeholder=" " required autocomplete="name">
+                <label for="c-name">Full Name <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="fl-err" id="err-name">Please enter your full name.</div>
+              </div>
+              <div class="fl-group" id="fg-email">
+                <div class="fl-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </div>
+                <input type="email" id="c-email" placeholder=" " required autocomplete="email">
+                <label for="c-email">Email Address <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="fl-err" id="err-email">Please enter a valid email.</div>
+              </div>
+            </div>
+            <div class="fl-row">
+              <div class="fl-group" id="fg-phone">
+                <div class="fl-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.17 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.08 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg>
+                </div>
+                <input type="tel" id="c-phone" placeholder=" " autocomplete="tel">
+                <label for="c-phone">Phone Number</label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+              <div class="fl-group" id="fg-type">
+                <div class="fl-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <select id="c-type" required>
+                  <option value=""> </option>
+                  <option value="course">Course Enquiry</option>
+                  <option value="payment">Payment / Fee</option>
+                  <option value="admission">Admission</option>
+                  <option value="technical">Technical Support</option>
+                  <option value="complaint">Complaint</option>
+                  <option value="general">General</option>
+                  <option value="other">Other</option>
+                </select>
+                <label for="c-type">Enquiry Type <span style="color:#ef4444">*</span></label>
+                <div class="fl-err" id="err-type">Please select an enquiry type.</div>
+              </div>
+            </div>
+            <div class="fl-group" id="fg-course">
+              <div class="fl-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              </div>
+              <select id="c-course">
+                <option value=""> </option>
+              </select>
+              <label for="c-course">Related Course (optional)</label>
+            </div>
+            <div class="fl-group full" id="fg-subject">
+              <div class="fl-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+              </div>
+              <input type="text" id="c-subject" placeholder=" " required>
+              <label for="c-subject">Subject <span style="color:#ef4444">*</span></label>
+              <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="fl-err" id="err-subject">Please enter a subject.</div>
+            </div>
+            <div class="fl-group textarea-group full" id="fg-message">
+              <textarea id="c-message" placeholder=" " required rows="4"></textarea>
+              <label for="c-message">Message <span style="color:#ef4444">*</span></label>
+              <div class="fl-err" id="err-message">Please enter your message.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:.25rem;">
+              <button type="submit" class="ce-submit-btn purple" id="enq-submit-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span id="enq-submit-label">Send Message</span>
+              </button>
+              <span style="font-size:.76rem;color:var(--txt4);display:flex;align-items:center;gap:.35rem;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Your data is safe &amp; never shared.
+              </span>
+            </div>
+          </form>
+        </div>
 
-  try {
-    const { data: { session } } = await _db().auth.getSession();
-    const courseId = document.getElementById('c-course').value || null;
-    const payload = {
-      user_id:         session?.user?.id || null,
-      name:            document.getElementById('c-name').value.trim(),
-      email:           document.getElementById('c-email').value.trim(),
-      phone:           document.getElementById('c-phone').value.trim() || null,
-      inquiry_type:    document.getElementById('c-type').value,
-      course_id:       courseId,
-      subject:         document.getElementById('c-subject').value.trim(),
-      inquiry_details: document.getElementById('c-message').value.trim(),
-      source:          'website',
-      status:          'open',
-      priority:        'normal',
-    };
-    const { error } = await _db().from('inquiries').insert(payload);
-    if (error) throw error;
-    sucEl.textContent = '✅ Your enquiry has been received! We\'ll respond within 24 hours.';
-    sucEl.classList.add('show');
-    document.getElementById('contact-form').reset();
-    // Scroll to success message
-    sucEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } catch (err) {
-    errEl.textContent = '❌ ' + (err.message || 'Something went wrong. Please try again.');
-    errEl.classList.add('show');
-  }
-  btn.disabled = false;
-  label.textContent = 'Send Message';
-});
+        <!-- ── Quick Registration Panel ── -->
+        <div class="ce-panel" id="tab-register">
+          <div class="ce-panel-hdr">
+            <div class="ce-panel-tag green">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Quick Registration
+            </div>
+            <h2>Reserve Your Spot</h2>
+            <p>Express your interest and our team will confirm batch details within 24 hours.</p>
+          </div>
+          <div class="ce-alert success" id="reg-suc"></div>
+          <div class="ce-alert error"   id="reg-err"></div>
+          <form id="register-form" novalidate>
+            <div class="fl-row">
+              <div class="fl-group" id="rfg-name">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <input type="text" id="r-name" placeholder=" " required autocomplete="name">
+                <label for="r-name">Full Name <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+              <div class="fl-group" id="rfg-email">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+                <input type="email" id="r-email" placeholder=" " required autocomplete="email">
+                <label for="r-email">Email <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+            </div>
+            <div class="fl-row">
+              <div class="fl-group" id="rfg-phone">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.17 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.08 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg></div>
+                <input type="tel" id="r-phone" placeholder=" " required autocomplete="tel">
+                <label for="r-phone">Phone <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+              <div class="fl-group" id="rfg-batch">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <select id="r-batch" required>
+                  <option value=""> </option>
+                  <option value="morning">Morning (7 AM – 10 AM)</option>
+                  <option value="afternoon">Afternoon (12 PM – 3 PM)</option>
+                  <option value="evening">Evening (6 PM – 9 PM)</option>
+                  <option value="weekend">Weekend Batch</option>
+                </select>
+                <label for="r-batch">Preferred Timing <span style="color:#ef4444">*</span></label>
+              </div>
+            </div>
+            <div class="fl-group" id="rfg-course">
+              <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+              <select id="r-course">
+                <option value=""> </option>
+              </select>
+              <label for="r-course">Course of Interest (optional)</label>
+            </div>
+            <div class="fl-group textarea-group full" id="rfg-note">
+              <textarea id="r-note" placeholder=" " rows="3"></textarea>
+              <label for="r-note">Additional Notes (optional)</label>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:.25rem;">
+              <button type="submit" class="ce-submit-btn green" id="reg-submit-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span id="reg-submit-label">Reserve My Spot</span>
+              </button>
+            </div>
+          </form>
+        </div>
 
-function toggleFaq(el) {
-  const answer = el.nextElementSibling;
-  const icon   = el.querySelector('span');
-  const isOpen = answer.classList.contains('open');
-  document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
-  document.querySelectorAll('.faq-q span').forEach(s => s.textContent = '+');
-  if (!isOpen) { answer.classList.add('open'); icon.textContent = '−'; }
-}
+        <!-- ── EMI Panel ── -->
+        <div class="ce-panel" id="tab-emi">
+          <div class="ce-panel-hdr">
+            <div class="ce-panel-tag blue">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              EMI Application
+            </div>
+            <h2>Apply for EMI Plan</h2>
+            <p>Flexible monthly installments — our team will assess and get back to you within 24 hours.</p>
+          </div>
+          <div class="ce-alert success" id="emi-suc"></div>
+          <div class="ce-alert error"   id="emi-err"></div>
+          <form id="emi-form" novalidate>
+            <div class="fl-row">
+              <div class="fl-group" id="efg-name">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <input type="text" id="e-name" placeholder=" " required autocomplete="name">
+                <label for="e-name">Full Name <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+              <div class="fl-group" id="efg-email">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+                <input type="email" id="e-email" placeholder=" " required autocomplete="email">
+                <label for="e-email">Email <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+            </div>
+            <div class="fl-row">
+              <div class="fl-group" id="efg-phone">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.17 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.08 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg></div>
+                <input type="tel" id="e-phone" placeholder=" " required autocomplete="tel">
+                <label for="e-phone">Phone <span style="color:#ef4444">*</span></label>
+                <div class="fl-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+              <div class="fl-group" id="efg-employment">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+                <select id="e-employment" required>
+                  <option value=""> </option>
+                  <option value="employed">Employed (Salaried)</option>
+                  <option value="selfemployed">Self-Employed</option>
+                  <option value="student">Student</option>
+                  <option value="fresher">Fresher / Job Seeker</option>
+                  <option value="other">Other</option>
+                </select>
+                <label for="e-employment">Employment Status <span style="color:#ef4444">*</span></label>
+              </div>
+            </div>
+            <div class="fl-row">
+              <div class="fl-group" id="efg-course">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+                <select id="e-course">
+                  <option value=""> </option>
+                </select>
+                <label for="e-course">Course Interested In</label>
+              </div>
+              <div class="fl-group" id="efg-budget">
+                <div class="fl-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <select id="e-budget">
+                  <option value=""> </option>
+                  <option value="1000-2000">₹1,000 – ₹2,000 / month</option>
+                  <option value="2000-3500">₹2,000 – ₹3,500 / month</option>
+                  <option value="3500-5000">₹3,500 – ₹5,000 / month</option>
+                  <option value="5000+">₹5,000+ / month</option>
+                </select>
+                <label for="e-budget">Monthly Budget</label>
+              </div>
+            </div>
+            <div class="fl-group textarea-group full" id="efg-details">
+              <textarea id="e-details" placeholder=" " rows="3"></textarea>
+              <label for="e-details">Additional Details (optional)</label>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:.25rem;">
+              <button type="submit" class="ce-submit-btn amber" id="emi-submit-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span id="emi-submit-label">Apply for EMI</span>
+              </button>
+            </div>
+          </form>
+        </div>
 
-function downloadContactQR() {
-  const btn = document.getElementById('btn-contact-qr');
-  if (btn) { btn.disabled = true; btn.querySelector('span') && (btn.querySelector('span').textContent = ''); btn.lastChild.textContent = ' Generating…'; }
-  const url = window.location.href;
-  function restore() { if (btn) { btn.disabled = false; btn.lastChild.textContent = ' Download QR Code'; } }
-  function loadLib(cb) {
-    if (window.QRCode) { cb(); return; }
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-    s.onload = cb;
-    s.onerror = () => { alert('Could not load QR library. Check internet.'); restore(); };
-    document.head.appendChild(s);
-  }
-  loadLib(() => {
-    try {
-      const wrap = document.createElement('div');
-      wrap.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
-      document.body.appendChild(wrap);
-      new QRCode(wrap, { text: url, width: 300, height: 300, colorDark: '#1a0a3e', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
-      setTimeout(() => {
-        const canvas = wrap.querySelector('canvas');
-        const img    = wrap.querySelector('img');
-        const dataUrl = canvas ? canvas.toDataURL('image/png') : (img?.src || '');
-        document.body.removeChild(wrap);
-        if (!dataUrl) { alert('QR generation failed. Try again.'); restore(); return; }
-        const a = document.createElement('a');
-        a.href = dataUrl; a.download = 'SkillUpNow-Contact-QR.png'; a.click();
-        restore();
-      }, 350);
-    } catch(e) { alert('QR error: ' + e.message); restore(); }
-  });
-}
-</script>
-<!-- ── WHAT OUR STUDENTS SAY ── -->
+        <!-- ── Feedback Panel ── -->
+        <div class="ce-panel" id="tab-feedback">
+          <div class="ce-panel-hdr">
+            <div class="ce-panel-tag amber">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Feedback &amp; Reviews
+            </div>
+            <h2>Share Your Experience</h2>
+            <p>Your review helps future students and inspires our team to do better.</p>
+          </div>
+          <div class="ce-feedback-redirect">
+            <div class="ce-fb-icon">⭐</div>
+            <h3>Write a Detailed Review</h3>
+            <p>Visit our dedicated Feedback page to rate your course experience, share your story, and help other learners make informed decisions.</p>
+            <a href="feedback.html" class="ce-fb-btn">
+              Go to Feedback Page
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          <div style="margin-top:1.5rem;padding:1.25rem;background:rgba(124,92,252,.05);border:1px solid rgba(124,92,252,.15);border-radius:14px;">
+            <p style="font-size:.83rem;color:var(--txt3);margin:0;line-height:1.7;text-align:center;">
+              Prefer to write directly? Use the <strong style="color:var(--txt2)">Enquiry</strong> tab and select <em>General</em> as the enquiry type to send us any message or suggestion.
+            </p>
+          </div>
+        </div>
+
+      </div><!-- /.ce-form-card -->
+    </div><!-- /.forms column -->
+
+    <!-- ── Sidebar Column ── -->
+    <div class="ce-sidebar-col">
+
+      <!-- Quick Contact -->
+      <div class="ce-qc-card">
+        <h3>Reach Us Instantly</h3>
+        <p>Skip the form — chat or call us directly.</p>
+        <div class="ce-qc-btns">
+          <a href="https://wa.me/916383633054?text=Hi%20SkillUpNow%2C%20I%20have%20a%20query." class="ce-wa-btn" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+            WhatsApp Us
+          </a>
+          <a href="tel:+916383633054" class="ce-call-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.17 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.08 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg>
+            Call Now
+          </a>
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="ce-info-card">
+        <h3>Contact Information</h3>
+        <div class="ce-contact-item">
+          <div class="ce-ci-icon email">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </div>
+          <div>
+            <div class="ce-ci-label">Email</div>
+            <div class="ce-ci-value"><a href="mailto:skillupnowoff@gmail.com">skillupnowoff@gmail.com</a></div>
+          </div>
+        </div>
+        <div class="ce-contact-item">
+          <div class="ce-ci-icon phone">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.17 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.08 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg>
+          </div>
+          <div>
+            <div class="ce-ci-label">Phone</div>
+            <div class="ce-ci-sub"><a href="tel:+916383633054">+91 6383 633 054</a></div>
+            <div class="ce-ci-sub"><a href="tel:+916381721061">+91 6381 721 061</a></div>
+            <div class="ce-ci-sub"><a href="tel:+918754470742">+91 8754 470 742</a></div>
+          </div>
+        </div>
+        <div class="ce-contact-item">
+          <div class="ce-ci-icon loc">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          </div>
+          <div>
+            <div class="ce-ci-label">Office</div>
+            <div class="ce-ci-value">SkillUpNow Learning</div>
+            <div class="ce-ci-sub">Chennai, Tamil Nadu, India</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQs -->
+      <div class="ce-info-card">
+        <h3>Quick FAQs</h3>
+        <div class="ce-faq-item">
+          <div class="ce-faq-q" onclick="toggleFaq(this)">
+            How do I enroll in a course?
+            <svg class="ce-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div class="ce-faq-a">Browse our courses page, click "Enroll Now", log in or create an account, choose full or EMI payment, and pay via Razorpay to get instant access.</div>
+        </div>
+        <div class="ce-faq-item">
+          <div class="ce-faq-q" onclick="toggleFaq(this)">
+            What payment methods are accepted?
+            <svg class="ce-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div class="ce-faq-a">We accept UPI, Credit/Debit Cards, Net Banking, Wallets (via Razorpay), Bank Transfer, and Cash at our office. EMI is available on select courses.</div>
+        </div>
+        <div class="ce-faq-item">
+          <div class="ce-faq-q" onclick="toggleFaq(this)">
+            Can I get a refund?
+            <svg class="ce-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div class="ce-faq-a">Refunds are processed within 7 days of request if within the first 3 days of enrollment. Please contact us for specific cases.</div>
+        </div>
+        <div class="ce-faq-item">
+          <div class="ce-faq-q" onclick="toggleFaq(this)">
+            How are live classes conducted?
+            <svg class="ce-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div class="ce-faq-a">All live classes are conducted via Google Meet. Links are sent by email before each session. Recordings are uploaded to your dashboard after class.</div>
+        </div>
+        <div class="ce-faq-item">
+          <div class="ce-faq-q" onclick="toggleFaq(this)">
+            How do I become a mentor?
+            <svg class="ce-faq-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div class="ce-faq-a">Visit our <a href="mentor-signup.html" style="color:var(--v1)">Mentor Signup</a> page, complete your profile, upload credentials, and await admin approval.</div>
+        </div>
+      </div>
+
+    </div><!-- /.ce-sidebar-col -->
+  </div><!-- /.ce-wrap -->
+</div><!-- /.page-wrap -->
+
+<!-- ── Testimonials ── -->
 <section id="testimonials" style="padding:4rem 5vw 5rem;background:linear-gradient(135deg,rgba(124,92,252,0.04),rgba(0,207,238,0.02));border-top:1px solid var(--border);">
-  <style>
-    .test-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; margin-top:2.5rem; }
-    .test-card { background:var(--panel); border:1.5px solid var(--border); border-radius:var(--r2); padding:1.6rem; display:flex; flex-direction:column; gap:1rem; transition:border-color .25s,transform .25s; }
-    .test-card:hover { border-color:var(--v3); transform:translateY(-3px); }
-    .test-stars { color:#fbbf24; font-size:1rem; letter-spacing:.05em; }
-    .test-body { font-size:.9rem; color:var(--txt3); line-height:1.7; flex:1; }
-    .test-author { display:flex; align-items:center; gap:.75rem; }
-    .test-avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700; color:#fff; flex-shrink:0; }
-    .test-name { font-size:.88rem; font-weight:700; color:var(--txt2); }
-    .test-meta { font-size:.75rem; color:var(--txt4); }
-  </style>
   <div style="max-width:1300px;margin:0 auto;">
     <div style="text-align:center;">
       <span style="display:inline-block;padding:.25rem .9rem;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:50px;font-size:.72rem;font-weight:700;color:#fbbf24;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.8rem;">⭐ Student Reviews</span>
@@ -572,59 +1040,402 @@ function downloadContactQR() {
       </div>
     </div>
     <div style="text-align:center;margin-top:2rem;">
-      <a href="../pages/feedback.html" style="display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.8rem;background:var(--panel);border:1.5px solid var(--border);border-radius:999px;font-size:.88rem;font-weight:700;color:var(--txt2);text-decoration:none;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--v1)';this.style.color='var(--v1)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--txt2)'">
+      <a href="feedback.html" style="display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.8rem;background:var(--panel);border:1.5px solid var(--border);border-radius:999px;font-size:.88rem;font-weight:700;color:var(--txt2);text-decoration:none;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--v1)';this.style.color='var(--v1)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--txt2)'">
         Share Your Review
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div>
   </div>
 </section>
+
+<!-- ── Forms Cards Section ── -->
+<section class="qf-section">
+  <div class="qf-header">
+    <div class="qf-kicker">📋 Application Forms</div>
+    <h2>Quick <span>Access Forms</span></h2>
+    <p>Open any form directly or scan the QR code to fill it in on your device.</p>
+  </div>
+  <div class="qf-grid" id="ce-forms-grid">
+    <div class="form-card-skeleton"></div>
+    <div class="form-card-skeleton"></div>
+    <div class="form-card-skeleton"></div>
+  </div>
+</section>
+
+<!-- QR Overlay -->
+<div id="ce-qr-overlay" onclick="handleCEOverlayClick(event)">
+  <div id="ce-qr-box">
+    <button class="ce-qr-close" onclick="closeCEQR()">✕</button>
+    <div class="ce-qr-title" id="ce-qr-popup-title">QR Code</div>
+    <div class="ce-qr-sub">Scan to open this form on any device</div>
+    <div id="ce-qr-canvas-wrap"><canvas id="ce-qr-canvas"></canvas></div>
+    <div class="ce-qr-url" id="ce-qr-url-display"></div>
+    <div class="ce-qr-btns">
+      <button class="ce-qr-btn" onclick="copyCEQrUrl()">📋 Copy Link</button>
+      <button class="ce-qr-btn primary" onclick="downloadCEQR()">⬇ Download QR</button>
+    </div>
+  </div>
+</div>
+
+<footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../config/supabase-config.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/profile-nav.js"></script>
 <script>
+/* ── DB helper ── */
+function _db() { return window.supabaseConfig?.client || null; }
+
+/* ── Tab switching ── */
+document.querySelectorAll('.ce-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ce-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    document.querySelectorAll('.ce-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected','true');
+    const panel = document.getElementById('tab-' + btn.dataset.tab);
+    if (panel) panel.classList.add('active');
+  });
+});
+
+/* ── Floating label: select "has value" class for CSS ── */
+document.querySelectorAll('.fl-group select').forEach(sel => {
+  sel.addEventListener('change', () => {
+    sel.classList.toggle('has-value', sel.value !== '');
+  });
+});
+
+/* ── FAQ toggle ── */
+function toggleFaq(el) {
+  const answer = el.nextElementSibling;
+  const isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.ce-faq-a').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.ce-faq-q').forEach(q => q.classList.remove('open'));
+  if (!isOpen) { answer.classList.add('open'); el.classList.add('open'); }
+}
+
+/* ── Load courses into all three selects ── */
+async function loadCourses() {
+  let tries = 0;
+  while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
+  if (!_db()) return;
+  const { data } = await _db().from('courses').select('id,title').eq('course_status','published').order('title');
+  ['c-course','r-course','e-course'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    (data||[]).forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.title; sel.appendChild(o); });
+  });
+}
+
+/* ── Pre-fill if logged in ── */
+(async () => {
+  let tries = 0;
+  while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
+  if (!_db()) return;
+  const { data: { session } } = await _db().auth.getSession();
+  if (session?.user) {
+    const { data: p } = await _db().from('user_profiles').select('full_name,email,phone').eq('user_id', session.user.id).single();
+    if (p) {
+      ['c-name','r-name','e-name'].forEach(id => { const el = document.getElementById(id); if (el) el.value = p.full_name || ''; });
+      ['c-email','r-email','e-email'].forEach(id => { const el = document.getElementById(id); if (el) el.value = p.email || ''; });
+      ['c-phone','r-phone','e-phone'].forEach(id => { const el = document.getElementById(id); if (el) el.value = p.phone || ''; });
+    }
+  }
+  loadCourses();
+})();
+
+/* ── Inline validation helpers ── */
+function showAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'ce-alert ' + type + ' show';
+  el.innerHTML = (type === 'success'
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>') + '<span>' + msg + '</span>';
+}
+function hideAlerts(...ids) { ids.forEach(id => { const el = document.getElementById(id); if (el) el.className = 'ce-alert'; }); }
+function setSubmitting(btnId, labelId, submitting, defaultText) {
+  const btn = document.getElementById(btnId);
+  const lbl = document.getElementById(labelId);
+  if (!btn || !lbl) return;
+  btn.disabled = submitting;
+  lbl.innerHTML = submitting ? '<span class="ce-spin"></span> Sending…' : defaultText;
+}
+
+/* ── Enquiry Form ── */
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideAlerts('enq-suc','enq-err');
+  setSubmitting('enq-submit-btn','enq-submit-label',true,'Send Message');
+  try {
+    const { data: { session } } = await _db().auth.getSession();
+    const payload = {
+      user_id:         session?.user?.id || null,
+      name:            document.getElementById('c-name').value.trim(),
+      email:           document.getElementById('c-email').value.trim(),
+      phone:           document.getElementById('c-phone').value.trim() || null,
+      inquiry_type:    document.getElementById('c-type').value,
+      course_id:       document.getElementById('c-course').value || null,
+      subject:         document.getElementById('c-subject').value.trim(),
+      inquiry_details: document.getElementById('c-message').value.trim(),
+      source:          'website', status:'open', priority:'normal',
+    };
+    const { error } = await _db().from('inquiries').insert(payload);
+    if (error) throw error;
+    showAlert('enq-suc','success','Your enquiry has been received! We\'ll respond within 24 hours.');
+    document.getElementById('contact-form').reset();
+    document.querySelectorAll('#contact-form .fl-group select').forEach(s => s.classList.remove('has-value'));
+    document.getElementById('enq-suc').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  } catch(err) {
+    showAlert('enq-err','error', err.message || 'Something went wrong. Please try again.');
+  }
+  setSubmitting('enq-submit-btn','enq-submit-label',false,
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span id="enq-submit-label">Send Message</span>');
+  document.getElementById('enq-submit-btn').disabled = false;
+  document.getElementById('enq-submit-label').textContent = 'Send Message';
+});
+
+/* ── Quick Registration Form ── */
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideAlerts('reg-suc','reg-err');
+  setSubmitting('reg-submit-btn','reg-submit-label',true,'Reserve My Spot');
+  try {
+    const { data: { session } } = await _db().auth.getSession();
+    const batch   = document.getElementById('r-batch').value;
+    const note    = document.getElementById('r-note').value.trim();
+    const details = ['Preferred batch: ' + batch, note].filter(Boolean).join('\n');
+    const payload = {
+      user_id:         session?.user?.id || null,
+      name:            document.getElementById('r-name').value.trim(),
+      email:           document.getElementById('r-email').value.trim(),
+      phone:           document.getElementById('r-phone').value.trim() || null,
+      inquiry_type:    'admission',
+      course_id:       document.getElementById('r-course').value || null,
+      subject:         'Quick Registration — ' + (document.getElementById('r-course').options[document.getElementById('r-course').selectedIndex]?.text || 'General Interest'),
+      inquiry_details: details || 'Quick registration interest.',
+      source:          'website', status:'open', priority:'normal',
+    };
+    const { error } = await _db().from('inquiries').insert(payload);
+    if (error) throw error;
+    showAlert('reg-suc','success','Registration interest received! Our team will confirm batch details within 24 hours.');
+    document.getElementById('register-form').reset();
+    document.querySelectorAll('#register-form .fl-group select').forEach(s => s.classList.remove('has-value'));
+  } catch(err) {
+    showAlert('reg-err','error', err.message || 'Something went wrong. Please try again.');
+  }
+  document.getElementById('reg-submit-btn').disabled = false;
+  document.getElementById('reg-submit-label').textContent = 'Reserve My Spot';
+});
+
+/* ── EMI Form ── */
+document.getElementById('emi-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideAlerts('emi-suc','emi-err');
+  setSubmitting('emi-submit-btn','emi-submit-label',true,'Apply for EMI');
+  try {
+    const { data: { session } } = await _db().auth.getSession();
+    const employment = document.getElementById('e-employment').value;
+    const budget     = document.getElementById('e-budget').value;
+    const addl       = document.getElementById('e-details').value.trim();
+    const details    = ['Employment: ' + employment, budget ? 'Budget: ₹' + budget + '/mo' : '', addl].filter(Boolean).join('\n');
+    const payload = {
+      user_id:         session?.user?.id || null,
+      name:            document.getElementById('e-name').value.trim(),
+      email:           document.getElementById('e-email').value.trim(),
+      phone:           document.getElementById('e-phone').value.trim() || null,
+      inquiry_type:    'payment',
+      course_id:       document.getElementById('e-course').value || null,
+      subject:         'EMI Application — ' + (document.getElementById('e-course').options[document.getElementById('e-course').selectedIndex]?.text || 'General'),
+      inquiry_details: details || 'EMI plan application.',
+      source:          'website', status:'open', priority:'normal',
+    };
+    const { error } = await _db().from('inquiries').insert(payload);
+    if (error) throw error;
+    showAlert('emi-suc','success','EMI application submitted! We\'ll review and contact you within 24 hours.');
+    document.getElementById('emi-form').reset();
+    document.querySelectorAll('#emi-form .fl-group select').forEach(s => s.classList.remove('has-value'));
+  } catch(err) {
+    showAlert('emi-err','error', err.message || 'Something went wrong. Please try again.');
+  }
+  document.getElementById('emi-submit-btn').disabled = false;
+  document.getElementById('emi-submit-label').textContent = 'Apply for EMI';
+});
+
+/* ── Load reviews ── */
 (async function loadEnqReviews() {
   let tries = 0;
   while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
   if (!_db()) return;
   const grid = document.getElementById('enq-reviews-grid');
   try {
-    const { data } = await _db().from('reviews')
-      .select('id,rating,comment,created_at,user_id,courses(title)')
-      .eq('is_approved', true)
-      .order('created_at', { ascending: false })
-      .limit(6);
-    if (!data?.length) {
+    const [{ data: reviewData }, { data: feedbackData }] = await Promise.all([
+      _db().from('reviews')
+        .select('id,rating,comment,created_at,user_id,courses(title)')
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false })
+        .limit(6),
+      _db().from('feedback')
+        .select('id,rating,message,created_at,user_id,full_name,course_title,feedback_type')
+        .in('status', ['reviewed', 'resolved'])
+        .order('created_at', { ascending: false })
+        .limit(6)
+    ]);
+
+    const allData = [
+      ...(reviewData || []).map(item => ({ ...item, source: 'review' })),
+      ...(feedbackData || []).map(item => ({ ...item, source: 'feedback' }))
+    ]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 6);
+
+    if (!allData.length) {
       grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2.5rem;color:var(--txt4)"><div style="font-size:2rem;opacity:.4;margin-bottom:.75rem">⭐</div><p style="font-size:.9rem;">Be the first to share your experience!</p></div>`;
       return;
     }
-    // Load names
-    const uids = [...new Set(data.map(r => r.user_id).filter(Boolean))];
+
+    const uids = [...new Set(allData.map(r => r.user_id).filter(Boolean))];
     let nameMap = {};
     if (uids.length) {
       const { data: profiles } = await _db().from('user_profiles').select('user_id,full_name').in('user_id', uids);
       nameMap = Object.fromEntries((profiles||[]).map(p => [p.user_id, p.full_name]));
     }
+
     const gradients = ['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#00cfee,#0090b8)','linear-gradient(135deg,#a855f7,#7c3aed)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
-    grid.innerHTML = data.map((r, i) => {
-      const name = nameMap[r.user_id] || 'Student';
-      const initials = name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-      const stars = '★'.repeat(r.rating||5) + '☆'.repeat(5-(r.rating||5));
+    grid.innerHTML = allData.map((r, i) => {
+      const name = r.user_id ? nameMap[r.user_id] || 'Student' : (r.full_name || 'Student');
+      const initials = name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+      const stars = r.rating ? '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating) : '☆'.repeat(5);
+      const body = r.source === 'review' ? r.comment : r.message;
+      const meta = r.source === 'review'
+        ? r.courses?.title || 'SkillUpNow Student'
+        : r.course_title || (r.feedback_type ? r.feedback_type.replace(/_/g,' ') : 'Feedback');
       return `<div class="test-card">
         <div class="test-stars">${stars}</div>
-        <div class="test-body">"${r.comment?.substring(0,200)}${r.comment?.length>200?'…':''}"</div>
+        <div class="test-body">"${body?.substring(0,200) || 'No comment provided.'}${(body?.length||0)>200?'…':''}"</div>
         <div class="test-author">
           <div class="test-avatar" style="background:${gradients[i%gradients.length]}">${initials}</div>
           <div>
             <div class="test-name">${name}</div>
-            <div class="test-meta">${r.courses?.title||'SkillUpNow Student'}</div>
+            <div class="test-meta">${meta}</div>
           </div>
         </div>
       </div>`;
     }).join('');
   } catch(e) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--txt4)">Unable to load reviews</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--txt4)">Unable to load reviews at this time.</div>`;
   }
 })();
-</script>
 
-<footer></footer>
+
+/* ── Forms Cards — loads from site_forms table ── */
+let _ceActiveQrUrl = '';
+let _ceActiveQrTitle = '';
+
+async function loadCEForms() {
+  const grid = document.getElementById('ce-forms-grid');
+  try {
+    let tries = 0;
+    while (!window.supabaseConfig?.client && tries++ < 20)
+      await new Promise(r => setTimeout(r, 150));
+    if (!window.supabaseConfig?.client) throw new Error('Database not ready');
+
+    const { data, error } = await window.supabaseConfig.client
+      .from('site_forms')
+      .select('id, title, description, form_url, icon, sort_order')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) throw error;
+    if (!data?.length) {
+      grid.innerHTML = `<div class="qf-empty"><div class="qf-empty-icon">📭</div><p>No forms available yet.</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = data.map(f => {
+      const icon = f.icon || '📄';
+      const desc = f.description || '';
+      return `
+        <div class="form-card">
+          <div class="form-card-icon">${icon}</div>
+          <div class="form-card-title">${escCEHtml(f.title)}</div>
+          <div class="form-card-desc">${escCEHtml(desc)}</div>
+          <div class="form-card-actions">
+            <a href="${escCEHtml(f.form_url)}" target="_blank" rel="noopener" class="fc-btn primary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Open Form
+            </a>
+            <button class="fc-btn qr" onclick="showCEQR('${escCEAttr(f.form_url)}','${escCEAttr(f.title)}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="20" y="17" width="4" height="4"/><rect x="14" y="14" width="4" height="4"/><rect x="17" y="20" width="4" height="4"/></svg>
+              QR Code
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch (e) {
+    console.error('loadCEForms error:', e);
+    grid.innerHTML = `<div class="qf-empty"><div class="qf-empty-icon">⚠️</div><p>Could not load forms. Please try again later.</p></div>`;
+  }
+}
+
+function showCEQR(url, title) {
+  _ceActiveQrUrl = url;
+  _ceActiveQrTitle = title;
+  document.getElementById('ce-qr-popup-title').textContent = title;
+  document.getElementById('ce-qr-url-display').textContent = url;
+  generateCEQR('ce-qr-canvas', url, 200);
+  document.getElementById('ce-qr-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCEQR() {
+  document.getElementById('ce-qr-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleCEOverlayClick(e) {
+  if (e.target === document.getElementById('ce-qr-overlay')) closeCEQR();
+}
+
+function copyCEQrUrl() {
+  navigator.clipboard?.writeText(_ceActiveQrUrl).then(() => {
+    const btn = document.querySelector('.ce-qr-btns .ce-qr-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
+}
+
+function downloadCEQR() {
+  const wrap = document.getElementById('ce-qr-canvas-wrap');
+  const canvas = wrap.querySelector('canvas');
+  if (!canvas) return;
+  const a = document.createElement('a');
+  a.download = (_ceActiveQrTitle || 'qr-code').replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+function generateCEQR(canvasId, url, size) {
+  if (typeof QRCode === 'undefined') { console.warn('QRCode not loaded'); return; }
+  const container = document.getElementById(canvasId).parentElement;
+  container.innerHTML = '';
+  const div = document.createElement('div');
+  container.appendChild(div);
+  new QRCode(div, { text: url, width: size, height: size, colorDark: '#1a0a3e', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+}
+
+function escCEHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escCEAttr(s) {
+  return String(s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCEQR(); });
+document.addEventListener('DOMContentLoaded', loadCEForms);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 </html>

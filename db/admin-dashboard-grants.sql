@@ -28,6 +28,7 @@ GRANT SELECT                          ON TABLE public.admin_portal_access TO aut
 GRANT SELECT                          ON TABLE public.mentor_profiles    TO authenticated;
 
 GRANT SELECT ON TABLE public.reviews TO anon;
+GRANT INSERT ON TABLE public.reviews TO anon;
 GRANT INSERT ON TABLE public.feedback TO anon;
 GRANT INSERT ON TABLE public.form_submissions TO anon;
 

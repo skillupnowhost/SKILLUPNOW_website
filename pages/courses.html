@@ -220,44 +220,66 @@
       .thumb-icon .cat-label { font-size: .68rem; }
     }
 
-    /* ===== FILTER BAR ===== */
-    .filter-bar {
-      background: var(--panel);
+    /* ===== FILTER BAR — Redesigned: flowing, non-sticky ===== */
+    .filter-bar-wrap {
+      background: linear-gradient(to bottom, var(--bg), var(--bg2,var(--bg)));
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 0 2rem;
+    }
+    .filter-bar {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 1rem 0;
       display: flex;
-      gap: 0.75rem;
+      gap: 0.65rem;
       flex-wrap: wrap;
       align-items: center;
-      position: sticky;
-      top: 78px;
-      z-index: 50;
-      backdrop-filter: blur(12px);
+      position: relative;
+      top: auto;
+      z-index: 1;
+      box-shadow: none;
+      backdrop-filter: none;
+      margin-bottom: 0;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .filter-label {
+      font-size: .72rem; font-weight: 800; color: var(--txt3);
+      letter-spacing: .08em; text-transform: uppercase;
+      flex-shrink: 0; padding-right: .5rem;
+      border-right: 1px solid var(--border); margin-right: .25rem;
     }
     .filter-bar select {
       background: var(--panel); border: 1.5px solid var(--border);
-      border-radius: 999px; padding: 0.45rem 1.1rem 0.45rem 0.85rem;
-      color: var(--txt); font-size: 0.83rem; cursor: pointer;
+      border-radius: 999px; padding: 0.4rem 1.8rem 0.4rem 0.85rem;
+      color: var(--txt); font-size: 0.8rem; cursor: pointer;
       outline: none; -webkit-appearance: none; appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237c5cfc' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 0.65rem center;
+      background-repeat: no-repeat; background-position: right 0.6rem center;
       padding-right: 1.9rem;
-      box-shadow: 0 1px 4px rgba(124,92,252,.08);
       transition: border-color .2s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(124,92,252,.06);
     }
-    .filter-bar select:hover { border-color: rgba(124,92,252,.5); }
+    .filter-bar select:hover { border-color: rgba(124,92,252,.45); box-shadow: 0 4px 14px rgba(124,92,252,.14); }
+    .filter-bar select:focus { border-color: var(--v1); box-shadow: 0 0 0 3px rgba(124,92,252,.12); }
+    .filter-tags { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
     .filter-tag {
-      padding: 0.4rem 1rem; border-radius: 999px;
-      border: 1.5px solid var(--border); background: var(--bg);
-      color: var(--txt3); font-size: 0.82rem; cursor: pointer;
-      transition: all 0.2s; white-space: nowrap;
+      padding: 0.38rem 0.9rem; border-radius: 999px;
+      border: 1.5px solid var(--border); background: transparent;
+      color: var(--txt3); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: all 0.18s; white-space: nowrap;
     }
-    .filter-tag.active, .filter-tag:hover {
-      background: var(--v1); border-color: var(--v1); color: #fff;
+    .filter-tag:hover { background: rgba(124,92,252,.08); border-color: rgba(124,92,252,.35); color: var(--v1); }
+    .filter-tag.active {
+      background: linear-gradient(135deg,var(--v1),#3d6bff); border-color: transparent;
+      color: #fff; box-shadow: 0 4px 14px rgba(124,92,252,.3);
     }
+    .filter-divider { width:1px; height:22px; background:var(--border); flex-shrink:0; }
 
     /* ===== COURSES GRID ===== */
-    .courses-section { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    .courses-section { padding: 2rem 2rem 3rem; max-width: 1400px; margin: 0 auto; }
     .courses-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
     .courses-meta span { color: var(--txt3); font-size: 0.9rem; }
     .sort-select {
@@ -291,6 +313,59 @@
       transform: translateY(-7px);
       box-shadow: 0 28px 60px rgba(124,92,252,.2), 0 4px 16px rgba(0,0,0,.06);
       border-color: rgba(124,92,252,.45);
+    }
+    /* ── Three-month programme: distinct ocean-blue treatment ── */
+    .course-card.three-month {
+      background: linear-gradient(180deg, rgba(14,165,233,.08), var(--panel));
+      border-color: rgba(14,165,233,.4);
+      border-left: 3px solid #0ea5e9;
+    }
+    .course-card.three-month::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #0ea5e9, #38bdf8, #0284c7);
+    }
+    .course-card.three-month .course-badge {
+      background: linear-gradient(135deg,#0ea5e9,#0284c7);
+      color: #fff; font-weight: 800;
+    }
+    .course-card.three-month .course-thumb { background: linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9) !important; }
+    .course-card.three-month .course-footer { background: rgba(14,165,233,.04); border-color: rgba(14,165,233,.2); }
+    .course-card.three-month:hover { border-color: rgba(14,165,233,.7); box-shadow: 0 22px 50px rgba(14,165,233,.2); }
+    /* ── Three-month type tag ── */
+    .three-month-tag {
+      display:inline-flex; align-items:center; gap:.28rem;
+      background:rgba(14,165,233,.1); border:1px solid rgba(14,165,233,.3);
+      border-radius:50px; padding:.15rem .55rem;
+      font-size:.62rem; font-weight:800; color:#0ea5e9;
+      letter-spacing:.04em; text-transform:uppercase;
+    }
+
+    /* ── Twelve-session programme: distinct ember-orange treatment ── */
+    .course-card.twelve-session {
+      background: linear-gradient(180deg, rgba(249,115,22,.07), var(--panel));
+      border-color: rgba(249,115,22,.42);
+      border-left: 3px solid #f97316;
+    }
+    .course-card.twelve-session::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #f97316, #fb923c, #ea580c);
+    }
+    .course-card.twelve-session .course-badge {
+      background: linear-gradient(135deg,#f97316,#ea580c);
+      color: #fff; font-weight: 800;
+    }
+    .course-card.twelve-session .course-thumb { background: linear-gradient(135deg,#431407,#9a3412,#f97316) !important; }
+    .course-card.twelve-session .course-footer { background: rgba(249,115,22,.04); border-color: rgba(249,115,22,.2); }
+    .course-card.twelve-session:hover { border-color: rgba(249,115,22,.65); box-shadow: 0 22px 50px rgba(249,115,22,.18); }
+    /* ── Twelve-session type tag ── */
+    .twelve-session-tag {
+      display:inline-flex; align-items:center; gap:.28rem;
+      background:rgba(249,115,22,.1); border:1px solid rgba(249,115,22,.3);
+      border-radius:50px; padding:.15rem .55rem;
+      font-size:.62rem; font-weight:800; color:#ea580c;
+      letter-spacing:.04em; text-transform:uppercase;
     }
     :root[data-theme="dark"] .course-card {
       background: rgba(255,255,255,.04);
@@ -975,13 +1050,39 @@
       100% { background-position:-200% 0; }
     }
 
-    /* ── Section wrapper (matches page theme) ── */
+    /* ── Upcoming section — visually bold, separated treatment ── */
     .upcoming-section {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 2.8rem 2.5rem 3.2rem;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 0%, rgba(251,191,36,.18) 0%, transparent 65%),
+        linear-gradient(180deg, rgba(251,191,36,.06) 0%, rgba(124,92,252,.04) 100%);
+      border-top: 2px solid rgba(251,191,36,.35);
+      border-bottom: 2px solid rgba(251,191,36,.2);
+      box-shadow: 0 -8px 32px rgba(251,191,36,.08), 0 8px 32px rgba(251,191,36,.06);
+      border-radius: 0;
+      padding: 3.5rem 2.5rem 4rem;
       position: relative;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    :root[data-theme="dark"] .upcoming-section {
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 0%, rgba(251,191,36,.12) 0%, transparent 65%),
+        linear-gradient(180deg, rgba(251,191,36,.04) 0%, rgba(0,0,0,0) 100%);
+    }
+    .upcoming-section::before {
+      content: '✦ COMING SOON ✦';
+      position: absolute;
+      top: 1.1rem; left: 50%;
+      transform: translateX(-50%);
+      font-size: .6rem; font-weight: 900; letter-spacing: .25em;
+      color: rgba(251,191,36,.55); white-space: nowrap;
+      pointer-events: none;
+    }
+    .upcoming-section::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(251,191,36,.4), transparent);
     }
     .upcoming-section-inner { max-width: 1260px; margin: 0 auto; }
 
@@ -1031,6 +1132,14 @@
       transform: translateY(-4px);
       border-color: rgba(251,191,36,.6);
       box-shadow: 0 12px 36px rgba(251,191,36,.14), 0 4px 16px rgba(124,92,252,.12);
+    }
+    .upcoming-card.three-month {
+      border-color: rgba(14,165,233,.45);
+      background: linear-gradient(180deg, rgba(14,165,233,.05), rgba(255,255,255,.08));
+    }
+    .upcoming-card.twelve-session {
+      border-color: rgba(249,115,22,.45);
+      background: linear-gradient(180deg, rgba(249,115,22,.05), rgba(255,255,255,.08));
     }
     :root[data-theme="dark"] .upcoming-card {
       background: rgba(255,255,255,.035);
@@ -1337,21 +1446,25 @@
     </div>
   </section>
 
-  <!-- Filter Bar (no search — it's in the hero) -->
-  <div class="filter-bar">
-    <select id="category-filter" aria-label="Filter by category" title="Filter by category">
-      <option value="">All Categories</option>
-    </select>
-    <select id="level-filter" aria-label="Filter by level" title="Filter by level">
-      <option value="">All Levels</option>
-      <option value="beginner">Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="advanced">Advanced</option>
-    </select>
-    <div class="filter-tags" id="filter-tags">
-      <span class="filter-tag active" data-filter="all">All</span>
-      <span class="filter-tag" data-filter="featured">Featured</span>
-      <span class="filter-tag" data-filter="emi">EMI Available</span>
+  <!-- Filter Bar — Redesigned: flowing, intuitive, non-sticky -->
+  <div class="filter-bar-wrap">
+    <div class="filter-bar">
+      <span class="filter-label">Filter</span>
+      <select id="category-filter" aria-label="Filter by category" title="Filter by category">
+        <option value="">All Categories</option>
+      </select>
+      <select id="level-filter" aria-label="Filter by level" title="Filter by level">
+        <option value="">All Levels</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+      <span class="filter-divider"></span>
+      <div class="filter-tags" id="filter-tags">
+        <span class="filter-tag active" data-filter="all">All</span>
+        <span class="filter-tag" data-filter="featured">⭐ Featured</span>
+        <span class="filter-tag" data-filter="emi">💳 EMI Available</span>
+      </div>
     </div>
   </div>
 
@@ -1823,6 +1936,8 @@
     grid.innerHTML = allUpcomingCourses.map((c, i) => {
       const thumb = getUpcomingIcon(c._catName, c.title);
       const durationMo = c.duration_days ? Math.round(c.duration_days / 30) : null;
+      const isThreeMonth = durationMo === 3;
+      const isTwelveSession = c.total_live_classes === 12;
       const delay = Math.min(i * 0.08, 0.56);
       const upcomingTags = [
         durationMo ? `<span class="pam-tag">⏱ ${durationMo} mo</span>` : (c.duration_hours ? `<span class="pam-tag">⏱ ${c.duration_hours} hrs</span>` : ''),
@@ -1832,7 +1947,7 @@
       // Start as login-prompt (neutral); syncInterestButtons() sets the real state
       const intBtn = `<button type="button" class="btn-interested login-prompt" data-course-id="${c.id}" onclick="event.stopPropagation();markInterested('${c.id}',this)">🔔 Notify Me</button>`;
       return `
-      <div class="upcoming-card" style="animation-delay:${delay}s" onclick="openUpcomingDetail('${c.id}')">
+      <div class="upcoming-card${isThreeMonth ? ' three-month' : ''}${isTwelveSession ? ' twelve-session' : ''}" style="animation-delay:${delay}s" onclick="openUpcomingDetail('${c.id}')">
         <div class="upcoming-thumb" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
           ${c.thumbnail_url
             ? `<img src="${c.thumbnail_url}" alt="${c.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
@@ -2441,6 +2556,8 @@
       const enrolled = !!c._enrolled;
       const isPending = c._enrollStatus === 'pending';
       const featured = !!c.is_featured;
+      const isThreeMonth = durationMo === 3;
+      const isTwelveSession = c.total_live_classes === 12;
       const courseTags = [
         durationMo ? `<span class="pam-tag">⏱ ${durationMo} mo</span>` : (c.duration_hours ? `<span class="pam-tag">⏱ ${c.duration_hours} hrs</span>` : ''),
         c.total_live_classes ? `<span class="pam-tag">🎬 ${c.total_live_classes} sessions</span>` : '',
@@ -2448,7 +2565,7 @@
         c._pricingType === 'emi' ? `<span class="pam-tag">💳 EMI</span>` : ''
       ].filter(Boolean).join('');
       const delay = Math.min(i * 0.07, 0.56); // stagger up to 560ms
-      return `<div class="course-card${featured ? ' featured' : ''}" onclick="openCourseDetail('${c.id}')" style="animation-delay:${delay}s">
+      return `<div class="course-card${featured ? ' featured' : ''}${isThreeMonth ? ' three-month' : ''}${isTwelveSession ? ' twelve-session' : ''}" onclick="openCourseDetail('${c.id}')" style="animation-delay:${delay}s">
         <div class="course-thumb" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
           ${c.thumbnail_url ? `<img src="${c.thumbnail_url}" alt="${c.title}" loading="lazy">` : `<div class="thumb-icon">${thumb.svg}<span class="cat-label">${c._catName || 'Course'}</span></div>`}
           <div class="course-badge">${c.level || 'Course'}</div>

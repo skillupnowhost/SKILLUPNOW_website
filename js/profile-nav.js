@@ -27,7 +27,10 @@ class ProfileNavigationManager {
     }
     this.injectFavicon();
     this.injectNeuralCursor(); // Always inject cursor — including admin and mentor pages
-    if (this.isAdminPage || this.isMentorPage) return;
+    if (this.isAdminPage || this.isMentorPage) {
+      this.replaceFooter();
+      return;
+    }
     this.injectThemeSwitcher(); // restores saved theme + injects CSS; setupBtn() is no-op (nav not built yet)
     this.rebuildNav();          // builds nav including #pn-theme-nav-btn
     this.injectThemeSwitcher(); // second call: CSS already injected (guard skips), theme already set, NOW wires btn
@@ -67,12 +70,13 @@ class ProfileNavigationManager {
 
       // Alt + key — page navigation
       if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        const pageSuffix = window.location.protocol === 'file:' ? '.html' : '';
         const nav = {
           h: r || '/',
-          c: p + 'courses',
-          f: p + 'forms',
-          e: p + 'contact-enquiry',
-          p: p + 'profile',
+          c: p + 'courses' + pageSuffix,
+          f: p + 'forms' + pageSuffix,
+          e: p + 'contact-enquiry' + pageSuffix,
+          p: p + 'profile' + pageSuffix,
         };
         const dest = nav[e.key?.toLowerCase()];
         if (dest) { e.preventDefault(); window.location.href = dest; return; }
@@ -366,25 +370,25 @@ class ProfileNavigationManager {
   buildNavHTML() {
     const r = this.rootPfx;
     const p = this.pagesPfx;
+    const pageSuffix = window.location.protocol === 'file:' ? '.html' : '';
+    const homeHref = window.location.protocol === 'file:' ? `${r || './'}index.html` : (r || '/');
     const path = window.location.pathname.replace(/\\/g, '/');
     const isHome    = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index');
     const isCourses = path.includes('courses');
-    const isEnquiry = path.includes('contact-enquiry');
-    const isVideos  = path.includes('recording-videos');
-    const isForms   = path.includes('forms');
+    const isPamphlet = path.includes('pamphlet');
+    const isContact = path.includes('contact-enquiry') || path.includes('forms');
 
     return `
-      <a href="${r || '/'}" class="nav-logo" aria-label="SkillUpNow Home" style="padding:0;background:none;gap:0;">
+      <a href="${homeHref}" class="nav-logo" aria-label="SkillUpNow Home" style="padding:0;background:none;gap:0;">
         <img src="${r}icon/Logo.png" alt="SkillUpNow" style="height:44px;width:auto;object-fit:contain;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
         <span style="display:none;align-items:center;gap:.5rem;font-size:1.1rem;font-weight:800;">SkillUpNow</span>
       </a>
 
       <ul class="nav-links" id="nav-links-list" role="navigation" aria-label="Main navigation">
-        <li><a href="${r || '/'}"                        class="nav-link-item ${isHome    ? 'active' : ''}">Home</a></li>
-        <li><a href="${p}courses"                        class="nav-link-item ${isCourses ? 'active' : ''}">Courses</a></li>
-        <li><a href="${p}recording-videos"               class="nav-link-item ${isVideos  ? 'active' : ''}">Videos</a></li>
-        <li><a href="${p}forms" class="nav-link-item ${isForms ? 'active' : ''}">Forms</a></li>
-        <li><a href="${p}contact-enquiry"                class="nav-link-item ${isEnquiry ? 'active' : ''}">Enquiry</a></li>
+        <li><a href="${homeHref}"                        class="nav-link-item ${isHome    ? 'active' : ''}">Home</a></li>
+        <li><a href="${p}courses${pageSuffix}"                        class="nav-link-item ${isCourses ? 'active' : ''}">Courses</a></li>
+        <li><a href="${p}pamphlet${pageSuffix}"                       class="nav-link-item ${isPamphlet ? 'active' : ''}">Pamphlet</a></li>
+        <li><a href="${p}contact-enquiry${pageSuffix}"                class="nav-link-item ${isContact ? 'active' : ''}">Contact & Forms</a></li>
       </ul>
 
       <div class="nav-actions" id="nav-actions">
@@ -404,19 +408,19 @@ class ProfileNavigationManager {
               </div>
             </div>
             <div class="pd-divider"></div>
-            <a href="${p}profile" class="pd-item" role="menuitem">
+            <a href="${p}profile${pageSuffix}" class="pd-item" role="menuitem">
               <span class="pd-icon">🎓</span>
               <div><div class="pd-title">My Dashboard</div><div class="pd-sub">Learning path & progress</div></div>
             </a>
-            <a href="${p}profile?tab=payments" class="pd-item" role="menuitem">
+            <a href="${p}profile${pageSuffix}?tab=payments" class="pd-item" role="menuitem">
               <span class="pd-icon">💳</span>
               <div><div class="pd-title">Payments & EMI</div><div class="pd-sub">Invoices & installments</div></div>
             </a>
-            <a id="dd-mentor-link" href="${p}mentor-dashboard" class="pd-item" role="menuitem" style="display:none;">
+            <a id="dd-mentor-link" href="${p}mentor-dashboard${pageSuffix}" class="pd-item" role="menuitem" style="display:none;">
               <span class="pd-icon">📋</span>
               <div><div class="pd-title">Mentor Portal</div><div class="pd-sub">Batches & schedules</div></div>
             </a>
-            <a id="dd-admin-link" href="${p}admin-dashboard" class="pd-item" role="menuitem" style="display:none;">
+            <a id="dd-admin-link" href="${p}admin-dashboard${pageSuffix}" class="pd-item" role="menuitem" style="display:none;">
               <span class="pd-icon">⚙️</span>
               <div><div class="pd-title">Admin Panel</div><div class="pd-sub">Manage platform</div></div>
             </a>
@@ -453,6 +457,7 @@ class ProfileNavigationManager {
   buildFooterHTML() {
     const r = this.rootPfx;
     const p = this.pagesPfx;
+    const pageSuffix = window.location.protocol === 'file:' ? '.html' : '';
     return `
       <style>
         /* ── Single-line footer ── */
@@ -542,10 +547,11 @@ class ProfileNavigationManager {
         <div class="pn-f-platform">
           <h5 class="footer-col-title" style="margin-bottom:.3rem;">Platform</h5>
           <ul class="footer-col-links">
-            <li><a href="${p}courses"         class="footer-link">All Courses</a></li>
-            <li><a href="${p}recording-videos" class="footer-link">Recorded Sessions</a></li>
-            <li><a href="${p}emi-application"  class="footer-link">EMI Options</a></li>
-            <li><a href="${p}pamphlet"          class="footer-link">Brochure</a></li>
+            <li><a href="${p}courses${pageSuffix}"          class="footer-link">All Courses</a></li>
+            <li><a href="${p}recording-videos${pageSuffix}" class="footer-link">Recorded Sessions</a></li>
+            <li><a href="${p}emi-application${pageSuffix}"  class="footer-link">EMI Options</a></li>
+            <li><a href="${p}pamphlet${pageSuffix}"         class="footer-link">Brochure</a></li>
+            <li><a href="${p}contact-enquiry${pageSuffix}"            class="footer-link">Application Forms</a></li>
           </ul>
         </div>
 
@@ -553,10 +559,10 @@ class ProfileNavigationManager {
         <div class="pn-f-company">
           <h5 class="footer-col-title" style="margin-bottom:.3rem;">Company</h5>
           <ul class="footer-col-links">
-            <li><a href="${r || '/'}#about-us"       class="footer-link">About Us</a></li>
-            <li><a href="${p}contact-enquiry"        class="footer-link">Contact</a></li>
-            <li><a href="#"                         class="footer-link">Privacy Policy</a></li>
-            <li><a href="#"                         class="footer-link">Terms of Service</a></li>
+            <li><a href="${r || '/'}#about-us"              class="footer-link">About Us</a></li>
+            <li><a href="${p}contact-enquiry${pageSuffix}"  class="footer-link">Contact</a></li>
+            <li><a href="#"                                 class="footer-link">Privacy Policy</a></li>
+            <li><a href="#"                                 class="footer-link">Terms of Service</a></li>
           </ul>
         </div>
       </div>
@@ -584,7 +590,12 @@ class ProfileNavigationManager {
 
   /* ── Replace footer ── */
   replaceFooter() {
-    const footers = document.querySelectorAll('footer:not([data-skip-component])');
+    let footers = Array.from(document.querySelectorAll('footer:not([data-skip-component])'));
+    if (!footers.length && document.body) {
+      const footer = document.createElement('footer');
+      document.body.appendChild(footer);
+      footers = [footer];
+    }
     if (!footers.length) return;
     footers.forEach((footer, idx) => {
       if (idx < footers.length - 1) { footer.remove(); return; }
@@ -933,12 +944,15 @@ class ProfileNavigationManager {
         border: 1px solid rgba(124,92,252,.18);
         animation: pn-role-ring 3s ease-in-out infinite;
       }
-      .pn-role-icon svg {
+      .pn-role-icon svg,
+      .pn-role-icon img {
         width: 34px; height: 34px; position: relative; z-index: 1;
         animation: pn-role-float 3.6s ease-in-out infinite;
         filter: drop-shadow(0 8px 12px rgba(124,92,252,.16));
+        object-fit: contain;
       }
-      .pn-role-card:nth-child(2) .pn-role-icon svg { animation-duration: 4.1s; }
+      .pn-role-card:nth-child(2) .pn-role-icon svg,
+      .pn-role-card:nth-child(2) .pn-role-icon img { animation-duration: 4.1s; }
       :root[data-theme="dark"] .pn-role-icon,
       html[data-theme="dark"] .pn-role-icon {
         background:
@@ -1250,12 +1264,12 @@ class ProfileNavigationManager {
 
           <div class="pn-role-cards">
             <div class="pn-role-card" onclick="window._pnView('student-login')" role="button" tabindex="0">
-              <span class="pn-role-icon">📚</span>
+              <span class="pn-role-icon"><img src="icon/student.png" alt="Student icon" aria-hidden="true"></span>
               <div class="pn-role-name">Student</div>
               <div class="pn-role-desc">Access your learning dashboard</div>
             </div>
             <div class="pn-role-card" onclick="window._pnView('mentor-login')" role="button" tabindex="0">
-              <span class="pn-role-icon">🎓</span>
+              <span class="pn-role-icon"><img src="icon/mentor.png" alt="Mentor icon" aria-hidden="true"></span>
               <div class="pn-role-name">Mentor</div>
               <div class="pn-role-desc">Manage batches &amp; classes</div>
             </div>
@@ -1326,12 +1340,12 @@ class ProfileNavigationManager {
 
           <div class="pn-role-cards">
             <div class="pn-role-card" onclick="window._pnView('signup-student')" role="button" tabindex="0">
-              <span class="pn-role-icon">📚</span>
+              <span class="pn-role-icon"><img src="icon/student.png" alt="Student icon" aria-hidden="true"></span>
               <div class="pn-role-name">Student</div>
               <div class="pn-role-desc">Enroll in courses &amp; learn</div>
             </div>
             <div class="pn-role-card" onclick="window._pnClose();window.location.href=(window.profileNav?.pagesPfx??'pages/')+'mentor-signup'" role="button" tabindex="0">
-              <span class="pn-role-icon">🎓</span>
+              <span class="pn-role-icon"><img src="icon/mentor.png" alt="Mentor icon" aria-hidden="true"></span>
               <div class="pn-role-name">Mentor</div>
               <div class="pn-role-desc">Teach &amp; earn with SkillUpNow</div>
             </div>

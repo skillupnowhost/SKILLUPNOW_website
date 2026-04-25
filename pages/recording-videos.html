@@ -51,6 +51,7 @@
       line-height: 1.05;
       margin-bottom: 1.1rem;
       animation: fadeUp .6s .1s ease both;
+      text-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
     }
     .rv-hero p {
       font-size: 1.08rem;
@@ -59,6 +60,7 @@
       margin: 0 auto 2.5rem;
       line-height: 1.75;
       animation: fadeUp .6s .2s ease both;
+      text-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
     }
 
     /* ── Prevent drag / selection of content while player is active ── */
@@ -143,39 +145,69 @@
       width: 100%;
     }
     .rv-player-placeholder .ph-icon { font-size: 3.5rem; opacity: .5; }
-    .rv-player-placeholder p { font-size: .9rem; line-height: 1.6; }
+    .rv-player-placeholder p { font-size: .9rem; line-height: 1.6; color: var(--txt3); text-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 
-    /* ── Video details panel (shown before playing) ── */
+    /* ── Video details panel (shown before playing) — fully centered ── */
     #rv-details-view {
       display: none;
       width: 100%; height: 100%;
-      padding: 2rem 2.5rem;
+      padding: 2.5rem 3rem;
       box-sizing: border-box;
       overflow-y: auto;
       flex-direction: column;
+      align-items: center;
       justify-content: center;
-      gap: 1rem;
-      background: linear-gradient(160deg, rgba(124,92,252,.06) 0%, rgba(61,107,255,.04) 100%);
+      text-align: center;
+      gap: 1.1rem;
+      background: linear-gradient(160deg, rgba(124,92,252,.07) 0%, rgba(61,107,255,.04) 100%);
+      position: relative;
     }
+    #rv-details-view::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 55% 45% at 50% 20%, rgba(124,92,252,.12), transparent 65%);
+      pointer-events: none;
+    }
+    #rv-details-view > * { position: relative; z-index: 1; }
+    .rv-dv-meta { justify-content: center; }
+    .rv-dv-play-btn { margin: 0 auto; }
     #rv-details-view.active { display: flex; }
     .rv-dv-course-tag {
       display: inline-flex; align-items: center; gap: .4rem;
       background: rgba(124,92,252,.12); border: 1px solid rgba(124,92,252,.28);
-      border-radius: 50px; padding: .25rem .8rem;
+      border-radius: 50px; padding: .28rem 1rem;
       font-size: .72rem; font-weight: 700; color: var(--v1);
-      width: fit-content;
+      width: fit-content; margin: 0 auto;
     }
     .rv-dv-title {
-      font-size: 1.35rem; font-weight: 800; color: var(--txt);
-      line-height: 1.3; margin: 0;
+      font-size: clamp(1.15rem, 2.5vw, 1.5rem); font-weight: 800; color: var(--txt);
+      line-height: 1.28; margin: 0; max-width: 480px;
     }
+    /* ── Session detail chips (duration, date, sessions) ── */
+    .rv-dv-detail-chips {
+      display: flex; flex-wrap: wrap; gap: .55rem;
+      justify-content: center; align-items: center;
+    }
+    .rv-dv-chip {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 50px; padding: .28rem .85rem;
+      font-size: .74rem; font-weight: 600; color: var(--txt2);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    :root[data-theme="light"] .rv-dv-chip {
+      background: rgba(124,92,252,.06); border-color: rgba(124,92,252,.18); color: var(--txt2);
+    }
+    .rv-dv-chip svg { flex-shrink: 0; color: var(--v1); }
     .rv-dv-meta {
       display: flex; flex-wrap: wrap; gap: .5rem .9rem;
-      font-size: .78rem; color: var(--txt4);
+      font-size: .78rem; color: var(--txt4); justify-content: center;
     }
     .rv-dv-meta span { display: inline-flex; align-items: center; gap: .3rem; }
     .rv-dv-price-row {
       display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+      justify-content: center;
     }
     .rv-dv-price {
       font-size: 1.1rem; font-weight: 800; color: var(--txt);
@@ -192,22 +224,46 @@
       border-radius: 50px; padding: .2rem .7rem;
       font-size: .72rem; font-weight: 700; color: #fb923c;
     }
+    /* ── Play button — centered, prominent ── */
     .rv-dv-play-btn {
-      display: inline-flex; align-items: center; gap: .55rem;
-      background: linear-gradient(135deg, #7c5cfc, #3d6bff);
+      display: inline-flex; align-items: center; justify-content: center; gap: .65rem;
+      background: linear-gradient(135deg, #7c5cfc 0%, #3d6bff 60%, #7c5cfc 100%);
+      background-size: 200% 100%;
       color: #fff; border: none; border-radius: 50px;
-      padding: .75rem 2rem; font-size: .95rem; font-weight: 700;
+      padding: .9rem 2.5rem; font-size: 1rem; font-weight: 800;
       cursor: pointer; font-family: inherit;
-      box-shadow: 0 8px 24px rgba(124,92,252,.4);
-      transition: transform .18s, box-shadow .18s;
-      margin-top: .25rem;
+      box-shadow: 0 10px 32px rgba(124,92,252,.5), 0 0 0 4px rgba(124,92,252,.12);
+      transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s;
+      margin: .35rem auto 0;
       width: fit-content;
+      min-width: 180px;
+      position: relative; overflow: hidden;
     }
+    .rv-dv-play-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.2) 50%, transparent 70%);
+      transform: translateX(-130%); transition: transform .5s ease;
+    }
+    .rv-dv-play-btn:hover::before { transform: translateX(130%); }
     .rv-dv-play-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(124,92,252,.55);
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 16px 44px rgba(124,92,252,.65), 0 0 0 6px rgba(124,92,252,.14);
     }
-    .rv-dv-play-btn svg { flex-shrink: 0; }
+    .rv-dv-play-btn svg { flex-shrink: 0; width: 18px; height: 18px; }
+
+    /* ── Sidebar courses-list header (distinct from playlist items) ── */
+    .rv-courses-list-hdr {
+      padding: .6rem 1.25rem .5rem;
+      background: rgba(124,92,252,.05);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .rv-courses-list-label {
+      font-size: .64rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--txt3);
+    }
     .rv-now-playing {
       padding: 1.25rem .25rem .75rem;
     }
@@ -451,8 +507,8 @@
           radial-gradient(circle at 15% 20%, rgba(61,107,255,.1), transparent 28%);
       }
       .rv-hero-tag { font-size: .74rem; padding: .38rem .95rem; margin-bottom: 1rem; }
-      .rv-hero h1 { font-size: clamp(2rem, 9vw, 2.7rem); line-height: 1.02; margin-bottom: .8rem; }
-      .rv-hero p  { font-size: .94rem; line-height: 1.72; margin-bottom: 1.7rem; max-width: 32ch; }
+      .rv-hero h1 { font-size: clamp(2rem, 9vw, 2.7rem); line-height: 1.02; margin-bottom: .8rem; text-shadow: 0 12px 24px rgba(0,0,0,0.12); }
+      .rv-hero p  { font-size: .94rem; line-height: 1.72; margin-bottom: 1.7rem; max-width: 32ch; text-shadow: 0 6px 16px rgba(0,0,0,0.08); }
 
       /* Layout: full bleed, tighter padding */
       .rv-layout {
@@ -808,10 +864,11 @@
         <div id="rv-details-view">
           <div class="rv-dv-course-tag" id="rv-dv-course-tag"></div>
           <h2 class="rv-dv-title" id="rv-dv-title"></h2>
+          <div class="rv-dv-detail-chips" id="rv-dv-detail-chips"></div>
           <div class="rv-dv-meta" id="rv-dv-meta"></div>
           <div class="rv-dv-price-row" id="rv-dv-price-row"></div>
           <button type="button" class="rv-dv-play-btn" id="rv-dv-play-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Play Video
           </button>
         </div>
@@ -828,6 +885,12 @@
       <div class="rv-sidebar-header">
         <h3>Course Playlist</h3>
         <span class="rv-sidebar-count" id="rv-total-count">Loading…</span>
+      </div>
+      <div class="rv-courses-list-hdr">
+        <span class="rv-courses-list-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 10h16M4 14h10"/></svg>
+          Sessions
+        </span>
       </div>
       <div class="rv-sidebar-search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -1536,19 +1599,27 @@
     if (!v) return;
 
     // Populate details panel
-    const courseTag = document.getElementById('rv-dv-course-tag');
-    const titleEl   = document.getElementById('rv-dv-title');
-    const metaEl    = document.getElementById('rv-dv-meta');
-    const priceRow  = document.getElementById('rv-dv-price-row');
-    const playBtn   = document.getElementById('rv-dv-play-btn');
+    const courseTag  = document.getElementById('rv-dv-course-tag');
+    const titleEl    = document.getElementById('rv-dv-title');
+    const chipsEl    = document.getElementById('rv-dv-detail-chips');
+    const metaEl     = document.getElementById('rv-dv-meta');
+    const priceRow   = document.getElementById('rv-dv-price-row');
+    const playBtn    = document.getElementById('rv-dv-play-btn');
 
     if (courseTag) courseTag.innerHTML = `${courseIcon(v.courseTitle)} ${v.courseTitle || 'Session'}`;
     if (titleEl)   titleEl.textContent = v.title;
 
-    // Meta row: duration + session number in group
+    // Detail chips: duration, session index, new badge
+    if (chipsEl) {
+      const chips = [];
+      if (v.duration && v.duration !== '—') chips.push(`<span class="rv-dv-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${v.duration}</span>`);
+      if (v.sessionNumber) chips.push(`<span class="rv-dv-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Session ${v.sessionNumber}</span>`);
+      if (v.isNew) chips.push(`<span class="rv-dv-chip" style="color:var(--v1);border-color:rgba(124,92,252,.3);background:rgba(124,92,252,.08);">✨ New</span>`);
+      chipsEl.innerHTML = chips.join('');
+    }
+
+    // Meta row: legacy fallback (kept for compatibility)
     const metaParts = [];
-    if (v.duration && v.duration !== '—') metaParts.push(`<span>⏱ ${v.duration}</span>`);
-    if (v.isNew) metaParts.push(`<span style="color:var(--v1);font-weight:700;">✨ New</span>`);
     if (metaEl) metaEl.innerHTML = metaParts.join('');
 
     // Price / access badge
@@ -1572,7 +1643,7 @@
     if (playBtn) {
       playBtn.onclick = () => handleWatchClick(id);
       playBtn.disabled = false;
-      playBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Play Video`;
+      playBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Play Video`;
     }
 
     // Show details, hide placeholder + player
@@ -1951,32 +2022,50 @@
 
       // Single query — joins course (via course_id) AND batch (via batch_id → course_batches → courses)
       // This gives real titles for ALL recordings, even those linked only via a batch
-      const { data, error } = await client
-        .from('live_recordings')
-        .select(`
-          id, title, provider_name, access_level, course_id, batch_id,
-          created_at, base_amount, gst_percentage, total_amount,
-          direct_course:course_id(id, title,
-            course_categories(name),
-            course_pricing(id, sale_price, list_price, is_active)
-          ),
-          batch:batch_id(batch_name, course_id,
-            batch_course:course_id(id, title,
+      let data = null;
+      let error = null;
+
+      try {
+        const result = await client
+          .from('live_recordings')
+          .select(`
+            id, title, provider_name, access_level, course_id, batch_id,
+            created_at, base_amount, gst_percentage, total_amount,
+            direct_course:course_id(id, title,
               course_categories(name),
               course_pricing(id, sale_price, list_price, is_active)
+            ),
+            batch:batch_id(batch_name, course_id,
+              batch_course:course_id(id, title,
+                course_categories(name),
+                course_pricing(id, sale_price, list_price, is_active)
+              )
             )
-          )
-        `)
-        .eq('is_published', true)
-        .order('created_at', { ascending: false });
+          `)
+          .eq('is_published', true)
+          .order('created_at', { ascending: false });
+        data = result.data;
+        error = result.error;
+      } catch (e) {
+        error = e;
+      }
 
-      if (error) throw error;
+      if (error) {
+        console.warn('Recording list query failed, retrying with simple record fetch:', error);
+        const fallback = await client
+          .from('live_recordings')
+          .select('id, title, provider_name, access_level, course_id, batch_id, created_at, base_amount, gst_percentage, total_amount')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false });
+        if (fallback.error) throw fallback.error;
+        data = fallback.data;
+      }
 
       if (!data || !data.length) {
         const pl = document.getElementById('rv-playlist');
         const countEl = document.getElementById('rv-total-count');
         if (countEl) countEl.textContent = '0 sessions';
-        if (pl) pl.innerHTML = `<div class="rv-empty"><div class="rv-empty-icon">🎬</div><p>No recordings yet</p><p style="font-size:.82rem;">Sessions will appear here after live classes.</p></div>`;
+        if (pl) pl.innerHTML = `<div class="rv-empty"><div class="rv-empty-icon">🎬</div><p>No published recordings yet</p><p style="font-size:.82rem;">Sessions will appear here after live classes or once recordings are published.</p></div>`;
         return;
       }
 

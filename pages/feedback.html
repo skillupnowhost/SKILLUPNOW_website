@@ -98,7 +98,7 @@
     .fb-type-outer {
       background: var(--bg); border-bottom: 1px solid var(--border);
       padding: 1.5rem 1.5rem 0; position: sticky; top: 60px; z-index: 50;
-      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
     }
     .fb-type-tabs {
       max-width: 860px; margin: 0 auto;
@@ -257,6 +257,10 @@
     .pill-label:hover { border-color: var(--v1); color: var(--txt); transform: translateY(-1px); }
 
     /* ===== SUBMIT BUTTON ===== */
+    .panel-actions {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;
+    }
+    .panel-actions .btn-submit { min-width: 220px; }
     .btn-submit {
       position: relative; overflow: hidden;
       background: linear-gradient(135deg, #7c5cfc 0%, #3d6bff 60%, #7c5cfc 100%);
@@ -310,6 +314,10 @@
       transition: all .22s; text-decoration: none;
     }
     .btn-ghost:hover { border-color: var(--v1); color: var(--v1); transform: translateY(-2px); }
+    .success-actions {
+      display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap;
+      margin-top: 1rem;
+    }
 
     /* ===== FORM ROW ===== */
     .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -317,6 +325,8 @@
       .f-row { grid-template-columns: 1fr; }
       .aspect-grid { grid-template-columns: 1fr; }
       .fb-tab { min-width: 110px; font-size: .72rem; }
+      .panel-actions { flex-direction: column; align-items: stretch; }
+      .panel-actions .btn-submit { width: 100%; }
     }
 
     /* ===== ENTRANCE ANIMATION for cards ===== */
@@ -394,12 +404,27 @@
       <div class="fb-card">
         <span class="fb-card-icon">📚</span>
         <h2>Course Review</h2>
-        <p class="sub">Share your experience with a course you're enrolled in. Your review is reviewed by admins before publishing.</p>
+        <p class="sub">Share your experience with any course. Your review is reviewed by admins before publishing.</p>
+
+        <div class="f-row">
+          <div class="f-group">
+            <label>Your Name *</label>
+            <input type="text" id="fb-name" placeholder="Full name">
+          </div>
+          <div class="f-group">
+            <label>Email *</label>
+            <input type="email" id="fb-email" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="f-group">
+          <label>Phone *</label>
+          <input type="tel" id="fb-phone" placeholder="+91 98765 43210">
+        </div>
 
         <div class="f-group">
-          <label>Select Your Course *</label>
-          <select id="fb-course">
-            <option value="">Choose a course you're enrolled in…</option>
+          <label for="fb-course">Select Your Course *</label>
+          <select id="fb-course" aria-label="Select Your Course">
+            <option value="">Choose a course to review…</option>
           </select>
         </div>
 
@@ -459,8 +484,8 @@
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
-          <button class="btn-submit" onclick="submitCourseReview()">Submit Review</button>
+        <div class="panel-actions">
+          <button class="btn-submit" onclick="submitCourseReview(this)">Submit Review</button>
           <span class="submit-note">Reviews go live after admin approval</span>
         </div>
       </div>
@@ -484,9 +509,19 @@
             <input type="email" id="m-email" placeholder="your@email.com">
           </div>
         </div>
+        <div class="f-row">
+          <div class="f-group">
+            <label>Phone *</label>
+            <input type="tel" id="m-phone" placeholder="+91 98765 43210">
+          </div>
+          <div class="f-group">
+            <label>Mentor / Instructor Name *</label>
+            <input type="text" id="m-mentor" placeholder="Name of your mentor or instructor">
+          </div>
+        </div>
         <div class="f-group">
-          <label>Mentor / Instructor Name *</label>
-          <input type="text" id="m-mentor" placeholder="Name of your mentor or instructor">
+          <label>Course / Batch</label>
+          <input type="text" id="m-course" placeholder="Which course or batch were you in?">
         </div>
         <div class="f-group">
           <label>Course / Batch</label>
@@ -527,7 +562,7 @@
           <textarea id="m-improve" placeholder="Constructive feedback helps mentors grow…" rows="3"></textarea>
         </div>
 
-        <button class="btn-submit" onclick="submitMentorFeedback()">Submit Mentor Feedback</button>
+        <button class="btn-submit" onclick="submitMentorFeedback(this)">Submit Mentor Feedback</button>
       </div>
     </div>
 
@@ -548,6 +583,10 @@
             <label>Email *</label>
             <input type="email" id="a-email" placeholder="your@email.com">
           </div>
+        </div>
+        <div class="f-group">
+          <label>Phone *</label>
+          <input type="tel" id="a-phone" placeholder="+91 98765 43210">
         </div>
 
         <div class="f-group">
@@ -601,7 +640,7 @@
           </div>
         </div>
 
-        <button class="btn-submit" onclick="submitAdminFeedback()">Submit Feedback</button>
+        <button class="btn-submit" onclick="submitAdminFeedback(this)">Submit Feedback</button>
       </div>
     </div>
 
@@ -622,6 +661,10 @@
             <label>Email *</label>
             <input type="email" id="w-email" placeholder="your@email.com">
           </div>
+        </div>
+        <div class="f-group">
+          <label>Phone *</label>
+          <input type="tel" id="w-phone" placeholder="+91 98765 43210">
         </div>
 
         <div class="f-group">
@@ -664,7 +707,7 @@
           </div>
         </div>
 
-        <button class="btn-submit" onclick="submitWebFeedback()">Submit Feedback</button>
+        <button class="btn-submit" onclick="submitWebFeedback(this)">Submit Feedback</button>
       </div>
     </div>
 
@@ -673,7 +716,7 @@
       <span class="success-icon" id="success-icon">⭐</span>
       <h2 id="success-title">Thank You!</h2>
       <p id="success-msg">Your feedback has been received. We appreciate you helping us improve!</p>
-      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+      <div class="success-actions">
         <a href="courses.html" class="btn-ghost">📚 Browse Courses</a>
         <button class="btn-ghost" onclick="resetFeedback()">✏ Give More Feedback</button>
       </div>
@@ -686,7 +729,7 @@
 <script src="../config/supabase-config.js"></script>
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
-<script src="../js/qr-share.js"></script>
+<!-- <script src="../js/qr-share.js"></script> -->
 <script>
 // ─── Supabase client ───────────────────────────────────────────────────────
 let _client = null;
@@ -706,6 +749,29 @@ function setButtonState(btn, loadingText, defaultText, isLoading) {
   if (!btn) return;
   btn.disabled = !!isLoading;
   btn.textContent = isLoading ? loadingText : defaultText;
+}
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePhone(phone) {
+  return /^\+?[0-9\s\-\.]{6,20}$/.test(phone);
+}
+
+function parseDbError(err) {
+  if (!err) return 'Failed to submit. Try again.';
+  const raw = err.message || err.details || String(err);
+  if (/permission denied/i.test(raw)) {
+    return 'Permission denied. Please sign in or refresh the page. If this continues, contact support.';
+  }
+  if (/invalid email/i.test(raw)) {
+    return 'Please enter a valid email address.';
+  }
+  if (/duplicate/i.test(raw)) {
+    return 'A review already exists for this course. Please update your existing review or choose another course.';
+  }
+  return raw;
 }
 
 function averageRating(values = []) {
@@ -795,233 +861,6 @@ function selectTopic(chip, area) {
   if (area === 'web')   selectedWebTopic   = chip.textContent.replace(/^[\p{Emoji}\s]+/u,'').trim();
 }
 
-// ─── INIT ──────────────────────────────────────────────────────────────────
-async function init() {
-  const client = await _getClient();
-
-  // Session (optional — non-logged-in users can still submit admin/website feedback)
-  if (client) {
-    const { data: { session } } = await client.auth.getSession();
-    if (session) {
-      currentUser = session.user;
-      // Pre-fill name/email fields for logged-in users
-      const prof = await getCurrentProfile(client, session.user.id);
-      const fullName = prof?.full_name || session.user.user_metadata?.full_name || '';
-      const email    = prof?.email || session.user.email || '';
-      ['m-name','a-name','w-name'].forEach(id => { const el = document.getElementById(id); if (el && fullName) el.value = fullName; });
-      ['m-email','a-email','w-email'].forEach(id => { const el = document.getElementById(id); if (el && email) el.value = email; });
-
-      // Load enrolled courses
-      const { data } = await client.from('enrollments')
-        .select('id,course_id,courses(id,title)')
-        .eq('student_user_id', session.user.id)
-        .in('enrollment_status', ['active','completed']);
-      enrolledCourses = data || [];
-      const sel = document.getElementById('fb-course');
-      if (!enrolledCourses.length) {
-        sel.innerHTML = '<option value="">No active enrollments — enroll in a course first</option>';
-        sel.disabled = true;
-      } else {
-        enrolledCourses.forEach(e => {
-          const o = document.createElement('option');
-          o.value = e.course_id;
-          o.dataset.enrollId = e.id;
-          o.textContent = e.courses?.title || e.course_id;
-          sel.appendChild(o);
-        });
-      }
-      const courseParam = new URLSearchParams(window.location.search).get('course');
-      if (courseParam) sel.value = courseParam;
-    } else {
-      // Not logged in — disable course review tab
-      const coursePanel = document.getElementById('panel-course');
-      if (coursePanel) {
-        coursePanel.innerHTML = `<div class="fb-card" style="text-align:center;padding:3rem">
-          <span style="font-size:3rem">🔒</span>
-          <h2 style="margin:.75rem 0 .4rem">Login Required</h2>
-          <p style="color:var(--txt3)">You need to be enrolled and logged in to submit a course review.</p>
-          <a href="../index.html?login=1" class="btn-submit" style="display:inline-block;text-decoration:none;margin-top:1rem">Log In</a>
-        </div>`;
-      }
-    }
-  }
-
-  // Build aspect stars (all panels)
-  document.querySelectorAll('.aspect-stars').forEach(wrap => {
-    const asp = wrap.dataset.aspect;
-    aspectRatings[asp] = 0;
-    for (let i = 1; i <= 5; i++) {
-      const s = document.createElement('span');
-      s.className = 'aspect-star'; s.textContent = '★'; s.dataset.val = i;
-      s.onclick = () => {
-        aspectRatings[asp] = i;
-        wrap.querySelectorAll('.aspect-star').forEach((st, idx) => st.classList.toggle('active', idx < i));
-      };
-      s.onmouseenter = () => wrap.querySelectorAll('.aspect-star').forEach((st,idx) => { if(idx < i) st.style.transform='scale(1.18)'; });
-      s.onmouseleave = () => wrap.querySelectorAll('.aspect-star').forEach(st => { st.style.transform=''; });
-      wrap.appendChild(s);
-    }
-  });
-
-  // Overall star rating labels
-  const ratingLabels = {1:'Poor 😕',2:'Fair 😐',3:'Good 😊',4:'Very Good 😁',5:'Excellent 🤩'};
-  document.querySelectorAll('.star-row input').forEach(r => {
-    r.addEventListener('change', () => {
-      const desc = document.getElementById('star-desc');
-      if (desc) desc.textContent = ratingLabels[r.value] || '';
-    });
-  });
-
-  // Trigger panel entrance animation
-  const firstPanel = document.querySelector('.fb-panel.active');
-  if (firstPanel) requestAnimationFrame(() => requestAnimationFrame(() => firstPanel.classList.add('visible')));
-}
-
-// ─── COURSE REVIEW ─────────────────────────────────────────────────────────
-async function submitCourseReview(btnEl) {
-  const courseId = document.getElementById('fb-course').value;
-  const ratingEl = document.querySelector('.star-row input:checked');
-  const title    = document.getElementById('fb-title').value.trim();
-  const comment  = document.getElementById('fb-comment').value.trim();
-  const recEl    = document.querySelector('input[name="fb-rec"]:checked');
-
-  if (!courseId)                       return showErr('Please select a course.');
-  if (!ratingEl)                       return showErr('Please give an overall star rating.');
-  if (!title)                          return showErr('Please enter a review title.');
-  if (!comment || comment.length < 20) return showErr('Review must be at least 20 characters.');
-
-  const btn = getActionButton(btnEl, '#panel-course .btn-submit');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-
-  const sel = document.getElementById('fb-course');
-  const enrollId = sel.options[sel.selectedIndex]?.dataset.enrollId;
-  const client = await _getClient();
-  if (!client || !currentUser) { showErr('Please log in to submit a review.'); btn.disabled=false; btn.textContent='Submit Review'; return; }
-
-  try {
-    const { error } = await client.from('reviews').upsert({
-      user_id: currentUser.id, course_id: courseId,
-      enrollment_id: enrollId || null,
-      rating: parseInt(ratingEl.value), title, comment,
-      recommend: recEl?.value || null,
-      aspects: Object.keys(aspectRatings).length ? { ...aspectRatings } : null,
-      is_approved: false,
-    }, { onConflict: 'user_id,course_id' });
-    if (error) throw error;
-    showSuccess('⭐', 'Review Submitted!', 'Your review will be visible after admin approval. Thank you for helping the community!');
-  } catch(err) {
-    showErr(err.message || 'Failed to submit. Try again.');
-  }
-  btn.disabled = false; btn.textContent = 'Submit Review';
-}
-
-// ─── MENTOR FEEDBACK ───────────────────────────────────────────────────────
-async function submitMentorFeedback() {
-  const name    = document.getElementById('m-name').value.trim();
-  const email   = document.getElementById('m-email').value.trim();
-  const mentor  = document.getElementById('m-mentor').value.trim();
-  const improve = document.getElementById('m-improve').value.trim();
-
-  if (!name)    return showErr('Please enter your name.');
-  if (!email)   return showErr('Please enter your email.');
-  if (!mentor)  return showErr('Please enter your mentor\'s name.');
-  if (!improve || improve.length < 10) return showErr('Please write at least 10 characters of feedback.');
-
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  const client = await _getClient();
-  if (!client) { showErr('Connection error. Please refresh.'); btn.disabled=false; btn.textContent='Submit Mentor Feedback'; return; }
-
-  const positive = document.getElementById('m-positive').value.trim();
-  const course   = document.getElementById('m-course').value.trim();
-  const aspects  = Object.fromEntries(Object.entries(aspectRatings).filter(([k]) => k.startsWith('m-')));
-
-  try {
-    const { error } = await client.from('inquiries').insert({
-      name, email, type: 'mentor_feedback',
-      subject: `Mentor Feedback: ${mentor}${course ? ' — ' + course : ''}`,
-      message: `[Mentor]: ${mentor}\n[Course/Batch]: ${course || 'Not specified'}\n\n[Positives]:\n${positive || 'N/A'}\n\n[Improvements]:\n${improve}\n\n[Aspect Ratings]: ${JSON.stringify(aspects)}`,
-      status: 'open', priority: 'normal',
-      user_id: currentUser?.id || null,
-    });
-    if (error) throw error;
-    showSuccess('👨‍🏫', 'Feedback Received!', 'Your mentor feedback is confidential and has been shared with management. Thank you!');
-  } catch(err) {
-    showErr(err.message || 'Failed to submit. Try again.');
-  }
-  btn.disabled = false; btn.textContent = 'Submit Mentor Feedback';
-}
-
-// ─── ADMIN FEEDBACK ────────────────────────────────────────────────────────
-async function submitAdminFeedback() {
-  const name     = document.getElementById('a-name').value.trim();
-  const email    = document.getElementById('a-email').value.trim();
-  const feedback = document.getElementById('a-feedback').value.trim();
-  const priority = document.querySelector('input[name="a-priority"]:checked')?.value || 'normal';
-
-  if (!name)                               return showErr('Please enter your name.');
-  if (!email)                              return showErr('Please enter your email.');
-  if (!feedback || feedback.length < 15)   return showErr('Please write at least 15 characters of feedback.');
-
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  const client = await _getClient();
-  if (!client) { showErr('Connection error. Please refresh.'); btn.disabled=false; btn.textContent='Submit Feedback'; return; }
-
-  const aspects = Object.fromEntries(Object.entries(aspectRatings).filter(([k]) => k.startsWith('a-')));
-
-  try {
-    const { error } = await client.from('inquiries').insert({
-      name, email, type: 'admin_feedback',
-      subject: `Admin Feedback: ${selectedAdminTopic}`,
-      message: `[Topic]: ${selectedAdminTopic}\n\n${feedback}\n\n[Aspect Ratings]: ${JSON.stringify(aspects)}`,
-      status: 'open', priority,
-      user_id: currentUser?.id || null,
-    });
-    if (error) throw error;
-    showSuccess('🏛', 'Feedback Submitted!', 'Your feedback about admin and management has been received. We\'ll review it promptly.');
-  } catch(err) {
-    showErr(err.message || 'Failed to submit. Try again.');
-  }
-  btn.disabled = false; btn.textContent = 'Submit Feedback';
-}
-
-// ─── WEBSITE FEEDBACK ──────────────────────────────────────────────────────
-async function submitWebFeedback() {
-  const name    = document.getElementById('w-name').value.trim();
-  const email   = document.getElementById('w-email').value.trim();
-  const subject = document.getElementById('w-subject').value.trim();
-  const message = document.getElementById('w-message').value.trim();
-  const device  = document.getElementById('w-device').value.trim();
-  const wsRat   = document.querySelector('input[name="ws-rating"]:checked')?.value || null;
-
-  if (!name)                              return showErr('Please enter your name.');
-  if (!email)                             return showErr('Please enter your email.');
-  if (!subject)                           return showErr('Please enter a subject.');
-  if (!message || message.length < 15)    return showErr('Please write at least 15 characters.');
-
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  const client = await _getClient();
-  if (!client) { showErr('Connection error. Please refresh.'); btn.disabled=false; btn.textContent='Submit Feedback'; return; }
-
-  try {
-    const { error } = await client.from('inquiries').insert({
-      name, email, type: 'website_feedback',
-      subject: `[${selectedWebTopic}] ${subject}`,
-      message: `[Category]: ${selectedWebTopic}\n[Device/Browser]: ${device || 'Not specified'}\n[Site Rating]: ${wsRat ? '★'.repeat(wsRat) : 'Not rated'}\n\n${message}`,
-      status: 'open', priority: selectedWebTopic === 'Bug Report' ? 'high' : 'normal',
-      user_id: currentUser?.id || null,
-    });
-    if (error) throw error;
-    showSuccess('🌐', 'Feedback Sent!', 'Thank you for helping us improve the platform! We review all website feedback carefully.');
-  } catch(err) {
-    showErr(err.message || 'Failed to submit. Try again.');
-  }
-  btn.disabled = false; btn.textContent = 'Submit Feedback';
-}
-
-// ─── SUCCESS / ERROR HELPERS ───────────────────────────────────────────────
 function showSuccess(icon, title, msg) {
   document.querySelectorAll('.fb-panel').forEach(p => { p.classList.remove('active','visible'); });
   document.querySelector('.fb-type-outer').style.display = 'none';
@@ -1053,19 +892,26 @@ async function init() {
 
   if (client) {
     const { data: { session } } = await client.auth.getSession();
+    const sel = document.getElementById('fb-course');
+
     if (session) {
       currentUser = session.user;
       const prof = await getCurrentProfile(client, session.user.id);
       const fullName = prof?.full_name || session.user.user_metadata?.full_name || '';
       const email = prof?.email || session.user.email || '';
+      const phone = prof?.phone || '';
 
-      ['m-name', 'a-name', 'w-name'].forEach(id => {
+      ['fb-name','m-name', 'a-name', 'w-name'].forEach(id => {
         const el = document.getElementById(id);
         if (el && fullName) el.value = fullName;
       });
-      ['m-email', 'a-email', 'w-email'].forEach(id => {
+      ['fb-email','m-email', 'a-email', 'w-email'].forEach(id => {
         const el = document.getElementById(id);
         if (el && email) el.value = email;
+      });
+      ['fb-phone','m-phone', 'a-phone', 'w-phone'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && phone) el.value = phone;
       });
 
       const { data } = await client.from('enrollments')
@@ -1074,34 +920,30 @@ async function init() {
         .in('enrollment_status', ['active', 'completed']);
 
       enrolledCourses = data || [];
-      const sel = document.getElementById('fb-course');
-      if (sel) {
-        sel.innerHTML = '<option value="">Choose a course you\'re enrolled in...</option>';
-        if (!enrolledCourses.length) {
-          sel.innerHTML = '<option value="">No active enrollments - enroll in a course first</option>';
-          sel.disabled = true;
-        } else {
-          sel.disabled = false;
-          enrolledCourses.forEach(e => {
-            const o = document.createElement('option');
-            o.value = e.course_id;
-            o.dataset.enrollId = e.id;
-            o.textContent = e.courses?.title || e.course_id;
-            sel.appendChild(o);
-          });
-          const courseParam = new URLSearchParams(window.location.search).get('course');
-          if (courseParam) sel.value = courseParam;
-        }
-      }
-    } else {
-      const coursePanel = document.getElementById('panel-course');
-      if (coursePanel) {
-        coursePanel.innerHTML = `<div class="fb-card" style="text-align:center;padding:3rem">
-          <span style="font-size:3rem">🔒</span>
-          <h2 style="margin:.75rem 0 .4rem">Login Required</h2>
-          <p style="color:var(--txt3)">You need to be enrolled and logged in to submit a course review.</p>
-          <a href="../index.html?login=1" class="btn-submit" style="display:inline-block;text-decoration:none;margin-top:1rem">Log In</a>
-        </div>`;
+    }
+
+    if (sel) {
+      sel.innerHTML = '<option value="">Choose a course to review…</option>';
+      const { data: courses, error: courseError } = await client
+        .from('courses')
+        .select('id, title')
+        .order('title', { ascending: true });
+
+      if (courseError || !courses?.length) {
+        sel.innerHTML = '<option value="">Unable to load courses</option>';
+        sel.disabled = true;
+      } else {
+        sel.disabled = false;
+        const enrolledMap = new Map((enrolledCourses || []).map(e => [e.course_id, e.id]));
+        courses.forEach(c => {
+          const o = document.createElement('option');
+          o.value = c.id;
+          o.textContent = c.title || c.id;
+          if (enrolledMap.has(c.id)) o.dataset.enrollId = enrolledMap.get(c.id);
+          sel.appendChild(o);
+        });
+        const courseParam = new URLSearchParams(window.location.search).get('course');
+        if (courseParam) sel.value = courseParam;
       }
     }
   }
@@ -1141,11 +983,19 @@ async function init() {
 
 async function submitCourseReview(btnEl) {
   const courseId = document.getElementById('fb-course').value;
+  const name = document.getElementById('fb-name').value.trim();
+  const email = document.getElementById('fb-email').value.trim();
+  const phone = document.getElementById('fb-phone').value.trim();
   const ratingEl = document.querySelector('.star-row input:checked');
   const title = document.getElementById('fb-title').value.trim();
   const comment = document.getElementById('fb-comment').value.trim();
   const recEl = document.querySelector('input[name="fb-rec"]:checked');
 
+  if (!name) return showErr('Please enter your name.');
+  if (!email) return showErr('Please enter your email.');
+  if (!validateEmail(email)) return showErr('Please enter a valid email address.');
+  if (!phone) return showErr('Please enter your phone number.');
+  if (!validatePhone(phone)) return showErr('Please enter a valid phone number, including country code if possible.');
   if (!courseId) return showErr('Please select a course.');
   if (!ratingEl) return showErr('Please give an overall star rating.');
   if (!title) return showErr('Please enter a review title.');
@@ -1157,37 +1007,65 @@ async function submitCourseReview(btnEl) {
   const sel = document.getElementById('fb-course');
   const enrollId = sel.options[sel.selectedIndex]?.dataset.enrollId;
   const client = await _getClient();
-  if (!client || !currentUser) {
-    showErr('Please log in to submit a review.');
+  if (!client) {
+    showErr('Connection error. Please refresh.');
     setButtonState(btn, 'Submitting...', 'Submit Review', false);
     return;
   }
 
-  try {
-    const { error } = await client.from('reviews').upsert({
-      user_id: currentUser.id,
-      course_id: courseId,
-      enrollment_id: enrollId || null,
-      rating: parseInt(ratingEl.value, 10),
-      title,
-      comment,
-      is_approved: false,
-    }, { onConflict: 'user_id,course_id' });
+  const reviewPayload = {
+    user_id: currentUser?.id || null,
+    course_id: courseId,
+    enrollment_id: enrollId || null,
+    rating: parseInt(ratingEl.value, 10),
+    title,
+    comment,
+    recommend: recEl?.value || null,
+    aspects: Object.keys(aspectRatings).length ? { ...aspectRatings } : null,
+    is_approved: false,
+  };
 
-    if (error) throw error;
+  try {
+    if (currentUser) {
+      const { error } = await client.from('reviews').upsert(reviewPayload, { onConflict: 'user_id,course_id' });
+      if (error) throw error;
+    } else {
+      // Anonymous review fallback may be stored as feedback when direct review insert is blocked.
+      const { success, error } = await window.supabaseConfig.submitFeedback({
+        user_id: null,
+        full_name: name,
+        email,
+        phone_number: phone,
+        feedback_type: 'course',
+        course_id: courseId,
+        course_title: sel.options[sel.selectedIndex]?.textContent || null,
+        rating: parseInt(ratingEl.value, 10),
+        subject: title,
+        message: comment,
+      });
+      if (!success) throw new Error(error || 'Failed to submit your review.');
+    }
 
     await saveFormMirror('course_review', courseId, {
+      full_name: name,
+      email,
+      phone_number: phone,
       course_title: sel.options[sel.selectedIndex]?.textContent || null,
       rating: parseInt(ratingEl.value, 10),
       title,
       comment,
       recommend: recEl?.value || null,
-      aspects: Object.keys(aspectRatings).length ? { ...aspectRatings } : null
+      aspects: Object.keys(aspectRatings).length ? { ...aspectRatings } : null,
     });
 
     showSuccess('⭐', 'Review Submitted!', 'Your review will be visible after admin approval. Thank you for helping the community!');
   } catch (err) {
-    showErr(err.message || 'Failed to submit. Try again.');
+    const message = parseDbError(err);
+    if (/permission denied/i.test(err?.message || '')) {
+      showErr('Permission denied while submitting review. Please sign in or contact support if you still see this after refresh.');
+    } else {
+      showErr(message);
+    }
   }
 
   setButtonState(btn, 'Submitting...', 'Submit Review', false);
@@ -1196,11 +1074,15 @@ async function submitCourseReview(btnEl) {
 async function submitMentorFeedback(btnEl) {
   const name = document.getElementById('m-name').value.trim();
   const email = document.getElementById('m-email').value.trim();
+  const phone = document.getElementById('m-phone').value.trim();
   const mentor = document.getElementById('m-mentor').value.trim();
   const improve = document.getElementById('m-improve').value.trim();
 
   if (!name) return showErr('Please enter your name.');
   if (!email) return showErr('Please enter your email.');
+  if (!validateEmail(email)) return showErr('Please enter a valid email address.');
+  if (!phone) return showErr('Please enter your phone number.');
+  if (!validatePhone(phone)) return showErr('Please enter a valid phone number.');
   if (!mentor) return showErr('Please enter your mentor\'s name.');
   if (!improve || improve.length < 10) return showErr('Please write at least 10 characters of feedback.');
 
@@ -1221,25 +1103,25 @@ async function submitMentorFeedback(btnEl) {
   const mentorUserId = await resolveMentorUserId(client, mentor);
 
   try {
-    const { error } = await client.from('feedback').insert({
+    const result = await window.supabaseConfig.submitFeedback({
       user_id: currentUser?.id || null,
       full_name: name,
       email,
-      phone_number: null,
+      phone_number: phone,
       feedback_type: 'mentor',
       course_title: course || null,
       mentor_user_id: mentorUserId,
       rating,
       subject: `Mentor Feedback: ${mentor}${course ? ' - ' + course : ''}`,
       message: `[Mentor]: ${mentor}\n[Course/Batch]: ${course || 'Not specified'}\n\n[Positives]:\n${positive || 'N/A'}\n\n[Improvements]:\n${improve}\n\n[Aspect Ratings]: ${JSON.stringify(aspects)}`,
-      status: 'open'
     });
 
-    if (error) throw error;
+    if (!result.success) throw new Error(result.error || 'Failed to submit mentor feedback.');
 
     await saveFormMirror('mentor_feedback', null, {
       name,
       email,
+      phone,
       mentor_name: mentor,
       course_or_batch: course || null,
       positive_feedback: positive || null,
@@ -1250,7 +1132,7 @@ async function submitMentorFeedback(btnEl) {
 
     showSuccess('👨‍🏫', 'Feedback Received!', 'Your mentor feedback is confidential and has been shared with management. Thank you!');
   } catch (err) {
-    showErr(err.message || 'Failed to submit. Try again.');
+    showErr(parseDbError(err));
   }
 
   setButtonState(btn, 'Submitting...', 'Submit Mentor Feedback', false);
@@ -1259,11 +1141,15 @@ async function submitMentorFeedback(btnEl) {
 async function submitAdminFeedback(btnEl) {
   const name = document.getElementById('a-name').value.trim();
   const email = document.getElementById('a-email').value.trim();
+  const phone = document.getElementById('a-phone').value.trim();
   const feedback = document.getElementById('a-feedback').value.trim();
   const priority = document.querySelector('input[name="a-priority"]:checked')?.value || 'normal';
 
   if (!name) return showErr('Please enter your name.');
   if (!email) return showErr('Please enter your email.');
+  if (!validateEmail(email)) return showErr('Please enter a valid email address.');
+  if (!phone) return showErr('Please enter your phone number.');
+  if (!validatePhone(phone)) return showErr('Please enter a valid phone number.');
   if (!feedback || feedback.length < 15) return showErr('Please write at least 15 characters of feedback.');
 
   const btn = getActionButton(btnEl, '#panel-admin .btn-submit');
@@ -1280,23 +1166,23 @@ async function submitAdminFeedback(btnEl) {
   const rating = averageRating(Object.values(aspects));
 
   try {
-    const { error } = await client.from('feedback').insert({
+    const result = await window.supabaseConfig.submitFeedback({
       user_id: currentUser?.id || null,
       full_name: name,
       email,
-      phone_number: null,
+      phone_number: phone,
       feedback_type: 'general',
       rating,
       subject: `Admin Feedback: ${selectedAdminTopic}`,
       message: `[Topic]: ${selectedAdminTopic}\n[Priority]: ${priority}\n\n${feedback}\n\n[Aspect Ratings]: ${JSON.stringify(aspects)}`,
-      status: 'open'
     });
 
-    if (error) throw error;
+    if (!result.success) throw new Error(result.error || 'Failed to submit admin feedback.');
 
     await saveFormMirror('admin_feedback', null, {
       name,
       email,
+      phone,
       topic: selectedAdminTopic,
       priority,
       feedback,
@@ -1306,7 +1192,7 @@ async function submitAdminFeedback(btnEl) {
 
     showSuccess('🏛', 'Feedback Submitted!', 'Your feedback about admin and management has been received. We\'ll review it promptly.');
   } catch (err) {
-    showErr(err.message || 'Failed to submit. Try again.');
+    showErr(parseDbError(err));
   }
 
   setButtonState(btn, 'Submitting...', 'Submit Feedback', false);
@@ -1315,6 +1201,7 @@ async function submitAdminFeedback(btnEl) {
 async function submitWebFeedback(btnEl) {
   const name = document.getElementById('w-name').value.trim();
   const email = document.getElementById('w-email').value.trim();
+  const phone = document.getElementById('w-phone').value.trim();
   const subject = document.getElementById('w-subject').value.trim();
   const message = document.getElementById('w-message').value.trim();
   const device = document.getElementById('w-device').value.trim();
@@ -1322,6 +1209,9 @@ async function submitWebFeedback(btnEl) {
 
   if (!name) return showErr('Please enter your name.');
   if (!email) return showErr('Please enter your email.');
+  if (!validateEmail(email)) return showErr('Please enter a valid email address.');
+  if (!phone) return showErr('Please enter your phone number.');
+  if (!validatePhone(phone)) return showErr('Please enter a valid phone number.');
   if (!subject) return showErr('Please enter a subject.');
   if (!message || message.length < 15) return showErr('Please write at least 15 characters.');
 
@@ -1336,23 +1226,23 @@ async function submitWebFeedback(btnEl) {
   }
 
   try {
-    const { error } = await client.from('feedback').insert({
+    const result = await window.supabaseConfig.submitFeedback({
       user_id: currentUser?.id || null,
       full_name: name,
       email,
-      phone_number: null,
+      phone_number: phone,
       feedback_type: 'website',
       rating: wsRat ? parseInt(wsRat, 10) : null,
       subject: `[${selectedWebTopic}] ${subject}`,
       message: `[Category]: ${selectedWebTopic}\n[Device/Browser]: ${device || 'Not specified'}\n[Site Rating]: ${wsRat ? '★'.repeat(wsRat) : 'Not rated'}\n\n${message}`,
-      status: 'open'
     });
 
-    if (error) throw error;
+    if (!result.success) throw new Error(result.error || 'Failed to submit website feedback.');
 
     await saveFormMirror('website_feedback', null, {
       name,
       email,
+      phone,
       category: selectedWebTopic,
       subject,
       message,
@@ -1362,7 +1252,7 @@ async function submitWebFeedback(btnEl) {
 
     showSuccess('🌐', 'Feedback Sent!', 'Thank you for helping us improve the platform! We review all website feedback carefully.');
   } catch (err) {
-    showErr(err.message || 'Failed to submit. Try again.');
+    showErr(parseDbError(err));
   }
 
   setButtonState(btn, 'Submitting...', 'Submit Feedback', false);

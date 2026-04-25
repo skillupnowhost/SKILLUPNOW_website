@@ -125,6 +125,40 @@
       color: #0d1117;
     }
 
+    .auth-role-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 70px;
+      height: 70px;
+      border-radius: 22px;
+      color: #fff;
+      font-size: 1.6rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: auth-icon-float 4.6s ease-in-out infinite;
+    }
+    .auth-role-icon.student {
+      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    }
+    .auth-role-icon.mentor {
+      background: linear-gradient(135deg, #10b981 0%, #0f766e 100%);
+    }
+    .auth-role-icon span {
+      transform: translateY(1px);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-role-button:hover .auth-role-icon {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+    }
+    @keyframes auth-icon-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
     .modal-box .form-group:nth-child(n+2) {
       animation-delay: 0.1s;
     }
@@ -716,7 +750,37 @@
   </div>
 
   <!-- ── Dynamic Featured Courses Strip ── -->
-  <section style="padding: 3.5rem 5vw; border-top: 1px solid var(--border);">
+  <section style="padding: 3.5rem 5vw; border-top: 1px solid var(--border);" id="home-courses-section">
+    <style>
+      /* ── Per-category tile accent animations ── */
+      .hc-card[data-cat="devops"] .hc-thumb::before { background:radial-gradient(circle,rgba(251,146,60,.35) 0%,transparent 70%); }
+      .hc-card[data-cat="cloud"]  .hc-thumb::before { background:radial-gradient(circle,rgba(56,189,248,.35) 0%,transparent 70%); }
+      .hc-card[data-cat="ai"]     .hc-thumb::before { background:radial-gradient(circle,rgba(192,132,252,.4) 0%,transparent 70%); }
+      .hc-card[data-cat="cyber"]  .hc-thumb::before { background:radial-gradient(circle,rgba(248,113,113,.35) 0%,transparent 70%); }
+      .hc-card[data-cat="data"]   .hc-thumb::before { background:radial-gradient(circle,rgba(52,211,153,.35) 0%,transparent 70%); }
+      .hc-card[data-cat="it"]     .hc-thumb::before { background:radial-gradient(circle,rgba(139,92,246,.35) 0%,transparent 70%); }
+      /* Staggered float timing by position */
+      .hc-card:nth-child(1) .hc-thumb-icon { animation-duration:4.2s; animation-delay:0s; }
+      .hc-card:nth-child(2) .hc-thumb-icon { animation-duration:5.1s; animation-delay:-.8s; }
+      .hc-card:nth-child(3) .hc-thumb-icon { animation-duration:4.6s; animation-delay:-1.4s; }
+      .hc-card:nth-child(4) .hc-thumb-icon { animation-duration:5.4s; animation-delay:-2.1s; }
+      .hc-card:nth-child(5) .hc-thumb-icon { animation-duration:4.8s; animation-delay:-.5s; }
+      .hc-card:nth-child(6) .hc-thumb-icon { animation-duration:5.8s; animation-delay:-3s; }
+      /* Glow pulse timing variation */
+      .hc-card:nth-child(odd)  .hc-thumb::before { animation-duration:3.2s; }
+      .hc-card:nth-child(even) .hc-thumb::before { animation-duration:4.0s; animation-delay:-1.5s; }
+      /* Browse-all section scroll reveal */
+      .browse-all-section { opacity:0; transform:translateY(32px); transition:opacity .7s ease, transform .7s ease; }
+      .browse-all-section.visible { opacity:1; transform:translateY(0); }
+      /* Animated floating stat tiles in browse section */
+      @keyframes browseStatFloat {
+        0%,100% { transform:translateY(0); }
+        50% { transform:translateY(-6px); }
+      }
+      .browse-stat-tile { animation:browseStatFloat 3.5s ease-in-out infinite; }
+      .browse-stat-tile:nth-child(2) { animation-delay:-1.2s; }
+      .browse-stat-tile:nth-child(3) { animation-delay:-2.4s; }
+    </style>
     <div style="max-width: 1400px; margin: 0 auto;">
       <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
         <div>
@@ -729,7 +793,7 @@
         </a>
       </div>
 
-      <!-- Dynamic course pills grid from DB -->
+      <!-- Dynamic course tiles grid from DB -->
       <div id="home-courses-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">
         <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--txt4);font-size:.88rem;">
           <div style="width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--v1);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto .8rem;" id="hc-spin"></div>
@@ -739,6 +803,60 @@
       <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
     </div>
   </section>
+
+  <!-- ── Browse All Courses — Animated Section ── -->
+  <section class="browse-all-section" style="padding: 4rem 5vw; background: radial-gradient(circle at top left, rgba(124,92,252,.12), transparent 35%), linear-gradient(180deg, var(--bg2,rgba(248,246,255,.98)), var(--bg,rgba(255,255,255,.94))); border-top: 1px solid rgba(124,92,252,.08); border-bottom: 1px solid rgba(124,92,252,.08);">
+    <div style="max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: minmax(0,1.25fr) minmax(260px,0.75fr); gap: 2.5rem; align-items: center;">
+      <div>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:999px;font-size:.78rem;font-weight:700;color:#2563eb;letter-spacing:.09em;text-transform:uppercase;">Browse with confidence</span>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;color:var(--txt);margin:.9rem 0 1rem;line-height:1.05;">Browse All Courses</h2>
+        <p style="font-size:1rem;color:var(--txt3);max-width:600px;line-height:1.8;margin-bottom:1.8rem;">Discover every live programme, recorded session, and EMI-friendly plan from SkillUpNow. Fast-track your next skill with career-focused training and expert mentorship.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:.9rem;align-items:center;">
+          <a href="pages/courses" class="btn-primary" style="padding:1rem 2rem;font-size:1rem;display:inline-flex;align-items:center;gap:.7rem;text-decoration:none;">
+            View Course Catalogue
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="pages/recording-videos" class="btn-outline" style="padding:1rem 1.6rem;font-size:.92rem;display:inline-flex;align-items:center;gap:.55rem;text-decoration:none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Recorded Sessions
+          </a>
+        </div>
+      </div>
+      <!-- Animated stat tiles -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;">
+        <div class="browse-stat-tile" style="padding:1.4rem 1.2rem;border-radius:22px;background:linear-gradient(135deg,rgba(124,92,252,.18),rgba(61,107,255,.12));border:1px solid rgba(124,92,252,.22);text-align:center;box-shadow:0 12px 32px rgba(124,92,252,.12);">
+          <div style="font-size:2rem;margin-bottom:.35rem;">📚</div>
+          <div style="font-size:1.35rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">10+</div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin-top:.2rem;">Courses</div>
+        </div>
+        <div class="browse-stat-tile" style="padding:1.4rem 1.2rem;border-radius:22px;background:linear-gradient(135deg,rgba(0,207,238,.15),rgba(14,165,233,.1));border:1px solid rgba(0,207,238,.2);text-align:center;box-shadow:0 12px 32px rgba(0,207,238,.1);">
+          <div style="font-size:2rem;margin-bottom:.35rem;">🎥</div>
+          <div style="font-size:1.35rem;font-weight:900;background:linear-gradient(135deg,#00cfee,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Live</div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin-top:.2rem;">Sessions</div>
+        </div>
+        <div class="browse-stat-tile" style="padding:1.4rem 1.2rem;border-radius:22px;background:linear-gradient(135deg,rgba(74,222,128,.14),rgba(16,185,129,.09));border:1px solid rgba(74,222,128,.2);text-align:center;box-shadow:0 12px 32px rgba(74,222,128,.08);">
+          <div style="font-size:2rem;margin-bottom:.35rem;">💳</div>
+          <div style="font-size:1.35rem;font-weight:900;background:linear-gradient(135deg,#4ade80,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">EMI</div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin-top:.2rem;">₹999/mo</div>
+        </div>
+        <div class="browse-stat-tile" style="padding:1.4rem 1.2rem;border-radius:22px;background:linear-gradient(135deg,rgba(251,191,36,.14),rgba(245,158,11,.09));border:1px solid rgba(251,191,36,.2);text-align:center;box-shadow:0 12px 32px rgba(251,191,36,.08);">
+          <div style="font-size:2rem;margin-bottom:.35rem;">⭐</div>
+          <div style="font-size:1.35rem;font-weight:900;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">4.9★</div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin-top:.2rem;">Rating</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+  (function() {
+    const el = document.querySelector('.browse-all-section');
+    if (!el) return;
+    const obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { if (e.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } });
+    }, { threshold: 0.12 });
+    obs.observe(el);
+  })();
+  </script>
 
 
   <!-- ── EXCITING OFFERS SECTION (hidden — shown only on courses page) ── -->
@@ -1000,61 +1118,67 @@
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
-          <!-- Timeline Item 1 -->
+          <!-- Timeline Item 1 — ACTUAL EVENT -->
           <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;" onmouseover="this.style.transform='translateY(-5px)';this.style.borderColor='var(--v1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--v1), var(--v2));"></div>
+            <!-- "Achieved" badge -->
+            <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#4ade80;letter-spacing:.05em;">✓ Done</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #7c5cfc, #3d6bff); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">🚀</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #7c5cfc, #3d6bff); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow:0 6px 18px rgba(124,92,252,.4);">🚀</div>
               <div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q1</div>
-                <div style="font-size: 0.85rem; color: var(--txt3);">The Beginning</div>
+                <div style="font-size: 0.85rem; color: var(--txt3);">The Journey Begins</div>
               </div>
             </div>
-            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">SkillUpNow is founded with a clear mission — to help professionals build the communication, leadership, and soft skills that no algorithm can replace.</p>
+            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">SkillUpNow is founded with a clear vision — to help professionals build the communication, leadership, and soft skills that no algorithm can replace. This is where it all started.</p>
           </div>
 
-          <!-- Timeline Item 2 -->
+          <!-- Timeline Item 2 — ACTUAL EVENT -->
           <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;" onmouseover="this.style.transform='translateY(-5px)';this.style.borderColor='#00cfee'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #00cfee, #0090b8);"></div>
+            <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#4ade80;letter-spacing:.05em;">✓ Done</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #00cfee, #0090b8); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">📚</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #00cfee, #0090b8); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow:0 6px 18px rgba(0,207,238,.35);">👥</div>
               <div>
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q2</div>
-                <div style="font-size: 0.85rem; color: var(--txt3);">First Cohort</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q1</div>
+                <div style="font-size: 0.85rem; color: var(--txt3);">First Cohort Secured</div>
               </div>
             </div>
-            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">Our first batch of learners enrolls. Flagship programmes in Communication Mastery and Leadership Excellence launch to an enthusiastic reception.</p>
+            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">We secured our very first cohort of learners — motivated professionals who believed in our mission early. Their trust became the bedrock of everything we build.</p>
           </div>
 
-          <!-- Timeline Item 3 -->
+          <!-- Timeline Item 3 — ACTUAL EVENT -->
           <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;" onmouseover="this.style.transform='translateY(-5px)';this.style.borderColor='#4ade80'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #4ade80, #16a34a);"></div>
+            <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#4ade80;letter-spacing:.05em;">✓ Live</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4ade80, #16a34a); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">🖥️</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4ade80, #16a34a); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow:0 6px 18px rgba(74,222,128,.35);">🌐</div>
               <div>
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q3</div>
-                <div style="font-size: 0.85rem; color: var(--txt3);">Platform Goes Live</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q2</div>
+                <div style="font-size: 0.85rem; color: var(--txt3);">Live Website Launched</div>
               </div>
             </div>
-            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">Full digital platform launched — live sessions, recorded modules, 1-on-1 mentoring, and flexible EMI plans all available in one place.</p>
+            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">The live website design goes live — with courses, recorded sessions, EMI options, and enquiry in one seamless platform. This is the foundation we are scaling from.</p>
           </div>
 
-          <!-- Timeline Item 4 -->
-          <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;" onmouseover="this.style.transform='translateY(-5px)';this.style.borderColor='#f59e0b'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
+          <!-- Timeline Item 4 — UPCOMING -->
+          <div style="background: var(--panel); border: 1.5px dashed rgba(245,158,11,.3); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s; opacity:.82;" onmouseover="this.style.transform='translateY(-5px)';this.style.opacity='1'" onmouseout="this.style.transform='';this.style.opacity='.82'">
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #f59e0b, #d97706);"></div>
+            <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#f59e0b;letter-spacing:.05em;">Upcoming</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
               <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">🌱</div>
               <div>
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q4</div>
-                <div style="font-size: 0.85rem; color: var(--txt3);">Growing Strong</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q3 &amp; Q4</div>
+                <div style="font-size: 0.85rem; color: var(--txt3);">Growing the Community</div>
               </div>
             </div>
-            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">Course catalog expands, first corporate tie-ups established, and the SkillUpNow community grows with professionals from across India.</p>
+            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">Course catalog expands with new programmes, first corporate partnerships take shape, and the SkillUpNow community grows with professionals from across India.</p>
           </div>
 
-          <!-- Timeline Item 5 -->
-          <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;" onmouseover="this.style.transform='translateY(-5px)';this.style.borderColor='#ec4899'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
+          <!-- Timeline Item 5 — UPCOMING -->
+          <div style="background: var(--panel); border: 1.5px dashed rgba(236,72,153,.25); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s; opacity:.7;" onmouseover="this.style.transform='translateY(-5px)';this.style.opacity='1'" onmouseout="this.style.transform='';this.style.opacity='.7'">
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #ec4899, #be185d);"></div>
+            <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.22);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#ec4899;letter-spacing:.05em;">Planned</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
               <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #ec4899, #be185d); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">📈</div>
               <div>
@@ -1062,7 +1186,7 @@
                 <div style="font-size: 0.85rem; color: var(--txt3);">Scaling Up</div>
               </div>
             </div>
-            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">Planned expansion into new cities and sectors, deeper corporate partnerships, AI-powered personalised learning paths for every student.</p>
+            <p style="font-size: 0.9rem; color: var(--txt3); line-height: 1.6; margin: 0;">Planned expansion into new cities and sectors, deeper corporate partnerships, and AI-powered personalised learning paths for every student.</p>
           </div>
 
           <!-- Timeline Item 6 -->
@@ -1209,13 +1333,13 @@
         <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.85rem; color: var(--txt); margin-bottom: 0.35rem; letter-spacing: -0.01em;">Welcome Back</h3>
         <p style="font-size: 0.84rem; color: var(--txt3); margin-bottom: 1.9rem; font-weight: 400;">Choose how you'd like to sign in to continue learning</p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-          <button onclick="switchModalTab('login')" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 1rem;background:rgba(124,92,252,0.07);border:1.5px solid rgba(124,92,252,0.22);border-radius:14px;color:var(--txt);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.22s;" onmouseover="this.style.background='rgba(124,92,252,0.18)';this.style.borderColor='rgba(124,92,252,0.6)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(124,92,252,0.07)';this.style.borderColor='rgba(124,92,252,0.22)';this.style.transform=''">
-            <span style="font-size:2rem;">👤</span>
+          <button onclick="switchModalTab('login')" class="auth-role-button" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 1rem;background:rgba(124,92,252,0.07);border:1.5px solid rgba(124,92,252,0.22);border-radius:14px;color:var(--txt);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.22s;" onmouseover="this.style.background='rgba(124,92,252,0.18)';this.style.borderColor='rgba(124,92,252,0.6)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(124,92,252,0.07)';this.style.borderColor='rgba(124,92,252,0.22)';this.style.transform=''">
+            <span class="auth-role-icon student" aria-hidden="true"><span>🎓</span></span>
             <span>User Login</span>
             <span style="font-size:0.72rem;font-weight:400;color:var(--txt3);">For students &amp; learners</span>
           </button>
-          <button onclick="window.location.href='pages/admin-login'" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 1rem;background:rgba(61,107,255,0.07);border:1.5px solid rgba(61,107,255,0.22);border-radius:14px;color:var(--txt);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.22s;" onmouseover="this.style.background='rgba(61,107,255,0.18)';this.style.borderColor='rgba(61,107,255,0.6)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(61,107,255,0.07)';this.style.borderColor='rgba(61,107,255,0.22)';this.style.transform=''">
-            <span style="font-size:2rem;">🎓</span>
+          <button onclick="window.location.href='pages/admin-login'" class="auth-role-button" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 1rem;background:rgba(61,107,255,0.07);border:1.5px solid rgba(61,107,255,0.22);border-radius:14px;color:var(--txt);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.22s;" onmouseover="this.style.background='rgba(61,107,255,0.18)';this.style.borderColor='rgba(61,107,255,0.6)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(61,107,255,0.07)';this.style.borderColor='rgba(61,107,255,0.22)';this.style.transform=''">
+            <span class="auth-role-icon mentor" aria-hidden="true"><span>🧑‍🏫</span></span>
             <span>Mentor Login</span>
             <span style="font-size:0.72rem;font-weight:400;color:var(--txt3);">For instructors &amp; admins</span>
           </button>
@@ -1245,6 +1369,11 @@
       <div id="lf">
         <button onclick="switchModalTab('role-select')" class="back-btn" style="margin-bottom:1.5rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Back</button>
         <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.9rem; color: var(--txt); margin-bottom: 0.4rem; letter-spacing: -0.01em;">Welcome Back</h3>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <img src="icon/student.png" alt="Student icon" style="width:34px;height:34px;object-fit:contain;">
+          <img src="icon/mentor.png" alt="Mentor icon" style="width:34px;height:34px;object-fit:contain;">
+          <span style="color:var(--txt4);font-size:0.92rem;">Student and mentor access is available here.</span>
+        </div>
         <p class="msub" style="font-size: 0.85rem; color: var(--txt3); margin-bottom: 2rem; font-weight: 400;">Sign in to access your learning dashboard</p>
 
         <div class="form-group">
@@ -1272,6 +1401,11 @@
 
       <div id="rf" style="display: none;">
         <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.9rem; color: var(--txt); margin-bottom: 0.4rem; letter-spacing: -0.01em;">Join SkillUpNow</h3>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <img src="icon/student.png" alt="Student icon" style="width:34px;height:34px;object-fit:contain;">
+          <img src="icon/mentor.png" alt="Mentor icon" style="width:34px;height:34px;object-fit:contain;">
+          <span style="color:var(--txt4);font-size:0.92rem;">Sign up for student or mentor access.</span>
+        </div>
         <p class="msub" style="font-size: 0.85rem; color: var(--txt3); margin-bottom: 1.5rem; font-weight: 400;">Create your account to start learning</p>
 
         <div class="form-group">
@@ -1356,11 +1490,107 @@
     </div>
   </div>
 
+  <!-- ── Student Reviews ── -->
+  <section class="ht-section">
+    <div class="ht-inner">
+      <div class="ht-head">
+        <div class="ht-kicker">⭐ Student Reviews</div>
+        <h2 class="ht-title">Real learner feedback<br>from our courses.</h2>
+        <p class="ht-sub">Verified reviews from students who have completed our programmes.</p>
+        <a href="pages/feedback.html" class="ht-cta">Share your review →</a>
+      </div>
+      <div id="reviews-no-data" class="ht-empty">
+        <div class="ht-empty-icon">💬</div>
+        <p>No reviews yet — be the first to share your experience.</p>
+        <a href="pages/feedback.html" class="ht-cta" style="display:inline-block;margin-top:.75rem;">Write a Review →</a>
+      </div>
+      <div id="reviews-track" class="ht-grid"></div>
+    </div>
+  </section>
+
   <!-- Footer — rebuilt by profile-nav.js -->
   <footer></footer>
 
-  <!-- ── Home Courses: Card + Modal Styles ── -->
+  <!-- ── Student Reviews + Testimonial Styles ── -->
   <style>
+    /* ─── Reviews section ─── */
+    .ht-section {
+      padding: 5rem 5vw 6rem;
+      position: relative;
+      border-top: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .ht-section::before {
+      content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(124,92,252,.07) 0%, transparent 75%);
+    }
+    .ht-inner { max-width:1200px; margin:0 auto; position:relative; z-index:1; }
+    .ht-head { text-align:center; margin-bottom:3rem; }
+    .ht-kicker {
+      display:inline-block; font-size:.74rem; font-weight:800; letter-spacing:.16em;
+      text-transform:uppercase; color:var(--v1);
+      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
+      border-radius:999px; padding:.28rem .9rem; margin-bottom:1rem;
+    }
+    .ht-title {
+      font-size:2.2rem; font-weight:900; line-height:1.15;
+      color:var(--txt); margin:0 0 .75rem; letter-spacing:-.02em;
+    }
+    .ht-sub { font-size:.9rem; color:var(--txt3); max-width:440px; margin:0 auto .9rem; line-height:1.65; }
+    .ht-cta {
+      color:var(--v1); font-weight:700; font-size:.88rem;
+      text-decoration:none; transition:opacity .2s;
+    }
+    .ht-cta:hover { opacity:.7; }
+    .ht-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(280px,1fr));
+      gap:1.4rem;
+    }
+    .ht-empty {
+      text-align:center; padding:2.5rem 1.5rem;
+      border:1.5px dashed rgba(124,92,252,.25); border-radius:20px;
+      color:var(--txt4); font-size:.9rem; line-height:1.7;
+    }
+    .ht-empty-icon { font-size:2.2rem; margin-bottom:.5rem; }
+
+    /* ─── Testimonial card enhanced ─── */
+    @keyframes htCardIn {
+      from { opacity:0; transform:translateY(22px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes htStarShimmer {
+      0%,100% { opacity:.85; }
+      50%      { opacity:1; filter:drop-shadow(0 0 4px #fbbf24); }
+    }
+    .testimonial-card {
+      animation: htCardIn .45s both;
+    }
+    .testimonial-card .tc-stars {
+      display:inline-flex; gap:.1rem; font-size:.82rem;
+      animation: htStarShimmer 2.4s ease-in-out infinite;
+    }
+    .tc-quote {
+      font-size:.88rem; color:var(--txt3); line-height:1.78; margin:0;
+      position:relative; flex:1;
+      display:-webkit-box; -webkit-line-clamp:7; -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .tc-meta { display:flex; align-items:center; gap:.75rem; margin-bottom:1.1rem; }
+    .tc-avatar {
+      width:44px; height:44px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; font-weight:800; color:#fff; flex-shrink:0;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);
+    }
+    .tc-name { font-weight:700; font-size:.88rem; color:var(--txt); }
+    .tc-course { font-size:.72rem; color:var(--txt4); }
+
+    @media(max-width:640px) {
+      .ht-title { font-size:1.6rem; }
+      .ht-grid  { grid-template-columns:1fr; }
+    }
+
     /* ── 3D animations for home course cards ── */
     @keyframes hcIcon3dFloat {
       0%,100% { transform:translateZ(16px) translateY(0) rotateX(0deg) rotateY(0deg); filter:drop-shadow(0 6px 16px rgba(0,0,0,.4)); }
@@ -1374,6 +1604,16 @@
     @keyframes hcShimmer {
       0%   { background-position:-200% center; }
       100% { background-position:200% center; }
+    }
+    @keyframes review-icon-float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .home-testimonials img[alt$="icon"] {
+      border-radius: 20px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.08);
+      background: rgba(255,255,255,.9);
+      padding: 0.55rem;
     }
     .hc-card {
       background:var(--panel); border:1.5px solid var(--border);
@@ -2137,20 +2377,20 @@
       const rating = Math.min(5, Math.max(1, parseInt(f.rating) || 5));
       const gradient = _avatarGradients[idx % _avatarGradients.length];
       const courseName = f.courses?.name || '';
-      const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      const filledStars = '★'.repeat(rating);
+      const emptyStars  = '☆'.repeat(5 - rating);
       const subtitle = [courseName, city].filter(Boolean).join(' · ');
-      return `<div class="testimonial-card">
-        <div style="position:relative;z-index:1;">
-          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.2rem;">
-            <div style="width:46px;height:46px;border-radius:50%;background:${gradient};display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:#fff;flex-shrink:0;">${initials}</div>
-            <div>
-              <div style="font-weight:700;font-size:.9rem;color:var(--txt);">${name}</div>
-              <div style="font-size:.72rem;color:var(--txt4);">${subtitle}</div>
-            </div>
-            <div style="margin-left:auto;color:#fbbf24;font-size:.8rem;">${stars}</div>
+      const delay = (idx * 0.07).toFixed(2);
+      return `<div class="testimonial-card" style="animation-delay:${delay}s">
+        <div class="tc-meta">
+          <div class="tc-avatar" style="background:${gradient}">${initials}</div>
+          <div>
+            <div class="tc-name">${name}</div>
+            <div class="tc-course">${subtitle}</div>
           </div>
-          <p style="font-size:.88rem;color:var(--txt3);line-height:1.75;margin:0;">"${f.comment || ''}"</p>
+          <span class="tc-stars" style="margin-left:auto;color:#fbbf24;">${filledStars}<span style="opacity:.35;">${emptyStars}</span></span>
         </div>
+        <p class="tc-quote">"${f.comment || ''}"</p>
       </div>`;
     }
 
@@ -2160,21 +2400,35 @@
       try {
         const client = window.supabaseConfig.getClient();
         if (!client) return;
-        const { data, error } = await client
-          .from('reviews')
-          .select('comment, rating, user_profiles(full_name, city), courses(name)')
-          .eq('is_approved', true)
-          .order('created_at', { ascending: false })
-          .limit(12);
-        if (error || !data || data.length === 0) {
-          // Show "no reviews" placeholder — already in HTML
-          return;
-        }
-        // Hide the "no reviews" placeholder and show real reviews
+
+        const [{ data: reviewsData }, { data: feedbackData }] = await Promise.all([
+          client.from('reviews')
+            .select('comment, rating, user_profiles(full_name, city), courses(name)')
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false })
+            .limit(12),
+          client.from('feedback')
+            .select('message, rating, full_name, course_title')
+            .not('rating', 'is', null)
+            .in('status', ['reviewed', 'resolved'])
+            .order('created_at', { ascending: false })
+            .limit(6)
+        ]);
+
+        const allData = [
+          ...(reviewsData || []),
+          ...(feedbackData || []).map(f => ({
+            comment: f.message,
+            rating: f.rating,
+            user_profiles: { full_name: f.full_name || 'Student', city: '' },
+            courses: { name: f.course_title || '' }
+          }))
+        ];
+
+        if (!allData.length) return;
         const noData = document.getElementById('reviews-no-data');
         if (noData) noData.style.display = 'none';
-        const cards = data.map((f, i) => _buildReviewCard(f, i)).join('');
-        track.innerHTML = cards;
+        track.innerHTML = allData.map((f, i) => _buildReviewCard(f, i)).join('');
       } catch(e) {
         // Leave "no reviews yet" placeholder visible
       }
@@ -2203,6 +2457,7 @@
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', () => clearFieldError(id));
       });
+      if (typeof loadTestimonials === 'function') loadTestimonials();
     });
 
     // ==================== HOME COURSES: STATE + THUMB FUNCTION ====================
@@ -2572,11 +2827,22 @@
         grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(260px,1fr))';
         grid.style.gap = '1.25rem';
 
+        const _catKey = (catName, courseTitle) => {
+          const s = ((catName||'')+(courseTitle||'')).toLowerCase();
+          if (/devops|docker|k8s|kubernetes|cicd/.test(s)) return 'devops';
+          if (/cloud|aws|azure|gcp/.test(s)) return 'cloud';
+          if (/ai|machine\s*learn|generative|llm/.test(s)) return 'ai';
+          if (/cyber|security/.test(s)) return 'cyber';
+          if (/data|analytics|sql/.test(s)) return 'data';
+          if (/software|web|frontend|react|python/.test(s)) return 'it';
+          return 'default';
+        };
         const cards = courses.map((c, i) => {
           const thumb = hcCourseThumbFn(c._catName, c.title);
           const durationMo = c.duration_days ? Math.round(c.duration_days / 30) : null;
           const enrolled = !!c._enrolled;
-          return `<div class="hc-card" style="animation-delay:${i * .07}s" onclick="hcOpenCourseDetail('${c.id}')">
+          const catKey = _catKey(c._catName, c.title);
+          return `<div class="hc-card" data-cat="${catKey}" style="animation-delay:${i * .07}s" onclick="hcOpenCourseDetail('${c.id}')">
             <div class="hc-thumb" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
               ${c.thumbnail_url
                 ? `<img src="${c.thumbnail_url}" alt="${c.title}" loading="lazy">`

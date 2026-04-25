@@ -867,7 +867,7 @@ CREATE TABLE IF NOT EXISTS public.feedback (
 
 CREATE TABLE IF NOT EXISTS public.reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
   enrollment_id UUID REFERENCES public.enrollments(id) ON DELETE SET NULL,
   rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
@@ -2370,7 +2370,7 @@ CREATE POLICY feedback_update_policy ON public.feedback FOR UPDATE USING (public
 DROP POLICY IF EXISTS reviews_read_policy ON public.reviews;
 CREATE POLICY reviews_read_policy ON public.reviews FOR SELECT USING (is_approved = TRUE OR user_id = auth.uid() OR public.is_admin());
 DROP POLICY IF EXISTS reviews_insert_policy ON public.reviews;
-CREATE POLICY reviews_insert_policy ON public.reviews FOR INSERT WITH CHECK (user_id = auth.uid() OR public.is_admin());
+CREATE POLICY reviews_insert_policy ON public.reviews FOR INSERT WITH CHECK (user_id = auth.uid() OR user_id IS NULL OR public.is_admin());
 DROP POLICY IF EXISTS reviews_update_policy ON public.reviews;
 CREATE POLICY reviews_update_policy ON public.reviews FOR UPDATE USING (user_id = auth.uid() OR public.is_admin()) WITH CHECK (user_id = auth.uid() OR public.is_admin());
 

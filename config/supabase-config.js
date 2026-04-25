@@ -438,7 +438,7 @@ class SupabaseConfig {
           rating: feedbackData.rating,
           subject: feedbackData.subject,
           message: feedbackData.message,
-          status: 'received'
+          status: 'open'
         }]);
 
       if (error) throw error;

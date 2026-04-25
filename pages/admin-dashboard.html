@@ -414,6 +414,10 @@
         <span class="nav-icon">💬</span> Inquiries
         <span class="badge" id="inquiry-badge">0</span>
       </div>
+      <div class="nav-item" data-section="feedback">
+        <span class="nav-icon">🗂</span> Feedback
+        <span class="badge" id="feedback-badge">0</span>
+      </div>
       <div class="nav-item" data-section="interests">
         <span class="nav-icon">🔔</span> Interested Users
         <span class="badge" id="interest-badge" style="display:none">0</span>
@@ -959,6 +963,32 @@
       </div>
     </div>
 
+    <div id="review-edit-modal-overlay" class="modal-overlay" onclick="if(event.target===this) closeReviewEditModal()">
+      <div class="modal-box" style="max-width:520px;">
+        <button class="modal-close" onclick="closeReviewEditModal()">✕</button>
+        <div class="modal-title">Edit Review / Feedback</div>
+        <div class="f-group"><label>User</label><div id="review-edit-user" style="font-weight:700;color:var(--txt);"></div></div>
+        <div class="f-group"><label>Type</label><div id="review-edit-source" style="font-weight:700;color:var(--txt);"></div></div>
+        <div class="f-group"><label>Course / Feedback Target</label><div id="review-edit-target" style="font-weight:700;color:var(--txt);"></div></div>
+        <div class="f-group"><label>Title / Subject</label><input id="review-edit-subject" type="text" placeholder="Review title or feedback subject" /></div>
+        <div class="f-group"><label>Rating</label>
+          <select id="review-edit-rating">
+            <option value="0">No rating</option>
+            <option value="1">1 star</option>
+            <option value="2">2 stars</option>
+            <option value="3">3 stars</option>
+            <option value="4">4 stars</option>
+            <option value="5">5 stars</option>
+          </select>
+        </div>
+        <div class="f-group"><label>Comment / Message</label><textarea id="review-edit-comment" rows="6" placeholder="Review text or feedback details"></textarea></div>
+        <div class="modal-actions">
+          <button class="action-btn" type="button" onclick="saveReviewEdit()">Save Changes</button>
+          <button class="action-btn danger" type="button" onclick="closeReviewEditModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== FORMS ===== -->
     <div class="section" id="section-forms">
       <style>
@@ -1299,6 +1329,41 @@
         <div class="table-scroll"><table class="data-table">
           <thead><tr><th>Name</th><th>Contact</th><th>Type</th><th>Subject</th><th>Priority</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="inquiry-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ===== FEEDBACK ===== -->
+    <div class="section" id="section-feedback">
+      <div class="inq-stats">
+        <div class="inq-stat"><div class="val" id="fb-total">—</div><div class="lbl">Total Feedback</div></div>
+        <div class="inq-stat open-stat"><div class="val" id="fb-open">—</div><div class="lbl">Open</div></div>
+        <div class="inq-stat prog-stat"><div class="val" id="fb-reviewed">—</div><div class="lbl">Reviewed</div></div>
+        <div class="inq-stat done-stat"><div class="val" id="fb-resolved">—</div><div class="lbl">Resolved</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Feedback Queue</h3>
+          <div class="table-actions" style="gap:.5rem;display:flex;flex-wrap:wrap;align-items:center;">
+            <select id="fb-status-filter" onchange="loadFeedback()">
+              <option value="">All Statuses</option>
+              <option value="open">Open</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="resolved">Resolved</option>
+            </select>
+            <select id="fb-type-filter" onchange="loadFeedback()">
+              <option value="">All Types</option>
+              <option value="general">General</option>
+              <option value="course">Course</option>
+              <option value="mentor">Mentor</option>
+              <option value="website">Website</option>
+              <option value="payment">Payment</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-scroll"><table class="data-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Type</th><th>Subject</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="feedback-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -2005,7 +2070,7 @@ function loadSection(sec) {
     pricing: loadPricing, discounts: loadDiscounts, referrals: loadReferrals,
     reports: loadReports, recordings: loadRecordings, schedules: loadSchedules,
     reviews: loadReviews, forms: loadFormsSection, inquiries: loadInquiries,
-    interests: loadInterested,
+    feedback: loadFeedback, interests: loadInterested,
     holidays: loadHolidays,
   };
   loaders[sec]?.();
@@ -2212,7 +2277,8 @@ function statusBadge(s) {
   const map = { active:'green', approved:'green', completed:'green', paid:'green',
                 pending:'yellow', partial:'yellow', submitted:'yellow',
                 failed:'red', rejected:'red', overdue:'red', suspended:'red',
-                cancelled:'gray', paused:'gray', draft:'gray', scheduled:'blue', processing:'blue' };
+                cancelled:'gray', paused:'gray', draft:'gray', scheduled:'blue', processing:'blue',
+                open:'yellow', reviewed:'green', resolved:'green', archived:'gray' };
   return `<span class="badge badge-${map[s]||'gray'}">${s}</span>`;
 }
 function filterTable(tbodyId, q, cols) {
@@ -2364,12 +2430,13 @@ async function loadDashboard() {
     db.client.from('inquiries').select('id, status'),
     db.client.from('mentor_profiles').select('user_id', { count: 'exact', head: true }).eq('status', 'pending'),
     db.client.from('reviews').select('id', { count: 'exact', head: true }).eq('is_approved', false),
+    db.client.from('feedback').select('id', { count: 'exact', head: true }).eq('status', 'open'),
     db.client.from('enrollments').select('id, student_user_id, course_id, net_amount, paid_amount, enrollment_status, created_at').order('created_at', { ascending: false }).limit(10),
     db.client.from('holidays').select('id', { count: 'exact', head: true }).gte('holiday_date', todayStr).lte('holiday_date', today30Str)
   ]);
 
   // Log any individual errors but don't throw — show 0 for failed queries
-  [usersRes, mentorsRes, coursesRes, enrollmentsRes, paymentsRes, inquiriesRes, pendingMentorsRes, pendingReviewsRes, recentEnrollmentsRes, upcomingHolidaysRes]
+  [usersRes, mentorsRes, coursesRes, enrollmentsRes, paymentsRes, inquiriesRes, pendingMentorsRes, pendingReviewsRes, pendingFeedbackRes, recentEnrollmentsRes, upcomingHolidaysRes]
     .forEach(res => { if (res.error) console.warn('Dashboard query error:', res.error.message); });
 
   const completedPayments = (paymentsRes.data || []).filter(p => p.payment_status === 'completed');
@@ -2399,7 +2466,8 @@ async function loadDashboard() {
     mbadge.style.background = pending > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
     mbadge.title = pending > 0 ? `${pending} pending approval` : `${mentorsRes.count || 0} total mentors`;
   }
-  document.getElementById('review-badge').textContent = pendingReviewsRes.count || 0;
+  const pendingReviewCount = (pendingReviewsRes.count || 0) + (pendingFeedbackRes.count || 0);
+  document.getElementById('review-badge').textContent = pendingReviewCount;
   document.getElementById('inquiry-badge').textContent = openInquiries;
   // Holiday badge — upcoming in next 30 days
   const holBadge = document.getElementById('holiday-badge');
@@ -3456,30 +3524,118 @@ async function loadSchedules() {
     </tr>`).join('') || '<tr><td colspan="7" class="table-empty">No scheduled classes</td></tr>';
 }
 
+let _reviewEditItems = [];
+
 async function loadReviews() {
   const filter = document.getElementById('review-filter').value;
-  let q = db.client.from('reviews').select('*, courses(title)');
-  if (filter !== '') q = q.eq('is_approved', filter === 'true');
-  const { data } = await q.order('created_at', { ascending: false }).limit(50);
-  // Fetch user profiles for the review user_ids
-  const reviewUserIds = [...new Set((data||[]).map(r => r.user_id).filter(Boolean))];
-  let reviewProfileMap = {};
-  if (reviewUserIds.length) {
-    const { data: rp } = await db.client.from('user_profiles').select('user_id, full_name').in('user_id', reviewUserIds);
-    reviewProfileMap = Object.fromEntries((rp||[]).map(p => [p.user_id, p]));
+  const reviewsQ = db.client.from('reviews').select('*, courses(title)');
+  const feedbackQ = db.client.from('feedback').select('*');
+
+  if (filter === 'false') {
+    reviewsQ.eq('is_approved', false);
+    feedbackQ.eq('status', 'open');
+  } else if (filter === 'true') {
+    reviewsQ.eq('is_approved', true);
+    feedbackQ.in('status', ['reviewed', 'resolved']);
   }
-  document.getElementById('review-tbody').innerHTML = (data||[]).map(r => `
+
+  const [{ data: reviewData }, { data: feedbackData }] = await Promise.all([
+    reviewsQ.order('created_at', { ascending: false }).limit(50),
+    feedbackQ.order('created_at', { ascending: false }).limit(50)
+  ]);
+
+  const allItems = [
+    ...(reviewData || []).map(r => ({ ...r, source: 'review' })),
+    ...(feedbackData || []).map(f => ({ ...f, source: 'feedback' }))
+  ];
+
+  const sortedItems = allItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const userIds = [...new Set(sortedItems.map(item => item.user_id).filter(Boolean))];
+  let profileMap = {};
+  if (userIds.length) {
+    const { data: profiles } = await db.client.from('user_profiles').select('user_id, full_name').in('user_id', userIds);
+    profileMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p.full_name]));
+  }
+
+  _reviewEditItems = sortedItems.map(item => ({
+    ...item,
+    display_name: item.source === 'review'
+      ? (profileMap[item.user_id] || '—')
+      : (item.full_name || profileMap[item.user_id] || '—'),
+    display_target: item.source === 'review'
+      ? (item.courses?.title || item.course_title || '—')
+      : (item.course_title || item.feedback_type?.replace(/_/g,' ') || 'Feedback')
+  }));
+
+  document.getElementById('review-tbody').innerHTML = _reviewEditItems.map(item => {
+    const stars = `${'★'.repeat(item.rating || 0)}${'☆'.repeat(5 - (item.rating || 0))}`;
+    const text = item.source === 'review' ? item.comment || item.subject || '—' : item.message || item.subject || '—';
+    const approved = item.source === 'review' ? item.is_approved : item.status !== 'open';
+    const approveBtn = item.source === 'review'
+      ? (!item.is_approved ? `<button type="button" class="action-btn" onclick="event.stopPropagation(); approveReview('${item.id}')">✓ Approve</button>` : '<span class="badge badge-green">Approved</span>')
+      : (!approved ? `<button type="button" class="action-btn" onclick="event.stopPropagation(); approveFeedback('${item.id}')">✓ Approve</button>` : '<span class="badge badge-green">Approved</span>');
+    const deleteFn = item.source === 'review' ? 'deleteReview' : 'deleteFeedbackRow';
+
+    return `
     <tr>
-      <td>${reviewProfileMap[r.user_id]?.full_name||'—'}</td>
-      <td>${r.courses?.title||'—'}</td>
-      <td>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
-      <td style="max-width:200px">${r.comment?.substring(0,80)}…</td>
-      <td>${fmtDate(r.created_at)}</td>
+      <td>${escHtml(item.display_name)}</td>
+      <td>${escHtml(item.display_target)}</td>
+      <td>${stars}</td>
+      <td style="max-width:200px">${escHtml(text.substring(0, 80))}…</td>
+      <td>${fmtDate(item.created_at)}</td>
       <td><div class="action-btns">
-        ${!r.is_approved ? `<button class="action-btn" onclick="approveReview('${r.id}')">✓ Approve</button>` : '<span class="badge badge-green">Approved</span>'}
-        <button class="action-btn danger" onclick="deleteReview('${r.id}')">Delete</button>
+        ${approveBtn}
+        <button type="button" class="action-btn" onclick="event.stopPropagation(); openReviewEditModal('${item.id}','${item.source}')">Edit</button>
+        <button type="button" class="action-btn danger" onclick="event.stopPropagation(); ${deleteFn}('${item.id}')">Delete</button>
       </div></td>
-    </tr>`).join('') || '<tr><td colspan="6" class="table-empty">No reviews</td></tr>';
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="table-empty">No reviews</td></tr>';
+}
+
+let _currentReviewEdit = null;
+
+function openReviewEditModal(id, source) {
+  const item = _reviewEditItems.find(x => x.id === id && x.source === source);
+  if (!item) return;
+  _currentReviewEdit = item;
+  document.getElementById('review-edit-user').textContent = item.display_name || '—';
+  document.getElementById('review-edit-target').textContent = item.display_target || '—';
+  document.getElementById('review-edit-source').textContent = item.source === 'review' ? 'Course Review' : 'Feedback';
+  document.getElementById('review-edit-subject').value = item.source === 'review' ? (item.title || '') : (item.subject || '');
+  document.getElementById('review-edit-rating').value = item.rating || 0;
+  document.getElementById('review-edit-comment').value = item.source === 'review' ? (item.comment || '') : (item.message || '');
+  document.getElementById('review-edit-modal-overlay').classList.add('open');
+}
+
+function closeReviewEditModal() {
+  _currentReviewEdit = null;
+  document.getElementById('review-edit-modal-overlay').classList.remove('open');
+}
+
+async function saveReviewEdit() {
+  if (!_currentReviewEdit) return;
+  const rating = parseInt(document.getElementById('review-edit-rating').value, 10) || null;
+  const subject = document.getElementById('review-edit-subject').value.trim() || null;
+  const comment = document.getElementById('review-edit-comment').value.trim();
+  if (!comment) {
+    alert('Please enter review/comment text before saving.');
+    return;
+  }
+
+  let response;
+  if (_currentReviewEdit.source === 'review') {
+    response = await db.client.from('reviews').update({ rating, title: subject, comment }).eq('id', _currentReviewEdit.id);
+  } else {
+    response = await db.client.from('feedback').update({ rating, subject, message: comment }).eq('id', _currentReviewEdit.id);
+  }
+
+  if (response.error) {
+    alert('Failed to save changes: ' + response.error.message);
+    return;
+  }
+
+  closeReviewEditModal();
+  loadReviews();
 }
 
 let _inqAll = [];
@@ -3544,6 +3700,68 @@ async function loadInquiries() {
         </div>
       </td>
     </tr>`).join('') : '<tr><td colspan="8" class="table-empty">No enquiries found</td></tr>';
+}
+
+let _feedbackAll = [];
+
+async function loadFeedback() {
+  const statusFilter = document.getElementById('fb-status-filter')?.value || '';
+  const typeFilter   = document.getElementById('fb-type-filter')?.value || '';
+
+  let q = db.client.from('feedback').select('*');
+  if (statusFilter) q = q.eq('status', statusFilter);
+  if (typeFilter)   q = q.eq('feedback_type', typeFilter);
+  const { data, error } = await q.order('created_at', { ascending: false }).limit(200);
+  if (error) { console.error('loadFeedback error:', error); return; }
+  _feedbackAll = data || [];
+
+  const statsQ = await db.client.from('feedback').select('status,feedback_type');
+  const statsData = statsQ.data || [];
+  document.getElementById('fb-total').textContent    = statsData.length;
+  document.getElementById('fb-open').textContent     = statsData.filter(r => r.status === 'open').length;
+  document.getElementById('fb-reviewed').textContent = statsData.filter(r => r.status === 'reviewed').length;
+  document.getElementById('fb-resolved').textContent = statsData.filter(r => r.status === 'resolved').length;
+
+  const openCount = statsData.filter(r => r.status === 'open').length;
+  const badge = document.getElementById('feedback-badge');
+  if (badge) { badge.textContent = openCount; badge.style.display = openCount ? '' : 'none'; }
+
+  document.getElementById('feedback-tbody').innerHTML = _feedbackAll.length ? _feedbackAll.map(f => `
+    <tr>
+      <td><div style="font-weight:700;color:var(--txt);font-size:.87rem;">${escHtml(f.full_name||'—')}</div></td>
+      <td style="font-size:.8rem;color:var(--txt3);">${escHtml(f.email||'—')}</td>
+      <td><span class="badge badge-blue">${(f.feedback_type||'general').replace(/_/g,' ')}</span></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;">${escHtml(f.subject||'—')}</td>
+      <td style="font-size:.8rem;color:var(--txt4);">${fmtDate(f.created_at)}</td>
+      <td>${statusBadge(f.status||'open')}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn" onclick="viewFeedback('${f.id}')">View</button>
+          ${f.status === 'open' ? `<button class="action-btn" onclick="markFeedbackStatus('${f.id}','reviewed')">Review</button>` : ''}
+          ${f.status !== 'resolved' ? `<button class="action-btn" onclick="markFeedbackStatus('${f.id}','resolved')">✓ Resolve</button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="7" class="table-empty">No feedback found</td></tr>';
+}
+
+function viewFeedback(id) {
+  const f = _feedbackAll.find(x => x.id === id);
+  if (!f) return;
+  alert(
+    `Feedback from ${f.full_name || 'Unknown'}\n` +
+    `Email: ${f.email || '—'}\n` +
+    `Phone: ${f.phone_number || '—'}\n` +
+    `Type: ${(f.feedback_type||'general').replace(/_/g,' ')}\n` +
+    `Status: ${f.status || 'open'}\n\n` +
+    `Subject: ${f.subject || '—'}\n\n` +
+    `Message:\n${f.message || '(no message)'}\n`
+  );
+}
+
+async function markFeedbackStatus(id, status) {
+  const { error } = await db.client.from('feedback').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { alert('Update failed: ' + error.message); return; }
+  loadFeedback();
 }
 
 function openInqModal(id) {
@@ -4095,6 +4313,19 @@ async function approveReview(id) {
 async function deleteReview(id) {
   if (!confirm('Delete this review?')) return;
   await db.client.from('reviews').delete().eq('id', id);
+  loadReviews();
+}
+
+async function approveFeedback(id) {
+  const { error } = await db.client.from('feedback').update({ status: 'reviewed', updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { alert('Failed to approve feedback: ' + error.message); return; }
+  loadReviews();
+}
+
+async function deleteFeedbackRow(id) {
+  if (!confirm('Delete this feedback entry?')) return;
+  const { error } = await db.client.from('feedback').delete().eq('id', id);
+  if (error) { alert('Failed to delete feedback: ' + error.message); return; }
   loadReviews();
 }
 
