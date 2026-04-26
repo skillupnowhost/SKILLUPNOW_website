@@ -1491,104 +1491,356 @@
   </div>
 
   <!-- ── Student Reviews ── -->
-  <section class="ht-section">
-    <div class="ht-inner">
-      <div class="ht-head">
-        <div class="ht-kicker">⭐ Student Reviews</div>
-        <h2 class="ht-title">Real learner feedback<br>from our courses.</h2>
-        <p class="ht-sub">Verified reviews from students who have completed our programmes.</p>
-        <a href="pages/feedback.html" class="ht-cta">Share your review →</a>
+  <section class="rv-section">
+    <div class="rv-inner">
+      <div class="rv-header">
+        <div>
+          <div class="rv-kicker">⭐ Student Reviews</div>
+          <h2 class="rv-title">Real learner feedback<br>from our courses.</h2>
+          <p class="rv-sub">Verified reviews from students who have completed our programmes.</p>
+        </div>
+        <a href="pages/reviews.html" class="rv-explore-btn">
+          Explore All Reviews
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
-      <div id="reviews-no-data" class="ht-empty">
-        <div class="ht-empty-icon">💬</div>
+
+      <div class="rv-filters" id="rv-filters">
+        <button class="rv-filter active" data-cat="all">All</button>
+        <button class="rv-filter" data-cat="course">📚 Courses</button>
+        <button class="rv-filter" data-cat="mentor">👨‍🏫 Mentors</button>
+        <button class="rv-filter" data-cat="admin">🏛 Admin</button>
+        <button class="rv-filter" data-cat="website">🌐 Website</button>
+      </div>
+
+      <div class="rv-empty" id="rv-empty">
+        <div class="rv-empty-icon">💬</div>
         <p>No reviews yet — be the first to share your experience.</p>
-        <a href="pages/feedback.html" class="ht-cta" style="display:inline-block;margin-top:.75rem;">Write a Review →</a>
+        <a href="pages/feedback.html" class="rv-explore-btn" style="margin-top:.85rem;display:inline-flex;">Write a Review →</a>
       </div>
-      <div id="reviews-track" class="ht-grid"></div>
+
+      <div class="rv-carousel-outer" id="rv-carousel-outer">
+        <button class="rv-nav rv-prev" id="rv-prev" onclick="rvNav(-1)" aria-label="Previous" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="rv-carousel-clip">
+          <div class="rv-track" id="rv-track"></div>
+        </div>
+        <button class="rv-nav rv-next" id="rv-next" onclick="rvNav(1)" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="rv-dots" id="rv-dots"></div>
     </div>
   </section>
+
+  <!-- Review read-more modal -->
+  <div id="rv-modal-overlay" onclick="if(event.target===this)rvCloseModal()">
+    <div id="rv-modal-box">
+      <button class="rv-modal-close" onclick="rvCloseModal()">✕</button>
+      <div id="rv-modal-stars"></div>
+      <p id="rv-modal-body"></p>
+      <div class="rv-modal-author">
+        <div class="rv-avatar" id="rv-modal-avatar"></div>
+        <div>
+          <div class="rv-author-name" id="rv-modal-name"></div>
+          <div class="rv-author-sub" id="rv-modal-type"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer — rebuilt by profile-nav.js -->
   <footer></footer>
 
   <!-- ── Student Reviews + Testimonial Styles ── -->
   <style>
-    /* ─── Reviews section ─── */
-    .ht-section {
+    /* ══════════════════════════════════════
+       REVIEWS SECTION — Carousel Design
+    ══════════════════════════════════════ */
+    .rv-section {
       padding: 5rem 5vw 6rem;
-      position: relative;
-      border-top: 1px solid var(--border);
-      overflow: hidden;
+      position: relative; border-top: 1px solid var(--border); overflow: hidden;
     }
-    .ht-section::before {
+    .rv-section::before {
       content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
-      background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(124,92,252,.07) 0%, transparent 75%);
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(124,92,252,.08) 0%, transparent 70%);
     }
-    .ht-inner { max-width:1200px; margin:0 auto; position:relative; z-index:1; }
-    .ht-head { text-align:center; margin-bottom:3rem; }
-    .ht-kicker {
-      display:inline-block; font-size:.74rem; font-weight:800; letter-spacing:.16em;
-      text-transform:uppercase; color:var(--v1);
-      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
-      border-radius:999px; padding:.28rem .9rem; margin-bottom:1rem;
-    }
-    .ht-title {
-      font-size:2.2rem; font-weight:900; line-height:1.15;
-      color:var(--txt); margin:0 0 .75rem; letter-spacing:-.02em;
-    }
-    .ht-sub { font-size:.9rem; color:var(--txt3); max-width:440px; margin:0 auto .9rem; line-height:1.65; }
-    .ht-cta {
-      color:var(--v1); font-weight:700; font-size:.88rem;
-      text-decoration:none; transition:opacity .2s;
-    }
-    .ht-cta:hover { opacity:.7; }
-    .ht-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(280px,1fr));
-      gap:1.4rem;
-    }
-    .ht-empty {
-      text-align:center; padding:2.5rem 1.5rem;
-      border:1.5px dashed rgba(124,92,252,.25); border-radius:20px;
-      color:var(--txt4); font-size:.9rem; line-height:1.7;
-    }
-    .ht-empty-icon { font-size:2.2rem; margin-bottom:.5rem; }
+    .rv-inner { max-width:1200px; margin:0 auto; position:relative; z-index:1; }
 
-    /* ─── Testimonial card enhanced ─── */
-    @keyframes htCardIn {
-      from { opacity:0; transform:translateY(22px) scale(.97); }
+    /* Header */
+    .rv-header {
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:1.5rem; flex-wrap:wrap; margin-bottom:1.75rem;
+    }
+    .rv-kicker {
+      display:inline-block; font-size:.72rem; font-weight:800;
+      letter-spacing:.14em; text-transform:uppercase; color:var(--v1);
+      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
+      border-radius:999px; padding:.28rem .9rem; margin-bottom:.85rem;
+    }
+    .rv-title {
+      font-size:clamp(1.6rem,3vw,2.2rem); font-weight:900; line-height:1.15;
+      color:var(--txt); margin:0 0 .5rem; letter-spacing:-.02em;
+    }
+    .rv-sub { font-size:.9rem; color:var(--txt3); max-width:440px; line-height:1.65; margin:0; }
+    .rv-explore-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.6rem 1.4rem; border-radius:12px;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      color:#fff; font-size:.83rem; font-weight:700;
+      text-decoration:none; white-space:nowrap; flex-shrink:0;
+      box-shadow:0 4px 18px rgba(124,92,252,.35);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .rv-explore-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,92,252,.5); }
+
+    /* Category filters */
+    .rv-filters { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+    .rv-filter {
+      padding:.38rem .95rem; border-radius:999px;
+      border:1.5px solid var(--border); background:transparent;
+      font-size:.78rem; font-weight:700; color:var(--txt3);
+      cursor:pointer; font-family:inherit;
+      transition:all .2s cubic-bezier(.4,0,.2,1);
+    }
+    .rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
+    .rv-filter.active {
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      border-color:transparent; color:#fff;
+      box-shadow:0 4px 14px rgba(124,92,252,.35);
+    }
+
+    /* Empty state */
+    .rv-empty {
+      text-align:center; padding:3rem 1.5rem;
+      border:1.5px dashed rgba(124,92,252,.2); border-radius:20px;
+      color:var(--txt4); font-size:.9rem; line-height:1.7; display:none;
+    }
+    .rv-empty.show { display:block; }
+    .rv-empty-icon { font-size:2.2rem; margin-bottom:.5rem; }
+
+    /* Carousel wrapper */
+    .rv-carousel-outer { position:relative; margin-bottom:1.25rem; }
+    .rv-carousel-clip {
+      overflow:hidden; padding:.5rem .25rem 1rem;
+      margin:0 46px;
+    }
+    .rv-track {
+      display:flex; gap:1.25rem;
+      transition:transform .45s cubic-bezier(.4,0,.2,1);
+      will-change:transform;
+    }
+
+    /* Crystal nav buttons */
+    .rv-nav {
+      position:absolute; top:50%; transform:translateY(-50%);
+      z-index:10; width:44px; height:44px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(22px) saturate(1.8);
+      -webkit-backdrop-filter:blur(22px) saturate(1.8);
+      box-shadow:0 4px 18px rgba(124,92,252,.18),
+                 0 0 0 1px rgba(255,255,255,.04) inset,
+                 inset 0 1px 0 rgba(255,255,255,.14);
+      cursor:pointer; color:rgba(255,255,255,.85);
+      transition:all .28s cubic-bezier(.34,1.56,.64,1);
+    }
+    :root[data-theme="light"] .rv-nav {
+      background:rgba(255,255,255,.72);
+      border-color:rgba(124,92,252,.2);
+      box-shadow:0 4px 18px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.9);
+      color:var(--txt2);
+    }
+    .rv-nav:hover:not(:disabled) {
+      background:rgba(124,92,252,.22);
+      border-color:rgba(124,92,252,.55);
+      box-shadow:0 8px 32px rgba(124,92,252,.42), inset 0 1px 0 rgba(255,255,255,.1);
+      transform:translateY(-50%) scale(1.1);
+      color:#fff;
+    }
+    :root[data-theme="light"] .rv-nav:hover:not(:disabled) {
+      background:rgba(124,92,252,.12); color:var(--v1);
+      box-shadow:0 8px 28px rgba(124,92,252,.22);
+    }
+    .rv-nav:disabled { opacity:.28; pointer-events:none; }
+    .rv-prev { left:0; }
+    .rv-next { right:0; }
+    .rv-nav svg { width:17px; height:17px; }
+
+    /* Dot indicators */
+    .rv-dots { display:flex; justify-content:center; gap:.45rem; margin-top:.25rem; }
+    .rv-dot {
+      width:7px; height:7px; border-radius:50%;
+      background:rgba(124,92,252,.22); border:none; padding:0; cursor:pointer;
+      transition:all .28s; flex-shrink:0;
+    }
+    .rv-dot.active { width:24px; border-radius:4px; background:var(--v1); }
+
+    /* ── Review Card ── */
+    @keyframes rvCardIn {
+      from { opacity:0; transform:translateX(20px) scale(.97); }
+      to   { opacity:1; transform:translateX(0) scale(1); }
+    }
+    @keyframes rvStarPulse {
+      0%,70%,100% { filter:none; transform:scale(1); }
+      85% { filter:drop-shadow(0 0 6px rgba(251,191,36,.9)); transform:scale(1.22); }
+    }
+
+    .rv-card {
+      flex:0 0 300px; background:var(--panel); border:1.5px solid var(--border);
+      border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
+      display:flex; flex-direction:column;
+      position:relative; overflow:hidden;
+      animation:rvCardIn .4s both;
+      transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+      cursor:default;
+    }
+    .rv-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,#7c5cfc,#3d6bff,#67e8f9);
+      border-radius:22px 22px 0 0;
+    }
+    .rv-card:hover {
+      transform:translateY(-8px) scale(1.015);
+      border-color:rgba(124,92,252,.45);
+      box-shadow:0 22px 60px rgba(124,92,252,.2), 0 4px 12px rgba(0,0,0,.1);
+    }
+
+    /* Stars */
+    .rv-card-top {
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:.5rem; margin-bottom:1rem;
+    }
+    .rv-card-stars { display:flex; gap:.08rem; }
+    .rv-star {
+      font-size:1.25rem; display:inline-block;
+      color:rgba(255,255,255,.12);
+    }
+    :root[data-theme="light"] .rv-star:not(.on) { color:rgba(0,0,0,.1); }
+    .rv-star.on {
+      color:#fbbf24;
+      animation:rvStarPulse 3.5s ease-in-out infinite;
+    }
+
+    /* Type badge */
+    .rv-card-badge {
+      display:inline-flex; align-items:center; gap:.28rem; flex-shrink:0;
+      padding:.17rem .6rem; border-radius:999px;
+      font-size:.64rem; font-weight:800; text-transform:capitalize; letter-spacing:.04em;
+      color:var(--rv-dot,#7c5cfc);
+      background:color-mix(in srgb,var(--rv-dot,#7c5cfc) 12%,transparent);
+      border:1px solid color-mix(in srgb,var(--rv-dot,#7c5cfc) 28%,transparent);
+      white-space:nowrap;
+    }
+    @supports not (color:color-mix(in srgb,red,blue)) {
+      .rv-card-badge { background:rgba(124,92,252,.1); border-color:rgba(124,92,252,.25); }
+    }
+    .rv-card-badge::before {
+      content:''; width:5px; height:5px; border-radius:50%;
+      background:var(--rv-dot,#7c5cfc); flex-shrink:0;
+    }
+
+    /* Quote body */
+    .rv-quote-wrap { position:relative; flex:1; margin-bottom:.75rem; }
+    .rv-quote-icon {
+      position:absolute; top:-10px; left:-5px;
+      font-size:3rem; line-height:1; font-family:Georgia,serif;
+      color:rgba(124,92,252,.14); font-weight:900;
+      pointer-events:none; user-select:none;
+    }
+    :root[data-theme="light"] .rv-quote-icon { color:rgba(124,92,252,.1); }
+    .rv-card-text {
+      font-size:.875rem; line-height:1.78; color:var(--txt2);
+      padding-left:1.4rem; margin:0;
+      display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden;
+    }
+
+    /* Hover reveal panel */
+    .rv-card-reveal {
+      overflow:hidden; max-height:0; opacity:0; margin-bottom:0;
+      transition:max-height .38s cubic-bezier(.4,0,.2,1), opacity .3s, margin .3s;
+    }
+    .rv-card:hover .rv-card-reveal { max-height:110px; opacity:1; margin-bottom:.6rem; }
+    .rv-reveal-row {
+      display:flex; align-items:center; gap:.4rem;
+      font-size:.75rem; color:var(--txt3); padding:.2rem 0;
+    }
+    .rv-reveal-row span { font-size:.88rem; }
+    .rv-readmore {
+      background:none; border:1px solid rgba(124,92,252,.3);
+      border-radius:999px; padding:.2rem .8rem;
+      font-size:.72rem; font-weight:700; color:var(--v1);
+      cursor:pointer; font-family:inherit; margin-top:.3rem;
+      transition:background .2s, transform .2s;
+    }
+    .rv-readmore:hover { background:rgba(124,92,252,.1); transform:scale(1.04); }
+
+    /* Card footer */
+    .rv-card-footer {
+      display:flex; align-items:center; gap:.65rem;
+      padding-top:.85rem; margin-top:auto;
+      border-top:1px solid rgba(255,255,255,.07);
+    }
+    :root[data-theme="light"] .rv-card-footer { border-top-color:var(--border); }
+    .rv-avatar {
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.82rem; font-weight:800; color:#fff;
+      box-shadow:0 3px 10px rgba(0,0,0,.25);
+    }
+    .rv-author-name { font-weight:700; font-size:.84rem; color:var(--txt); }
+    .rv-author-sub  { font-size:.7rem; color:var(--txt4); margin-top:.05rem; }
+
+    /* ── Review Modal ── */
+    @keyframes rvModalIn {
+      from { opacity:0; transform:translateY(32px) scale(.95); }
       to   { opacity:1; transform:translateY(0) scale(1); }
     }
-    @keyframes htStarShimmer {
-      0%,100% { opacity:.85; }
-      50%      { opacity:1; filter:drop-shadow(0 0 4px #fbbf24); }
+    #rv-modal-overlay {
+      position:fixed; inset:0; z-index:99995;
+      background:rgba(6,3,18,.72);
+      backdrop-filter:blur(22px) saturate(1.6); -webkit-backdrop-filter:blur(22px) saturate(1.6);
+      display:flex; align-items:center; justify-content:center; padding:1.2rem;
+      opacity:0; visibility:hidden; transition:opacity .28s, visibility .28s;
     }
-    .testimonial-card {
-      animation: htCardIn .45s both;
+    #rv-modal-overlay.open { opacity:1; visibility:visible; }
+    #rv-modal-box {
+      background:var(--panel); border:1.5px solid rgba(124,92,252,.28);
+      border-radius:28px; padding:2.4rem 2rem 2rem;
+      max-width:520px; width:94vw; position:relative;
+      box-shadow:0 40px 80px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06) inset;
     }
-    .testimonial-card .tc-stars {
-      display:inline-flex; gap:.1rem; font-size:.82rem;
-      animation: htStarShimmer 2.4s ease-in-out infinite;
-    }
-    .tc-quote {
-      font-size:.88rem; color:var(--txt3); line-height:1.78; margin:0;
-      position:relative; flex:1;
-      display:-webkit-box; -webkit-line-clamp:7; -webkit-box-orient:vertical;
-      overflow:hidden;
-    }
-    .tc-meta { display:flex; align-items:center; gap:.75rem; margin-bottom:1.1rem; }
-    .tc-avatar {
-      width:44px; height:44px; border-radius:50%;
+    #rv-modal-overlay.open #rv-modal-box { animation:rvModalIn .32s cubic-bezier(.22,1,.36,1) both; }
+    .rv-modal-close {
+      position:absolute; top:1rem; right:1rem;
+      width:32px; height:32px; border-radius:50%;
+      border:1.5px solid rgba(124,92,252,.3); background:rgba(124,92,252,.1);
+      color:var(--v1); font-size:.85rem; font-weight:700;
       display:flex; align-items:center; justify-content:center;
-      font-size:1rem; font-weight:800; color:#fff; flex-shrink:0;
-      box-shadow:0 4px 12px rgba(0,0,0,.25);
+      cursor:pointer; font-family:inherit;
+      transition:background .2s, transform .2s;
     }
-    .tc-name { font-weight:700; font-size:.88rem; color:var(--txt); }
-    .tc-course { font-size:.72rem; color:var(--txt4); }
+    .rv-modal-close:hover { background:var(--v1); color:#fff; transform:rotate(90deg); }
+    #rv-modal-stars { display:flex; gap:.25rem; margin-bottom:1.2rem; }
+    #rv-modal-stars .rv-star { font-size:1.35rem; }
+    #rv-modal-body {
+      font-size:.92rem; color:var(--txt2); line-height:1.85;
+      margin:0 0 1.6rem; max-height:55vh; overflow-y:auto; padding-right:.3rem;
+    }
+    #rv-modal-body::-webkit-scrollbar { width:4px; }
+    #rv-modal-body::-webkit-scrollbar-thumb { background:rgba(124,92,252,.3); border-radius:4px; }
+    .rv-modal-author { display:flex; align-items:center; gap:.75rem; padding-top:1rem; border-top:1px solid var(--border); }
+    :root[data-theme="light"] #rv-modal-box { background:rgba(255,255,255,.96); }
 
     @media(max-width:640px) {
-      .ht-title { font-size:1.6rem; }
-      .ht-grid  { grid-template-columns:1fr; }
+      .rv-title { font-size:1.6rem; }
+      .rv-header { flex-direction:column; align-items:flex-start; }
+      .rv-card  { flex:0 0 260px; }
+      .rv-carousel-clip { margin:0 32px; }
+      .rv-nav { width:36px; height:36px; }
+      #rv-modal-box { padding:1.8rem 1.4rem 1.5rem; }
     }
 
     /* ── 3D animations for home course cards ── */
@@ -2370,68 +2622,198 @@
       'linear-gradient(135deg,#ec4899,#be185d)'
     ];
 
-    function _buildReviewCard(f, idx) {
-      const name = f.user_profiles?.full_name || 'Student';
-      const city = f.user_profiles?.city || '';
-      const initials = name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
-      const rating = Math.min(5, Math.max(1, parseInt(f.rating) || 5));
-      const gradient = _avatarGradients[idx % _avatarGradients.length];
-      const courseName = f.courses?.name || '';
-      const filledStars = '★'.repeat(rating);
-      const emptyStars  = '☆'.repeat(5 - rating);
-      const subtitle = [courseName, city].filter(Boolean).join(' · ');
-      const delay = (idx * 0.07).toFixed(2);
-      return `<div class="testimonial-card" style="animation-delay:${delay}s">
-        <div class="tc-meta">
-          <div class="tc-avatar" style="background:${gradient}">${initials}</div>
-          <div>
-            <div class="tc-name">${name}</div>
-            <div class="tc-course">${subtitle}</div>
-          </div>
-          <span class="tc-stars" style="margin-left:auto;color:#fbbf24;">${filledStars}<span style="opacity:.35;">${emptyStars}</span></span>
+    /* ── Review Carousel ── */
+    const _rvGrads = [
+      'linear-gradient(135deg,#7c5cfc,#3d6bff)',
+      'linear-gradient(135deg,#06b6d4,#0284c7)',
+      'linear-gradient(135deg,#a855f7,#7c3aed)',
+      'linear-gradient(135deg,#10b981,#059669)',
+      'linear-gradient(135deg,#f59e0b,#d97706)',
+      'linear-gradient(135deg,#ef4444,#dc2626)',
+    ];
+    const _rvTypeColors = { course:'#7c5cfc', mentor:'#3d6bff', website:'#06b6d4', admin:'#f59e0b', general:'#10b981' };
+    const _rvTypeIcons  = { course:'📚', mentor:'👨‍🏫', website:'🌐', admin:'🏛', general:'💬' };
+    const _rvTypeLabels = { course:'Course', mentor:'Mentor', website:'Website', admin:'Admin', general:'General' };
+
+    let _rvAllData   = [];
+    let _rvFiltered  = [];
+    let _rvCurrentIdx = 0;
+    let _rvActiveCat = 'all';
+    const _rvModalStore = {};
+
+    function _rvEsc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    const _RV_CARD_W = 300, _RV_GAP = 20; // matches CSS: flex:0 0 300px, gap:1.25rem
+    function _rvCardStep() { return _RV_CARD_W + _RV_GAP; }
+    function _rvGetPerPage() {
+      const clip = document.querySelector('.rv-carousel-clip');
+      if (!clip || !clip.offsetWidth) return 3;
+      return Math.max(1, Math.floor((clip.offsetWidth + _RV_GAP) / _rvCardStep()));
+    }
+    function _rvCleanText(text, type) {
+      if (!text) return '';
+      const posM = text.match(/\[Positives\]:\s*([\s\S]*?)(?=\[Improvements\]:|$)/i);
+      const impM = text.match(/\[Improvements\]:\s*([\s\S]*?)(?=\[Aspect Ratings\]:|$)/i);
+      if (posM || impM) {
+        const p = [];
+        if (posM && posM[1].trim()) p.push(posM[1].trim());
+        if (impM && impM[1].trim()) p.push(impM[1].trim());
+        if (p.length) return p.join(' ');
+      }
+      const cleaned = text.replace(/\[(?:Mentor|Course\/Batch|Topic|Priority|Category|Device\/Browser|Site Rating|Aspect Ratings)[^\]]*\]:[^\n]*/gi, '').replace(/\n{3,}/g, '\n\n').trim();
+      return cleaned || text.trim();
+    }
+
+    function _rvBuildCard(f, idx) {
+      const type  = f.feedback_type || (f.source === 'review' ? 'course' : 'general');
+      const rawText = f.comment || f.message || '';
+      const comment = _rvCleanText(rawText, type);
+      const isLong  = comment.length > 220;
+      const preview = isLong ? comment.slice(0,220).trimEnd() + '…' : comment;
+      const name    = f._name || 'Student';
+      const initials = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const course  = f.courses?.name || f.courses?.title || f.course_title || '';
+      const dotColor = _rvTypeColors[type] || '#7c5cfc';
+      const grad = _rvGrads[idx % _rvGrads.length];
+      const rating = Math.min(5, Math.max(0, parseInt(f.rating)||0));
+      const typeLabel = _rvTypeLabels[type] || type;
+      const typeIcon  = _rvTypeIcons[type]  || '💬';
+      const dateStr = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+      const starsHtml = Array.from({length:5},(_,i)=>
+        `<span class="rv-star${i<rating?' on':''}"${i<rating?` style="animation-delay:${(i*.12).toFixed(2)}s"`:''}  aria-hidden="true">★</span>`
+      ).join('');
+      const storeKey = 'rv_' + idx;
+      _rvModalStore[storeKey] = { comment, rating, name, typeLabel, grad };
+      const revealRows = [
+        course  ? `<div class="rv-reveal-row"><span>📚</span>${_rvEsc(course.substring(0,40)+(course.length>40?'…':''))}</div>` : '',
+        dateStr ? `<div class="rv-reveal-row"><span>📅</span>${dateStr}</div>` : '',
+        isLong  ? `<button class="rv-readmore" onclick="rvOpenModal('${storeKey}')">Read full review →</button>` : '',
+      ].filter(Boolean).join('');
+      return `<div class="rv-card" data-cat="${type}" style="animation-delay:${(idx*.06).toFixed(2)}s">
+        <div class="rv-card-top">
+          <div class="rv-card-stars" aria-label="${rating} out of 5">${starsHtml}</div>
+          <span class="rv-card-badge" style="--rv-dot:${dotColor}">${typeIcon} ${typeLabel}</span>
         </div>
-        <p class="tc-quote">"${f.comment || ''}"</p>
+        <div class="rv-quote-wrap">
+          <div class="rv-quote-icon">❝</div>
+          <p class="rv-card-text">${_rvEsc(preview)}</p>
+        </div>
+        <div class="rv-card-reveal">${revealRows}</div>
+        <div class="rv-card-footer">
+          <div class="rv-avatar" style="background:${grad}">${initials}</div>
+          <div>
+            <div class="rv-author-name">${_rvEsc(name)}</div>
+            <div class="rv-author-sub">${course ? _rvEsc(course.substring(0,32)+(course.length>32?'…':'')) : typeLabel+' Review'}</div>
+          </div>
+        </div>
       </div>`;
     }
 
-    async function loadTestimonials() {
-      const track = document.getElementById('reviews-track');
-      if (!track || !window.supabaseConfig) return;
-      try {
-        const client = window.supabaseConfig.getClient();
-        if (!client) return;
+    function rvNav(dir) {
+      const perPage = _rvGetPerPage();
+      const maxIdx  = Math.max(0, _rvFiltered.length - perPage);
+      _rvCurrentIdx = Math.max(0, Math.min(_rvCurrentIdx + dir, maxIdx));
+      _rvUpdateCarousel();
+    }
+    function rvGoToPage(page) {
+      _rvCurrentIdx = page * _rvGetPerPage();
+      _rvUpdateCarousel();
+    }
+    function rvSetFilter(cat) {
+      _rvActiveCat = cat;
+      _rvCurrentIdx = 0;
+      document.querySelectorAll('.rv-filter').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+      _rvFiltered = cat === 'all' ? [..._rvAllData] : _rvAllData.filter(f => {
+        const t = f.feedback_type || (f.source === 'review' ? 'course' : 'general');
+        return t === cat;
+      });
+      _rvRenderTrack();
+      _rvUpdateCarousel();
+    }
+    function _rvRenderTrack() {
+      const track = document.getElementById('rv-track');
+      if (track) track.innerHTML = _rvFiltered.map((f,i) => _rvBuildCard(f,i)).join('');
+    }
+    function _rvUpdateCarousel() {
+      const track = document.getElementById('rv-track');
+      if (!track) return;
+      const step = _rvCardStep();
+      track.style.transform = `translateX(${-_rvCurrentIdx * step}px)`;
+      const perPage = _rvGetPerPage();
+      const maxIdx  = Math.max(0, _rvFiltered.length - perPage);
+      const prev = document.getElementById('rv-prev');
+      const next = document.getElementById('rv-next');
+      if (prev) prev.disabled = _rvCurrentIdx <= 0;
+      if (next) next.disabled = _rvCurrentIdx >= maxIdx;
+      const totalDots = Math.ceil(_rvFiltered.length / Math.max(1, perPage));
+      const activeDot = Math.min(Math.floor(_rvCurrentIdx / Math.max(1, perPage)), totalDots-1);
+      const dotsWrap = document.getElementById('rv-dots');
+      if (dotsWrap) dotsWrap.innerHTML = Array.from({length:totalDots},(_,i)=>
+        `<button class="rv-dot${i===activeDot?' active':''}" onclick="rvGoToPage(${i})" aria-label="Page ${i+1}"></button>`
+      ).join('');
+    }
 
-        const [{ data: reviewsData }, { data: feedbackData }] = await Promise.all([
+    function rvOpenModal(key) {
+      const d = _rvModalStore[key];
+      if (!d) return;
+      const overlay = document.getElementById('rv-modal-overlay');
+      if (!overlay) return;
+      const starsHtml = Array.from({length:5},(_,i)=>
+        `<span class="rv-star${i<d.rating?' on':''}"${i<d.rating?` style="animation-delay:${(i*.12).toFixed(2)}s"`:''}  aria-hidden="true">★</span>`
+      ).join('');
+      document.getElementById('rv-modal-stars').innerHTML = starsHtml;
+      document.getElementById('rv-modal-body').textContent = '\u201c' + d.comment + '\u201d';
+      const initials = d.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const av = document.getElementById('rv-modal-avatar');
+      av.style.background = d.grad; av.textContent = initials;
+      document.getElementById('rv-modal-name').textContent = d.name;
+      document.getElementById('rv-modal-type').textContent = d.typeLabel + ' Review';
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function rvCloseModal() {
+      const o = document.getElementById('rv-modal-overlay');
+      if (o) o.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') rvCloseModal(); });
+    window.addEventListener('resize', () => _rvUpdateCarousel());
+
+    async function loadTestimonials() {
+      let tries = 0;
+      while (!window.supabaseConfig?.getClient() && tries++ < 20)
+        await new Promise(r => setTimeout(r, 150));
+      const client = window.supabaseConfig?.getClient();
+      if (!client) return;
+      try {
+        const [rvRes, fbRes] = await Promise.all([
           client.from('reviews')
-            .select('comment, rating, user_profiles(full_name, city), courses(name)')
+            .select('id,comment,rating,created_at,feedback_type,user_profiles(full_name),courses(name,title)')
             .eq('is_approved', true)
             .order('created_at', { ascending: false })
-            .limit(12),
+            .limit(18),
           client.from('feedback')
-            .select('message, rating, full_name, course_title')
-            .not('rating', 'is', null)
-            .in('status', ['reviewed', 'resolved'])
+            .select('id,message,rating,full_name,course_title,feedback_type,created_at')
+            .not('rating','is',null)
+            .in('status',['reviewed','resolved'])
             .order('created_at', { ascending: false })
-            .limit(6)
+            .limit(10)
         ]);
-
-        const allData = [
-          ...(reviewsData || []),
-          ...(feedbackData || []).map(f => ({
-            comment: f.message,
-            rating: f.rating,
-            user_profiles: { full_name: f.full_name || 'Student', city: '' },
-            courses: { name: f.course_title || '' }
-          }))
-        ];
-
-        if (!allData.length) return;
-        const noData = document.getElementById('reviews-no-data');
-        if (noData) noData.style.display = 'none';
-        track.innerHTML = allData.map((f, i) => _buildReviewCard(f, i)).join('');
-      } catch(e) {
-        // Leave "no reviews yet" placeholder visible
-      }
+        const reviews  = (rvRes.data||[]).map(r => ({ ...r, source:'review', _name: r.user_profiles?.full_name||'Student', feedback_type: r.feedback_type||'course' }));
+        const feedback = (fbRes.data||[]).map(f => ({ ...f, source:'feedback', comment: f.message, _name: f.full_name||'Student' }));
+        _rvAllData = [...reviews,...feedback].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        if (!_rvAllData.length) {
+          const e = document.getElementById('rv-empty');
+          if (e) e.classList.add('show');
+          const o = document.getElementById('rv-carousel-outer');
+          if (o) o.style.display = 'none';
+          return;
+        }
+        _rvFiltered = [..._rvAllData];
+        _rvRenderTrack();
+        _rvUpdateCarousel();
+      } catch(e) { /* leave empty state */ }
     }
 
     // ==================== ENTER KEY + CLEAR ERRORS ON INPUT ====================
@@ -2458,6 +2840,9 @@
         if (el) el.addEventListener('change', () => clearFieldError(id));
       });
       if (typeof loadTestimonials === 'function') loadTestimonials();
+      document.querySelectorAll('.rv-filter').forEach(btn => {
+        btn.addEventListener('click', () => rvSetFilter(btn.dataset.cat));
+      });
     });
 
     // ==================== HOME COURSES: STATE + THUMB FUNCTION ====================

@@ -562,6 +562,208 @@
       .contact-hero { padding:4rem 1.5rem 3.5rem; }
       .ce-qc-btns { flex-direction:column; }
     }
+
+    /* ════════════════════════════════════════════════
+       REVIEWS SECTION — Carousel (same as homepage)
+    ════════════════════════════════════════════════ */
+    .ce-rv-section {
+      padding: 4rem 5vw 5rem;
+      border-top: 1px solid var(--border); overflow: hidden;
+      position: relative;
+    }
+    .ce-rv-section::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(124,92,252,.07) 0%, transparent 70%);
+    }
+    .ce-rv-inner { max-width:1160px; margin:0 auto; position:relative; z-index:1; }
+    .ce-rv-head {
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:1.5rem; flex-wrap:wrap; margin-bottom:1.75rem;
+    }
+    .ce-rv-kicker {
+      display:inline-block; font-size:.7rem; font-weight:800;
+      letter-spacing:.14em; text-transform:uppercase; color:var(--v1);
+      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
+      border-radius:999px; padding:.25rem .85rem; margin-bottom:.75rem;
+    }
+    .ce-rv-title { font-size:clamp(1.5rem,3vw,2rem); font-weight:900; line-height:1.18; color:var(--txt); margin:0 0 .4rem; }
+    .ce-rv-sub { font-size:.88rem; color:var(--txt3); line-height:1.65; margin:0; max-width:400px; }
+    .ce-rv-cta {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.55rem 1.3rem; border-radius:12px;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      color:#fff; font-size:.82rem; font-weight:700;
+      text-decoration:none; white-space:nowrap; flex-shrink:0;
+      box-shadow:0 4px 18px rgba(124,92,252,.35);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .ce-rv-cta:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,92,252,.5); }
+
+    /* Filters */
+    .ce-rv-filters { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+    .ce-rv-filter {
+      padding:.36rem .9rem; border-radius:999px;
+      border:1.5px solid var(--border); background:transparent;
+      font-size:.77rem; font-weight:700; color:var(--txt3);
+      cursor:pointer; font-family:inherit;
+      transition:all .2s cubic-bezier(.4,0,.2,1);
+    }
+    .ce-rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
+    .ce-rv-filter.active {
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      border-color:transparent; color:#fff;
+      box-shadow:0 4px 14px rgba(124,92,252,.35);
+    }
+
+    /* Empty */
+    .ce-rv-empty {
+      text-align:center; padding:3rem 1.5rem;
+      border:1.5px dashed rgba(124,92,252,.2); border-radius:20px;
+      color:var(--txt4); font-size:.9rem; display:none;
+    }
+    .ce-rv-empty.show { display:block; }
+
+    /* Carousel */
+    .ce-rv-carousel-outer { position:relative; margin-bottom:1.25rem; }
+    .ce-rv-clip { overflow:hidden; padding:.5rem .25rem 1rem; margin:0 46px; }
+    .ce-rv-track {
+      display:flex; gap:1.25rem;
+      transition:transform .45s cubic-bezier(.4,0,.2,1); will-change:transform;
+    }
+
+    /* Crystal nav buttons */
+    .ce-rv-nav {
+      position:absolute; top:50%; transform:translateY(-50%);
+      z-index:10; width:44px; height:44px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(22px) saturate(1.8); -webkit-backdrop-filter:blur(22px) saturate(1.8);
+      box-shadow:0 4px 18px rgba(124,92,252,.18), inset 0 1px 0 rgba(255,255,255,.14);
+      cursor:pointer; color:rgba(255,255,255,.85);
+      transition:all .28s cubic-bezier(.34,1.56,.64,1);
+    }
+    :root[data-theme="light"] .ce-rv-nav {
+      background:rgba(255,255,255,.72); border-color:rgba(124,92,252,.2);
+      box-shadow:0 4px 18px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.9); color:var(--txt2);
+    }
+    .ce-rv-nav:hover:not(:disabled) {
+      background:rgba(124,92,252,.22); border-color:rgba(124,92,252,.55);
+      box-shadow:0 8px 32px rgba(124,92,252,.42); transform:translateY(-50%) scale(1.1); color:#fff;
+    }
+    :root[data-theme="light"] .ce-rv-nav:hover:not(:disabled) {
+      background:rgba(124,92,252,.12); color:var(--v1); box-shadow:0 8px 28px rgba(124,92,252,.22);
+    }
+    .ce-rv-nav:disabled { opacity:.28; pointer-events:none; }
+    .ce-rv-prev { left:0; } .ce-rv-next { right:0; }
+    .ce-rv-nav svg { width:17px; height:17px; }
+
+    /* Dots */
+    .ce-rv-dots { display:flex; justify-content:center; gap:.45rem; margin-top:.25rem; }
+    .ce-rv-dot {
+      width:7px; height:7px; border-radius:50%;
+      background:rgba(124,92,252,.22); border:none; padding:0; cursor:pointer;
+      transition:all .28s; flex-shrink:0;
+    }
+    .ce-rv-dot.active { width:24px; border-radius:4px; background:var(--v1); }
+
+    /* Review card (same as homepage rv-card) */
+    .ce-rv-card {
+      flex:0 0 300px; background:var(--panel); border:1.5px solid var(--border);
+      border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
+      display:flex; flex-direction:column;
+      position:relative; overflow:hidden;
+      animation:rvCardIn .4s both;
+      transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+    }
+    @keyframes rvCardIn {
+      from { opacity:0; transform:translateX(20px) scale(.97); }
+      to   { opacity:1; transform:translateX(0) scale(1); }
+    }
+    .ce-rv-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,#7c5cfc,#3d6bff,#67e8f9); border-radius:22px 22px 0 0;
+    }
+    .ce-rv-card:hover {
+      transform:translateY(-8px) scale(1.015);
+      border-color:rgba(124,92,252,.45);
+      box-shadow:0 22px 60px rgba(124,92,252,.2), 0 4px 12px rgba(0,0,0,.1);
+    }
+    .ce-rv-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; margin-bottom:1rem; }
+    .ce-rv-stars { display:flex; gap:.08rem; }
+    .ce-rv-star { font-size:1.25rem; display:inline-block; color:rgba(255,255,255,.12); }
+    :root[data-theme="light"] .ce-rv-star:not(.on) { color:rgba(0,0,0,.1); }
+    @keyframes rvStarPulse {
+      0%,70%,100% { filter:none; transform:scale(1); }
+      85% { filter:drop-shadow(0 0 6px rgba(251,191,36,.9)); transform:scale(1.22); }
+    }
+    .ce-rv-star.on { color:#fbbf24; animation:rvStarPulse 3.5s ease-in-out infinite; }
+    .ce-rv-badge {
+      display:inline-flex; align-items:center; gap:.28rem; flex-shrink:0;
+      padding:.17rem .6rem; border-radius:999px;
+      font-size:.64rem; font-weight:800; text-transform:capitalize; letter-spacing:.04em;
+      color:var(--ce-dot,#7c5cfc);
+      background:color-mix(in srgb,var(--ce-dot,#7c5cfc) 12%,transparent);
+      border:1px solid color-mix(in srgb,var(--ce-dot,#7c5cfc) 28%,transparent);
+      white-space:nowrap;
+    }
+    @supports not (color:color-mix(in srgb,red,blue)) { .ce-rv-badge { background:rgba(124,92,252,.1); } }
+    .ce-rv-badge::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--ce-dot,#7c5cfc); }
+    .ce-rv-quote-wrap { position:relative; flex:1; margin-bottom:.75rem; }
+    .ce-rv-quote-icon {
+      position:absolute; top:-10px; left:-5px;
+      font-size:3rem; line-height:1; font-family:Georgia,serif;
+      color:rgba(124,92,252,.14); pointer-events:none; user-select:none;
+    }
+    .ce-rv-text {
+      font-size:.875rem; line-height:1.78; color:var(--txt2); padding-left:1.4rem; margin:0;
+      display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .ce-rv-reveal { overflow:hidden; max-height:0; opacity:0; margin-bottom:0; transition:max-height .38s cubic-bezier(.4,0,.2,1),opacity .3s,margin .3s; }
+    .ce-rv-card:hover .ce-rv-reveal { max-height:110px; opacity:1; margin-bottom:.6rem; }
+    .ce-rv-reveal-row { display:flex; align-items:center; gap:.4rem; font-size:.75rem; color:var(--txt3); padding:.2rem 0; }
+    .ce-rv-reveal-row span { font-size:.88rem; }
+    .ce-rv-readmore { background:none; border:1px solid rgba(124,92,252,.3); border-radius:999px; padding:.2rem .8rem; font-size:.72rem; font-weight:700; color:var(--v1); cursor:pointer; font-family:inherit; margin-top:.3rem; transition:background .2s,transform .2s; }
+    .ce-rv-readmore:hover { background:rgba(124,92,252,.1); transform:scale(1.04); }
+    .ce-rv-footer { display:flex; align-items:center; gap:.65rem; padding-top:.85rem; margin-top:auto; border-top:1px solid rgba(255,255,255,.07); }
+    :root[data-theme="light"] .ce-rv-footer { border-top-color:var(--border); }
+    .ce-rv-avatar { width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:800; color:#fff; box-shadow:0 3px 10px rgba(0,0,0,.25); }
+    .ce-rv-author-name { font-weight:700; font-size:.84rem; color:var(--txt); }
+    .ce-rv-author-sub  { font-size:.7rem; color:var(--txt4); margin-top:.05rem; }
+
+    /* Modal */
+    #ce-rv-modal {
+      position:fixed; inset:0; z-index:9000;
+      background:rgba(6,3,18,.72); backdrop-filter:blur(22px) saturate(1.6); -webkit-backdrop-filter:blur(22px) saturate(1.6);
+      display:flex; align-items:center; justify-content:center; padding:1.2rem;
+      opacity:0; visibility:hidden; transition:opacity .28s, visibility .28s;
+    }
+    #ce-rv-modal.open { opacity:1; visibility:visible; }
+    #ce-rv-modal-box {
+      background:var(--panel); border:1.5px solid rgba(124,92,252,.28);
+      border-radius:28px; padding:2.4rem 2rem 2rem; max-width:520px; width:94vw;
+      position:relative; box-shadow:0 40px 80px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06) inset;
+    }
+    #ce-rv-modal.open #ce-rv-modal-box { animation:rvModalInCe .32s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes rvModalInCe { from{opacity:0;transform:translateY(32px) scale(.95)} to{opacity:1;transform:none} }
+    .ce-rv-modal-close {
+      position:absolute; top:1rem; right:1rem; width:32px; height:32px; border-radius:50%;
+      border:1.5px solid rgba(124,92,252,.3); background:rgba(124,92,252,.1); color:var(--v1);
+      font-size:.85rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-family:inherit; transition:background .2s, transform .2s;
+    }
+    .ce-rv-modal-close:hover { background:var(--v1); color:#fff; transform:rotate(90deg); }
+    #ce-rv-modal-stars { display:flex; gap:.25rem; margin-bottom:1.2rem; }
+    #ce-rv-modal-stars .ce-rv-star { font-size:1.35rem; }
+    #ce-rv-modal-body { font-size:.92rem; color:var(--txt2); line-height:1.85; margin:0 0 1.6rem; max-height:55vh; overflow-y:auto; }
+    .ce-rv-modal-author { display:flex; align-items:center; gap:.75rem; padding-top:1rem; border-top:1px solid var(--border); }
+    :root[data-theme="light"] #ce-rv-modal-box { background:rgba(255,255,255,.96); }
+
+    @media(max-width:640px) {
+      .ce-rv-head { flex-direction:column; align-items:flex-start; }
+      .ce-rv-card { flex:0 0 260px; }
+      .ce-rv-clip { margin:0 32px; }
+      .ce-rv-nav { width:36px; height:36px; }
+    }
   </style>
 </head>
 <body>
@@ -1025,28 +1227,6 @@
   </div><!-- /.ce-wrap -->
 </div><!-- /.page-wrap -->
 
-<!-- ── Testimonials ── -->
-<section id="testimonials" style="padding:4rem 5vw 5rem;background:linear-gradient(135deg,rgba(124,92,252,0.04),rgba(0,207,238,0.02));border-top:1px solid var(--border);">
-  <div style="max-width:1300px;margin:0 auto;">
-    <div style="text-align:center;">
-      <span style="display:inline-block;padding:.25rem .9rem;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:50px;font-size:.72rem;font-weight:700;color:#fbbf24;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.8rem;">⭐ Student Reviews</span>
-      <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;color:var(--txt);margin:0 0 .5rem;line-height:1.15;">What Our <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Students Say</span></h2>
-      <p style="font-size:.95rem;color:var(--txt3);max-width:500px;margin:0 auto;">Real feedback from real learners who transformed their careers with SkillUpNow.</p>
-    </div>
-    <div class="test-grid" id="enq-reviews-grid">
-      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--txt4);">
-        <div style="font-size:2rem;margin-bottom:.75rem;opacity:.4;">⭐</div>
-        <p>Loading reviews…</p>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:2rem;">
-      <a href="feedback.html" style="display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.8rem;background:var(--panel);border:1.5px solid var(--border);border-radius:999px;font-size:.88rem;font-weight:700;color:var(--txt2);text-decoration:none;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--v1)';this.style.color='var(--v1)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--txt2)'">
-        Share Your Review
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-  </div>
-</section>
 
 <!-- ── Forms Cards Section ── -->
 <section class="qf-section">
@@ -1073,6 +1253,64 @@
     <div class="ce-qr-btns">
       <button class="ce-qr-btn" onclick="copyCEQrUrl()">📋 Copy Link</button>
       <button class="ce-qr-btn primary" onclick="downloadCEQR()">⬇ Download QR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REVIEWS SECTION ═══ -->
+<section class="ce-rv-section">
+  <div class="ce-rv-inner">
+    <div class="ce-rv-head">
+      <div>
+        <div class="ce-rv-kicker">⭐ Student Reviews</div>
+        <h2 class="ce-rv-title">What our learners say</h2>
+        <p class="ce-rv-sub">Real feedback from students who've experienced our courses and mentors.</p>
+      </div>
+      <a href="reviews.html" class="ce-rv-cta">
+        Explore All Reviews
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="ce-rv-filters" id="ce-rv-filters">
+      <button class="ce-rv-filter active" data-cat="all">All</button>
+      <button class="ce-rv-filter" data-cat="course">📚 Courses</button>
+      <button class="ce-rv-filter" data-cat="mentor">👨‍🏫 Mentors</button>
+      <button class="ce-rv-filter" data-cat="admin">🏛 Admin</button>
+      <button class="ce-rv-filter" data-cat="website">🌐 Website</button>
+    </div>
+
+    <div class="ce-rv-empty" id="ce-rv-empty">
+      No reviews yet — be the first to share your experience!
+    </div>
+
+    <div class="ce-rv-carousel-outer" id="ce-rv-carousel-outer">
+      <button class="ce-rv-nav ce-rv-prev" id="ce-rv-prev" onclick="ceRvNav(-1)" aria-label="Previous" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="ce-rv-clip">
+        <div class="ce-rv-track" id="ce-rv-track"></div>
+      </div>
+      <button class="ce-rv-nav ce-rv-next" id="ce-rv-next" onclick="ceRvNav(1)" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="ce-rv-dots" id="ce-rv-dots"></div>
+  </div>
+</section>
+
+<!-- Review read-more modal -->
+<div id="ce-rv-modal" onclick="if(event.target===this)closeCERvModal()">
+  <div id="ce-rv-modal-box">
+    <button class="ce-rv-modal-close" onclick="closeCERvModal()">✕</button>
+    <div id="ce-rv-modal-stars"></div>
+    <p id="ce-rv-modal-body"></p>
+    <div class="ce-rv-modal-author">
+      <div class="ce-rv-avatar" id="ce-rv-modal-avatar"></div>
+      <div>
+        <div class="ce-rv-author-name" id="ce-rv-modal-name"></div>
+        <div class="ce-rv-author-sub" id="ce-rv-modal-type"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1263,69 +1501,104 @@ document.getElementById('emi-form').addEventListener('submit', async (e) => {
   document.getElementById('emi-submit-label').textContent = 'Apply for EMI';
 });
 
+/* ── Review Carousel ── */
+const _ceRvGrads=['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#06b6d4,#0284c7)','linear-gradient(135deg,#a855f7,#7c3aed)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
+const _ceRvTypeColors={course:'#7c5cfc',mentor:'#3d6bff',website:'#06b6d4',admin:'#f59e0b',general:'#10b981'};
+const _ceRvTypeIcons={course:'📚',mentor:'👨‍🏫',website:'🌐',admin:'🏛',general:'💬'};
+const _ceRvTypeLabels={course:'Course',mentor:'Mentor',website:'Website',admin:'Admin',general:'General'};
+let _ceRvAll=[],_ceRvFiltered=[],_ceRvIdx=0;const _ceRvModalStore={};
+function _ceEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+const _CE_RV_CARD_W=300,_CE_RV_GAP=20;
+function _ceRvStep(){return _CE_RV_CARD_W+_CE_RV_GAP;}
+function _ceRvPerPage(){const c=document.querySelector('.ce-rv-clip');if(!c||!c.offsetWidth)return 3;return Math.max(1,Math.floor((c.offsetWidth+_CE_RV_GAP)/_ceRvStep()));}
+function _ceRvCleanText(text,type){
+  if(!text)return'';
+  const posM=text.match(/\[Positives\]:\s*([\s\S]*?)(?=\[Improvements\]:|$)/i);
+  const impM=text.match(/\[Improvements\]:\s*([\s\S]*?)(?=\[Aspect Ratings\]:|$)/i);
+  if(posM||impM){const p=[];if(posM&&posM[1].trim())p.push(posM[1].trim());if(impM&&impM[1].trim())p.push(impM[1].trim());if(p.length)return p.join(' ');}
+  const cleaned=text.replace(/\[(?:Mentor|Course\/Batch|Topic|Priority|Category|Device\/Browser|Site Rating|Aspect Ratings)[^\]]*\]:[^\n]*/gi,'').replace(/\n{3,}/g,'\n\n').trim();
+  return cleaned||text.trim();
+}
+function _ceRvBuildCard(f,idx){
+  const type=f.feedback_type||(f.source==='review'?'course':'general');
+  const rawText=f.comment||f.message||'';
+  const comment=_ceRvCleanText(rawText,type);const isLong=comment.length>220;
+  const preview=isLong?comment.slice(0,220).trimEnd()+'…':comment;
+  const name=f._name||'Student';const initials=name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const course=f.courses?.title||f.course_title||'';const dotColor=_ceRvTypeColors[type]||'#7c5cfc';
+  const grad=_ceRvGrads[idx%_ceRvGrads.length];const rating=Math.min(5,Math.max(0,parseInt(f.rating)||0));
+  const typeLabel=_ceRvTypeLabels[type]||type;const typeIcon=_ceRvTypeIcons[type]||'💬';
+  const dateStr=f.created_at?new Date(f.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+  const starsHtml=Array.from({length:5},(_,i)=>`<span class="ce-rv-star${i<rating?' on':''}"${i<rating?` style="animation-delay:${(i*.12).toFixed(2)}s"`:''}  aria-hidden="true">★</span>`).join('');
+  const ceStoreKey='ce_'+idx;
+  _ceRvModalStore[ceStoreKey]={comment,rating,name,typeLabel,grad};
+  const revealRows=[
+    course?`<div class="ce-rv-reveal-row"><span>📚</span>${_ceEsc(course.substring(0,40)+(course.length>40?'…':''))}</div>`:'',
+    dateStr?`<div class="ce-rv-reveal-row"><span>📅</span>${dateStr}</div>`:'',
+    isLong?`<button class="ce-rv-readmore" onclick="ceRvOpenModal('${ceStoreKey}')">Read full review →</button>`:'',
+  ].filter(Boolean).join('');
+  return `<div class="ce-rv-card" data-cat="${type}" style="animation-delay:${(idx*.06).toFixed(2)}s">
+    <div class="ce-rv-card-top"><div class="ce-rv-stars">${starsHtml}</div><span class="ce-rv-badge" style="--ce-dot:${dotColor}">${typeIcon} ${typeLabel}</span></div>
+    <div class="ce-rv-quote-wrap"><div class="ce-rv-quote-icon">❝</div><p class="ce-rv-text">${_ceEsc(preview)}</p></div>
+    <div class="ce-rv-reveal">${revealRows}</div>
+    <div class="ce-rv-footer"><div class="ce-rv-avatar" style="background:${grad}">${initials}</div><div><div class="ce-rv-author-name">${_ceEsc(name)}</div><div class="ce-rv-author-sub">${course?_ceEsc(course.substring(0,32)+(course.length>32?'…':'')):typeLabel+' Review'}</div></div></div>
+  </div>`;
+}
+function ceRvNav(dir){const p=_ceRvPerPage(),mx=Math.max(0,_ceRvFiltered.length-p);_ceRvIdx=Math.max(0,Math.min(_ceRvIdx+dir,mx));_ceRvUpdateCarousel();}
+function ceRvGoToPage(page){_ceRvIdx=page*_ceRvPerPage();_ceRvUpdateCarousel();}
+function ceRvSetFilter(cat){
+  _ceRvIdx=0;
+  document.querySelectorAll('.ce-rv-filter').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
+  _ceRvFiltered=cat==='all'?[..._ceRvAll]:_ceRvAll.filter(f=>{const t=f.feedback_type||(f.source==='review'?'course':'general');return t===cat;});
+  _ceRvRenderTrack();_ceRvUpdateCarousel();
+}
+function _ceRvRenderTrack(){const t=document.getElementById('ce-rv-track');if(t)t.innerHTML=_ceRvFiltered.map((f,i)=>_ceRvBuildCard(f,i)).join('');}
+function _ceRvUpdateCarousel(){
+  const track=document.getElementById('ce-rv-track');if(!track)return;
+  track.style.transform=`translateX(${-_ceRvIdx*_ceRvStep()}px)`;
+  const p=_ceRvPerPage(),mx=Math.max(0,_ceRvFiltered.length-p);
+  const prev=document.getElementById('ce-rv-prev'),next=document.getElementById('ce-rv-next');
+  if(prev)prev.disabled=_ceRvIdx<=0;if(next)next.disabled=_ceRvIdx>=mx;
+  const td=Math.ceil(_ceRvFiltered.length/Math.max(1,p)),ad=Math.min(Math.floor(_ceRvIdx/Math.max(1,p)),td-1);
+  const dots=document.getElementById('ce-rv-dots');
+  if(dots)dots.innerHTML=Array.from({length:td},(_,i)=>`<button class="ce-rv-dot${i===ad?' active':''}" onclick="ceRvGoToPage(${i})" aria-label="Page ${i+1}"></button>`).join('');
+}
+function ceRvOpenModal(key){
+  const d=_ceRvModalStore[key];if(!d)return;
+  const m=document.getElementById('ce-rv-modal');if(!m)return;
+  document.getElementById('ce-rv-modal-stars').innerHTML=Array.from({length:5},(_,i)=>`<span class="ce-rv-star${i<d.rating?' on':''}"${i<d.rating?` style="animation-delay:${(i*.12).toFixed(2)}s"`:''}  aria-hidden="true">★</span>`).join('');
+  document.getElementById('ce-rv-modal-body').textContent='\u201c'+d.comment+'\u201d';
+  const initials=d.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const av=document.getElementById('ce-rv-modal-avatar');av.style.background=d.grad;av.textContent=initials;
+  document.getElementById('ce-rv-modal-name').textContent=d.name;
+  document.getElementById('ce-rv-modal-type').textContent=d.typeLabel+' Review';
+  m.classList.add('open');document.body.style.overflow='hidden';
+}
+function closeCERvModal(){const m=document.getElementById('ce-rv-modal');if(m)m.classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCERvModal();});
+window.addEventListener('resize',()=>_ceRvUpdateCarousel());
+document.querySelectorAll('.ce-rv-filter').forEach(b=>b.addEventListener('click',()=>ceRvSetFilter(b.dataset.cat)));
+
 /* ── Load reviews ── */
-(async function loadEnqReviews() {
-  let tries = 0;
-  while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
-  if (!_db()) return;
-  const grid = document.getElementById('enq-reviews-grid');
-  try {
-    const [{ data: reviewData }, { data: feedbackData }] = await Promise.all([
-      _db().from('reviews')
-        .select('id,rating,comment,created_at,user_id,courses(title)')
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false })
-        .limit(6),
-      _db().from('feedback')
-        .select('id,rating,message,created_at,user_id,full_name,course_title,feedback_type')
-        .in('status', ['reviewed', 'resolved'])
-        .order('created_at', { ascending: false })
-        .limit(6)
+(async function loadEnqReviews(){
+  let tries=0;while(!_db()&&tries++<20)await new Promise(r=>setTimeout(r,150));if(!_db())return;
+  const empty=document.getElementById('ce-rv-empty');
+  try{
+    const[rvRes,fbRes]=await Promise.all([
+      _db().from('reviews').select('id,rating,comment,created_at,feedback_type,user_id,courses(title)').eq('is_approved',true).order('created_at',{ascending:false}).limit(18),
+      _db().from('feedback').select('id,rating,message,created_at,user_id,full_name,course_title,feedback_type').in('status',['reviewed','resolved']).not('rating','is',null).order('created_at',{ascending:false}).limit(10)
     ]);
-
-    const allData = [
-      ...(reviewData || []).map(item => ({ ...item, source: 'review' })),
-      ...(feedbackData || []).map(item => ({ ...item, source: 'feedback' }))
-    ]
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 6);
-
-    if (!allData.length) {
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2.5rem;color:var(--txt4)"><div style="font-size:2rem;opacity:.4;margin-bottom:.75rem">⭐</div><p style="font-size:.9rem;">Be the first to share your experience!</p></div>`;
-      return;
-    }
-
-    const uids = [...new Set(allData.map(r => r.user_id).filter(Boolean))];
-    let nameMap = {};
-    if (uids.length) {
-      const { data: profiles } = await _db().from('user_profiles').select('user_id,full_name').in('user_id', uids);
-      nameMap = Object.fromEntries((profiles||[]).map(p => [p.user_id, p.full_name]));
-    }
-
-    const gradients = ['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#00cfee,#0090b8)','linear-gradient(135deg,#a855f7,#7c3aed)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
-    grid.innerHTML = allData.map((r, i) => {
-      const name = r.user_id ? nameMap[r.user_id] || 'Student' : (r.full_name || 'Student');
-      const initials = name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
-      const stars = r.rating ? '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating) : '☆'.repeat(5);
-      const body = r.source === 'review' ? r.comment : r.message;
-      const meta = r.source === 'review'
-        ? r.courses?.title || 'SkillUpNow Student'
-        : r.course_title || (r.feedback_type ? r.feedback_type.replace(/_/g,' ') : 'Feedback');
-      return `<div class="test-card">
-        <div class="test-stars">${stars}</div>
-        <div class="test-body">"${body?.substring(0,200) || 'No comment provided.'}${(body?.length||0)>200?'…':''}"</div>
-        <div class="test-author">
-          <div class="test-avatar" style="background:${gradients[i%gradients.length]}">${initials}</div>
-          <div>
-            <div class="test-name">${name}</div>
-            <div class="test-meta">${meta}</div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--txt4)">Unable to load reviews at this time.</div>`;
-  }
+    const reviews=(rvRes.data||[]).map(r=>({...r,source:'review',feedback_type:r.feedback_type||'course'}));
+    const feedback=(fbRes.data||[]).map(f=>({...f,source:'feedback',comment:f.message}));
+    const uids=[...new Set([...reviews,...feedback].map(r=>r.user_id).filter(Boolean))];
+    let nameMap={};
+    if(uids.length){const{data:ps}=await _db().from('user_profiles').select('user_id,full_name').in('user_id',uids);nameMap=Object.fromEntries((ps||[]).map(p=>[p.user_id,p.full_name]));}
+    reviews.forEach(r=>{r._name=r.user_id?nameMap[r.user_id]||'Student':'Student';});
+    feedback.forEach(f=>{f._name=f.user_id?nameMap[f.user_id]||f.full_name||'Student':f.full_name||'Student';});
+    _ceRvAll=[...reviews,...feedback].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    if(!_ceRvAll.length){if(empty)empty.classList.add('show');const o=document.getElementById('ce-rv-carousel-outer');if(o)o.style.display='none';return;}
+    _ceRvFiltered=[..._ceRvAll];_ceRvRenderTrack();_ceRvUpdateCarousel();
+  }catch(e){if(empty)empty.classList.add('show');}
 })();
 
 

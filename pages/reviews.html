@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Reviews — SkillUpNow</title>
+  <meta name="description" content="Read verified reviews from SkillUpNow students about courses, mentors, and the platform.">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ══ PAGE SHELL ══ */
+    .page-wrap { position:relative; z-index:1; padding-top:0; min-height:100vh; }
+
+    /* ══ HERO ══ */
+    .rv-hero {
+      background:linear-gradient(155deg,#06030e 0%,#0d0720 22%,#160b35 58%,#0a1230 100%);
+      min-height:280px; padding:5rem 2rem 3.5rem;
+      position:relative; overflow:hidden;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center;
+    }
+    :root[data-theme="light"] .rv-hero {
+      background:linear-gradient(155deg,#f8f6ff 0%,#f0ecff 28%,#e8e2ff 58%,#f5f3ff 100%);
+    }
+    .rv-hero::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(ellipse 55% 70% at 8% 45%,rgba(124,92,252,.2) 0%,transparent 55%),
+        radial-gradient(ellipse 45% 55% at 92% 55%,rgba(61,107,255,.18) 0%,transparent 52%);
+      animation:rvHeroOrb 14s ease-in-out infinite;
+    }
+    @keyframes rvHeroOrb{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.75;transform:scale(1.05)}}
+    .rv-hero::after {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+      background-size:22px 22px;
+      -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+      mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+    }
+    .rv-hero-inner { position:relative; z-index:2; max-width:640px; }
+    .rv-hero-kicker {
+      display:inline-flex; align-items:center; gap:.45rem;
+      background:rgba(124,92,252,.14); border:1px solid rgba(124,92,252,.35);
+      border-radius:999px; padding:.3rem .95rem;
+      font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+      color:#a78bfa; margin-bottom:1rem;
+    }
+    :root[data-theme="light"] .rv-hero-kicker { color:#7c5cfc; background:rgba(124,92,252,.1); }
+    .rv-hero h1 {
+      font-size:clamp(1.9rem,4vw,2.8rem); font-weight:900; line-height:1.15;
+      color:#fff; margin-bottom:.6rem; letter-spacing:-.02em;
+    }
+    :root[data-theme="light"] .rv-hero h1 { color:#1e1b4b; }
+    .rv-hero-accent { background:linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    :root[data-theme="light"] .rv-hero-accent { background:linear-gradient(135deg,#7c5cfc,#3d6bff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .rv-hero p { font-size:.95rem; color:rgba(255,255,255,.62); max-width:480px; line-height:1.65; margin:0 auto; }
+    :root[data-theme="light"] .rv-hero p { color:rgba(30,27,75,.58); }
+
+    /* ══ STATS BAR ══ */
+    .rv-stats {
+      display:flex; justify-content:center; flex-wrap:wrap;
+      background:var(--panel); border-bottom:1.5px solid var(--border);
+    }
+    .rv-stat {
+      display:flex; align-items:center; gap:.65rem;
+      padding:1rem 2.5rem; border-right:1px solid var(--border);
+    }
+    .rv-stat:last-child { border-right:none; }
+    .rv-stat-icon { font-size:1.4rem; }
+    .rv-stat-num { font-size:1.2rem; font-weight:900; color:var(--txt); line-height:1; }
+    .rv-stat-lbl { font-size:.72rem; color:var(--txt3); font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+
+    /* ══ MAIN LAYOUT ══ */
+    .rv-main { max-width:1260px; margin:0 auto; padding:2.5rem 1.5rem 6rem; }
+
+    /* ══ FILTER BAR ══ */
+    .rv-filter-bar {
+      display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+      margin-bottom:2rem; padding-bottom:1.5rem;
+      border-bottom:1.5px solid var(--border);
+    }
+    .rv-filter-group { display:flex; gap:.45rem; flex-wrap:wrap; }
+    .rv-filter-btn {
+      padding:.38rem .95rem; border-radius:999px;
+      border:1.5px solid var(--border); background:transparent;
+      font-size:.78rem; font-weight:700; color:var(--txt3);
+      cursor:pointer; font-family:inherit;
+      transition:all .2s cubic-bezier(.4,0,.2,1);
+    }
+    .rv-filter-btn:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
+    .rv-filter-btn.active {
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      border-color:transparent; color:#fff;
+      box-shadow:0 4px 14px rgba(124,92,252,.35);
+    }
+    .rv-filter-sep { width:1px; height:28px; background:var(--border); flex-shrink:0; }
+    .rv-sort-select {
+      padding:.38rem .85rem; border-radius:999px;
+      border:1.5px solid var(--border); background:var(--panel); color:var(--txt);
+      font-size:.78rem; font-weight:700; font-family:inherit; cursor:pointer;
+      outline:none; appearance:none;
+      padding-right:1.6rem;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right .65rem center;
+    }
+    .rv-result-count { font-size:.82rem; color:var(--txt3); margin-left:auto; white-space:nowrap; }
+
+    /* ══ CATEGORY SECTION ══ */
+    .rv-cat-section { margin-bottom:3rem; }
+    .rv-cat-header {
+      display:flex; align-items:center; gap:.85rem;
+      margin-bottom:1.5rem; padding-bottom:.75rem;
+      border-bottom:1px solid var(--border);
+    }
+    .rv-cat-icon { font-size:1.5rem; }
+    .rv-cat-title { font-size:1.1rem; font-weight:800; color:var(--txt); }
+    .rv-cat-count {
+      display:inline-flex; align-items:center;
+      padding:.15rem .65rem; border-radius:999px;
+      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.2);
+      font-size:.7rem; font-weight:800; color:var(--v1);
+    }
+
+    /* ══ REVIEW GRID ══ */
+    .rv-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(300px,1fr));
+      gap:1.4rem;
+    }
+
+    /* ══ REVIEW CARD (full page version — same design as carousel) ══ */
+    @keyframes rvCardFadeUp {
+      from { opacity:0; transform:translateY(20px) scale(.98); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes rvStarPulse {
+      0%,70%,100% { filter:none; transform:scale(1); }
+      85% { filter:drop-shadow(0 0 6px rgba(251,191,36,.9)); transform:scale(1.22); }
+    }
+
+    .rv-full-card {
+      background:var(--panel); border:1.5px solid var(--border);
+      border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
+      display:flex; flex-direction:column;
+      position:relative; overflow:hidden;
+      animation:rvCardFadeUp .4s both;
+      transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+    }
+    .rv-full-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,#7c5cfc,#3d6bff,#67e8f9);
+      border-radius:22px 22px 0 0;
+    }
+    .rv-full-card:hover {
+      transform:translateY(-7px) scale(1.01);
+      border-color:rgba(124,92,252,.45);
+      box-shadow:0 20px 55px rgba(124,92,252,.18), 0 4px 12px rgba(0,0,0,.08);
+    }
+
+    /* Stars */
+    .rv-full-card-top {
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:.5rem; margin-bottom:.95rem;
+    }
+    .rv-full-stars { display:flex; gap:.08rem; }
+    .rv-full-star { font-size:1.25rem; display:inline-block; color:rgba(255,255,255,.12); }
+    :root[data-theme="light"] .rv-full-star:not(.on) { color:rgba(0,0,0,.1); }
+    .rv-full-star.on { color:#fbbf24; animation:rvStarPulse 3.5s ease-in-out infinite; }
+
+    /* Badge */
+    .rv-full-badge {
+      display:inline-flex; align-items:center; gap:.28rem; flex-shrink:0;
+      padding:.17rem .6rem; border-radius:999px;
+      font-size:.64rem; font-weight:800; text-transform:capitalize; letter-spacing:.04em;
+      color:var(--rvf-dot,#7c5cfc);
+      background:color-mix(in srgb,var(--rvf-dot,#7c5cfc) 12%,transparent);
+      border:1px solid color-mix(in srgb,var(--rvf-dot,#7c5cfc) 28%,transparent);
+    }
+    @supports not (color:color-mix(in srgb,red,blue)){.rv-full-badge{background:rgba(124,92,252,.1);border-color:rgba(124,92,252,.25);}}
+    .rv-full-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--rvf-dot,#7c5cfc);}
+
+    /* Quote */
+    .rv-full-quote-wrap { position:relative; flex:1; margin-bottom:.75rem; }
+    .rv-full-quote-icon {
+      position:absolute; top:-10px; left:-5px;
+      font-size:3rem; line-height:1; font-family:Georgia,serif;
+      color:rgba(124,92,252,.14); pointer-events:none; user-select:none;
+    }
+    :root[data-theme="light"] .rv-full-quote-icon { color:rgba(124,92,252,.1); }
+    .rv-full-text {
+      font-size:.875rem; line-height:1.78; color:var(--txt2);
+      padding-left:1.4rem; margin:0;
+      display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .rv-full-text.expanded { -webkit-line-clamp:unset; }
+    .rv-full-readmore {
+      background:none; border:1px solid rgba(124,92,252,.28); border-radius:999px;
+      padding:.2rem .8rem; font-size:.72rem; font-weight:700; color:var(--v1);
+      cursor:pointer; font-family:inherit; margin:.5rem 0 .75rem;
+      display:inline-block; transition:background .2s, transform .2s;
+    }
+    .rv-full-readmore:hover { background:rgba(124,92,252,.1); transform:scale(1.04); }
+
+    /* Meta row */
+    .rv-full-meta {
+      display:flex; gap:.65rem; flex-wrap:wrap; margin-bottom:.7rem;
+    }
+    .rv-full-meta-item {
+      display:flex; align-items:center; gap:.3rem;
+      font-size:.73rem; color:var(--txt3);
+    }
+    .rv-full-meta-item span { font-size:.85rem; }
+
+    /* Footer */
+    .rv-full-footer {
+      display:flex; align-items:center; gap:.65rem;
+      padding-top:.85rem; margin-top:auto;
+      border-top:1px solid rgba(255,255,255,.07);
+    }
+    :root[data-theme="light"] .rv-full-footer { border-top-color:var(--border); }
+    .rv-full-avatar {
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.82rem; font-weight:800; color:#fff;
+      box-shadow:0 3px 10px rgba(0,0,0,.25);
+    }
+    .rv-full-author-name { font-weight:700; font-size:.84rem; color:var(--txt); }
+    .rv-full-author-sub  { font-size:.7rem; color:var(--txt4); margin-top:.05rem; }
+
+    /* ══ LOAD MORE ══ */
+    .rv-load-more-wrap { text-align:center; margin-top:2rem; }
+    .rv-load-more-btn {
+      display:inline-flex; align-items:center; gap:.55rem;
+      padding:.7rem 1.8rem; border-radius:14px;
+      background:var(--panel); border:1.5px solid var(--border);
+      color:var(--txt2); font-size:.88rem; font-weight:700; cursor:pointer;
+      font-family:inherit; transition:all .22s;
+    }
+    .rv-load-more-btn:hover { border-color:var(--v1); color:var(--v1); transform:translateY(-2px); }
+    .rv-load-more-btn:disabled { opacity:.4; pointer-events:none; }
+
+    /* ══ EMPTY STATE ══ */
+    .rv-full-empty {
+      text-align:center; padding:4rem 1.5rem;
+      border:1.5px dashed rgba(124,92,252,.2); border-radius:20px;
+      color:var(--txt4); font-size:.92rem; line-height:1.7;
+      display:none; grid-column:1/-1;
+    }
+    .rv-full-empty.show { display:block; }
+    .rv-full-empty-icon { font-size:2.5rem; margin-bottom:.6rem; opacity:.5; }
+
+    /* ══ LOADING SKELETON ══ */
+    @keyframes rvSkelShimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .rv-skel {
+      border-radius:22px; height:220px;
+      background:linear-gradient(90deg,var(--border) 25%,rgba(124,92,252,.05) 50%,var(--border) 75%);
+      background-size:200% 100%;
+      animation:rvSkelShimmer 1.6s ease-in-out infinite;
+    }
+
+    /* ══ MODAL ══ */
+    @keyframes rvModalIn { from{opacity:0;transform:translateY(32px) scale(.95)} to{opacity:1;transform:none} }
+    #rvp-modal {
+      position:fixed; inset:0; z-index:99995;
+      background:rgba(6,3,18,.72);
+      backdrop-filter:blur(22px) saturate(1.6); -webkit-backdrop-filter:blur(22px) saturate(1.6);
+      display:flex; align-items:center; justify-content:center; padding:1.2rem;
+      opacity:0; visibility:hidden; transition:opacity .28s, visibility .28s;
+    }
+    #rvp-modal.open { opacity:1; visibility:visible; }
+    #rvp-modal-box {
+      background:var(--panel); border:1.5px solid rgba(124,92,252,.28);
+      border-radius:28px; padding:2.4rem 2rem 2rem;
+      max-width:540px; width:94vw; position:relative;
+      box-shadow:0 40px 80px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    #rvp-modal.open #rvp-modal-box { animation:rvModalIn .32s cubic-bezier(.22,1,.36,1) both; }
+    .rvp-modal-close {
+      position:absolute; top:1rem; right:1rem; width:32px; height:32px; border-radius:50%;
+      border:1.5px solid rgba(124,92,252,.3); background:rgba(124,92,252,.1); color:var(--v1);
+      font-size:.85rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-family:inherit; transition:background .2s, transform .2s;
+    }
+    .rvp-modal-close:hover { background:var(--v1); color:#fff; transform:rotate(90deg); }
+    #rvp-modal-stars { display:flex; gap:.28rem; margin-bottom:1.2rem; }
+    #rvp-modal-stars .rv-full-star { font-size:1.4rem; }
+    #rvp-modal-body { font-size:.93rem; color:var(--txt2); line-height:1.85; margin:0 0 1.5rem; max-height:55vh; overflow-y:auto; }
+    .rvp-modal-author { display:flex; align-items:center; gap:.75rem; padding-top:1rem; border-top:1px solid var(--border); }
+    :root[data-theme="light"] #rvp-modal-box { background:rgba(255,255,255,.97); }
+
+    /* ══ RESPONSIVE ══ */
+    @media(max-width:700px){
+      .rv-filter-bar { flex-direction:column; align-items:flex-start; gap:.75rem; }
+      .rv-result-count { margin-left:0; }
+      .rv-grid { grid-template-columns:1fr; }
+      .rv-stat { padding:.85rem 1.5rem; }
+    }
+    @media(max-width:480px){ .rv-stat { min-width:50%; border-right:none; border-bottom:1px solid var(--border); } }
+  </style>
+</head>
+<body>
+<div class="mesh-bg"></div>
+<div class="orb orb1"></div>
+<nav></nav>
+
+<div class="page-wrap">
+
+  <!-- Hero -->
+  <section class="rv-hero">
+    <div class="rv-hero-inner">
+      <div class="rv-hero-kicker">⭐ Verified Reviews</div>
+      <h1>What Our Students <span class="rv-hero-accent">Really Think</span></h1>
+      <p>All reviews are verified and approved by our team. Explore feedback across courses, mentors, admin, and platform.</p>
+    </div>
+  </section>
+
+  <!-- Stats bar -->
+  <div class="rv-stats" id="rv-stats">
+    <div class="rv-stat"><span class="rv-stat-icon">⭐</span><div><div class="rv-stat-num" id="stat-total">—</div><div class="rv-stat-lbl">Total Reviews</div></div></div>
+    <div class="rv-stat"><span class="rv-stat-icon">📚</span><div><div class="rv-stat-num" id="stat-courses">—</div><div class="rv-stat-lbl">Course Reviews</div></div></div>
+    <div class="rv-stat"><span class="rv-stat-icon">👨‍🏫</span><div><div class="rv-stat-num" id="stat-mentors">—</div><div class="rv-stat-lbl">Mentor Reviews</div></div></div>
+    <div class="rv-stat"><span class="rv-stat-icon">💎</span><div><div class="rv-stat-num" id="stat-avg">—</div><div class="rv-stat-lbl">Avg Rating</div></div></div>
+  </div>
+
+  <!-- Main -->
+  <div class="rv-main">
+
+    <!-- Filter bar -->
+    <div class="rv-filter-bar">
+      <div class="rv-filter-group" id="rvp-filters">
+        <button class="rv-filter-btn active" data-cat="all">All</button>
+        <button class="rv-filter-btn" data-cat="course">📚 Courses</button>
+        <button class="rv-filter-btn" data-cat="mentor">👨‍🏫 Mentors</button>
+        <button class="rv-filter-btn" data-cat="admin">🏛 Admin</button>
+        <button class="rv-filter-btn" data-cat="website">🌐 Website</button>
+        <button class="rv-filter-btn" data-cat="general">💬 General</button>
+      </div>
+      <div class="rv-filter-sep"></div>
+      <select class="rv-sort-select" id="rvp-sort" onchange="rvpSort(this.value)">
+        <option value="newest">Newest First</option>
+        <option value="highest">Highest Rated</option>
+        <option value="lowest">Lowest Rated</option>
+      </select>
+      <span class="rv-result-count" id="rvp-count"></span>
+    </div>
+
+    <!-- Grid -->
+    <div class="rv-grid" id="rvp-grid">
+      <!-- skeletons -->
+      <div class="rv-skel"></div><div class="rv-skel"></div>
+      <div class="rv-skel"></div><div class="rv-skel"></div>
+      <div class="rv-skel"></div><div class="rv-skel"></div>
+    </div>
+
+    <div class="rv-load-more-wrap" id="rvp-load-more-wrap" style="display:none">
+      <button class="rv-load-more-btn" id="rvp-load-more" onclick="rvpLoadMore()">
+        Load More Reviews
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- Review modal -->
+<div id="rvp-modal" onclick="if(event.target===this)rvpCloseModal()">
+  <div id="rvp-modal-box">
+    <button class="rvp-modal-close" onclick="rvpCloseModal()">✕</button>
+    <div id="rvp-modal-stars"></div>
+    <p id="rvp-modal-body"></p>
+    <div class="rvp-modal-author">
+      <div class="rv-full-avatar" id="rvp-modal-avatar"></div>
+      <div>
+        <div class="rv-full-author-name" id="rvp-modal-name"></div>
+        <div class="rv-full-author-sub" id="rvp-modal-type"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../config/supabase-config.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/profile-nav.js"></script>
+<script>
+/* ── Constants ── */
+const RVP_GRADS = ['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#06b6d4,#0284c7)','linear-gradient(135deg,#a855f7,#7c3aed)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
+const RVP_TYPE_COLORS = { course:'#7c5cfc', mentor:'#3d6bff', website:'#06b6d4', admin:'#f59e0b', general:'#10b981' };
+const RVP_TYPE_ICONS  = { course:'📚', mentor:'👨‍🏫', website:'🌐', admin:'🏛', general:'💬' };
+const RVP_TYPE_LABELS = { course:'Course', mentor:'Mentor', website:'Website', admin:'Admin', general:'General' };
+const RVP_PAGE_SIZE   = 12;
+
+let _rvpAll      = [];   // all loaded data
+let _rvpFiltered = [];   // after category filter
+let _rvpSorted   = [];   // after sort
+let _rvpPage     = 0;
+let _rvpCat      = 'all';
+let _rvpSortVal  = 'newest';
+const _rvpModalStore = {};
+
+function _rvpEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function _rvpCleanText(text) {
+  if (!text) return '';
+  const posM = text.match(/\[Positives\]:\s*([\s\S]*?)(?=\[Improvements\]:|$)/i);
+  const impM = text.match(/\[Improvements\]:\s*([\s\S]*?)(?=\[Aspect Ratings\]:|$)/i);
+  if (posM || impM) {
+    const p = [];
+    if (posM && posM[1].trim()) p.push(posM[1].trim());
+    if (impM && impM[1].trim()) p.push(impM[1].trim());
+    if (p.length) return p.join(' ');
+  }
+  const cleaned = text.replace(/\[(?:Mentor|Course\/Batch|Topic|Priority|Category|Device\/Browser|Site Rating|Aspect Ratings)[^\]]*\]:[^\n]*/gi, '').replace(/\n{3,}/g, '\n\n').trim();
+  return cleaned || text.trim();
+}
+
+function _rvpBuildCard(f, idx) {
+  const type = f.feedback_type || (f.source === 'review' ? 'course' : 'general');
+  const comment = _rvpCleanText(f.comment || f.message || '');
+  const isLong = comment.length > 280;
+  const preview = isLong ? comment.slice(0, 280).trimEnd() + '…' : comment;
+  const name = f._name || 'Student';
+  const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const course = f.courses?.name || f.courses?.title || f.course_title || '';
+  const dotColor = RVP_TYPE_COLORS[type] || '#7c5cfc';
+  const grad = RVP_GRADS[idx % RVP_GRADS.length];
+  const rating = Math.min(5, Math.max(0, parseInt(f.rating) || 0));
+  const typeLabel = RVP_TYPE_LABELS[type] || type;
+  const typeIcon  = RVP_TYPE_ICONS[type]  || '💬';
+  const dateStr = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '';
+  const starsHtml = Array.from({length:5}, (_, i) =>
+    `<span class="rv-full-star${i < rating ? ' on' : ''}" ${i < rating ? `style="animation-delay:${(i*.12).toFixed(2)}s"` : ''} aria-hidden="true">★</span>`
+  ).join('');
+  const rvpKey = 'rvp_' + idx;
+  _rvpModalStore[rvpKey] = { comment, rating, name, typeLabel, grad };
+  return `<div class="rv-full-card" style="animation-delay:${(idx%RVP_PAGE_SIZE*.04).toFixed(2)}s">
+    <div class="rv-full-card-top">
+      <div class="rv-full-stars" aria-label="${rating} out of 5">${starsHtml}</div>
+      <span class="rv-full-badge" style="--rvf-dot:${dotColor}">${typeIcon} ${typeLabel}</span>
+    </div>
+    <div class="rv-full-quote-wrap">
+      <div class="rv-full-quote-icon">❝</div>
+      <p class="rv-full-text" id="rvp-t-${idx}">${_rvpEsc(preview)}</p>
+    </div>
+    ${isLong ? `<button class="rv-full-readmore" onclick="rvpOpenModal('${rvpKey}')">Read full review →</button>` : ''}
+    <div class="rv-full-meta">
+      ${course ? `<div class="rv-full-meta-item"><span>📚</span>${_rvpEsc(course.substring(0,36)+(course.length>36?'…':''))}</div>` : ''}
+      ${dateStr ? `<div class="rv-full-meta-item"><span>📅</span>${dateStr}</div>` : ''}
+    </div>
+    <div class="rv-full-footer">
+      <div class="rv-full-avatar" style="background:${grad}">${initials}</div>
+      <div>
+        <div class="rv-full-author-name">${_rvpEsc(name)}</div>
+        <div class="rv-full-author-sub">${course ? _rvpEsc(course.substring(0,32)+(course.length>32?'…':'')) : typeLabel+' Review'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function rvpRender(append) {
+  const grid = document.getElementById('rvp-grid');
+  const start = append ? _rvpPage * RVP_PAGE_SIZE : 0;
+  const slice = _rvpSorted.slice(start, start + RVP_PAGE_SIZE);
+  const totalShown = start + slice.length;
+  const hasMore = totalShown < _rvpSorted.length;
+  if (!append) grid.innerHTML = '';
+  if (!_rvpSorted.length) {
+    grid.innerHTML = '<div class="rv-full-empty show"><div class="rv-full-empty-icon">💬</div><p>No reviews found for this filter.</p></div>';
+  } else {
+    grid.insertAdjacentHTML('beforeend', slice.map((f, i) => _rvpBuildCard(f, start + i)).join(''));
+  }
+  const lmWrap = document.getElementById('rvp-load-more-wrap');
+  const lmBtn  = document.getElementById('rvp-load-more');
+  if (lmWrap) lmWrap.style.display = hasMore ? 'block' : 'none';
+  if (lmBtn)  lmBtn.disabled = false;
+  const count = document.getElementById('rvp-count');
+  if (count) count.textContent = `${_rvpSorted.length} review${_rvpSorted.length !== 1 ? 's' : ''}`;
+}
+
+function rvpApplyFilters() {
+  _rvpPage = 0;
+  _rvpFiltered = _rvpCat === 'all' ? [..._rvpAll] : _rvpAll.filter(f => {
+    const t = f.feedback_type || (f.source === 'review' ? 'course' : 'general');
+    return t === _rvpCat;
+  });
+  _rvpSorted = [..._rvpFiltered].sort((a, b) => {
+    if (_rvpSortVal === 'highest') return (b.rating || 0) - (a.rating || 0);
+    if (_rvpSortVal === 'lowest')  return (a.rating || 0) - (b.rating || 0);
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+  rvpRender(false);
+}
+
+function rvpSetFilter(cat) {
+  _rvpCat = cat;
+  document.querySelectorAll('.rv-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  rvpApplyFilters();
+}
+
+function rvpSort(val) {
+  _rvpSortVal = val;
+  rvpApplyFilters();
+}
+
+function rvpLoadMore() {
+  _rvpPage++;
+  rvpRender(true);
+}
+
+/* Modal */
+function rvpOpenModal(key) {
+  const d = _rvpModalStore[key]; if (!d) return;
+  const m = document.getElementById('rvp-modal'); if (!m) return;
+  const starsHtml = Array.from({length:5}, (_, i) =>
+    `<span class="rv-full-star${i<d.rating?' on':''}" ${i<d.rating?`style="animation-delay:${(i*.12).toFixed(2)}s"`:''} aria-hidden="true">★</span>`
+  ).join('');
+  document.getElementById('rvp-modal-stars').innerHTML = starsHtml;
+  document.getElementById('rvp-modal-body').textContent = '\u201c' + d.comment + '\u201d';
+  const initials = d.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const av = document.getElementById('rvp-modal-avatar');
+  av.style.background = d.grad; av.textContent = initials;
+  document.getElementById('rvp-modal-name').textContent = d.name;
+  document.getElementById('rvp-modal-type').textContent = d.typeLabel + ' Review';
+  m.classList.add('open'); document.body.style.overflow = 'hidden';
+}
+function rvpCloseModal() {
+  const m = document.getElementById('rvp-modal'); if (m) m.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') rvpCloseModal(); });
+
+/* Filter button wiring */
+document.querySelectorAll('.rv-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => rvpSetFilter(btn.dataset.cat));
+});
+
+/* Main data load */
+async function rvpLoad() {
+  let tries = 0;
+  while (!window.supabaseConfig?.getClient() && tries++ < 20)
+    await new Promise(r => setTimeout(r, 150));
+  const client = window.supabaseConfig?.getClient();
+  if (!client) { document.getElementById('rvp-grid').innerHTML = '<p style="color:var(--txt4);text-align:center;grid-column:1/-1;padding:3rem">Unable to connect. Please refresh.</p>'; return; }
+
+  try {
+    const [rvRes, fbRes] = await Promise.all([
+      client.from('reviews')
+        .select('id,comment,rating,created_at,feedback_type,user_id,courses(name,title)')
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false })
+        .limit(200),
+      client.from('feedback')
+        .select('id,message,rating,full_name,course_title,feedback_type,created_at,user_id')
+        .not('rating', 'is', null)
+        .in('status', ['reviewed', 'resolved'])
+        .order('created_at', { ascending: false })
+        .limit(100)
+    ]);
+
+    const reviews  = (rvRes.data  || []).map(r => ({ ...r, source:'review',   feedback_type: r.feedback_type || 'course' }));
+    const feedback = (fbRes.data  || []).map(f => ({ ...f, source:'feedback', comment: f.message }));
+
+    const uids = [...new Set([...reviews, ...feedback].map(r => r.user_id).filter(Boolean))];
+    let nameMap = {};
+    if (uids.length) {
+      const { data: ps } = await client.from('user_profiles').select('user_id,full_name').in('user_id', uids);
+      nameMap = Object.fromEntries((ps || []).map(p => [p.user_id, p.full_name]));
+    }
+    reviews.forEach(r  => { r._name = r.user_id ? nameMap[r.user_id] || 'Student' : 'Student'; });
+    feedback.forEach(f => { f._name = f.user_id ? nameMap[f.user_id] || f.full_name || 'Student' : f.full_name || 'Student'; });
+
+    _rvpAll = [...reviews, ...feedback].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Stats
+    const total = _rvpAll.length;
+    const courseCount  = _rvpAll.filter(f => (f.feedback_type||'course') === 'course').length;
+    const mentorCount  = _rvpAll.filter(f => (f.feedback_type||'') === 'mentor').length;
+    const withRatings  = _rvpAll.filter(f => f.rating);
+    const avgRating    = withRatings.length ? (withRatings.reduce((s,f) => s + (f.rating||0), 0) / withRatings.length).toFixed(1) : '—';
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-courses').textContent = courseCount;
+    document.getElementById('stat-mentors').textContent = mentorCount;
+    document.getElementById('stat-avg').textContent     = avgRating + (avgRating !== '—' ? '★' : '');
+
+    rvpApplyFilters();
+  } catch(e) {
+    document.getElementById('rvp-grid').innerHTML = '<p style="color:var(--txt4);text-align:center;grid-column:1/-1;padding:3rem">Failed to load reviews. Please try again.</p>';
+  }
+}
+
+rvpLoad();
+</script>
+</body>
+</html>

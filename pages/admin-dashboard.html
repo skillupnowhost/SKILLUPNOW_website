@@ -332,7 +332,7 @@
     }
   </style>
 </head>
-<body>
+<body data-no-footer="true">
 
 <!-- Sidebar mobile overlay -->
 <div id="sidebar-overlay"></div>
@@ -2419,6 +2419,7 @@ async function loadDashboard() {
     inquiriesRes,
     pendingMentorsRes,
     pendingReviewsRes,
+    pendingFeedbackRes,
     recentEnrollmentsRes,
     upcomingHolidaysRes
   ] = await Promise.all([
@@ -4311,8 +4312,9 @@ async function approveReview(id) {
 }
 
 async function deleteReview(id) {
-  if (!confirm('Delete this review?')) return;
-  await db.client.from('reviews').delete().eq('id', id);
+  if (!confirm('Delete this review? This cannot be undone.')) return;
+  const { error } = await db.client.from('reviews').delete().eq('id', id);
+  if (error) { alert('Failed to delete review: ' + error.message); return; }
   loadReviews();
 }
 

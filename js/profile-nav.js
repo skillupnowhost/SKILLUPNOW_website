@@ -590,6 +590,7 @@ class ProfileNavigationManager {
 
   /* ── Replace footer ── */
   replaceFooter() {
+    if (document.body?.dataset.noFooter === 'true') return;
     let footers = Array.from(document.querySelectorAll('footer:not([data-skip-component])'));
     if (!footers.length && document.body) {
       const footer = document.createElement('footer');
@@ -946,9 +947,9 @@ class ProfileNavigationManager {
       }
       .pn-role-icon svg,
       .pn-role-icon img {
-        width: 34px; height: 34px; position: relative; z-index: 1;
+        width: 44px; height: 44px; position: relative; z-index: 1;
         animation: pn-role-float 3.6s ease-in-out infinite;
-        filter: drop-shadow(0 8px 12px rgba(124,92,252,.16));
+        filter: drop-shadow(0 8px 14px rgba(124,92,252,.22));
         object-fit: contain;
       }
       .pn-role-card:nth-child(2) .pn-role-icon svg,
@@ -1244,8 +1245,6 @@ class ProfileNavigationManager {
     wrap.setAttribute('aria-modal', 'true');
     wrap.setAttribute('aria-label', 'Sign in to SkillUpNow');
 
-    const pnStudentIcon = `<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><defs><linearGradient id="pnStudentGrad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#7C5CFC"/><stop offset="1" stop-color="#3D6BFF"/></linearGradient></defs><path d="M10 16.5C10 14.6 11.6 13 13.5 13H24.5C28 13 31.3 14.2 34 16.4V33.4C31.3 31.2 28 30 24.5 30H13.5C11.6 30 10 31.4 10 33.3V16.5Z" fill="url(#pnStudentGrad)"/><path d="M38 17.2V33.8C38 35.2 36.4 36 35.2 35.2C32.4 33.4 28.9 32.5 25.4 32.5H13.8" stroke="#F8FAFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 19H25M16 23.5H27M16 28H23" stroke="#F8FAFF" stroke-width="2.2" stroke-linecap="round"/></svg>`;
-    const pnMentorIcon = `<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><defs><linearGradient id="pnMentorGrad" x1="10" y1="10" x2="38" y2="38" gradientUnits="userSpaceOnUse"><stop stop-color="#F59E0B"/><stop offset="1" stop-color="#FB7185"/></linearGradient></defs><path d="M7 18.5L24 10L41 18.5L24 27L7 18.5Z" fill="url(#pnMentorGrad)"/><path d="M14 22.5V29.2C14 31.2 18.5 34 24 34C29.5 34 34 31.2 34 29.2V22.5" stroke="#FFF9F2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M41 18.5V27.5" stroke="#FFF9F2" stroke-width="2.4" stroke-linecap="round"/><circle cx="41" cy="30.5" r="2.4" fill="#FFF9F2"/></svg>`;
     wrap.innerHTML = `
       <div class="pn-box" role="document">
         <button class="pn-close" id="pn-close-btn" aria-label="Close">✕</button>
@@ -1530,9 +1529,6 @@ class ProfileNavigationManager {
       </div><!-- /.pn-box -->
     `;
     document.body.appendChild(wrap);
-    wrap.querySelectorAll('#pn-v-welcome .pn-role-icon, #pn-v-signup-role .pn-role-icon').forEach((icon, index) => {
-      icon.innerHTML = index % 2 === 0 ? pnStudentIcon : pnMentorIcon;
-    });
 
     /* ── Close button ── */
     document.getElementById('pn-close-btn').addEventListener('click', () => window._pnClose());
