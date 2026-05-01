@@ -1263,12 +1263,12 @@ class ProfileNavigationManager {
 
           <div class="pn-role-cards">
             <div class="pn-role-card" onclick="window._pnView('student-login')" role="button" tabindex="0">
-              <span class="pn-role-icon"><img src="icon/student.png" alt="Student icon" aria-hidden="true"></span>
+              <span class="pn-role-icon"><img src="${this.rootPfx}icon/student.png" alt="Student icon" aria-hidden="true"></span>
               <div class="pn-role-name">Student</div>
               <div class="pn-role-desc">Access your learning dashboard</div>
             </div>
             <div class="pn-role-card" onclick="window._pnView('mentor-login')" role="button" tabindex="0">
-              <span class="pn-role-icon"><img src="icon/mentor.png" alt="Mentor icon" aria-hidden="true"></span>
+              <span class="pn-role-icon"><img src="${this.rootPfx}icon/mentor.png" alt="Mentor icon" aria-hidden="true"></span>
               <div class="pn-role-name">Mentor</div>
               <div class="pn-role-desc">Manage batches &amp; classes</div>
             </div>
@@ -1339,12 +1339,12 @@ class ProfileNavigationManager {
 
           <div class="pn-role-cards">
             <div class="pn-role-card" onclick="window._pnView('signup-student')" role="button" tabindex="0">
-              <span class="pn-role-icon"><img src="icon/student.png" alt="Student icon" aria-hidden="true"></span>
+              <span class="pn-role-icon"><img src="${this.rootPfx}icon/student.png" alt="Student icon" aria-hidden="true"></span>
               <div class="pn-role-name">Student</div>
               <div class="pn-role-desc">Enroll in courses &amp; learn</div>
             </div>
             <div class="pn-role-card" onclick="window._pnClose();window.location.href=(window.profileNav?.pagesPfx??'pages/')+'mentor-signup'" role="button" tabindex="0">
-              <span class="pn-role-icon"><img src="icon/mentor.png" alt="Mentor icon" aria-hidden="true"></span>
+              <span class="pn-role-icon"><img src="${this.rootPfx}icon/mentor.png" alt="Mentor icon" aria-hidden="true"></span>
               <div class="pn-role-name">Mentor</div>
               <div class="pn-role-desc">Teach &amp; earn with SkillUpNow</div>
             </div>

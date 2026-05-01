@@ -129,34 +129,54 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 70px;
-      height: 70px;
-      border-radius: 22px;
-      color: #fff;
-      font-size: 1.6rem;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(124, 92, 252, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       animation: auth-icon-float 4.6s ease-in-out infinite;
+      flex-shrink: 0;
     }
     .auth-role-icon.student {
-      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+      background: rgba(124, 92, 252, 0.1);
     }
     .auth-role-icon.mentor {
-      background: linear-gradient(135deg, #10b981 0%, #0f766e 100%);
+      background: rgba(61, 107, 255, 0.1);
     }
-    .auth-role-icon span {
-      transform: translateY(1px);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .auth-role-icon img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      display: block;
     }
     .auth-role-button:hover .auth-role-icon {
       transform: translateY(-4px) scale(1.03);
-      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
     }
     @keyframes auth-icon-float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-4px); }
+    }
+    .form-role-icon {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    @media (max-width: 599px) {
+      .auth-role-icon {
+        width: 64px;
+        height: 64px;
+      }
+      .auth-role-icon img {
+        width: 40px;
+        height: 40px;
+      }
+      .form-role-icon {
+        width: 32px;
+        height: 32px;
+      }
     }
 
     .modal-box .form-group:nth-child(n+2) {
@@ -1292,14 +1312,14 @@
         <p style="font-size: 0.84rem; color: var(--txt3); margin-bottom: 1.9rem; font-weight: 400;">Choose how you'd like to sign in to continue learning</p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
           <button onclick="switchModalTab('login')" class="auth-role-button" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 1rem;background:rgba(124,92,252,0.07);border:1.5px solid rgba(124,92,252,0.22);border-radius:14px;color:var(--txt);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.22s;" onmouseover="this.style.background='rgba(124,92,252,0.18)';this.style.borderColor='rgba(124,92,252,0.6)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(124,92,252,0.07)';this.style.borderColor='rgba(124,92,252,0.22)';this.style.transform=''">
-            <span class="auth-role-icon student" aria-hidden="true"><span>🎓</span></span>
-            <span>User Login</span>
-            <span style="font-size:0.72rem;font-weight:400;color:var(--txt3);">For students &amp; learners</span>
+            <span class="auth-role-icon student" aria-hidden="true"><img src="icon/student.png" alt="" style="width:44px;height:44px;object-fit:contain;display:block;"></span>
+            <span>Student</span>
+            <span style="font-size:0.72rem;font-weight:400;color:var(--txt3);">Access your learning dashboard</span>
           </button>
           <button onclick="window.location.href='pages/admin-login'" class="auth-role-button" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 1rem;background:rgba(61,107,255,0.07);border:1.5px solid rgba(61,107,255,0.22);border-radius:14px;color:var(--txt);font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.22s;" onmouseover="this.style.background='rgba(61,107,255,0.18)';this.style.borderColor='rgba(61,107,255,0.6)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(61,107,255,0.07)';this.style.borderColor='rgba(61,107,255,0.22)';this.style.transform=''">
-            <span class="auth-role-icon mentor" aria-hidden="true"><span>🧑‍🏫</span></span>
-            <span>Mentor Login</span>
-            <span style="font-size:0.72rem;font-weight:400;color:var(--txt3);">For instructors &amp; admins</span>
+            <span class="auth-role-icon mentor" aria-hidden="true"><img src="icon/mentor.png" alt="" style="width:44px;height:44px;object-fit:contain;display:block;"></span>
+            <span>Mentor</span>
+            <span style="font-size:0.72rem;font-weight:400;color:var(--txt3);">Manage batches &amp; classes</span>
           </button>
         </div>
         <div style="text-align:center;font-size:0.82rem;color:var(--txt3);">
@@ -1328,8 +1348,8 @@
         <button onclick="switchModalTab('role-select')" class="back-btn" style="margin-bottom:1.5rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Back</button>
         <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.9rem; color: var(--txt); margin-bottom: 0.4rem; letter-spacing: -0.01em;">Welcome Back</h3>
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <img src="icon/student.png" alt="Student icon" style="width:34px;height:34px;object-fit:contain;">
-          <img src="icon/mentor.png" alt="Mentor icon" style="width:34px;height:34px;object-fit:contain;">
+          <img src="icon/student.png" alt="Student icon" class="form-role-icon">
+          <img src="icon/mentor.png" alt="Mentor icon" class="form-role-icon">
           <span style="color:var(--txt4);font-size:0.92rem;">Student and mentor access is available here.</span>
         </div>
         <p class="msub" style="font-size: 0.85rem; color: var(--txt3); margin-bottom: 2rem; font-weight: 400;">Sign in to access your learning dashboard</p>
@@ -1360,8 +1380,8 @@
       <div id="rf" style="display: none;">
         <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.9rem; color: var(--txt); margin-bottom: 0.4rem; letter-spacing: -0.01em;">Join SkillUpNow</h3>
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <img src="icon/student.png" alt="Student icon" style="width:34px;height:34px;object-fit:contain;">
-          <img src="icon/mentor.png" alt="Mentor icon" style="width:34px;height:34px;object-fit:contain;">
+          <img src="icon/student.png" alt="Student icon" class="form-role-icon">
+          <img src="icon/mentor.png" alt="Mentor icon" class="form-role-icon">
           <span style="color:var(--txt4);font-size:0.92rem;">Sign up for student or mentor access.</span>
         </div>
         <p class="msub" style="font-size: 0.85rem; color: var(--txt3); margin-bottom: 1.5rem; font-weight: 400;">Create your account to start learning</p>
