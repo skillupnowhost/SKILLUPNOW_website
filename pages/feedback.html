@@ -113,11 +113,11 @@
       gap: .45rem; padding: .65rem .85rem;
       border: none; border-radius: 10px; background: none; cursor: pointer;
       font-family: 'Plus Jakarta Sans', sans-serif; font-size: .8rem; font-weight: 700;
-      color: var(--txt3); white-space: nowrap;
+      color: var(--txt2); white-space: nowrap;
       transition: all .22s cubic-bezier(.4,0,.2,1);
     }
     .fb-tab .tb-icon { font-size: 1.05rem; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
-    .fb-tab:hover { color: var(--txt); background: rgba(255,255,255,.06); }
+    .fb-tab:hover { color: var(--txt); background: rgba(124,92,252,.1); }
     .fb-tab:hover .tb-icon { transform: scale(1.2) rotate(-5deg); }
     .fb-tab.active {
       background: linear-gradient(135deg, var(--v2,#7c5cfc), #3d6bff);
@@ -184,6 +184,18 @@
       outline: none; transition: border-color .22s, box-shadow .22s, background .22s;
       position: relative;
     }
+    .f-group select option {
+      background: var(--bg2);
+      color: var(--txt);
+    }
+    :root[data-theme="dark"] .f-group select option {
+      background: #1a1630;
+      color: #f0eeff;
+    }
+    :root[data-theme="light"] .f-group select option {
+      background: #ffffff;
+      color: #0d1117;
+    }
     .f-group input:focus, .f-group select:focus, .f-group textarea:focus {
       border-color: var(--v1);
       box-shadow: 0 0 0 4px rgba(124,92,252,.12), 0 2px 12px rgba(124,92,252,.1);
@@ -246,7 +258,7 @@
       display: inline-flex; align-items: center; gap: .35rem;
       padding: .45rem 1rem; border-radius: 999px;
       border: 1.5px solid var(--border); font-size: .8rem; font-weight: 700;
-      color: var(--txt3); background: var(--bg);
+      color: var(--txt2); background: var(--bg);
       transition: all .2s cubic-bezier(.4,0,.2,1);
     }
     .pill-group input:checked + .pill-label {
@@ -324,9 +336,23 @@
     @media(max-width:600px) {
       .f-row { grid-template-columns: 1fr; }
       .aspect-grid { grid-template-columns: 1fr; }
-      .fb-tab { min-width: 110px; font-size: .72rem; }
+      .fb-tab {
+        min-width: 100px; font-size: .7rem; padding: .55rem .6rem; gap: .3rem;
+      }
+      .fb-tab .tb-icon { font-size: .9rem; }
+      .fb-type-tabs { padding: 3px; gap: 0; border-radius: 12px; }
+      .fb-type-outer { padding: 1rem 1rem 0; top: 56px; }
+      .feedback-wrap { padding: 1.5rem 1rem 4rem; }
+      .fb-card { padding: 1.25rem; }
       .panel-actions { flex-direction: column; align-items: stretch; }
-      .panel-actions .btn-submit { width: 100%; }
+      .panel-actions .btn-submit { width: 100%; min-width: unset; }
+      .btn-submit { padding: .8rem 1.5rem; font-size: .88rem; }
+      .star-row label { font-size: 2rem; }
+      .pill-group { gap: .4rem; }
+      .pill-label { padding: .4rem .8rem; font-size: .75rem; }
+    }
+    @media(max-width:400px) {
+      .fb-tab { min-width: 80px; font-size: .65rem; }
     }
 
     /* ===== ENTRANCE ANIMATION for cards ===== */
@@ -352,7 +378,7 @@
     .topic-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; }
     .topic-chip {
       padding: .35rem .85rem; border-radius: 999px; font-size: .78rem; font-weight: 700;
-      border: 1.5px solid var(--border); color: var(--txt3); background: var(--bg); cursor: pointer;
+      border: 1.5px solid var(--border); color: var(--txt2); background: var(--bg); cursor: pointer;
       transition: all .2s;
     }
     .topic-chip.sel {

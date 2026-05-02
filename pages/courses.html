@@ -2886,16 +2886,19 @@
     btn.disabled = true; btn.textContent = 'Processing…';
 
     try {
-      // Guard: already active/completed
+      // Guard: already enrolled in any state — avoids UPDATE that triggers broken DB trigger
       const { data: existing } = await _db().from('enrollments')
         .select('id, enrollment_status')
         .eq('student_user_id', user.id)
         .eq('course_id', selectedCourse.id)
-        .in('enrollment_status', ['active', 'completed'])
         .maybeSingle();
       if (existing) {
         closeEnrollModal();
-        window.location.href = 'profile.html?tab=learning';
+        if (['active', 'completed'].includes(existing.enrollment_status)) {
+          window.location.href = 'profile.html?tab=learning';
+        } else {
+          showEnrollConfirm(selectedCourse.title, selectedTotalAmount);
+        }
         return;
       }
 

@@ -54,6 +54,16 @@
   color: var(--txt);
 }
 
+:root[data-theme="dark"] .form-group select option {
+  background: #1a1630;
+  color: #f0eeff;
+}
+
+:root[data-theme="light"] .form-group select option {
+  background: #ffffff;
+  color: #0d1117;
+}
+
 .form-group textarea {
   resize: vertical;
   min-height: 120px;
