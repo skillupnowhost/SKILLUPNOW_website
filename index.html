@@ -2651,7 +2651,7 @@
       const preview = isLong ? comment.slice(0,220).trimEnd() + '…' : comment;
       const name    = f._name || 'Student';
       const initials = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-      const course  = f.courses?.name || f.courses?.title || f.course_title || '';
+      const course  = f.course_title || '';
       const dotColor = _rvTypeColors[type] || '#7c5cfc';
       const grad = _rvGrads[idx % _rvGrads.length];
       const rating = Math.min(5, Math.max(0, parseInt(f.rating)||0));
@@ -2767,7 +2767,7 @@
       try {
         const [rvRes, fbRes] = await Promise.all([
           client.from('reviews')
-            .select('id,comment,rating,created_at,feedback_type,user_profiles(full_name),courses(name,title)')
+            .select('id,comment,rating,created_at,user_id,course_id')
             .eq('is_approved', true)
             .order('created_at', { ascending: false })
             .limit(18),
@@ -2778,7 +2778,17 @@
             .order('created_at', { ascending: false })
             .limit(10)
         ]);
-        const reviews  = (rvRes.data||[]).map(r => ({ ...r, source:'review', _name: r.user_profiles?.full_name||'Student', feedback_type: r.feedback_type||'course' }));
+        const rvRows = rvRes.data || [];
+        // Fetch user names and course titles separately
+        const rvUids = [...new Set(rvRows.map(r => r.user_id).filter(Boolean))];
+        const rvCids = [...new Set(rvRows.map(r => r.course_id).filter(Boolean))];
+        const [rvProfilesRes, rvCoursesRes] = await Promise.all([
+          rvUids.length ? client.from('user_profiles').select('user_id,full_name').in('user_id', rvUids) : Promise.resolve({ data: [] }),
+          rvCids.length ? client.from('courses').select('id,title').in('id', rvCids) : Promise.resolve({ data: [] })
+        ]);
+        const rvNameMap   = Object.fromEntries((rvProfilesRes.data || []).map(p => [p.user_id, p.full_name]));
+        const rvCourseMap = Object.fromEntries((rvCoursesRes.data  || []).map(c => [c.id, c.title]));
+        const reviews  = rvRows.map(r => ({ ...r, source:'review', _name: rvNameMap[r.user_id]||'Student', feedback_type:'course', course_title: rvCourseMap[r.course_id]||'' }));
         const feedback = (fbRes.data||[]).map(f => ({ ...f, source:'feedback', comment: f.message, _name: f.full_name||'Student' }));
         _rvAllData = [...reviews,...feedback].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
         if (!_rvAllData.length) {

@@ -3559,69 +3559,103 @@ async function loadSchedules() {
 let _reviewEditItems = [];
 
 async function loadReviews() {
-  const filter = document.getElementById('review-filter').value;
-  const reviewsQ = db.client.from('reviews').select('*, courses(title)');
-  const feedbackQ = db.client.from('feedback').select('*');
+  const tbody = document.getElementById('review-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
 
-  if (filter === 'false') {
-    reviewsQ.eq('is_approved', false);
-    feedbackQ.eq('status', 'open');
-  } else if (filter === 'true') {
-    reviewsQ.eq('is_approved', true);
-    feedbackQ.in('status', ['reviewed', 'resolved']);
+  try {
+    const filter = document.getElementById('review-filter').value;
+    const reviewsQ = db.client.from('reviews').select('*');
+    const feedbackQ = db.client.from('feedback').select('*');
+
+    if (filter === 'false') {
+      reviewsQ.eq('is_approved', false);
+      feedbackQ.eq('status', 'open');
+    } else if (filter === 'true') {
+      reviewsQ.eq('is_approved', true);
+      feedbackQ.in('status', ['reviewed', 'resolved']);
+    }
+
+    const [reviewRes, feedbackRes] = await Promise.all([
+      reviewsQ.order('created_at', { ascending: false }).limit(50),
+      feedbackQ.order('created_at', { ascending: false }).limit(50)
+    ]);
+
+    if (reviewRes.error) throw new Error('Reviews: ' + reviewRes.error.message);
+    if (feedbackRes.error) throw new Error('Feedback: ' + feedbackRes.error.message);
+
+    const reviewData  = reviewRes.data  || [];
+    const feedbackData = feedbackRes.data || [];
+
+    // Fetch course titles and user names separately (avoids PostgREST join failures)
+    const courseIds = [...new Set(reviewData.map(r => r.course_id).filter(Boolean))];
+    const userIds   = [...new Set([...reviewData, ...feedbackData].map(r => r.user_id).filter(Boolean))];
+
+    const [coursesRes, profilesRes] = await Promise.all([
+      courseIds.length ? db.client.from('courses').select('id,title').in('id', courseIds) : Promise.resolve({ data: [] }),
+      userIds.length   ? db.client.from('user_profiles').select('user_id,full_name').in('user_id', userIds) : Promise.resolve({ data: [] })
+    ]);
+
+    const courseMap  = Object.fromEntries((coursesRes.data  || []).map(c => [c.id, c.title]));
+    const profileMap = Object.fromEntries((profilesRes.data || []).map(p => [p.user_id, p.full_name]));
+
+    const allItems = [
+      ...reviewData.map(r  => ({ ...r, source: 'review' })),
+      ...feedbackData.map(f => ({ ...f, source: 'feedback' }))
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    _reviewEditItems = allItems.map(item => ({
+      ...item,
+      display_name: item.source === 'review'
+        ? (profileMap[item.user_id] || item.full_name || 'Student')
+        : (item.full_name || profileMap[item.user_id] || 'Student'),
+      display_target: item.source === 'review'
+        ? (courseMap[item.course_id] || '—')
+        : (item.course_title || item.feedback_type?.replace(/_/g, ' ') || 'Feedback')
+    }));
+
+    tbody.innerHTML = _reviewEditItems.map(item => {
+      const stars    = '★'.repeat(item.rating || 0) + '☆'.repeat(5 - (item.rating || 0));
+      const text     = item.source === 'review' ? (item.comment || '—') : (item.message || item.subject || '—');
+      const approved = item.source === 'review' ? item.is_approved : item.status !== 'open';
+      const approveBtn = approved
+        ? '<span class="badge badge-green">Approved</span>'
+        : `<button type="button" class="action-btn" onclick="event.stopPropagation(); ${item.source === 'review' ? 'approveReview' : 'approveFeedback'}('${item.id}')">✓ Approve</button>`;
+      const deleteFn = item.source === 'review' ? 'deleteReview' : 'deleteFeedbackRow';
+      const typeTag  = item.source === 'review'
+        ? '<span class="badge" style="background:rgba(124,92,252,.15);color:#a78bfa;font-size:.7rem;">Review</span>'
+        : '<span class="badge" style="background:rgba(59,130,246,.15);color:#60a5fa;font-size:.7rem;">Feedback</span>';
+
+      return `<tr>
+        <td>${escHtml(item.display_name)}</td>
+        <td>${escHtml(item.display_target)}</td>
+        <td>${stars} ${typeTag}</td>
+        <td style="max-width:220px;white-space:normal">${escHtml(text.substring(0, 100))}${text.length > 100 ? '…' : ''}</td>
+        <td>${fmtDate(item.created_at)}</td>
+        <td><div class="action-btns">
+          ${approveBtn}
+          <button type="button" class="action-btn" onclick="event.stopPropagation(); openReviewEditModal('${item.id}','${item.source}')">Edit</button>
+          <button type="button" class="action-btn danger" onclick="event.stopPropagation(); ${deleteFn}('${item.id}')">Delete</button>
+        </div></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="6" class="table-empty">No reviews found</td></tr>';
+
+    // Refresh sidebar badge
+    refreshReviewBadge();
+
+  } catch (err) {
+    console.error('loadReviews error:', err);
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171;">Failed to load reviews: ${escHtml(err.message)}</td></tr>`;
   }
+}
 
-  const [{ data: reviewData }, { data: feedbackData }] = await Promise.all([
-    reviewsQ.order('created_at', { ascending: false }).limit(50),
-    feedbackQ.order('created_at', { ascending: false }).limit(50)
+async function refreshReviewBadge() {
+  const [rvRes, fbRes] = await Promise.all([
+    db.client.from('reviews').select('id', { count: 'exact', head: true }).eq('is_approved', false),
+    db.client.from('feedback').select('id', { count: 'exact', head: true }).eq('status', 'open')
   ]);
-
-  const allItems = [
-    ...(reviewData || []).map(r => ({ ...r, source: 'review' })),
-    ...(feedbackData || []).map(f => ({ ...f, source: 'feedback' }))
-  ];
-
-  const sortedItems = allItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  const userIds = [...new Set(sortedItems.map(item => item.user_id).filter(Boolean))];
-  let profileMap = {};
-  if (userIds.length) {
-    const { data: profiles } = await db.client.from('user_profiles').select('user_id, full_name').in('user_id', userIds);
-    profileMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p.full_name]));
-  }
-
-  _reviewEditItems = sortedItems.map(item => ({
-    ...item,
-    display_name: item.source === 'review'
-      ? (profileMap[item.user_id] || '—')
-      : (item.full_name || profileMap[item.user_id] || '—'),
-    display_target: item.source === 'review'
-      ? (item.courses?.title || item.course_title || '—')
-      : (item.course_title || item.feedback_type?.replace(/_/g,' ') || 'Feedback')
-  }));
-
-  document.getElementById('review-tbody').innerHTML = _reviewEditItems.map(item => {
-    const stars = `${'★'.repeat(item.rating || 0)}${'☆'.repeat(5 - (item.rating || 0))}`;
-    const text = item.source === 'review' ? item.comment || item.subject || '—' : item.message || item.subject || '—';
-    const approved = item.source === 'review' ? item.is_approved : item.status !== 'open';
-    const approveBtn = item.source === 'review'
-      ? (!item.is_approved ? `<button type="button" class="action-btn" onclick="event.stopPropagation(); approveReview('${item.id}')">✓ Approve</button>` : '<span class="badge badge-green">Approved</span>')
-      : (!approved ? `<button type="button" class="action-btn" onclick="event.stopPropagation(); approveFeedback('${item.id}')">✓ Approve</button>` : '<span class="badge badge-green">Approved</span>');
-    const deleteFn = item.source === 'review' ? 'deleteReview' : 'deleteFeedbackRow';
-
-    return `
-    <tr>
-      <td>${escHtml(item.display_name)}</td>
-      <td>${escHtml(item.display_target)}</td>
-      <td>${stars}</td>
-      <td style="max-width:200px">${escHtml(text.substring(0, 80))}…</td>
-      <td>${fmtDate(item.created_at)}</td>
-      <td><div class="action-btns">
-        ${approveBtn}
-        <button type="button" class="action-btn" onclick="event.stopPropagation(); openReviewEditModal('${item.id}','${item.source}')">Edit</button>
-        <button type="button" class="action-btn danger" onclick="event.stopPropagation(); ${deleteFn}('${item.id}')">Delete</button>
-      </div></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="6" class="table-empty">No reviews</td></tr>';
+  const count = (rvRes.count || 0) + (fbRes.count || 0);
+  const badge = document.getElementById('review-badge');
+  if (badge) badge.textContent = count;
 }
 
 let _currentReviewEdit = null;
@@ -4338,7 +4372,9 @@ async function approveMentor(id, status, rejectionReason = null) {
 }
 
 async function approveReview(id) {
-  await db.client.from('reviews').update({ is_approved: true }).eq('id', id);
+  const { error } = await db.client.from('reviews').update({ is_approved: true }).eq('id', id);
+  if (error) { alert('Failed to approve review: ' + error.message); return; }
+  _showAdminToast('✓ Review approved and now visible publicly.', 'success');
   loadReviews();
 }
 
@@ -4352,6 +4388,7 @@ async function deleteReview(id) {
 async function approveFeedback(id) {
   const { error } = await db.client.from('feedback').update({ status: 'reviewed', updated_at: new Date().toISOString() }).eq('id', id);
   if (error) { alert('Failed to approve feedback: ' + error.message); return; }
+  _showAdminToast('✓ Feedback approved and now visible publicly.', 'success');
   loadReviews();
 }
 

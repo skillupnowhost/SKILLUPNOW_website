@@ -1046,8 +1046,6 @@ async function submitCourseReview(btnEl) {
     rating: parseInt(ratingEl.value, 10),
     title,
     comment,
-    recommend: recEl?.value || null,
-    aspects: Object.keys(aspectRatings).length ? { ...aspectRatings } : null,
     is_approved: false,
   };
 
