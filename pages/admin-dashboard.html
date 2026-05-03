@@ -585,8 +585,11 @@
         <div class="table-header">
           <h3>Enrollment Management</h3>
           <div class="table-actions">
+            <input type="text" id="enroll-user-search" placeholder="Search by name / email…"
+              style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);min-width:160px;outline:none;"
+              oninput="filterTable('enrollment-tbody',this.value,[0,1])">
             <select id="enroll-status-filter" onchange="loadEnrollments()">
-              <option value="">All</option>
+              <option value="">All Status</option>
               <option value="active">Active</option>
               <option value="pending">Pending</option>
               <option value="completed">Completed</option>
@@ -1920,6 +1923,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('user-modal')">Close</button>
+      <button class="btn-primary" onclick="closeModal('user-modal');openAdminEnrollModal(_viewingUserId)">+ Enroll in Course</button>
     </div>
   </div>
 </div>
@@ -2754,6 +2758,7 @@ async function loadUsers() {
       <td>${statusBadge(u.is_active === false ? 'inactive' : 'active')}</td>
       <td><div class="action-btns">
         <button class="action-btn" onclick="viewUser('${u.user_id}')">View</button>
+        <button class="action-btn" style="background:rgba(124,92,252,.18);color:#c4b5fd;border-color:rgba(124,92,252,.35);" onclick="openAdminEnrollModal('${u.user_id}')">+ Enroll</button>
         <button class="action-btn danger" onclick="deleteUser('${u.user_id}', ${JSON.stringify(u.full_name || u.email || 'this user').replace(/"/g,'&quot;')})">Delete</button>
       </div></td>
     </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No users</td></tr>';
@@ -2763,12 +2768,12 @@ async function loadUsers() {
 }
 
 // ── Admin manually enroll a user ──────────────────────────────
-async function openAdminEnrollModal() {
+async function openAdminEnrollModal(preUserId = null) {
   // Populate user dropdown
   const userSel = document.getElementById('ae-user');
   const courseSel = document.getElementById('ae-course');
-  userSel.innerHTML = '<option value="">Select user…</option>';
-  courseSel.innerHTML = '<option value="">Select course…</option>';
+  userSel.innerHTML = '<option value="">Loading users…</option>';
+  courseSel.innerHTML = '<option value="">Loading courses…</option>';
   openModal('admin-enroll-modal');
 
   const [{ data: users }, { data: courses }] = await Promise.all([
@@ -2780,6 +2785,7 @@ async function openAdminEnrollModal() {
   courseSel.innerHTML = '<option value="">Select course…</option>' +
     (courses||[]).map(c => `<option value="${c.id}">${c.title}</option>`).join('');
 
+  if (preUserId) userSel.value = preUserId;
   document.getElementById('ae-amount').value = '';
   document.getElementById('ae-notes').value = '';
 }
@@ -2806,22 +2812,44 @@ async function adminEnrollUser() {
       .select('id').eq('course_id', courseId).eq('is_active', true).limit(1);
     const pricingId = pricingRows?.[0]?.id || null;
 
-    // 2. Create / update enrollment — grant active access immediately
-    const { data: enroll, error: enrollErr } = await db.client.from('enrollments').upsert({
-      student_user_id: userId,
-      course_id: courseId,
-      pricing_id: pricingId,
-      enrollment_status: 'active',
-      access_status: 'active',
-      net_amount: amount,
-      paid_amount: isFree ? 0 : 0,   // paid_amount updated when payment confirmed
-      due_amount: isFree ? 0 : amount,
-      activated_at: now,
-      notes: notes || null,
-    }, { onConflict: 'student_user_id,course_id' }).select().maybeSingle();
-    if (enrollErr) throw enrollErr;
+    // 2. Find existing enrollment or insert fresh one.
+    //    Never use upsert — it runs UPDATE on conflict which fires activity log trigger.
+    //    Requires db/v28-fix-log-activity-trigger.sql to be run in Supabase first.
+    const { data: existingEnroll } = await db.client.from('enrollments')
+      .select('id').eq('student_user_id', userId).eq('course_id', courseId).maybeSingle();
 
-    // 3. Create payment record
+    let enroll = existingEnroll;
+    if (!existingEnroll) {
+      const { data: newEnroll, error: enrollErr } = await db.client.from('enrollments').insert({
+        student_user_id: userId,
+        course_id: courseId,
+        pricing_id: pricingId,
+        enrollment_status: 'active',
+        access_status: 'active',
+        net_amount: amount,
+        paid_amount: 0,
+        due_amount: isFree ? 0 : amount,
+        activated_at: now,
+        notes: notes || null,
+      }).select('id').maybeSingle();
+      if (enrollErr) throw enrollErr;
+      enroll = newEnroll;
+    } else {
+      // Update existing enrollment to active
+      const { error: updErr } = await db.client.from('enrollments').update({
+        enrollment_status: 'active',
+        access_status: 'active',
+        pricing_id: pricingId,
+        net_amount: amount,
+        paid_amount: 0,
+        due_amount: isFree ? 0 : amount,
+        activated_at: now,
+        notes: notes || null,
+      }).eq('id', existingEnroll.id);
+      if (updErr) throw updErr;
+    }
+
+    // 4. Create payment record
     const { error: payErr } = await db.client.from('payments').insert({
       student_user_id: userId,
       enrollment_id: enroll?.id || null,
@@ -2831,7 +2859,6 @@ async function adminEnrollUser() {
       payment_gateway: 'manual',
       payment_status: isFree ? 'completed' : 'pending',
       paid_at: isFree ? now : null,
-      notes: { admin_note: notes || 'Admin-granted enrollment', source: 'admin_panel' },
     });
     if (payErr) throw payErr;
 
@@ -3024,15 +3051,22 @@ async function loadEnrollments() {
   }).join('');
 }
 
+// ── Safe enrollment update (plain UPDATE — requires v28 SQL fix) ──
+async function _safeEnrollUpdate(enrollId, updates) {
+  const { error } = await db.client.from('enrollments').update(updates).eq('id', enrollId);
+  if (error) throw error;
+}
+
 async function grantAccess(enrollId) {
   if (!confirm('Grant course access to this student?')) return;
-  const { error } = await db.client.from('enrollments').update({
-    enrollment_status: 'active', access_status: 'active',
-    activated_at: new Date().toISOString(),
-  }).eq('id', enrollId);
-  if (error) { _showAdminToast('Grant failed: ' + error.message, 'error'); return; }
-  _showAdminToast('✓ Access granted', 'success');
-  loadEnrollments();
+  try {
+    await _safeEnrollUpdate(enrollId, {
+      enrollment_status: 'active', access_status: 'active',
+      activated_at: new Date().toISOString(),
+    });
+    _showAdminToast('✓ Access granted', 'success');
+    loadEnrollments();
+  } catch(e) { _showAdminToast('Grant failed: ' + e.message, 'error'); }
 }
 
 async function recordPartialPayment(enrollId, dueAmount) {
@@ -3044,22 +3078,19 @@ async function recordPartialPayment(enrollId, dueAmount) {
 
   // Fetch current enrollment data
   const { data: enr, error: fetchErr } = await db.client.from('enrollments')
-    .select('paid_amount, net_amount, due_amount, student_user_id, course_id')
-    .eq('id', enrollId).maybeSingle();
+    .select('*').eq('id', enrollId).maybeSingle();
   if (fetchErr || !enr) { _showAdminToast('Could not fetch enrollment', 'error'); return; }
 
   const newPaid = Number(enr.paid_amount) + amt;
   const newDue  = Math.max(0, Number(enr.net_amount) - newPaid);
-  const isFullyPaid = newDue <= 0;
 
-  const { error: updErr } = await db.client.from('enrollments').update({
-    paid_amount: newPaid,
-    due_amount: newDue,
-    enrollment_status: isFullyPaid ? 'active' : 'active',
-    access_status: isFullyPaid ? 'active' : 'restricted',
-    updated_at: new Date().toISOString(),
-  }).eq('id', enrollId);
-  if (updErr) { _showAdminToast('Update failed: ' + updErr.message, 'error'); return; }
+  try {
+    await _safeEnrollUpdate(enrollId, {
+      paid_amount: newPaid, due_amount: newDue,
+      enrollment_status: 'active',
+      access_status: newDue <= 0 ? 'active' : 'restricted',
+    });
+  } catch(e) { _showAdminToast('Update failed: ' + e.message, 'error'); return; }
 
   // Record payment entry
   const { error: payInsertErr } = await db.client.from('payments').insert({
@@ -4469,24 +4500,25 @@ function editEnrollment(eData) {
 }
 
 async function saveEnrollment() {
-  const id          = document.getElementById('enroll-id').value;
-  const accessVal   = document.getElementById('enroll-access').value === 'true';
-  const netAmount   = parseFloat(document.getElementById('enroll-total').value) || 0;
-  const paidAmount  = parseFloat(document.getElementById('enroll-paid').value) || 0;
-  const { error } = await db.client.from('enrollments').update({
-    enrollment_status: document.getElementById('enroll-status-edit').value,
-    access_status: accessVal ? 'active' : 'pending',
-    net_amount:   netAmount,
-    paid_amount:  paidAmount,
-    due_amount:   Math.max(0, netAmount - paidAmount),
-    progress_percentage: parseInt(document.getElementById('enroll-progress').value) || 0,
-    notes:        document.getElementById('enroll-notes').value,
-    ...(accessVal ? { activated_at: new Date().toISOString() } : {}),
-  }).eq('id', id);
-  if (error) { _showAdminToast('Update failed: ' + error.message, 'error'); return; }
-  closeModal('enroll-modal');
-  _showAdminToast('✓ Enrollment updated', 'success');
-  loadEnrollments();
+  const id        = document.getElementById('enroll-id').value;
+  const accessVal = document.getElementById('enroll-access').value === 'true';
+  const netAmount = parseFloat(document.getElementById('enroll-total').value) || 0;
+  const paidAmount = parseFloat(document.getElementById('enroll-paid').value) || 0;
+  try {
+    await _safeEnrollUpdate(id, {
+      enrollment_status: document.getElementById('enroll-status-edit').value,
+      access_status: accessVal ? 'active' : 'pending',
+      net_amount:   netAmount,
+      paid_amount:  paidAmount,
+      due_amount:   Math.max(0, netAmount - paidAmount),
+      progress_percentage: parseInt(document.getElementById('enroll-progress').value) || 0,
+      notes:        document.getElementById('enroll-notes').value,
+      ...(accessVal ? { activated_at: new Date().toISOString() } : {}),
+    });
+    closeModal('enroll-modal');
+    _showAdminToast('✓ Enrollment updated', 'success');
+    loadEnrollments();
+  } catch(e) { _showAdminToast('Update failed: ' + e.message, 'error'); }
 }
 
 
@@ -5360,10 +5392,47 @@ async function viewUser(id) {
   _viewingUserId = id;
   const [{ data: profile }, { data: enrollments }] = await Promise.all([
     db.client.from('user_profiles').select('*').eq('user_id', id).single(),
-    db.client.from('enrollments').select('enrollment_status, net_amount, paid_amount, courses(title)').eq('student_user_id', id)
+    db.client.from('enrollments')
+      .select('id, enrollment_status, access_status, net_amount, paid_amount, due_amount, progress_percentage, notes, courses(title)')
+      .eq('student_user_id', id)
+      .order('created_at', { ascending: false })
   ]);
   if (!profile) return;
   const roleLabel = r => ({ user:'Student',student:'Student',mentor:'Mentor',admin:'Admin',super_admin:'Super Admin',support:'Support' }[r] || r || 'Student');
+
+  const enrollRows = (enrollments||[]).map(e => {
+    const hasAccess = e.access_status === 'active';
+    const isCancelled = e.enrollment_status === 'cancelled';
+    const safeEnc = encodeURIComponent(JSON.stringify({
+      id: e.id, enrollment_status: e.enrollment_status, access_status: e.access_status,
+      net_amount: e.net_amount, paid_amount: e.paid_amount, due_amount: e.due_amount,
+      progress_percentage: e.progress_percentage, notes: e.notes,
+    }));
+    return `
+    <div style="margin-top:.55rem;padding:.65rem .85rem;background:rgba(124,92,252,.07);border:1px solid rgba(124,92,252,.14);border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;flex-wrap:wrap;">
+        <div style="min-width:0;">
+          <div style="font-weight:700;font-size:.83rem;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.courses?.title||'Unknown course'}</div>
+          <div style="margin-top:.3rem;display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;">
+            ${statusBadge(e.enrollment_status)}
+            ${hasAccess
+              ? '<span style="background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:700;">Access ✓</span>'
+              : '<span style="background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:700;">No Access</span>'}
+            <span style="font-size:.72rem;color:var(--txt4);">₹${Number(e.paid_amount||0).toLocaleString('en-IN')} / ₹${Number(e.net_amount||0).toLocaleString('en-IN')}</span>
+            ${e.due_amount > 0 ? `<span style="font-size:.72rem;color:#f87171;font-weight:700;">Due ₹${Number(e.due_amount).toLocaleString('en-IN')}</span>` : ''}
+          </div>
+        </div>
+        <div class="action-btns" style="flex-shrink:0;gap:.3rem;">
+          <button class="action-btn" style="font-size:.7rem;padding:.22rem .5rem;" onclick="editEnrollmentById('${safeEnc}')">Edit</button>
+          ${!hasAccess && !isCancelled ? `<button class="action-btn" style="background:rgba(74,222,128,.15);color:#4ade80;border-color:rgba(74,222,128,.3);font-size:.7rem;padding:.22rem .5rem;" onclick="_muGrantAccess('${e.id}')">Grant</button>` : ''}
+          ${hasAccess ? `<button class="action-btn danger" style="font-size:.7rem;padding:.22rem .5rem;" onclick="_muRevokeAccess('${e.id}')">Revoke</button>` : ''}
+          ${e.due_amount > 0 ? `<button class="action-btn" style="background:rgba(124,92,252,.18);color:#c4b5fd;border-color:rgba(124,92,252,.35);font-size:.7rem;padding:.22rem .5rem;" onclick="_muRecordPayment('${e.id}',${e.due_amount})">+ Pay</button>` : ''}
+          ${!isCancelled ? `<button class="action-btn danger" style="font-size:.7rem;padding:.22rem .5rem;" onclick="_muUnenroll('${e.id}','${(profile.full_name||'').replace(/'/g,'')}','${(e.courses?.title||'').replace(/'/g,'')}')">Unenroll</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="font-size:.8rem;color:rgba(200,191,255,.35);margin-top:.5rem;padding:.5rem 0;">No enrollments yet</div>';
+
   document.getElementById('user-detail-content').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
@@ -5373,10 +5442,12 @@ async function viewUser(id) {
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Joined</strong><br>${fmtDate(profile.account_created_at||profile.created_at)}</div>
       <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${profile.is_active!==false?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>'}</div>
     </div>
-    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Enrollments (${(enrollments||[]).length})</strong></div>
-    ${(enrollments||[]).map(e=>`<div style="margin-top:.5rem;padding:.5rem .75rem;background:rgba(124,92,252,.07);border-radius:8px;font-size:.8rem;">
-      <strong>${e.courses?.title||'Unknown course'}</strong> — ${statusBadge(e.enrollment_status)} — Paid: ${fmtCurr(e.paid_amount)} / ${fmtCurr(e.net_amount)}
-    </div>`).join('')||'<div style="font-size:.8rem;color:rgba(200,191,255,.4);margin-top:.5rem;">No enrollments</div>'}`;
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
+      <strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Enrollments (${(enrollments||[]).length})</strong>
+      <button class="action-btn" style="background:rgba(124,92,252,.18);color:#c4b5fd;border-color:rgba(124,92,252,.35);font-size:.7rem;padding:.22rem .6rem;" onclick="closeModal('user-modal');openAdminEnrollModal('${id}')">+ Enroll in Course</button>
+    </div>
+    ${enrollRows}`;
+
   // Show role-change row and pre-select current role
   const roleRow = document.getElementById('user-role-change-row');
   const roleSelect = document.getElementById('user-role-select');
@@ -5389,6 +5460,68 @@ async function viewUser(id) {
   if (msgEl) msgEl.textContent = '';
   document.querySelector('#user-modal .modal-title').textContent = 'User Details';
   openModal('user-modal');
+}
+
+// ── Enrollment action wrappers for user-modal context ─────────
+// Each runs the DB operation then refreshes the open user view.
+async function _muGrantAccess(enrollId) {
+  if (!confirm('Grant course access to this student?')) return;
+  try {
+    await _safeEnrollUpdate(enrollId, {
+      enrollment_status: 'active', access_status: 'active',
+      activated_at: new Date().toISOString(),
+    });
+    _showAdminToast('✓ Access granted', 'success');
+    if (_viewingUserId) viewUser(_viewingUserId);
+    loadEnrollments();
+  } catch(e) { _showAdminToast('Grant failed: ' + e.message, 'error'); }
+}
+
+async function _muRevokeAccess(enrollId) {
+  if (!confirm('Revoke course access? Student will lose access immediately.')) return;
+  try {
+    await _safeEnrollUpdate(enrollId, { access_status: 'revoked', enrollment_status: 'blocked' });
+    _showAdminToast('✓ Access revoked', 'success');
+    if (_viewingUserId) viewUser(_viewingUserId);
+    loadEnrollments();
+  } catch(e) { _showAdminToast('Revoke failed: ' + e.message, 'error'); }
+}
+
+async function _muRecordPayment(enrollId, dueAmount) {
+  const amtStr = prompt(`Record payment\nBalance due: ₹${Number(dueAmount).toLocaleString('en-IN')}\n\nEnter amount received (₹):`);
+  if (amtStr === null) return;
+  const amt = parseFloat(amtStr);
+  if (isNaN(amt) || amt <= 0) { _showAdminToast('Invalid amount', 'error'); return; }
+  if (amt > dueAmount) { _showAdminToast('Amount exceeds balance due', 'error'); return; }
+  const { data: enr, error: fetchErr } = await db.client.from('enrollments')
+    .select('*').eq('id', enrollId).maybeSingle();
+  if (fetchErr || !enr) { _showAdminToast('Could not fetch enrollment', 'error'); return; }
+  const newPaid = Number(enr.paid_amount) + amt;
+  const newDue  = Math.max(0, Number(enr.net_amount) - newPaid);
+  try {
+    await _safeEnrollUpdate(enrollId, {
+      paid_amount: newPaid, due_amount: newDue,
+      enrollment_status: 'active', access_status: newDue <= 0 ? 'active' : 'restricted',
+    });
+  } catch(e) { _showAdminToast('Update failed: ' + e.message, 'error'); return; }
+  await db.client.from('payments').insert({
+    student_user_id: enr.student_user_id, enrollment_id: enrollId, course_id: enr.course_id,
+    amount: amt, payment_method: 'cash', payment_gateway: 'manual', payment_status: 'completed',
+    paid_at: new Date().toISOString(), transaction_reference: 'ADMIN-PAY-' + Date.now(),
+  });
+  _showAdminToast(`✓ ₹${Number(amt).toLocaleString('en-IN')} recorded. Balance: ₹${Number(newDue).toLocaleString('en-IN')}`, 'success');
+  if (_viewingUserId) viewUser(_viewingUserId);
+  loadEnrollments(); loadPayments(); loadDashboard();
+}
+
+async function _muUnenroll(enrollId, studentName, courseTitle) {
+  const label = [studentName, courseTitle].filter(Boolean).join(' from ');
+  if (!confirm(`Remove enrollment${label ? ' of ' + label : ''}?\n\nThis permanently deletes the enrollment record and removes course access. Payment records are kept.\n\nThis cannot be undone.`)) return;
+  const { error } = await db.client.from('enrollments').delete().eq('id', enrollId);
+  if (error) { _showAdminToast('Unenroll failed: ' + error.message, 'error'); return; }
+  _showAdminToast(`✓ ${studentName || 'Student'} unenrolled from ${courseTitle || 'course'}`, 'success');
+  if (_viewingUserId) viewUser(_viewingUserId);
+  loadEnrollments(); loadDashboard();
 }
 
 async function saveUserRole() {
@@ -5526,18 +5659,15 @@ async function deletePaymentRecord(paymentId, enrollmentId, amount) {
     // 2. If linked to an enrollment, reverse the paid_amount
     if (enrollmentId && enrollmentId !== 'null' && enrollmentId !== '') {
       const { data: enr } = await db.client.from('enrollments')
-        .select('paid_amount, net_amount').eq('id', enrollmentId).maybeSingle();
+        .select('*').eq('id', enrollmentId).maybeSingle();
       if (enr) {
         const newPaid = Math.max(0, Number(enr.paid_amount) - Number(amount));
         const newDue  = Math.max(0, Number(enr.net_amount) - newPaid);
         const newAccess = newPaid >= Number(enr.net_amount) ? 'active'
                         : newPaid > 0 ? 'restricted' : 'pending';
-        await db.client.from('enrollments').update({
-          paid_amount: newPaid,
-          due_amount: newDue,
-          access_status: newAccess,
-          updated_at: new Date().toISOString(),
-        }).eq('id', enrollmentId);
+        await _safeEnrollUpdate(enrollmentId, {
+          paid_amount: newPaid, due_amount: newDue, access_status: newAccess,
+        });
       }
     }
 
@@ -5554,14 +5684,11 @@ async function deletePaymentRecord(paymentId, enrollmentId, amount) {
 // ===== REVOKE ACCESS =====
 async function revokeAccess(enrollId) {
   if (!confirm('Revoke course access for this student? They will no longer be able to view course content.')) return;
-  const { error } = await db.client.from('enrollments').update({
-    access_status: 'revoked',
-    enrollment_status: 'blocked',
-    updated_at: new Date().toISOString(),
-  }).eq('id', enrollId);
-  if (error) { _showAdminToast('Revoke failed: ' + error.message, 'error'); return; }
-  _showAdminToast('✓ Access revoked', 'success');
-  loadEnrollments();
+  try {
+    await _safeEnrollUpdate(enrollId, { access_status: 'revoked', enrollment_status: 'blocked' });
+    _showAdminToast('✓ Access revoked', 'success');
+    loadEnrollments();
+  } catch(e) { _showAdminToast('Revoke failed: ' + e.message, 'error'); }
 }
 
 // ── Unenroll student ──────────────────────────────────────────

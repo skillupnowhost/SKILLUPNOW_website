@@ -2914,7 +2914,7 @@
       const discount   = Math.max(0, listPrice - salePrice);
       const netAmount  = selectedTotalAmount;
 
-      const { error: enrollErr } = await _db().from('enrollments').upsert({
+      const { error: enrollErr } = await _db().from('enrollments').insert({
         student_user_id:   user.id,
         course_id:         selectedCourse.id,
         pricing_id:        activePricing.id,
@@ -2925,7 +2925,7 @@
         net_amount:        netAmount,
         paid_amount:       0,
         due_amount:        netAmount,
-      }, { onConflict: 'student_user_id,course_id' });
+      });
       if (enrollErr) throw enrollErr;
 
       // Immediately reflect pending state on the card (no page refresh needed)
@@ -3015,12 +3015,22 @@
       const activePricing = (selectedCourse.course_pricing || []).find(p => p.is_active) || selectedCourse.course_pricing?.[0];
       if (!activePricing?.id) { alert('No pricing available. Please contact support.'); btn.disabled = false; btn.innerHTML = _payBtnHtml; return; }
 
-      const { data: enroll, error: enrollErr } = await _db().from('enrollments').upsert({
-        student_user_id: user.id, course_id: selectedCourse.id,
-        pricing_id: activePricing.id,
-        enrollment_status: 'pending', net_amount: totalAmount,
-      }, { onConflict: 'student_user_id,course_id' }).select().single();
-      if (enrollErr) throw enrollErr;
+      // Find existing pending enrollment or create a fresh one (no upsert — avoids broken trigger).
+      let enroll = null;
+      const { data: existingEnroll } = await _db().from('enrollments')
+        .select('id').eq('student_user_id', user.id).eq('course_id', selectedCourse.id).maybeSingle();
+      if (existingEnroll) {
+        enroll = existingEnroll;
+      } else {
+        const { data: newEnroll, error: enrollErr } = await _db().from('enrollments').insert({
+          student_user_id: user.id, course_id: selectedCourse.id,
+          pricing_id: activePricing.id,
+          enrollment_status: 'pending', access_status: 'pending',
+          net_amount: totalAmount, paid_amount: 0, due_amount: totalAmount,
+        }).select('id').single();
+        if (enrollErr) throw enrollErr;
+        enroll = newEnroll;
+      }
 
       const options = {
         key: 'rzp_live_ILgsSZCZoFMQjO',
@@ -3052,6 +3062,8 @@
           if (response.razorpay_order_id)  paymentInsert.gateway_order_id  = response.razorpay_order_id;
           if (response.razorpay_signature) paymentInsert.gateway_signature = response.razorpay_signature;
           await _db().from('payments').insert(paymentInsert);
+          // Update enrollment to active after successful payment.
+          // Requires v28-fix-log-activity-trigger.sql to be run in Supabase.
           await _db().from('enrollments').update({
             enrollment_status: 'active',
             access_status: 'active',
