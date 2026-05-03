@@ -998,6 +998,58 @@
       outline: none;
     }
 
+    /* Fix: select option text visibility across all themes.
+       Native dropdown ignores CSS variables — options need solid colors. */
+    .filter-bar select option,
+    .sort-select option {
+      background-color: #ffffff;
+      color: #0d1117;
+    }
+
+    /* Dark theme — fix transparent --panel on select element + option colors */
+    :root[data-theme="dark"] .filter-bar select,
+    :root[data-theme="dark"] .sort-select {
+      background-color: #120f24;
+    }
+    :root[data-theme="dark"] .filter-bar select option,
+    :root[data-theme="dark"] .sort-select option {
+      background-color: #120f24;
+      color: #f0eeff;
+    }
+
+    /* Ocean variant */
+    :root[data-theme="dark"][data-theme-variant="ocean"] .filter-bar select,
+    :root[data-theme="dark"][data-theme-variant="ocean"] .sort-select {
+      background-color: #0b1d2d;
+    }
+    :root[data-theme="dark"][data-theme-variant="ocean"] .filter-bar select option,
+    :root[data-theme="dark"][data-theme-variant="ocean"] .sort-select option {
+      background-color: #0b1d2d;
+      color: #eef8ff;
+    }
+
+    /* Sunset variant */
+    :root[data-theme="dark"][data-theme-variant="sunset"] .filter-bar select,
+    :root[data-theme="dark"][data-theme-variant="sunset"] .sort-select {
+      background-color: #1a0f14;
+    }
+    :root[data-theme="dark"][data-theme-variant="sunset"] .filter-bar select option,
+    :root[data-theme="dark"][data-theme-variant="sunset"] .sort-select option {
+      background-color: #1a0f14;
+      color: #fff4ef;
+    }
+
+    /* Emerald variant */
+    :root[data-theme="dark"][data-theme-variant="emerald"] .filter-bar select,
+    :root[data-theme="dark"][data-theme-variant="emerald"] .sort-select {
+      background-color: #081711;
+    }
+    :root[data-theme="dark"][data-theme-variant="emerald"] .filter-bar select option,
+    :root[data-theme="dark"][data-theme-variant="emerald"] .sort-select option {
+      background-color: #081711;
+      color: #effdf6;
+    }
+
     /* ===== SECTION HEADING ===== */
     .courses-meta-count { font-weight:700; color:var(--txt2); }
     .courses-meta-count span { color:var(--v1); }
