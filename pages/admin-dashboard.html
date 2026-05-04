@@ -1613,11 +1613,27 @@
     <div class="modal-close" onclick="closeModal('category-modal')">✕</div>
     <div class="modal-title">Add Category</div>
     <input type="hidden" id="cat-id">
-    <div class="f-group"><label>Category Name *</label><input type="text" id="cat-name" placeholder="e.g. Cloud Computing"></div>
+    <div class="f-group"><label>Category Name *</label><input type="text" id="cat-name" placeholder="e.g. Cloud Computing" oninput="_catIconAutoDetect()"></div>
     <div class="f-group"><label>Slug *</label><input type="text" id="cat-slug" placeholder="e.g. cloud-computing"></div>
     <div class="f-group"><label>Description</label><textarea id="cat-desc" placeholder="Short description…"></textarea></div>
+
+    <!-- Dynamic Icon Picker -->
+    <div class="f-group">
+      <label>Category Icon <span style="font-size:.7rem;font-weight:400;color:rgba(255,255,255,.4);">(auto-detected · click to override)</span></label>
+      <input type="hidden" id="cat-icon">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.6rem;">
+        <div id="cat-icon-preview-wrap" style="width:56px;height:56px;border-radius:14px;background:linear-gradient(145deg,#12003a,#4c1d95);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.4);">
+          <div id="cat-icon-preview-svg" style="width:36px;height:36px;"></div>
+        </div>
+        <div>
+          <div id="cat-icon-preview-label" style="font-size:.82rem;font-weight:700;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.07em;">General</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.38);margin-top:.15rem;">Auto-selected from course name</div>
+        </div>
+      </div>
+      <div id="cat-icon-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:.35rem;"></div>
+    </div>
+
     <div class="form-row">
-      <div class="f-group"><label>Icon (emoji)</label><input type="text" id="cat-icon" placeholder="☁️"></div>
       <div class="f-group"><label>Active</label><select id="cat-active"><option value="true">Yes</option><option value="false">No</option></select></div>
     </div>
     <div class="modal-actions">
@@ -2007,6 +2023,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="../config/supabase-config.js"></script>
 <script src="../js/profile-nav.js"></script>
+<script src="../js/course-icons.js"></script>
 <script>
 const db = new SupabaseConfig();
 let adminUser = null;
@@ -2129,6 +2146,8 @@ function openCategoryForNew() {
   const t = document.getElementById('category-modal')?.querySelector('.modal-title');
   if (t) t.textContent = 'Add Category';
   _resetModal('category-modal', { 'cat-active': 'true' });
+  _catIconInit();
+  _catIconSetKey('default');
   openModal('category-modal');
 }
 
@@ -2471,8 +2490,7 @@ async function loadDashboard() {
     mbadge.style.background = pending > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
     mbadge.title = pending > 0 ? `${pending} pending approval` : `${mentorsRes.count || 0} total mentors`;
   }
-  const pendingReviewCount = (pendingReviewsRes.count || 0) + (pendingFeedbackRes.count || 0);
-  document.getElementById('review-badge').textContent = pendingReviewCount;
+  document.getElementById('review-badge').textContent = pendingReviewsRes.count || 0;
   document.getElementById('inquiry-badge').textContent = openInquiries;
   // Holiday badge — upcoming in next 30 days
   const holBadge = document.getElementById('holiday-badge');
@@ -2690,12 +2708,16 @@ async function loadCategories() {
   // Helper: clean slug by removing redundant "courses" segments
   const cleanSlug = s => (s || '').replace(/\bcourses[-_]?/gi, '').replace(/[-_]+/g, '-').replace(/^-|-$/g, '') || s;
   document.getElementById('category-tbody').innerHTML = (data||[]).map(c => {
-    const icon = c.icon || c.icon_name || '📚';
     const slug = cleanSlug(c.slug);
+    const iconKey = c.icon_name || c.icon || '';
+    const iconInfo = window.CourseIcons ? window.CourseIcons.getInfo(iconKey || c.name || '') : null;
+    const iconHtml = iconInfo
+      ? `<div style="width:36px;height:36px;border-radius:10px;background:${iconInfo.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,.35);overflow:hidden;"><div style="width:24px;height:24px;">${iconInfo.svg}</div></div>`
+      : `<div style="width:36px;height:36px;border-radius:10px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📚</div>`;
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:.65rem;">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${icon}</div>
+          ${iconHtml}
           <span style="font-weight:600">${c.name}</span>
         </div>
       </td>
@@ -2708,7 +2730,12 @@ async function loadCategories() {
       </div></td>
     </tr>`;
   }).join('') || '<tr><td colspan="5" class="table-empty">No categories</td></tr>';
-  const opts = (data||[]).map(c => `<option value="${c.id}">${c.icon || c.icon_name || '📚'} ${c.name}</option>`).join('');
+  const opts = (data||[]).map(c => {
+    const k = c.icon_name || c.icon || '';
+    const label = window.CourseIcons ? window.CourseIcons.getKey(k || c.name || '') : 'default';
+    const emoji = {ml:'🤖',devops:'⚙️',cloud:'☁️',cyber:'🔒',data:'📊',testing:'🧪',network:'🌐',linux:'🐧',webdev:'💻',business:'💼',comm:'🎤',leader:'🏆',career:'🚀',default:'📚'}[label] || '📚';
+    return `<option value="${c.id}">${emoji} ${c.name}</option>`;
+  }).join('');
   const el = document.getElementById('c-category'); if (el) el.innerHTML = '<option value="">None</option>' + opts;
 }
 
@@ -3565,97 +3592,67 @@ async function loadReviews() {
   try {
     const filter = document.getElementById('review-filter').value;
     const reviewsQ = db.client.from('reviews').select('*');
-    const feedbackQ = db.client.from('feedback').select('*');
 
-    if (filter === 'false') {
-      reviewsQ.eq('is_approved', false);
-      feedbackQ.eq('status', 'open');
-    } else if (filter === 'true') {
-      reviewsQ.eq('is_approved', true);
-      feedbackQ.in('status', ['reviewed', 'resolved']);
-    }
+    if (filter === 'false')     reviewsQ.eq('is_approved', false);
+    else if (filter === 'true') reviewsQ.eq('is_approved', true);
 
-    const [reviewRes, feedbackRes] = await Promise.all([
-      reviewsQ.order('created_at', { ascending: false }).limit(50),
-      feedbackQ.order('created_at', { ascending: false }).limit(50)
-    ]);
+    const reviewRes = await reviewsQ.order('created_at', { ascending: false }).limit(100);
+    if (reviewRes.error) throw new Error(reviewRes.error.message);
 
-    if (reviewRes.error) throw new Error('Reviews: ' + reviewRes.error.message);
-    if (feedbackRes.error) throw new Error('Feedback: ' + feedbackRes.error.message);
+    const reviewData = reviewRes.data || [];
 
-    const reviewData  = reviewRes.data  || [];
-    const feedbackData = feedbackRes.data || [];
-
-    // Fetch course titles and user names separately (avoids PostgREST join failures)
+    // Fetch course titles and student names separately
     const courseIds = [...new Set(reviewData.map(r => r.course_id).filter(Boolean))];
-    const userIds   = [...new Set([...reviewData, ...feedbackData].map(r => r.user_id).filter(Boolean))];
+    const userIds   = [...new Set(reviewData.map(r => r.user_id).filter(Boolean))];
 
     const [coursesRes, profilesRes] = await Promise.all([
-      courseIds.length ? db.client.from('courses').select('id,title').in('id', courseIds) : Promise.resolve({ data: [] }),
+      courseIds.length ? db.client.from('courses').select('id,title').in('id', courseIds)             : Promise.resolve({ data: [] }),
       userIds.length   ? db.client.from('user_profiles').select('user_id,full_name').in('user_id', userIds) : Promise.resolve({ data: [] })
     ]);
 
     const courseMap  = Object.fromEntries((coursesRes.data  || []).map(c => [c.id, c.title]));
     const profileMap = Object.fromEntries((profilesRes.data || []).map(p => [p.user_id, p.full_name]));
 
-    const allItems = [
-      ...reviewData.map(r  => ({ ...r, source: 'review' })),
-      ...feedbackData.map(f => ({ ...f, source: 'feedback' }))
-    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-    _reviewEditItems = allItems.map(item => ({
-      ...item,
-      display_name: item.source === 'review'
-        ? (profileMap[item.user_id] || item.full_name || 'Student')
-        : (item.full_name || profileMap[item.user_id] || 'Student'),
-      display_target: item.source === 'review'
-        ? (courseMap[item.course_id] || '—')
-        : (item.course_title || item.feedback_type?.replace(/_/g, ' ') || 'Feedback')
+    _reviewEditItems = reviewData.map(r => ({
+      ...r,
+      source:         'review',
+      display_name:   profileMap[r.user_id] || 'Student',
+      display_target: courseMap[r.course_id] || '—'
     }));
 
     tbody.innerHTML = _reviewEditItems.map(item => {
-      const stars    = '★'.repeat(item.rating || 0) + '☆'.repeat(5 - (item.rating || 0));
-      const text     = item.source === 'review' ? (item.comment || '—') : (item.message || item.subject || '—');
-      const approved = item.source === 'review' ? item.is_approved : item.status !== 'open';
-      const approveBtn = approved
+      const stars = '★'.repeat(item.rating || 0) + '☆'.repeat(5 - (item.rating || 0));
+      const text  = item.comment || '—';
+      const approveBtn = item.is_approved
         ? '<span class="badge badge-green">Approved</span>'
-        : `<button type="button" class="action-btn" onclick="event.stopPropagation(); ${item.source === 'review' ? 'approveReview' : 'approveFeedback'}('${item.id}')">✓ Approve</button>`;
-      const deleteFn = item.source === 'review' ? 'deleteReview' : 'deleteFeedbackRow';
-      const typeTag  = item.source === 'review'
-        ? '<span class="badge" style="background:rgba(124,92,252,.15);color:#a78bfa;font-size:.7rem;">Review</span>'
-        : '<span class="badge" style="background:rgba(59,130,246,.15);color:#60a5fa;font-size:.7rem;">Feedback</span>';
+        : `<button type="button" class="action-btn" onclick="event.stopPropagation(); approveReview('${item.id}')">✓ Approve</button>`;
 
       return `<tr>
         <td>${escHtml(item.display_name)}</td>
         <td>${escHtml(item.display_target)}</td>
-        <td>${stars} ${typeTag}</td>
+        <td>${stars}</td>
         <td style="max-width:220px;white-space:normal">${escHtml(text.substring(0, 100))}${text.length > 100 ? '…' : ''}</td>
         <td>${fmtDate(item.created_at)}</td>
         <td><div class="action-btns">
           ${approveBtn}
-          <button type="button" class="action-btn" onclick="event.stopPropagation(); openReviewEditModal('${item.id}','${item.source}')">Edit</button>
-          <button type="button" class="action-btn danger" onclick="event.stopPropagation(); ${deleteFn}('${item.id}')">Delete</button>
+          <button type="button" class="action-btn" onclick="event.stopPropagation(); openReviewEditModal('${item.id}','review')">Edit</button>
+          <button type="button" class="action-btn danger" onclick="event.stopPropagation(); deleteReview('${item.id}')">Delete</button>
         </div></td>
       </tr>`;
     }).join('') || '<tr><td colspan="6" class="table-empty">No reviews found</td></tr>';
 
-    // Refresh sidebar badge
     refreshReviewBadge();
 
   } catch (err) {
     console.error('loadReviews error:', err);
-    tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171;">Failed to load reviews: ${escHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171;">Failed to load: ${escHtml(err.message)}</td></tr>`;
   }
 }
 
 async function refreshReviewBadge() {
-  const [rvRes, fbRes] = await Promise.all([
-    db.client.from('reviews').select('id', { count: 'exact', head: true }).eq('is_approved', false),
-    db.client.from('feedback').select('id', { count: 'exact', head: true }).eq('status', 'open')
-  ]);
-  const count = (rvRes.count || 0) + (fbRes.count || 0);
+  const { count } = await db.client.from('reviews').select('id', { count: 'exact', head: true }).eq('is_approved', false);
   const badge = document.getElementById('review-badge');
-  if (badge) badge.textContent = count;
+  if (badge) badge.textContent = count || 0;
 }
 
 let _currentReviewEdit = null;
@@ -4385,12 +4382,6 @@ async function deleteReview(id) {
   loadReviews();
 }
 
-async function approveFeedback(id) {
-  const { error } = await db.client.from('feedback').update({ status: 'reviewed', updated_at: new Date().toISOString() }).eq('id', id);
-  if (error) { alert('Failed to approve feedback: ' + error.message); return; }
-  _showAdminToast('✓ Feedback approved and now visible publicly.', 'success');
-  loadReviews();
-}
 
 async function deleteFeedbackRow(id) {
   if (!confirm('Delete this feedback entry?')) return;
@@ -4485,6 +4476,58 @@ async function saveCourse() {
   closeModal('course-modal');
   await Promise.all([loadCourses(), loadCategories()]);
 }
+
+// ==================== CATEGORY ICON PICKER ====================
+const _CAT_ICON_KEYS = ['ml','devops','cloud','cyber','data','testing','network','linux','webdev','business','comm','leader','career','default'];
+const _CAT_ICON_LABELS = {
+  ml:'AI / ML', devops:'DevOps', cloud:'Cloud', cyber:'Cyber', data:'Data',
+  testing:'Testing', network:'Network', linux:'Linux', webdev:'Web Dev',
+  business:'Business', comm:'Comm', leader:'Leader', career:'Career', default:'General'
+};
+
+function _catIconInit() {
+  const grid = document.getElementById('cat-icon-grid');
+  if (!grid || !window.CourseIcons) return;
+  grid.innerHTML = _CAT_ICON_KEYS.map(key => {
+    const info = window.CourseIcons.getInfo(key);
+    return `<div class="cat-icon-tile" data-key="${key}" onclick="_catIconSetKey('${key}')" title="${_CAT_ICON_LABELS[key]||key}"
+      style="cursor:pointer;border-radius:10px;padding:.35rem .2rem;display:flex;flex-direction:column;align-items:center;gap:.25rem;background:rgba(255,255,255,.04);border:2px solid transparent;transition:all .18s;">
+      <div style="width:30px;height:30px;">${info.svg}</div>
+      <span style="font-size:.52rem;color:rgba(255,255,255,.55);text-align:center;line-height:1.1;">${_CAT_ICON_LABELS[key]||key}</span>
+    </div>`;
+  }).join('');
+}
+
+function _catIconSetKey(key) {
+  if (!window.CourseIcons) return;
+  key = key || 'default';
+  const info = window.CourseIcons.getInfo(key);
+  document.getElementById('cat-icon').value = key;
+  const wrap = document.getElementById('cat-icon-preview-wrap');
+  const svgEl = document.getElementById('cat-icon-preview-svg');
+  const lbl = document.getElementById('cat-icon-preview-label');
+  if (wrap) wrap.style.background = info.gradient;
+  if (svgEl) svgEl.innerHTML = info.svg;
+  if (lbl) lbl.textContent = _CAT_ICON_LABELS[key] || key;
+  document.querySelectorAll('.cat-icon-tile').forEach(t => {
+    const sel = t.dataset.key === key;
+    t.style.background = sel ? 'rgba(124,58,237,.28)' : 'rgba(255,255,255,.04)';
+    t.style.borderColor = sel ? '#7c3aed' : 'transparent';
+  });
+}
+
+function _catIconAutoDetect() {
+  if (!window.CourseIcons) return;
+  const name = document.getElementById('cat-name')?.value || '';
+  const key = window.CourseIcons.getKey(name) || 'default';
+  _catIconSetKey(key);
+  // Auto-fill slug
+  const slugEl = document.getElementById('cat-slug');
+  if (slugEl && !slugEl.value) {
+    slugEl.value = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+}
+// ==================== END CATEGORY ICON PICKER ====================
 
 async function saveCategory() {
   const id = document.getElementById('cat-id').value;
@@ -5200,9 +5243,14 @@ async function editCategory(id) {
   document.getElementById('cat-name').value = c.name || '';
   document.getElementById('cat-slug').value = c.slug || '';
   document.getElementById('cat-desc').value = c.description || '';
-  document.getElementById('cat-icon').value = c.icon_name || c.icon || '';
   document.getElementById('cat-active').value = c.is_active ? 'true' : 'false';
   document.getElementById('category-modal').querySelector('.modal-title').textContent = 'Edit Category';
+  _catIconInit();
+  const storedKey = c.icon_name || c.icon || '';
+  // Use stored key if it's a known icon category, else auto-detect from name
+  const key = (_CAT_ICON_KEYS || []).includes(storedKey) ? storedKey
+            : (window.CourseIcons?.getKey(c.name || '') || 'default');
+  _catIconSetKey(key);
   openModal('category-modal');
 }
 

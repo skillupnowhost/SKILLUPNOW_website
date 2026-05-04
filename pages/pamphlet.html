@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -878,48 +878,15 @@
 <script src="../config/supabase-config.js"></script>
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
+<script src="../js/course-icons.js"></script>
 <script>
 const db = new SupabaseConfig();
 
-// Dynamic 3D SVG course thumb — same icon set as courses page
+// Dynamic 3D SVG course thumb — delegates to shared CourseIcons library
 function getPamCourseThumb(catName, courseTitle) {
-  const s = ((catName || '') + ' ' + (courseTitle || '')).toLowerCase();
-
-  const icons = {
-    devops: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-dv1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fed7aa"/><stop offset="100%" stop-color="#fb923c"/></linearGradient><filter id="pam-f-dv"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#9a3412" flood-opacity=".5"/></filter></defs><g filter="url(#pam-f-dv)"><circle cx="32" cy="32" r="13" stroke="url(#pam-g-dv1)" stroke-width="2.5" fill="rgba(251,146,60,.12)"/><circle cx="32" cy="32" r="5" fill="url(#pam-g-dv1)"/><path d="M32 15v5M32 44v5M15 32h5M44 32h5M20.5 20.5l3.5 3.5M40 40l3.5 3.5M43.5 20.5L40 24M24 40l-3.5 3.5" stroke="url(#pam-g-dv1)" stroke-width="2.5" stroke-linecap="round"/><path d="M26 18l3 7-7 3M38 46l-3-7 7-3" stroke="#fed7aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g><ellipse cx="26" cy="24" rx="3" ry="1.5" fill="rgba(255,255,255,.22)" transform="rotate(-40,26,24)"/></svg>`,
-    cloud:  `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-cl1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><linearGradient id="pam-g-cl2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7dd3fc"/><stop offset="100%" stop-color="#0284c7"/></linearGradient><filter id="pam-f-cl"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#075985" flood-opacity=".55"/></filter></defs><g filter="url(#pam-f-cl)"><path d="M44 38H20a10 10 0 110-20c.7 0 1.3.07 1.9.2A10 10 0 0142 20a9 9 0 012 18z" fill="url(#pam-g-cl2)" stroke="url(#pam-g-cl1)" stroke-width="1.5"/><path d="M32 44V32M28 36l4-4 4 4" stroke="url(#pam-g-cl1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g><ellipse cx="26" cy="24" rx="6" ry="3" fill="rgba(255,255,255,.28)"/></svg>`,
-    ai:     `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-ai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e9d5ff"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient><linearGradient id="pam-g-ai2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient><filter id="pam-f-ai"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#4c1d95" flood-opacity=".55"/></filter></defs><g filter="url(#pam-f-ai)"><circle cx="32" cy="32" r="8" fill="url(#pam-g-ai2)"/><circle cx="32" cy="14" r="4.5" fill="url(#pam-g-ai1)"/><circle cx="32" cy="50" r="4.5" fill="url(#pam-g-ai1)"/><circle cx="14" cy="32" r="4.5" fill="url(#pam-g-ai1)"/><circle cx="50" cy="32" r="4.5" fill="url(#pam-g-ai1)"/><circle cx="20" cy="20" r="3.5" fill="url(#pam-g-ai1)"/><circle cx="44" cy="20" r="3.5" fill="url(#pam-g-ai1)"/><circle cx="20" cy="44" r="3.5" fill="url(#pam-g-ai1)"/><circle cx="44" cy="44" r="3.5" fill="url(#pam-g-ai1)"/><path d="M32 21v5M32 38v5M21 32h5M38 32h5" stroke="url(#pam-g-ai1)" stroke-width="1.8" stroke-linecap="round"/><circle cx="32" cy="32" r="3" fill="rgba(255,255,255,.92)"/></g><ellipse cx="26" cy="20" rx="4" ry="2" fill="rgba(255,255,255,.22)" transform="rotate(-30,26,20)"/></svg>`,
-    cyber:  `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-cy1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fecaca"/><stop offset="100%" stop-color="#f87171"/></linearGradient><linearGradient id="pam-g-cy2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient><filter id="pam-f-cy"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#7f1d1d" flood-opacity=".55"/></filter></defs><g filter="url(#pam-f-cy)"><path d="M32 8L10 17v15c0 11 8 21.5 22 24.5C46 53.5 54 43 54 32V17L32 8z" fill="url(#pam-g-cy2)" stroke="url(#pam-g-cy1)" stroke-width="1.5"/><rect x="25" y="28" width="14" height="12" rx="2.5" fill="rgba(255,255,255,.92)"/><path d="M27 28v-4a5 5 0 0110 0v4" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="34" r="1.8" fill="#ef4444"/></g></svg>`,
-    data:   `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-da1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a7f3d0"/><stop offset="100%" stop-color="#34d399"/></linearGradient><linearGradient id="pam-g-da2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#059669"/></linearGradient><filter id="pam-f-da"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#064e3b" flood-opacity=".55"/></filter></defs><g filter="url(#pam-f-da)"><rect x="8" y="34" width="11" height="18" rx="3.5" fill="url(#pam-g-da1)"/><rect x="26" y="24" width="11" height="28" rx="3.5" fill="url(#pam-g-da1)" opacity=".85"/><rect x="44" y="12" width="11" height="40" rx="3.5" fill="url(#pam-g-da1)" opacity=".7"/><path d="M13.5 28l13-11 12 9 13-15" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="13.5" cy="28" r="3" fill="#6ee7b7"/><circle cx="26.5" cy="17" r="3" fill="#6ee7b7"/><circle cx="38.5" cy="26" r="3" fill="#6ee7b7"/><circle cx="51.5" cy="13" r="3" fill="#6ee7b7"/></g></svg>`,
-    testing:`<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-te1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fed7aa"/><stop offset="100%" stop-color="#f97316"/></linearGradient><linearGradient id="pam-g-te2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffedd5"/><stop offset="100%" stop-color="#fdba74"/></linearGradient><filter id="pam-f-te"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#9a3412" flood-opacity=".5"/></filter></defs><g filter="url(#pam-f-te)"><rect x="14" y="10" width="26" height="34" rx="4" fill="url(#pam-g-te1)" stroke="url(#pam-g-te2)" stroke-width="1.5"/><path d="M22 22h10M22 29h10M22 36h6" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round"/><circle cx="42" cy="42" r="10" fill="url(#pam-g-te2)" stroke="url(#pam-g-te1)" stroke-width="1.5"/><path d="M37 42l3.5 3.5 6-6" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
-    it:     `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-it1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ddd6fe"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient><linearGradient id="pam-g-it2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient><filter id="pam-f-it"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#4c1d95" flood-opacity=".55"/></filter></defs><g filter="url(#pam-f-it)"><rect x="8" y="12" width="48" height="32" rx="5" fill="url(#pam-g-it2)" stroke="url(#pam-g-it1)" stroke-width="1.5"/><path d="M24 52h16M32 44v8" stroke="url(#pam-g-it1)" stroke-width="2.5" stroke-linecap="round"/><path d="M20 24l5 4-5 4M29 32h10" stroke="rgba(255,255,255,.95)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
-    default:`<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pam-g-df1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e9d5ff"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient><linearGradient id="pam-g-df2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#5b21b6"/></linearGradient><filter id="pam-f-df"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#4c1d95" flood-opacity=".5"/></filter></defs><g filter="url(#pam-f-df)"><path d="M32 48V18M32 18C27 13 13 13 10 15v28c3-2.5 15-2.5 22 5M32 18c5-5 19-5 22-3v28c-7-7.5-17-7.5-22-5" fill="url(#pam-g-df2)" stroke="url(#pam-g-df1)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
-  };
-
-  const bgs = {
-    devops:  'linear-gradient(145deg,#431407,#9a3412,#c2410c)',
-    cloud:   'linear-gradient(145deg,#0c4a6e,#075985,#0369a1)',
-    ai:      'linear-gradient(145deg,#2e1065,#4c1d95,#6d28d9)',
-    cyber:   'linear-gradient(145deg,#450a0a,#7f1d1d,#991b1b)',
-    data:    'linear-gradient(145deg,#022c22,#064e3b,#065f46)',
-    testing: 'linear-gradient(145deg,#431407,#9a3412,#c2410c)',
-    it:      'linear-gradient(145deg,#1e1b4b,#3730a3,#4338ca)',
-    default: 'linear-gradient(145deg,#1a0533,#3b0764,#4c1d95)',
-  };
-
-  let key = 'default';
-  if (/devops|docker|k8s|kubernetes|cicd|ci\/cd|pipeline|jenkins/.test(s))      key = 'devops';
-  else if (/cloud|aws|azure|gcp|terraform|serverless/.test(s))                   key = 'cloud';
-  else if (/gen\s*ai|generative|llm|gpt|chatgpt|machine\s*learn|ml\b|deep\s*learn|neural|nlp/.test(s)) key = 'ai';
-  else if (/ai\b|artificial\s*intel|computer\s*vision|ai\s*-\s*student/.test(s)) key = 'ai';
-  else if (/cyber|security|ethical\s*hack|pentest|soc|siem/.test(s))             key = 'cyber';
-  else if (/data|analytics|power\s*bi|tableau|sql|bigquery/.test(s))             key = 'data';
-  else if (/test|qa|api\s*test|selenium|postman|automation/.test(s))             key = 'testing';
-  else if (/software|web\s*dev|frontend|backend|fullstack|react|node|python/.test(s)) key = 'it';
-
-  return { svg: icons[key] || icons.default, bg: bgs[key] || bgs.default };
+  const info = window.CourseIcons.getInfo((catName || '') + ' ' + (courseTitle || ''));
+  return { svg: info.svg, bg: info.gradient, accent: info.accent };
 }
-
 function stars(r) {
   r = Math.round(r || 0);
   return '★'.repeat(r) + '☆'.repeat(5 - r);
@@ -1143,10 +1110,10 @@ function renderCourses(courses) {
     const desc       = c.short_description || (c.description || '').replace(/\n+/g,' ').slice(0, 140);
 
     return `
-    <div class="pam-card" style="animation:fadeUp .5s ease both;animation-delay:${i * 0.07}s">
+    <div class="pam-card" style="animation:fadeUp .5s ease both;animation-delay:${i * 0.07}s;border-color:${thumb.accent}33;" onmouseover="this.style.borderColor='${thumb.accent}99';this.style.boxShadow='0 20px 60px ${thumb.accent}44'" onmouseout="this.style.borderColor='${thumb.accent}33';this.style.boxShadow=''">
       ${hasDiscount ? `<div class="discount-ribbon">${discPct}% OFF</div>` : ''}
       ${c.is_trending ? `<div class="discount-ribbon" style="background:#7c5cfc;">🔥 Trending</div>` : ''}
-      <div class="pam-card-header" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
+      <div class="pam-card-header" style="background:${thumb.bg};">
         ${c.thumbnail_url ? `<img src="${c.thumbnail_url}" alt="${c.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;opacity:.85;">` : ''}
         <div class="pam-icon-wrap">
           <div class="pam-icon-glow"></div>
@@ -1155,7 +1122,7 @@ function renderCourses(courses) {
         <div class="pam-cat-badge">${catName}</div>
         <h3>${c.title}</h3>
       </div>
-      <div class="pam-card-body">
+      <div class="pam-card-body" style="background:linear-gradient(180deg,${thumb.accent}10 0%,transparent 55%);">
         <p class="pam-desc">${desc}${desc.length >= 140 ? '…' : ''}</p>
         <div class="pam-meta">
           ${durationMo ? `<span class="pam-tag">📅 ${durationMo} mo</span>` : ''}
@@ -1411,7 +1378,7 @@ function buildPopupHTML(course, mentors, activeIdx) {
     : '';
 
   return `
-    <div class="cpop-header" style="${course.thumbnail_url ? `background:url('${course.thumbnail_url}') center/cover;` : `background:${thumb.bg};`}">
+    <div class="cpop-header" style="background:${thumb.bg}${course.thumbnail_url ? `;background-image:url('${course.thumbnail_url}');background-size:cover;background-position:center;` : ''}">
       <span class="cpop-icon">${course.thumbnail_url ? '' : icon}</span>
       <div class="cpop-cat-badge">${catName}</div>
       <h2 class="cpop-title">${course.title}</h2>

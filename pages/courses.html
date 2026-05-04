@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -329,7 +329,7 @@
       background: linear-gradient(135deg,#0ea5e9,#0284c7);
       color: #fff; font-weight: 800;
     }
-    .course-card.three-month .course-thumb { background: linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9) !important; }
+    .course-card.three-month .course-thumb { /* background set dynamically to match icon gradient */ }
     .course-card.three-month .course-footer { background: rgba(14,165,233,.04); border-color: rgba(14,165,233,.2); }
     .course-card.three-month:hover { border-color: rgba(14,165,233,.7); box-shadow: 0 22px 50px rgba(14,165,233,.2); }
     /* ── Three-month type tag ── */
@@ -356,7 +356,7 @@
       background: linear-gradient(135deg,#f97316,#ea580c);
       color: #fff; font-weight: 800;
     }
-    .course-card.twelve-session .course-thumb { background: linear-gradient(135deg,#431407,#9a3412,#f97316) !important; }
+    .course-card.twelve-session .course-thumb { /* background set dynamically to match icon gradient */ }
     .course-card.twelve-session .course-footer { background: rgba(249,115,22,.04); border-color: rgba(249,115,22,.2); }
     .course-card.twelve-session:hover { border-color: rgba(249,115,22,.65); box-shadow: 0 22px 50px rgba(249,115,22,.18); }
     /* ── Twelve-session type tag ── */
@@ -1681,6 +1681,7 @@
 <script src="../config/supabase-config.js"></script>
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
+<script src="../js/course-icons.js"></script>
 <script>
   // Use global supabase config — do NOT create a second instance
   let allCourses = [], filteredCourses = [], selectedCourse = null, selectedTotalAmount = 0;
@@ -1766,212 +1767,9 @@
 
   // ===== 3D DYNAMIC UPCOMING ICONS =====
   function getUpcomingIcon(catName, courseTitle) {
-    const s = ((catName || '') + ' ' + (courseTitle || '')).toLowerCase();
-    const uid = Math.random().toString(36).slice(2, 7); // unique IDs per SVG to avoid <defs> conflicts
-
-    // category detection (same logic as main cards)
-    let key = 'default';
-    if (/devops|ci.cd|jenkins|kubernetes|docker|ansible|terraform|pipeline/.test(s)) key = 'devops';
-    else if (/aws|azure|gcp|cloud|s3|ec2|lambda|serverless/.test(s)) key = 'cloud';
-    else if (/machine learning|ml|ai|deep learning|neural|nlp|llm|gpt|genai|artificial/.test(s)) key = 'ai';
-    else if (/security|cyber|ethical hack|penetration|vapt|soc|siem|firewall/.test(s)) key = 'cyber';
-    else if (/data|analytics|powerbi|tableau|sql|bigquery|spark|hadoop|etl/.test(s)) key = 'data';
-    else if (/test|qa|selenium|playwright|automation|jest|cypress/.test(s)) key = 'testing';
-    else if (/java|python|react|angular|vue|node|web dev|frontend|backend|fullstack|php|laravel|spring/.test(s)) key = 'code';
-    else if (/business|management|mba|project|pmp|agile|scrum|product/.test(s)) key = 'business';
-    else if (/network|ccna|ccnp|cisco|routing|switching|vpn|firewall/.test(s)) key = 'network';
-    else if (/linux|unix|bash|shell|sysadmin|rhel/.test(s)) key = 'linux';
-
-    const configs = {
-      devops: {
-        bg: 'linear-gradient(145deg,#431407,#7c2d12)',
-        glow: 'rgba(251,146,60,.55)',
-        c1: '#fb923c', c2: '#fed7aa',
-        icon: `<g filter="url(#f${uid})">
-          <circle cx="32" cy="32" r="14" stroke="url(#g${uid}a)" stroke-width="2" fill="rgba(251,146,60,.15)"/>
-          <circle cx="32" cy="32" r="5.5" fill="url(#g${uid}a)"/>
-          <path d="M32 14v6M32 42v6M14 32h6M42 32h6M19.5 19.5l4.2 4.2M40.3 40.3l4.2 4.2M44.5 19.5l-4.2 4.2M23.7 40.3l-4.2 4.2" stroke="url(#g${uid}a)" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M25 16l3.5 8-8 3.5M39 48l-3.5-8 8-3.5" stroke="#fed7aa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="18s" repeatCount="indefinite"/>`
-      },
-      cloud: {
-        bg: 'linear-gradient(145deg,#0c2a3f,#0369a1)',
-        glow: 'rgba(56,189,248,.5)',
-        c1: '#38bdf8', c2: '#bae6fd',
-        icon: `<g filter="url(#f${uid})">
-          <path d="M46 36H18A12 12 0 1118 12c.9 0 1.7.1 2.5.25A12 12 0 0144 12a11 11 0 012 24z" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <path d="M32 42V30M27 35l5-5 5 5" stroke="url(#g${uid}a)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="3s" repeatCount="indefinite"/>`
-      },
-      ai: {
-        bg: 'linear-gradient(145deg,#2d0a6b,#5b21b6)',
-        glow: 'rgba(167,139,250,.55)',
-        c1: '#a78bfa', c2: '#e9d5ff',
-        icon: `<g filter="url(#f${uid})">
-          <circle cx="32" cy="32" r="7.5" fill="url(#g${uid}b)"/>
-          <circle cx="32" cy="14" r="4" fill="url(#g${uid}a)"/>
-          <circle cx="32" cy="50" r="4" fill="url(#g${uid}a)"/>
-          <circle cx="14" cy="32" r="4" fill="url(#g${uid}a)"/>
-          <circle cx="50" cy="32" r="4" fill="url(#g${uid}a)"/>
-          <circle cx="20" cy="20" r="3.2" fill="url(#g${uid}a)"/>
-          <circle cx="44" cy="20" r="3.2" fill="url(#g${uid}a)"/>
-          <circle cx="20" cy="44" r="3.2" fill="url(#g${uid}a)"/>
-          <circle cx="44" cy="44" r="3.2" fill="url(#g${uid}a)"/>
-          <path d="M32 21v4M32 39v4M21 32h4M39 32h4" stroke="url(#g${uid}a)" stroke-width="1.8" stroke-linecap="round"/>
-          <circle cx="32" cy="32" r="3" fill="rgba(255,255,255,.92)"/>
-        </g>
-        <animateTransform attributeName="transform" type="scale" values="1;1.06;1" additive="sum" dur="2.5s" repeatCount="indefinite"/>`
-      },
-      cyber: {
-        bg: 'linear-gradient(145deg,#450a0a,#991b1b)',
-        glow: 'rgba(248,113,113,.5)',
-        c1: '#f87171', c2: '#fecaca',
-        icon: `<g filter="url(#f${uid})">
-          <path d="M32 8L10 17v15c0 11 8 21.5 22 24.5C46 53.5 54 43 54 32V17L32 8z" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <rect x="25" y="28" width="14" height="12" rx="2.5" fill="rgba(255,255,255,.92)"/>
-          <path d="M27 28v-4a5 5 0 0110 0v4" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="32" cy="34" r="1.8" fill="#ef4444"/>
-        </g>`
-      },
-      data: {
-        bg: 'linear-gradient(145deg,#064e3b,#065f46)',
-        glow: 'rgba(52,211,153,.5)',
-        c1: '#34d399', c2: '#a7f3d0',
-        icon: `<g filter="url(#f${uid})">
-          <rect x="8" y="34" width="11" height="18" rx="3.5" fill="url(#g${uid}a)"/>
-          <rect x="26" y="24" width="11" height="28" rx="3.5" fill="url(#g${uid}a)" opacity=".85"/>
-          <rect x="44" y="12" width="11" height="40" rx="3.5" fill="url(#g${uid}a)" opacity=".7"/>
-          <path d="M13.5 28l13-11 12 9 13-15" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="13.5" cy="28" r="3" fill="#6ee7b7"/>
-          <circle cx="26.5" cy="17" r="3" fill="#6ee7b7"/>
-          <circle cx="38.5" cy="26" r="3" fill="#6ee7b7"/>
-          <circle cx="51.5" cy="13" r="3" fill="#6ee7b7"/>
-        </g>`
-      },
-      testing: {
-        bg: 'linear-gradient(145deg,#431407,#c2410c)',
-        glow: 'rgba(249,115,22,.5)',
-        c1: '#fb923c', c2: '#ffedd5',
-        icon: `<g filter="url(#f${uid})">
-          <rect x="12" y="8" width="28" height="36" rx="5" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <path d="M20 20h12M20 27h12M20 34h8" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round"/>
-          <circle cx="44" cy="44" r="11" fill="url(#g${uid}a)" stroke="url(#g${uid}b)" stroke-width="1.5"/>
-          <path d="M39 44l3.5 4 6.5-7" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>`
-      },
-      code: {
-        bg: 'linear-gradient(145deg,#1e1b4b,#3730a3)',
-        glow: 'rgba(129,140,248,.5)',
-        c1: '#818cf8', c2: '#ddd6fe',
-        icon: `<g filter="url(#f${uid})">
-          <rect x="8" y="12" width="48" height="34" rx="6" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <path d="M22 52h20M32 46v6" stroke="url(#g${uid}a)" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M19 24l6 5-6 5M31 34h12" stroke="rgba(255,255,255,.95)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>`
-      },
-      business: {
-        bg: 'linear-gradient(145deg,#1e3a5f,#1d4ed8)',
-        glow: 'rgba(96,165,250,.5)',
-        c1: '#60a5fa', c2: '#bfdbfe',
-        icon: `<g filter="url(#f${uid})">
-          <rect x="10" y="24" width="44" height="28" rx="5" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <path d="M22 24v-6a8 8 0 0116 0v6" stroke="url(#g${uid}a)" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M10 36h44" stroke="rgba(255,255,255,.28)" stroke-width="1.5"/>
-          <rect x="27" y="31" width="10" height="10" rx="2.5" fill="rgba(255,255,255,.92)"/>
-        </g>`
-      },
-      network: {
-        bg: 'linear-gradient(145deg,#0f2027,#1a4060)',
-        glow: 'rgba(34,211,238,.5)',
-        c1: '#22d3ee', c2: '#a5f3fc',
-        icon: `<g filter="url(#f${uid})">
-          <circle cx="32" cy="32" r="10" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <circle cx="32" cy="12" r="5" fill="url(#g${uid}a)"/>
-          <circle cx="12" cy="44" r="5" fill="url(#g${uid}a)"/>
-          <circle cx="52" cy="44" r="5" fill="url(#g${uid}a)"/>
-          <path d="M32 22v10M32 32l-12.7 6.5M32 32l12.7 6.5" stroke="url(#g${uid}a)" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="32" cy="32" r="3" fill="rgba(255,255,255,.9)"/>
-        </g>
-        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="20s" repeatCount="indefinite"/>`
-      },
-      linux: {
-        bg: 'linear-gradient(145deg,#1c1917,#44403c)',
-        glow: 'rgba(251,211,141,.5)',
-        c1: '#fbbf24', c2: '#fef3c7',
-        icon: `<g filter="url(#f${uid})">
-          <ellipse cx="32" cy="30" rx="14" ry="18" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <circle cx="27" cy="25" r="2.5" fill="rgba(255,255,255,.92)"/>
-          <circle cx="37" cy="25" r="2.5" fill="rgba(255,255,255,.92)"/>
-          <path d="M26 36c2 3 8 3 10 0" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round"/>
-          <path d="M20 46l4-8M44 46l-4-8M20 46h24" stroke="url(#g${uid}a)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>`
-      },
-      default: {
-        bg: 'linear-gradient(145deg,#1a0533,#3b0764)',
-        glow: 'rgba(167,139,250,.45)',
-        c1: '#a78bfa', c2: '#ddd6fe',
-        icon: `<g filter="url(#f${uid})">
-          <circle cx="32" cy="24" r="10" fill="url(#g${uid}b)" stroke="url(#g${uid}a)" stroke-width="1.5"/>
-          <path d="M24 42h16M32 34v8" stroke="url(#g${uid}a)" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M26 20l3 2.5-3 2.5M32 25h6" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>`
-      }
-    };
-
-    const cfg = configs[key] || configs.default;
-
-    // Sparkle positions
-    const sparks = [
-      {cx:10,cy:10,r:1.4,delay:0},   {cx:54,cy:8,r:1.8,delay:.7},
-      {cx:8,cy:52,r:1.2,delay:1.2},  {cx:56,cy:50,r:1.6,delay:.4},
-      {cx:32,cy:6,r:1.0,delay:.9},   {cx:58,cy:28,r:1.3,delay:1.5},
-    ];
-
-    const sparkSvg = sparks.map(p => `
-      <circle cx="${p.cx}" cy="${p.cy}" r="${p.r}" fill="${cfg.c2}" opacity="0.9">
-        <animate attributeName="opacity" values="0;1;0" dur="${1.8 + p.delay}s" begin="${p.delay}s" repeatCount="indefinite"/>
-        <animate attributeName="r" values="${p.r};${p.r*1.8};${p.r}" dur="${1.8 + p.delay}s" begin="${p.delay}s" repeatCount="indefinite"/>
-      </circle>`).join('');
-
-    const svg = `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="upcoming-icon-svg">
-      <defs>
-        <linearGradient id="g${uid}a" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="${cfg.c2}"/>
-          <stop offset="100%" stop-color="${cfg.c1}"/>
-        </linearGradient>
-        <linearGradient id="g${uid}b" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${cfg.c1}"/>
-          <stop offset="100%" stop-color="${cfg.c1}88"/>
-        </linearGradient>
-        <filter id="f${uid}" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="${cfg.c1}" flood-opacity=".6"/>
-        </filter>
-        <radialGradient id="glow${uid}" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="${cfg.glow}" stop-opacity="0.4"/>
-          <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <!-- Background glow -->
-      <ellipse cx="32" cy="32" rx="28" ry="28" fill="url(#glow${uid})">
-        <animate attributeName="rx" values="24;30;24" dur="3.5s" repeatCount="indefinite"/>
-        <animate attributeName="ry" values="24;30;24" dur="3.5s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values=".6;1;.6" dur="3.5s" repeatCount="indefinite"/>
-      </ellipse>
-      <!-- Orbit ring -->
-      <circle cx="32" cy="32" r="28" stroke="${cfg.c1}" stroke-width="1" stroke-dasharray="4 6" opacity="0.35">
-        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="12s" repeatCount="indefinite"/>
-      </circle>
-      <!-- Icon -->
-      ${cfg.icon}
-      <!-- Sparkles -->
-      ${sparkSvg}
-    </svg>`;
-
-    return { svg, bg: cfg.bg };
+    const info = window.CourseIcons.getInfo((catName || '') + ' ' + (courseTitle || ''));
+    return { svg: info.svg, bg: info.gradient, accent: info.accent };
   }
-
   // ===== RENDER UPCOMING COURSES =====
   // Interest state is SESSION-ONLY: loaded from DB per logged-in user.
   // No localStorage — resets on logout/refresh for logged-out users.
@@ -1999,8 +1797,8 @@
       // Start as login-prompt (neutral); syncInterestButtons() sets the real state
       const intBtn = `<button type="button" class="btn-interested login-prompt" data-course-id="${c.id}" onclick="event.stopPropagation();markInterested('${c.id}',this)">🔔 Notify Me</button>`;
       return `
-      <div class="upcoming-card${isThreeMonth ? ' three-month' : ''}${isTwelveSession ? ' twelve-session' : ''}" style="animation-delay:${delay}s" onclick="openUpcomingDetail('${c.id}')">
-        <div class="upcoming-thumb" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
+      <div class="upcoming-card${isThreeMonth ? ' three-month' : ''}${isTwelveSession ? ' twelve-session' : ''}" style="animation-delay:${delay}s;border-color:${thumb.accent}33;" onmouseover="this.style.borderColor='${thumb.accent}99';this.style.boxShadow='0 22px 50px ${thumb.accent}44'" onmouseout="this.style.borderColor='${thumb.accent}33';this.style.boxShadow=''" onclick="openUpcomingDetail('${c.id}')">
+        <div class="upcoming-thumb" style="background:${thumb.bg};">
           ${c.thumbnail_url
             ? `<img src="${c.thumbnail_url}" alt="${c.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
             : `<div class="upcoming-icon-wrap">${thumb.svg}<span class="upcoming-icon-label">${c._catName || 'Course'}</span></div>`}
@@ -2260,16 +2058,15 @@
     selectedCourse = c;
     const durationMo = c.duration_days ? Math.round(c.duration_days / 30) : null;
     const el = id => document.getElementById(id);
-    const mThumb = getCourseThumbInfo ? getCourseThumbInfo(c._catName, c.title) : { svg: '', bg: 'linear-gradient(145deg,#1a0533,#3b0764)' };
+    const mThumb = getCourseThumbInfo ? getCourseThumbInfo(c._catName, c.title) : { svg: '', bg: 'linear-gradient(145deg,#1a0533,#3b0764)', accent: '#7c3aed' };
     const thumbWrap = el('em-thumb-wrap');
     if (thumbWrap) {
+      thumbWrap.style.background = mThumb.bg;
       if (c.thumbnail_url) {
-        thumbWrap.style.background = '';
         thumbWrap.innerHTML = `<img src="${c.thumbnail_url}" alt="${c.title}" style="width:100%;height:100%;object-fit:cover;">`;
       } else {
-        thumbWrap.style.background = mThumb.bg;
         thumbWrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;">${mThumb.svg}<span style="font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);">${c._catName || 'Course'}</span></div>`;
-        thumbWrap.querySelector('svg').style.cssText = 'width:64px;height:64px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.4))';
+        const sv = thumbWrap.querySelector('svg'); if (sv) sv.style.cssText = 'width:64px;height:64px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.4))';
       }
     }
     if (el('em-level-badge')) el('em-level-badge').textContent = c.level || 'Course';
@@ -2365,242 +2162,11 @@
       return;
     }
 
-    // 3D modern thumb icons — returns { svg, bg } based on category + title keywords
+    // Thumb icons via shared CourseIcons library
     getCourseThumbInfo = function(catName, courseTitle) {
-      const s = ((catName || '') + ' ' + (courseTitle || '')).toLowerCase();
-
-      // ── Icon definitions (self-contained SVGs with gradients + drop-shadow) ──
-      const icons = {
-
-        devops: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-dv1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fed7aa"/><stop offset="100%" stop-color="#fb923c"/></linearGradient>
-            <filter id="f-dv"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#9a3412" flood-opacity=".5"/></filter>
-          </defs>
-          <g filter="url(#f-dv)">
-            <circle cx="32" cy="32" r="13" stroke="url(#g-dv1)" stroke-width="2.5" fill="rgba(251,146,60,.12)"/>
-            <circle cx="32" cy="32" r="5" fill="url(#g-dv1)"/>
-            <path d="M32 15v5M32 44v5M15 32h5M44 32h5M20.5 20.5l3.5 3.5M40 40l3.5 3.5M43.5 20.5L40 24M24 40l-3.5 3.5" stroke="url(#g-dv1)" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M26 18l3 7-7 3M38 46l-3-7 7-3" stroke="#fed7aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <ellipse cx="26" cy="24" rx="3" ry="1.5" fill="rgba(255,255,255,.22)" transform="rotate(-40,26,24)"/>
-        </svg>`,
-
-        cloud: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-cl1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-            <linearGradient id="g-cl2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7dd3fc"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
-            <filter id="f-cl"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#075985" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-cl)">
-            <path d="M44 38H20a10 10 0 110-20c.7 0 1.3.07 1.9.2A10 10 0 0142 20a9 9 0 012 18z" fill="url(#g-cl2)" stroke="url(#g-cl1)" stroke-width="1.5"/>
-            <path d="M32 44V32M28 36l4-4 4 4" stroke="url(#g-cl1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <ellipse cx="26" cy="24" rx="6" ry="3" fill="rgba(255,255,255,.28)"/>
-        </svg>`,
-
-        ai: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-ai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e9d5ff"/><stop offset="100%" stop-color="#c084fc"/></linearGradient>
-            <linearGradient id="g-ai2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
-            <filter id="f-ai"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#4c1d95" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-ai)">
-            <circle cx="32" cy="32" r="7" fill="url(#g-ai2)"/>
-            <circle cx="32" cy="15" r="3.5" fill="url(#g-ai1)"/>
-            <circle cx="32" cy="49" r="3.5" fill="url(#g-ai1)"/>
-            <circle cx="15" cy="32" r="3.5" fill="url(#g-ai1)"/>
-            <circle cx="49" cy="32" r="3.5" fill="url(#g-ai1)"/>
-            <circle cx="20" cy="20" r="3" fill="url(#g-ai1)"/>
-            <circle cx="44" cy="20" r="3" fill="url(#g-ai1)"/>
-            <circle cx="20" cy="44" r="3" fill="url(#g-ai1)"/>
-            <circle cx="44" cy="44" r="3" fill="url(#g-ai1)"/>
-            <path d="M32 22v3M32 39v3M22 32h3M39 32h3M24.1 24.1l2.1 2.1M37.8 37.8l2.1 2.1M39.9 24.1l-2.1 2.1M26.2 37.8l-2.1 2.1" stroke="url(#g-ai1)" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="32" cy="32" r="3" fill="rgba(255,255,255,.9)"/>
-          </g>
-        </svg>`,
-
-        cyber: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-cy1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fecaca"/><stop offset="100%" stop-color="#f87171"/></linearGradient>
-            <linearGradient id="g-cy2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient>
-            <filter id="f-cy"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#7f1d1d" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-cy)">
-            <path d="M32 10L12 18v14c0 10 7 19.5 20 22 13-2.5 20-12 20-22V18L32 10z" fill="url(#g-cy2)" stroke="url(#g-cy1)" stroke-width="1.5"/>
-            <rect x="26" y="28" width="12" height="10" rx="2" fill="rgba(255,255,255,.9)"/>
-            <path d="M28 28v-3a4 4 0 018 0v3" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="32" cy="33" r="1.5" fill="#ef4444"/>
-          </g>
-          <ellipse cx="26" cy="18" rx="5" ry="2.5" fill="rgba(255,255,255,.2)" transform="rotate(-20,26,18)"/>
-        </svg>`,
-
-        data: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-da1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#059669"/></linearGradient>
-            <linearGradient id="g-da2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a7f3d0"/><stop offset="100%" stop-color="#34d399"/></linearGradient>
-            <linearGradient id="g-da3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d1fae5"/><stop offset="100%" stop-color="#6ee7b7"/></linearGradient>
-            <filter id="f-da"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#064e3b" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-da)">
-            <rect x="10" y="36" width="10" height="16" rx="3" fill="url(#g-da1)"/>
-            <rect x="27" y="26" width="10" height="26" rx="3" fill="url(#g-da2)"/>
-            <rect x="44" y="14" width="10" height="38" rx="3" fill="url(#g-da3)"/>
-            <path d="M15 30l12-10 12 8 12-14" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="15" cy="30" r="2.5" fill="#6ee7b7"/>
-            <circle cx="27" cy="20" r="2.5" fill="#6ee7b7"/>
-            <circle cx="39" cy="28" r="2.5" fill="#6ee7b7"/>
-            <circle cx="51" cy="16" r="2.5" fill="#6ee7b7"/>
-          </g>
-        </svg>`,
-
-        testing: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-te1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fed7aa"/><stop offset="100%" stop-color="#f97316"/></linearGradient>
-            <linearGradient id="g-te2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffedd5"/><stop offset="100%" stop-color="#fdba74"/></linearGradient>
-            <filter id="f-te"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#9a3412" flood-opacity=".5"/></filter>
-          </defs>
-          <g filter="url(#f-te)">
-            <rect x="14" y="10" width="26" height="34" rx="4" fill="url(#g-te1)" stroke="url(#g-te2)" stroke-width="1.5"/>
-            <path d="M22 22h10M22 29h10M22 36h6" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="42" cy="42" r="10" fill="url(#g-te2)" stroke="url(#g-te1)" stroke-width="1.5"/>
-            <path d="M37 42l3.5 3.5 6-6" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <ellipse cx="20" cy="16" rx="4" ry="2" fill="rgba(255,255,255,.25)" transform="rotate(-15,20,16)"/>
-        </svg>`,
-
-        it: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-it1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ddd6fe"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
-            <linearGradient id="g-it2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
-            <filter id="f-it"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#4c1d95" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-it)">
-            <rect x="8" y="12" width="48" height="32" rx="5" fill="url(#g-it2)" stroke="url(#g-it1)" stroke-width="1.5"/>
-            <path d="M24 52h16M32 44v8" stroke="url(#g-it1)" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M20 24l5 4-5 4M29 32h10" stroke="rgba(255,255,255,.95)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <rect x="12" y="16" width="40" height="24" rx="3" fill="rgba(255,255,255,.06)"/>
-          <ellipse cx="22" cy="20" rx="6" ry="3" fill="rgba(255,255,255,.18)" transform="rotate(-10,22,20)"/>
-        </svg>`,
-
-        business: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-bu1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#bfdbfe"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient>
-            <linearGradient id="g-bu2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
-            <filter id="f-bu"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1e3a8a" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-bu)">
-            <rect x="10" y="24" width="44" height="28" rx="4" fill="url(#g-bu2)" stroke="url(#g-bu1)" stroke-width="1.5"/>
-            <path d="M22 24v-5a6 6 0 0112 0v5" stroke="url(#g-bu1)" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M10 36h44" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
-            <rect x="28" y="32" width="8" height="8" rx="2" fill="rgba(255,255,255,.9)"/>
-          </g>
-          <ellipse cx="22" cy="28" rx="6" ry="2.5" fill="rgba(255,255,255,.2)" transform="rotate(-10,22,28)"/>
-        </svg>`,
-
-        comms: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-cm1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ccfbf1"/><stop offset="100%" stop-color="#2dd4bf"/></linearGradient>
-            <linearGradient id="g-cm2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0d9488"/><stop offset="100%" stop-color="#0f766e"/></linearGradient>
-            <filter id="f-cm"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#134e4a" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-cm)">
-            <path d="M48 28c0 9.4-7.2 17-16 17-2.4 0-4.7-.55-6.7-1.55L14 48l3.8-9.3C16.7 36.5 16 34.3 16 32 16 22.6 23.2 15 32 15c8.8 0 16 7.6 16 13z" fill="url(#g-cm2)" stroke="url(#g-cm1)" stroke-width="1.5"/>
-            <path d="M23 27h18M23 33h12" stroke="rgba(255,255,255,.9)" stroke-width="2.5" stroke-linecap="round"/>
-          </g>
-          <ellipse cx="28" cy="21" rx="7" ry="3" fill="rgba(255,255,255,.2)" transform="rotate(-10,28,21)"/>
-        </svg>`,
-
-        leader: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-le1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fef9c3"/><stop offset="100%" stop-color="#fde047"/></linearGradient>
-            <linearGradient id="g-le2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
-            <filter id="f-le"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#78350f" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-le)">
-            <path d="M32 9l5 10 11 1.6-8 7.8 1.9 11L32 34l-9.9 5.4 1.9-11-8-7.8L27 19z" fill="url(#g-le2)" stroke="url(#g-le1)" stroke-width="1.5" stroke-linejoin="round"/>
-            <path d="M20 48h24M24 55h16" stroke="url(#g-le1)" stroke-width="2.5" stroke-linecap="round"/>
-          </g>
-          <ellipse cx="27" cy="17" rx="5" ry="2.5" fill="rgba(255,255,255,.3)" transform="rotate(-30,27,17)"/>
-        </svg>`,
-
-        career: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-ca1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e0e7ff"/><stop offset="100%" stop-color="#818cf8"/></linearGradient>
-            <linearGradient id="g-ca2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4338ca"/></linearGradient>
-            <filter id="f-ca"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#312e81" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-ca)">
-            <circle cx="32" cy="20" r="9" fill="url(#g-ca2)" stroke="url(#g-ca1)" stroke-width="1.5"/>
-            <path d="M14 50c0-9.9 8.1-10 18-10s18 .1 18 10" stroke="url(#g-ca1)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M38 38l4 4-4 4M44 42h-8" stroke="url(#g-ca1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <ellipse cx="27" cy="15" rx="5" ry="2.5" fill="rgba(255,255,255,.25)" transform="rotate(-30,27,15)"/>
-        </svg>`,
-
-        speak: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-sp1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fce7f3"/><stop offset="100%" stop-color="#f472b6"/></linearGradient>
-            <linearGradient id="g-sp2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ec4899"/><stop offset="100%" stop-color="#be185d"/></linearGradient>
-            <filter id="f-sp"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#831843" flood-opacity=".55"/></filter>
-          </defs>
-          <g filter="url(#f-sp)">
-            <rect x="24" y="8" width="16" height="24" rx="8" fill="url(#g-sp2)" stroke="url(#g-sp1)" stroke-width="1.5"/>
-            <path d="M16 30c0 8.8 7.2 16 16 16s16-7.2 16-16M32 46v8M24 54h16" stroke="url(#g-sp1)" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M18 24c1 1.5 3 3 4 4M46 24c-1 1.5-3 3-4 4" stroke="url(#g-sp1)" stroke-width="1.8" stroke-linecap="round" opacity=".7"/>
-          </g>
-          <ellipse cx="28" cy="14" rx="4" ry="2" fill="rgba(255,255,255,.3)" transform="rotate(-20,28,14)"/>
-        </svg>`,
-
-        default: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g-df1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e9d5ff"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
-            <linearGradient id="g-df2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#5b21b6"/></linearGradient>
-            <filter id="f-df"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#4c1d95" flood-opacity=".5"/></filter>
-          </defs>
-          <g filter="url(#f-df)">
-            <path d="M32 48V18M32 18C27 13 13 13 10 15v28c3-2.5 15-2.5 22 5M32 18c5-5 19-5 22-3v28c-7-7.5-17-7.5-22-5" fill="url(#g-df2)" stroke="url(#g-df1)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <ellipse cx="22" cy="22" rx="6" ry="2.5" fill="rgba(255,255,255,.2)" transform="rotate(-15,22,22)"/>
-        </svg>`
-      };
-
-      // ── Background gradients per theme ──
-      const bgs = {
-        devops:   'linear-gradient(145deg,#431407 0%,#9a3412 40%,#c2410c 100%)',
-        cloud:    'linear-gradient(145deg,#0c4a6e 0%,#075985 40%,#0369a1 100%)',
-        ai:       'linear-gradient(145deg,#2e1065 0%,#4c1d95 40%,#6d28d9 100%)',
-        cyber:    'linear-gradient(145deg,#450a0a 0%,#7f1d1d 40%,#991b1b 100%)',
-        data:     'linear-gradient(145deg,#022c22 0%,#064e3b 40%,#065f46 100%)',
-        testing:  'linear-gradient(145deg,#431407 0%,#9a3412 40%,#c2410c 100%)',
-        it:       'linear-gradient(145deg,#1e1b4b 0%,#3730a3 40%,#4338ca 100%)',
-        business: 'linear-gradient(145deg,#1e3a8a 0%,#1d4ed8 40%,#2563eb 100%)',
-        comms:    'linear-gradient(145deg,#042f2e 0%,#134e4a 40%,#0f766e 100%)',
-        leader:   'linear-gradient(145deg,#451a03 0%,#78350f 40%,#92400e 100%)',
-        career:   'linear-gradient(145deg,#1e1b4b 0%,#312e81 40%,#3730a3 100%)',
-        speak:    'linear-gradient(145deg,#500724 0%,#831843 40%,#9d174d 100%)',
-        default:  'linear-gradient(145deg,#1a0533 0%,#3b0764 40%,#4c1d95 100%)',
-      };
-
-      // ── Keyword → theme matching ──
-      let key = 'default';
-      if (/devops|docker|k8s|kubernetes|cicd|ci\/cd|pipeline|jenkins/.test(s))     key = 'devops';
-      else if (/cloud|aws|azure|gcp|terraform|serverless/.test(s))                  key = 'cloud';
-      else if (/gen\s*ai|generative|llm|gpt|chatgpt|machine\s*learn|ml\b|deep\s*learn|neural|nlp/.test(s)) key = 'ai';
-      else if (/ai\b|artificial\s*intel|computer\s*vision/.test(s))                 key = 'ai';
-      else if (/cyber|security|ethical\s*hack|pentest|soc|siem/.test(s))            key = 'cyber';
-      else if (/data|analytics|power\s*bi|tableau|sql|bigquery/.test(s))            key = 'data';
-      else if (/test|qa|api\s*test|selenium|postman|automation/.test(s))            key = 'testing';
-      else if (/software|web\s*dev|frontend|backend|fullstack|react|node|python/.test(s)) key = 'it';
-      else if (/business|finance|accounting|entrepreneur|startup/.test(s))          key = 'business';
-      else if (/commun|english|language|speak|vocal|public\s*speak|present/.test(s)) key = 'speak';
-      else if (/lead|manag|hr|people|strategy/.test(s))                             key = 'leader';
-      else if (/interview|career|job|placement|resume/.test(s))                     key = 'career';
-
-      return { svg: icons[key] || icons.default, bg: bgs[key] || bgs.default };
-    }
-
+      const info = window.CourseIcons.getInfo((catName || '') + ' ' + (courseTitle || ''));
+      return { svg: info.svg, bg: info.gradient, accent: info.accent };
+    };
     grid.innerHTML = filteredCourses.map((c, i) => {
       const thumb = getCourseThumbInfo(c._catName, c.title);
       const hasDiscount = c._price > 0 && c._basePrice > c._price;
@@ -2617,8 +2183,8 @@
         c._pricingType === 'emi' ? `<span class="pam-tag">💳 EMI</span>` : ''
       ].filter(Boolean).join('');
       const delay = Math.min(i * 0.07, 0.56); // stagger up to 560ms
-      return `<div class="course-card${featured ? ' featured' : ''}${isThreeMonth ? ' three-month' : ''}${isTwelveSession ? ' twelve-session' : ''}" onclick="openCourseDetail('${c.id}')" style="animation-delay:${delay}s">
-        <div class="course-thumb" style="${c.thumbnail_url ? '' : `background:${thumb.bg};`}">
+      return `<div class="course-card${featured ? ' featured' : ''}${isThreeMonth ? ' three-month' : ''}${isTwelveSession ? ' twelve-session' : ''}" onclick="openCourseDetail('${c.id}')" style="animation-delay:${delay}s;border-color:${thumb.accent}33;" onmouseover="this.style.borderColor='${thumb.accent}99';this.style.boxShadow='0 28px 60px ${thumb.accent}44'" onmouseout="this.style.borderColor='${thumb.accent}33';this.style.boxShadow=''">
+        <div class="course-thumb" style="background:${thumb.bg};">
           ${c.thumbnail_url ? `<img src="${c.thumbnail_url}" alt="${c.title}" loading="lazy">` : `<div class="thumb-icon">${thumb.svg}<span class="cat-label">${c._catName || 'Course'}</span></div>`}
           <div class="course-badge">${c.level || 'Course'}</div>
           ${enrolled && !isPending
@@ -2631,7 +2197,7 @@
                   ? `<div class="discount-badge">SAVE ${Math.round((1-c._price/c._basePrice)*100)}%</div>`
                   : ''}
         </div>
-        <div class="course-body">
+        <div class="course-body" style="background:linear-gradient(180deg,${thumb.accent}10 0%,transparent 55%);">
           <div class="course-category">${c._catName || 'Course'}</div>
           ${c.is_trending ? `<div class="trend-pill">🔥 Trending</div>` : ''}
           <div class="course-name">${c.title}</div>
@@ -2742,14 +2308,13 @@
     // Thumbnail — use 3D icon
     const thumbWrap = el('em-thumb-wrap');
     if (thumbWrap) {
-      const mThumb = getCourseThumbInfo ? getCourseThumbInfo(c._catName, c.title) : { svg: '', bg: 'linear-gradient(145deg,#1a0533,#3b0764)' };
+      const mThumb = getCourseThumbInfo ? getCourseThumbInfo(c._catName, c.title) : { svg: '', bg: 'linear-gradient(145deg,#1a0533,#3b0764)', accent: '#7c3aed' };
+      thumbWrap.style.background = mThumb.bg;
       if (c.thumbnail_url) {
-        thumbWrap.style.background = '';
         thumbWrap.innerHTML = `<img src="${c.thumbnail_url}" alt="${c.title}" style="width:100%;height:100%;object-fit:cover;">`;
       } else {
-        thumbWrap.style.background = mThumb.bg;
         thumbWrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;">${mThumb.svg}<span style="font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);">${c._catName || 'Course'}</span></div>`;
-        thumbWrap.querySelector('svg').style.cssText = 'width:64px;height:64px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.4))';
+        const sv = thumbWrap.querySelector('svg'); if (sv) sv.style.cssText = 'width:64px;height:64px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.4))';
       }
     }
 
