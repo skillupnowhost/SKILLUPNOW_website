@@ -18,7 +18,7 @@
     }
     .pamphlet-hero {
       background: linear-gradient(155deg,#06030e 0%,#0d0720 22%,#160b35 58%,#0a1230 100%);
-      padding: 4rem 2rem 3rem;
+      padding: 2.5rem 2rem 2rem;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -732,7 +732,7 @@
 
     /* ══ Student Reviews Carousel (pamphlet) ══ */
     .pam-rv-section {
-      padding: 3.5rem 5vw 4.5rem; position:relative; border-top:1px solid var(--border); overflow:hidden;
+      padding: 2.5rem 5vw 3rem; position:relative; border-top:1px solid var(--border); overflow:hidden;
     }
     .pam-rv-section::before {
       content:''; position:absolute; inset:0; pointer-events:none;
@@ -813,13 +813,26 @@
     .pam-rv-nav:disabled { opacity:.25; pointer-events:none; }
     .pam-rv-prev { left:0; } .pam-rv-next { right:0; }
     .pam-rv-nav svg { width:15px; height:15px; }
-    .pam-rv-dots { display:flex; justify-content:center; gap:.4rem; margin-top:.2rem; }
+    .pam-rv-dots { display:flex; justify-content:center; align-items:center; gap:0; margin-top:.5rem; }
     .pam-rv-dot {
-      width:6px; height:6px; border-radius:50%;
-      background:rgba(124,92,252,.22); border:none; padding:0; cursor:pointer;
-      transition:all .28s; flex-shrink:0;
+      width:12px; height:20px; border-radius:0;
+      background:transparent; border:none; padding:0; cursor:pointer;
+      -webkit-appearance:none; appearance:none;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; outline:none;
     }
-    .pam-rv-dot.active { width:22px; border-radius:3px; background:var(--v1); }
+    .pam-rv-dot::before {
+      content:''; display:block;
+      width:6px; height:6px; border-radius:50%;
+      background:var(--v4);
+      transition:all .32s cubic-bezier(.4,0,.2,1);
+    }
+    .pam-rv-dot:not(.active):hover::before { background:var(--v3); transform:scale(1.35); }
+    .pam-rv-dot.active::before {
+      width:18px; height:6px; border-radius:3px;
+      background:var(--v1);
+      box-shadow:0 2px 8px rgba(124,92,252,.4);
+    }
     @keyframes pamRvCardIn {
       from { opacity:0; transform:translateX(18px) scale(.97); }
       to   { opacity:1; transform:translateX(0) scale(1); }
@@ -879,7 +892,7 @@
     .pam-rv-name { font-weight:700; font-size:.82rem; color:var(--txt); }
     .pam-rv-sub  { font-size:.68rem; color:var(--txt4); margin-top:.04rem; }
     @media(max-width:640px) {
-      .pam-rv-section { padding: 2.5rem 4vw 3rem; }
+      .pam-rv-section { padding: 2rem 4vw 2.5rem; }
       .pam-rv-title { font-size:1.4rem; }
       .pam-rv-header { flex-direction:column; align-items:flex-start; gap:.9rem; }
       .pam-rv-card { flex:0 0 min(250px, calc(100vw - 84px)); }
@@ -1727,7 +1740,8 @@ async function loadPopupStudents(courseId, mentorUserId) {
     return Math.max(1, Math.floor((clip.offsetWidth + GAP) / (CARD_W + GAP)));
   }
   function _cardStep() {
-    return CARD_W + GAP;
+    const card = document.querySelector('#pam-rv-track .pam-rv-card');
+    return (card && card.offsetWidth > 0 ? card.offsetWidth : CARD_W) + GAP;
   }
   function _esc(s) {
     return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1771,9 +1785,10 @@ async function loadPopupStudents(courseId, mentorUserId) {
   function _update() {
     const t = document.getElementById('pam-rv-track');
     if (!t) return;
-    t.style.transform = `translateX(${-_idx * _cardStep()}px)`;
     const pp = _getPerPage();
     const maxIdx = Math.max(0, _filtered.length - pp);
+    _idx = Math.min(_idx, maxIdx);
+    t.style.transform = `translateX(${-_idx * _cardStep()}px)`;
     const prev = document.getElementById('pam-rv-prev');
     const next = document.getElementById('pam-rv-next');
     if (prev) prev.disabled = _idx <= 0;

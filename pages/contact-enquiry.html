@@ -39,7 +39,7 @@
 
     .contact-hero {
       position: relative; overflow: hidden; text-align: center;
-      padding: 5.5rem 2rem 4.5rem;
+      padding: 3.5rem 2rem 3rem;
       background: linear-gradient(170deg,#0d0621 0%,#0c1433 55%,#06021a 100%);
     }
     :root[data-theme="light"] .contact-hero {
@@ -144,7 +144,7 @@
        MAIN LAYOUT
     ════════════════════════════════════════════════ */
     .ce-wrap {
-      max-width:1160px; margin:0 auto; padding:2.5rem 1.5rem 5rem;
+      max-width:1160px; margin:0 auto; padding:2rem 1.5rem 3rem;
       display:grid; grid-template-columns:1fr 360px; gap:2rem;
     }
 
@@ -407,7 +407,7 @@
        FORMS CARDS SECTION (matches forms page)
     ════════════════════════════════════════════════ */
     .qf-section {
-      padding: 4rem 5vw 5rem;
+      padding: 2.5rem 5vw 3rem;
       border-top: 1px solid var(--border);
       background: var(--bg);
     }
@@ -559,7 +559,7 @@
       .fl-row { grid-template-columns:1fr; }
       .ce-tab { font-size:.76rem; gap:.3rem; padding:.6rem .3rem; }
       .ce-form-card { padding:1.5rem; }
-      .contact-hero { padding:4rem 1.5rem 3.5rem; }
+      .contact-hero { padding:2.5rem 1.5rem 2rem; }
       .ce-qc-btns { flex-direction:column; }
     }
 
@@ -567,7 +567,7 @@
        REVIEWS SECTION — Carousel (same as homepage)
     ════════════════════════════════════════════════ */
     .ce-rv-section {
-      padding: 4rem 5vw 5rem;
+      padding: 2.5rem 5vw 3rem;
       border-top: 1px solid var(--border); overflow: hidden;
       position: relative;
     }
@@ -658,17 +658,25 @@
     .ce-rv-nav svg { width:17px; height:17px; }
 
     /* Dots */
-    .ce-rv-dots { display:flex; justify-content:center; align-items:center; gap:.45rem; margin-top:.75rem; }
+    .ce-rv-dots { display:flex; justify-content:center; align-items:center; gap:0; margin-top:.5rem; }
     .ce-rv-dot {
-      width:6px; height:6px; border-radius:50%;
-      background:var(--v4); border:none; padding:0; cursor:pointer;
+      width:12px; height:20px; border-radius:0;
+      background:transparent; border:none; padding:0; cursor:pointer;
       appearance:none; -webkit-appearance:none;
-      transition:all .3s cubic-bezier(.4,0,.2,1); flex-shrink:0; outline:none;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; outline:none;
     }
-    .ce-rv-dot:not(.active):hover { background:var(--v3); transform:scale(1.4); }
-    .ce-rv-dot.active {
-      width:20px; border-radius:3px; background:var(--v1);
-      box-shadow:0 2px 8px rgba(124,92,252,.35);
+    .ce-rv-dot::before {
+      content:''; display:block;
+      width:6px; height:6px; border-radius:50%;
+      background:var(--v4);
+      transition:all .32s cubic-bezier(.4,0,.2,1);
+    }
+    .ce-rv-dot:not(.active):hover::before { background:var(--v3); transform:scale(1.35); }
+    .ce-rv-dot.active::before {
+      width:18px; height:6px; border-radius:3px;
+      background:var(--v1);
+      box-shadow:0 2px 8px rgba(124,92,252,.4);
     }
 
     /* Review card (same as homepage rv-card) */
@@ -768,7 +776,7 @@
       .ce-rv-card { flex:0 0 min(260px, calc(100vw - 88px)); }
       .ce-rv-clip { margin:0 36px; }
       .ce-rv-nav { width:36px; height:36px; }
-      .ce-rv-section { padding:2.5rem 4vw 3rem; }
+      .ce-rv-section { padding:2rem 4vw 2.5rem; }
     }
     @media(max-width:380px) {
       .ce-rv-card { flex:0 0 calc(100vw - 64px); }

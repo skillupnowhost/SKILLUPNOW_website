@@ -554,7 +554,7 @@
   <nav></nav>
 
   <!-- Hero Section -->
-  <section class="hero" style="padding: 0 5vw 4rem; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 2rem; overflow: visible;">
+  <section class="hero" style="padding: 0 5vw 2.5rem; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 2rem; overflow: visible;">
     <div class="hero-content">
 <!-- styling -->
       <style>
@@ -770,7 +770,7 @@
   </div>
 
   <!-- ── Dynamic Featured Courses Strip ── -->
-  <section style="padding: 3.5rem 5vw; border-top: 1px solid var(--border);" id="home-courses-section">
+  <section style="padding: 2rem 5vw; border-top: 1px solid var(--border);" id="home-courses-section">
     <style>
       /* ── Per-category tile accent animations ── */
       .hc-card[data-cat="devops"] .hc-thumb::before { background:radial-gradient(circle,rgba(251,146,60,.35) 0%,transparent 70%); }
@@ -904,9 +904,9 @@
   </section>
 
   <!-- Explore Our Platform -->
-  <section style="padding: 6rem 5vw; background: linear-gradient(180deg, transparent 0%, rgba(124,92,252,0.03) 100%);">
+  <section style="padding: 3.5rem 5vw; background: linear-gradient(180deg, transparent 0%, rgba(124,92,252,0.03) 100%);">
     <div style="max-width: 1400px; margin: 0 auto;">
-      <div style="text-align: center; margin-bottom: 4rem;">
+      <div style="text-align: center; margin-bottom: 2.5rem;">
         <h2 style="font-family: 'Inter', 'Outfit', sans-serif; font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; color: var(--txt); margin-bottom: 1rem;">Everything You Need to Succeed</h2>
         <p style="font-size: 1.1rem; color: var(--txt3); max-width: 600px; margin: 0 auto;">Access premium learning resources, flexible payment options, and expert guidance on your path to mastery</p>
       </div>
@@ -981,7 +981,7 @@
   </section>
 
   <!-- ══ ABOUT US SECTION ══ -->
-  <section id="about-us" style="padding: 7rem 5vw; background: linear-gradient(180deg, rgba(124,92,252,0.04) 0%, transparent 100%); border-top: 1px solid var(--border);">
+  <section id="about-us" style="padding: 3.5rem 5vw; background: linear-gradient(180deg, rgba(124,92,252,0.04) 0%, transparent 100%); border-top: 1px solid var(--border);">
     <div style="max-width: 1400px; margin: 0 auto;">
 
       <!-- Heading -->
@@ -1537,7 +1537,7 @@
        REVIEWS SECTION — Carousel Design
     ══════════════════════════════════════ */
     .rv-section {
-      padding: 5rem 5vw 6rem;
+      padding: 3rem 5vw 3.5rem;
       position: relative; border-top: 1px solid var(--border); overflow: hidden;
     }
     .rv-section::before {
@@ -1648,17 +1648,25 @@
     .rv-nav svg { width:17px; height:17px; }
 
     /* Dot indicators */
-    .rv-dots { display:flex; justify-content:center; align-items:center; gap:.45rem; margin-top:.75rem; }
+    .rv-dots { display:flex; justify-content:center; align-items:center; gap:0; margin-top:.5rem; }
     .rv-dot {
-      width:6px; height:6px; border-radius:50%;
-      background:var(--v4); border:none; padding:0; cursor:pointer;
+      width:12px; height:20px; border-radius:0;
+      background:transparent; border:none; padding:0; cursor:pointer;
       appearance:none; -webkit-appearance:none;
-      transition:all .3s cubic-bezier(.4,0,.2,1); flex-shrink:0; outline:none;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; outline:none;
     }
-    .rv-dot:not(.active):hover { background:var(--v3); transform:scale(1.4); }
-    .rv-dot.active {
-      width:20px; border-radius:3px; background:var(--v1);
-      box-shadow:0 2px 8px rgba(124,92,252,.35);
+    .rv-dot::before {
+      content:''; display:block;
+      width:6px; height:6px; border-radius:50%;
+      background:var(--v4);
+      transition:all .32s cubic-bezier(.4,0,.2,1);
+    }
+    .rv-dot:not(.active):hover::before { background:var(--v3); transform:scale(1.35); }
+    .rv-dot.active::before {
+      width:18px; height:6px; border-radius:3px;
+      background:var(--v1);
+      box-shadow:0 2px 8px rgba(124,92,252,.4);
     }
 
     /* ── Review Card ── */
@@ -1818,7 +1826,7 @@
     :root[data-theme="light"] #rv-modal-box { background:rgba(255,255,255,.96); }
 
     @media(max-width:640px) {
-      .rv-section { padding: 2.5rem 4vw 3rem; }
+      .rv-section { padding: 2rem 4vw 2.5rem; }
       .rv-title { font-size:1.5rem; }
       .rv-sub { font-size:.82rem; }
       .rv-header { flex-direction:column; align-items:flex-start; gap:1rem; }
