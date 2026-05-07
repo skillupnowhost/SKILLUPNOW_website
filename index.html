@@ -1648,13 +1648,18 @@
     .rv-nav svg { width:17px; height:17px; }
 
     /* Dot indicators */
-    .rv-dots { display:flex; justify-content:center; gap:.45rem; margin-top:.25rem; }
+    .rv-dots { display:flex; justify-content:center; align-items:center; gap:.45rem; margin-top:.75rem; }
     .rv-dot {
-      width:7px; height:7px; border-radius:50%;
-      background:rgba(124,92,252,.22); border:none; padding:0; cursor:pointer;
-      transition:all .28s; flex-shrink:0;
+      width:6px; height:6px; border-radius:50%;
+      background:var(--v4); border:none; padding:0; cursor:pointer;
+      appearance:none; -webkit-appearance:none;
+      transition:all .3s cubic-bezier(.4,0,.2,1); flex-shrink:0; outline:none;
     }
-    .rv-dot.active { width:24px; border-radius:4px; background:var(--v1); }
+    .rv-dot:not(.active):hover { background:var(--v3); transform:scale(1.4); }
+    .rv-dot.active {
+      width:20px; border-radius:3px; background:var(--v1);
+      box-shadow:0 2px 8px rgba(124,92,252,.35);
+    }
 
     /* ── Review Card ── */
     @keyframes rvCardIn {
@@ -2635,8 +2640,11 @@
     function _rvEsc(s) {
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
-    const _RV_CARD_W = 300, _RV_GAP = 20; // matches CSS: flex:0 0 300px, gap:1.25rem
-    function _rvCardStep() { return _RV_CARD_W + _RV_GAP; }
+    const _RV_CARD_W = 300, _RV_GAP = 20;
+    function _rvCardStep() {
+      const card = document.querySelector('#rv-track .rv-card');
+      return (card && card.offsetWidth > 0 ? card.offsetWidth : _RV_CARD_W) + _RV_GAP;
+    }
     function _rvGetPerPage() {
       const clip = document.querySelector('.rv-carousel-clip');
       if (!clip || !clip.offsetWidth) return 3;
@@ -2730,9 +2738,10 @@
       const track = document.getElementById('rv-track');
       if (!track) return;
       const step = _rvCardStep();
-      track.style.transform = `translateX(${-_rvCurrentIdx * step}px)`;
       const perPage = _rvGetPerPage();
       const maxIdx  = Math.max(0, _rvFiltered.length - perPage);
+      _rvCurrentIdx = Math.min(_rvCurrentIdx, maxIdx);
+      track.style.transform = `translateX(${-_rvCurrentIdx * step}px)`;
       const prev = document.getElementById('rv-prev');
       const next = document.getElementById('rv-next');
       if (prev) prev.disabled = _rvCurrentIdx <= 0;

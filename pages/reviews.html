@@ -298,8 +298,18 @@
       .rv-result-count { margin-left:0; }
       .rv-grid { grid-template-columns:1fr; }
       .rv-stat { padding:.85rem 1.5rem; }
+      .rv-hero { padding:3rem 1.25rem 2.5rem; }
+      .rv-main { padding:2rem 1rem 4rem; }
     }
-    @media(max-width:480px){ .rv-stat { min-width:50%; border-right:none; border-bottom:1px solid var(--border); } }
+    @media(max-width:480px){
+      .rv-stat { min-width:50%; border-right:none; border-bottom:1px solid var(--border); }
+      .rv-filter-group { flex-wrap:nowrap; overflow-x:auto; padding-bottom:.35rem; width:100%; scrollbar-width:none; }
+      .rv-filter-group::-webkit-scrollbar { display:none; }
+      .rv-full-card { padding:1.2rem 1rem 1rem; }
+    }
+    @media(max-width:380px){
+      .rv-filter-btn { padding:.32rem .75rem; font-size:.73rem; }
+    }
   </style>
 </head>
 <body>

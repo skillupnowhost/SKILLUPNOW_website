@@ -658,13 +658,18 @@
     .ce-rv-nav svg { width:17px; height:17px; }
 
     /* Dots */
-    .ce-rv-dots { display:flex; justify-content:center; gap:.45rem; margin-top:.25rem; }
+    .ce-rv-dots { display:flex; justify-content:center; align-items:center; gap:.45rem; margin-top:.75rem; }
     .ce-rv-dot {
-      width:7px; height:7px; border-radius:50%;
-      background:rgba(124,92,252,.22); border:none; padding:0; cursor:pointer;
-      transition:all .28s; flex-shrink:0;
+      width:6px; height:6px; border-radius:50%;
+      background:var(--v4); border:none; padding:0; cursor:pointer;
+      appearance:none; -webkit-appearance:none;
+      transition:all .3s cubic-bezier(.4,0,.2,1); flex-shrink:0; outline:none;
     }
-    .ce-rv-dot.active { width:24px; border-radius:4px; background:var(--v1); }
+    .ce-rv-dot:not(.active):hover { background:var(--v3); transform:scale(1.4); }
+    .ce-rv-dot.active {
+      width:20px; border-radius:3px; background:var(--v1);
+      box-shadow:0 2px 8px rgba(124,92,252,.35);
+    }
 
     /* Review card (same as homepage rv-card) */
     .ce-rv-card {
@@ -760,9 +765,15 @@
 
     @media(max-width:640px) {
       .ce-rv-head { flex-direction:column; align-items:flex-start; }
-      .ce-rv-card { flex:0 0 260px; }
-      .ce-rv-clip { margin:0 32px; }
+      .ce-rv-card { flex:0 0 min(260px, calc(100vw - 88px)); }
+      .ce-rv-clip { margin:0 36px; }
       .ce-rv-nav { width:36px; height:36px; }
+      .ce-rv-section { padding:2.5rem 4vw 3rem; }
+    }
+    @media(max-width:380px) {
+      .ce-rv-card { flex:0 0 calc(100vw - 64px); }
+      .ce-rv-clip { margin:0 26px; }
+      .ce-rv-nav { width:28px; height:28px; }
     }
   </style>
 </head>
@@ -1509,7 +1520,7 @@ const _ceRvTypeLabels={course:'Course',mentor:'Mentor',website:'Website',admin:'
 let _ceRvAll=[],_ceRvFiltered=[],_ceRvIdx=0;const _ceRvModalStore={};
 function _ceEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 const _CE_RV_CARD_W=300,_CE_RV_GAP=20;
-function _ceRvStep(){return _CE_RV_CARD_W+_CE_RV_GAP;}
+function _ceRvStep(){const card=document.querySelector('#ce-rv-track .ce-rv-card');return(card&&card.offsetWidth>0?card.offsetWidth:_CE_RV_CARD_W)+_CE_RV_GAP;}
 function _ceRvPerPage(){const c=document.querySelector('.ce-rv-clip');if(!c||!c.offsetWidth)return 3;return Math.max(1,Math.floor((c.offsetWidth+_CE_RV_GAP)/_ceRvStep()));}
 function _ceRvCleanText(text,type){
   if(!text)return'';
@@ -1555,8 +1566,9 @@ function ceRvSetFilter(cat){
 function _ceRvRenderTrack(){const t=document.getElementById('ce-rv-track');if(t)t.innerHTML=_ceRvFiltered.map((f,i)=>_ceRvBuildCard(f,i)).join('');}
 function _ceRvUpdateCarousel(){
   const track=document.getElementById('ce-rv-track');if(!track)return;
-  track.style.transform=`translateX(${-_ceRvIdx*_ceRvStep()}px)`;
   const p=_ceRvPerPage(),mx=Math.max(0,_ceRvFiltered.length-p);
+  _ceRvIdx=Math.min(_ceRvIdx,mx);
+  track.style.transform=`translateX(${-_ceRvIdx*_ceRvStep()}px)`;
   const prev=document.getElementById('ce-rv-prev'),next=document.getElementById('ce-rv-next');
   if(prev)prev.disabled=_ceRvIdx<=0;if(next)next.disabled=_ceRvIdx>=mx;
   const td=Math.ceil(_ceRvFiltered.length/Math.max(1,p)),ad=Math.min(Math.floor(_ceRvIdx/Math.max(1,p)),td-1);

@@ -37,71 +37,129 @@ h2 { font-size: 2.5rem; line-height: 1.2; font-weight: 700; }
 h3 { font-size: 1.75rem; line-height: 1.3; font-weight: 600; }
 h4 { font-size: 1.25rem; line-height: 1.4; font-weight: 600; }
 
-/* Global Mesh Background */
+/* ── Stripe-style Multi-Zone Mesh Background ───────────────────── */
 .mesh-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 70% 60% at 5% 5%, rgba(124, 92, 252, 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 45% at 95% 10%, rgba(61, 107, 255, 0.14) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 70% 90%, rgba(124, 92, 252, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 35% at 20% 80%, rgba(61, 107, 255, 0.08) 0%, transparent 50%),
-    var(--bg);
   overflow: hidden;
+  /* Dark default: vivid multi-color zones */
+  background:
+    var(--grad-hero),
+    var(--bg);
+  transition: background 0.5s ease;
 }
 
-:root[data-theme="light"] .mesh-bg {
-  background: radial-gradient(ellipse 70% 60% at 5% 5%, rgba(107, 63, 216, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 45% at 95% 10%, rgba(45, 92, 224, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 70% 90%, rgba(107, 63, 216, 0.05) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 35% at 20% 80%, rgba(45, 92, 224, 0.04) 0%, transparent 50%),
+/* Light theme: Stripe vivid multi-color hero zones */
+:root[data-theme="light"] .mesh-bg,
+:root:not([data-theme]) .mesh-bg {
+  background:
+    var(--grad-hero),
     var(--bg);
 }
 
+/* Subtle noise texture overlay */
 .mesh-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(124,92,252,0.04)' stroke-width='1'%3E%3Ccircle cx='30' cy='30' r='25'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Cline x1='5' y1='30' x2='55' y2='30'/%3E%3Cline x1='30' y1='5' x2='30' y2='55'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 60px 60px;
-  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='0.8'%3E%3Cline x1='0' y1='40' x2='80' y2='40'/%3E%3Cline x1='40' y1='0' x2='40' y2='80'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 80px 80px;
+  opacity: 1;
 }
 
-/* Floating Orbs */
+/* ── Floating Orbs — multi-color per Stripe ─────────────────────── */
 .orb {
   position: fixed;
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  animation: floatOrb 12s ease-in-out infinite;
+  animation: floatOrb 14s ease-in-out infinite;
+  filter: blur(1px);
 }
 
+/* Orb 1 — Purple (top-left) */
 .orb1 {
-  width: 500px;
-  height: 500px;
-  top: -150px;
-  left: -100px;
-  background: radial-gradient(circle, rgba(124, 92, 252, 0.15), transparent 70%);
+  width: 620px; height: 620px;
+  top: -180px; left: -140px;
+  background: radial-gradient(circle, rgba(92,82,245,0.2) 0%, rgba(123,114,255,0.08) 40%, transparent 70%);
   animation-delay: 0s;
 }
-
-.orb2 {
-  width: 400px;
-  height: 400px;
-  top: 40%;
-  right: -120px;
-  background: radial-gradient(circle, rgba(61, 107, 255, 0.12), transparent 70%);
-  animation-delay: -4s;
+:root[data-theme="dark"] .orb1 {
+  background: radial-gradient(circle, rgba(107,99,240,0.22) 0%, rgba(139,131,255,0.09) 40%, transparent 70%);
 }
 
+/* Orb 2 — Violet (top-right) */
+.orb2 {
+  width: 520px; height: 520px;
+  top: -80px; right: -160px;
+  background: radial-gradient(circle, rgba(123,114,255,0.24) 0%, rgba(92,82,245,0.1) 40%, transparent 70%);
+  animation-delay: -5s;
+}
+:root[data-theme="dark"] .orb2 {
+  background: radial-gradient(circle, rgba(139,131,255,0.2) 0%, rgba(107,99,240,0.08) 40%, transparent 70%);
+}
+
+/* Orb 3 — Indigo (bottom-left) */
 .orb3 {
-  width: 350px;
-  height: 350px;
-  bottom: -80px;
-  left: 25%;
-  background: radial-gradient(circle, rgba(155, 125, 255, 0.1), transparent 70%);
-  animation-delay: -8s;
+  width: 480px; height: 480px;
+  bottom: -100px; left: 5%;
+  background: radial-gradient(circle, rgba(92,82,245,0.16) 0%, rgba(123,114,255,0.07) 40%, transparent 70%);
+  animation-delay: -9s;
+}
+:root[data-theme="dark"] .orb3 {
+  background: radial-gradient(circle, rgba(107,99,240,0.18) 0%, rgba(139,131,255,0.07) 40%, transparent 70%);
+}
+
+/* Orb 4 — Soft violet (bottom-right) */
+.orb4 {
+  width: 400px; height: 400px;
+  bottom: -60px; right: 10%;
+  background: radial-gradient(circle, rgba(157,151,255,0.16) 0%, rgba(92,82,245,0.06) 40%, transparent 70%);
+  animation-delay: -3s;
+  animation: floatOrb 18s ease-in-out infinite;
+}
+:root[data-theme="dark"] .orb4 {
+  background: radial-gradient(circle, rgba(163,157,255,0.14) 0%, rgba(107,99,240,0.06) 40%, transparent 70%);
+}
+
+/* Ocean variant orbs — cyan/blue only */
+:root[data-theme-variant="ocean"] .orb1 { background: radial-gradient(circle, rgba(14,165,233,0.24) 0%, rgba(34,184,232,0.09) 40%, transparent 70%); }
+:root[data-theme-variant="ocean"] .orb2 { background: radial-gradient(circle, rgba(34,184,232,0.22) 0%, rgba(56,189,248,0.09) 40%, transparent 70%); }
+:root[data-theme-variant="ocean"] .orb3 { background: radial-gradient(circle, rgba(14,165,233,0.18) 0%, rgba(34,184,232,0.07) 40%, transparent 70%); }
+:root[data-theme-variant="ocean"] .orb4 { background: radial-gradient(circle, rgba(56,189,248,0.16) 0%, rgba(14,165,233,0.06) 40%, transparent 70%); }
+
+/* Sunset variant orbs — pink/rose only, no orange/yellow */
+:root[data-theme-variant="sunset"] .orb1 { background: radial-gradient(circle, rgba(236,72,153,0.26) 0%, rgba(244,114,182,0.1) 40%, transparent 70%); }
+:root[data-theme-variant="sunset"] .orb2 { background: radial-gradient(circle, rgba(244,114,182,0.22) 0%, rgba(236,72,153,0.09) 40%, transparent 70%); }
+:root[data-theme-variant="sunset"] .orb3 { background: radial-gradient(circle, rgba(240,96,144,0.18) 0%, rgba(244,114,182,0.07) 40%, transparent 70%); }
+:root[data-theme-variant="sunset"] .orb4 { background: radial-gradient(circle, rgba(249,168,212,0.16) 0%, rgba(236,72,153,0.06) 40%, transparent 70%); }
+
+/* Emerald variant orbs — green only */
+:root[data-theme-variant="emerald"] .orb1 { background: radial-gradient(circle, rgba(34,197,94,0.24) 0%, rgba(74,222,128,0.09) 40%, transparent 70%); }
+:root[data-theme-variant="emerald"] .orb2 { background: radial-gradient(circle, rgba(74,222,128,0.2) 0%, rgba(34,197,94,0.08) 40%, transparent 70%); }
+:root[data-theme-variant="emerald"] .orb3 { background: radial-gradient(circle, rgba(34,197,94,0.18) 0%, rgba(74,222,128,0.07) 40%, transparent 70%); }
+:root[data-theme-variant="emerald"] .orb4 { background: radial-gradient(circle, rgba(134,239,172,0.14) 0%, rgba(34,197,94,0.06) 40%, transparent 70%); }
+
+/* ── Gradient text utility (Stripe-style) ───────────────────────── */
+.grad-text {
+  background: var(--grad-shine);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+  animation: gradShift 4s linear infinite;
+}
+.grad-text-static {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+@keyframes gradShift {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 200% center; }
 }
 
 section, nav, footer {
