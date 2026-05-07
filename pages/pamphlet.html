@@ -729,6 +729,168 @@
       transition:border-color .2s, color .2s; font-family:inherit;
     }
     .cpop-cancel-btn:hover { border-color:var(--v1); color:var(--txt2); }
+
+    /* ══ Student Reviews Carousel (pamphlet) ══ */
+    .pam-rv-section {
+      padding: 3.5rem 5vw 4.5rem; position:relative; border-top:1px solid var(--border); overflow:hidden;
+    }
+    .pam-rv-section::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(124,92,252,.07) 0%, transparent 70%);
+    }
+    .pam-rv-inner { max-width:1100px; margin:0 auto; position:relative; z-index:1; }
+    .pam-rv-header {
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:1.25rem; flex-wrap:wrap; margin-bottom:1.5rem;
+    }
+    .pam-rv-kicker {
+      display:inline-block; font-size:.68rem; font-weight:800;
+      letter-spacing:.14em; text-transform:uppercase; color:var(--v1);
+      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
+      border-radius:999px; padding:.25rem .85rem; margin-bottom:.75rem;
+    }
+    .pam-rv-title {
+      font-size:clamp(1.45rem,3vw,2rem); font-weight:900; line-height:1.15;
+      color:var(--txt); margin:0 0 .4rem; letter-spacing:-.02em;
+    }
+    .pam-rv-sub { font-size:.85rem; color:var(--txt3); max-width:420px; line-height:1.6; margin:0; }
+    .pam-rv-btn {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.55rem 1.25rem; border-radius:12px;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      color:#fff; font-size:.8rem; font-weight:700;
+      text-decoration:none; white-space:nowrap; flex-shrink:0;
+      box-shadow:0 4px 16px rgba(124,92,252,.32);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .pam-rv-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,92,252,.48); }
+    .pam-rv-filters { display:flex; gap:.45rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .pam-rv-filter {
+      padding:.32rem .88rem; border-radius:999px;
+      border:1.5px solid var(--border); background:transparent;
+      font-size:.74rem; font-weight:700; color:var(--txt3);
+      cursor:pointer; font-family:inherit; transition:all .2s;
+    }
+    .pam-rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
+    .pam-rv-filter.active {
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      border-color:transparent; color:#fff;
+      box-shadow:0 4px 12px rgba(124,92,252,.32);
+    }
+    .pam-rv-empty {
+      text-align:center; padding:2.5rem 1rem;
+      border:1.5px dashed rgba(124,92,252,.2); border-radius:18px;
+      color:var(--txt4); font-size:.88rem; line-height:1.65; display:none;
+    }
+    .pam-rv-empty.show { display:block; }
+    .pam-rv-carousel-outer { position:relative; margin-bottom:1rem; }
+    .pam-rv-clip {
+      overflow:hidden; padding:.5rem .2rem 1rem; margin:0 44px;
+    }
+    .pam-rv-track {
+      display:flex; gap:1.15rem;
+      transition:transform .45s cubic-bezier(.4,0,.2,1);
+      will-change:transform;
+    }
+    .pam-rv-nav {
+      position:absolute; top:50%; transform:translateY(-50%);
+      z-index:10; width:40px; height:40px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      box-shadow:0 4px 16px rgba(124,92,252,.15), inset 0 1px 0 rgba(255,255,255,.12);
+      cursor:pointer; color:rgba(255,255,255,.85);
+      transition:all .28s cubic-bezier(.34,1.56,.64,1);
+    }
+    :root[data-theme="light"] .pam-rv-nav {
+      background:rgba(255,255,255,.8); border-color:rgba(124,92,252,.2);
+      box-shadow:0 4px 16px rgba(0,0,0,.1); color:var(--txt2);
+    }
+    .pam-rv-nav:hover:not(:disabled) {
+      background:rgba(124,92,252,.2); border-color:rgba(124,92,252,.5);
+      transform:translateY(-50%) scale(1.1); color:#fff;
+    }
+    .pam-rv-nav:disabled { opacity:.25; pointer-events:none; }
+    .pam-rv-prev { left:0; } .pam-rv-next { right:0; }
+    .pam-rv-nav svg { width:15px; height:15px; }
+    .pam-rv-dots { display:flex; justify-content:center; gap:.4rem; margin-top:.2rem; }
+    .pam-rv-dot {
+      width:6px; height:6px; border-radius:50%;
+      background:rgba(124,92,252,.22); border:none; padding:0; cursor:pointer;
+      transition:all .28s; flex-shrink:0;
+    }
+    .pam-rv-dot.active { width:22px; border-radius:3px; background:var(--v1); }
+    @keyframes pamRvCardIn {
+      from { opacity:0; transform:translateX(18px) scale(.97); }
+      to   { opacity:1; transform:translateX(0) scale(1); }
+    }
+    @keyframes pamRvStarPulse {
+      0%,70%,100% { filter:none; transform:scale(1); }
+      85% { filter:drop-shadow(0 0 5px rgba(251,191,36,.85)); transform:scale(1.2); }
+    }
+    .pam-rv-card {
+      flex:0 0 280px; background:var(--panel); border:1.5px solid var(--border);
+      border-radius:20px; padding:1.4rem 1.3rem 1.2rem;
+      display:flex; flex-direction:column; position:relative; overflow:hidden;
+      animation:pamRvCardIn .4s both;
+      transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+    }
+    .pam-rv-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,#7c5cfc,#3d6bff,#67e8f9);
+      border-radius:20px 20px 0 0;
+    }
+    .pam-rv-card:hover {
+      transform:translateY(-7px) scale(1.012);
+      border-color:rgba(124,92,252,.42);
+      box-shadow:0 18px 50px rgba(124,92,252,.18);
+    }
+    .pam-rv-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; margin-bottom:.9rem; }
+    .pam-rv-stars { display:flex; gap:.06rem; }
+    .pam-rv-star { font-size:1.15rem; display:inline-block; color:rgba(255,255,255,.12); }
+    :root[data-theme="light"] .pam-rv-star:not(.on) { color:rgba(0,0,0,.1); }
+    .pam-rv-star.on { color:#fbbf24; animation:pamRvStarPulse 3.5s ease-in-out infinite; }
+    .pam-rv-badge {
+      display:inline-flex; align-items:center; gap:.25rem; flex-shrink:0;
+      padding:.15rem .55rem; border-radius:999px;
+      font-size:.62rem; font-weight:800; text-transform:capitalize; letter-spacing:.04em;
+      color:var(--rv-dot,#7c5cfc);
+      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.25);
+      white-space:nowrap;
+    }
+    .pam-rv-badge::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--rv-dot,#7c5cfc); flex-shrink:0; }
+    .pam-rv-quote-wrap { position:relative; flex:1; margin-bottom:.7rem; }
+    .pam-rv-quote-icon { position:absolute; top:-10px; left:-4px; font-size:2.8rem; line-height:1; font-family:Georgia,serif; color:rgba(124,92,252,.13); font-weight:900; pointer-events:none; -webkit-user-select:none; user-select:none; }
+    .pam-rv-text {
+      font-size:.84rem; line-height:1.75; color:var(--txt2); padding-left:1.3rem; margin:0;
+      display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .pam-rv-footer {
+      display:flex; align-items:center; gap:.6rem; padding-top:.8rem; margin-top:auto;
+      border-top:1px solid rgba(255,255,255,.07);
+    }
+    :root[data-theme="light"] .pam-rv-footer { border-top-color:var(--border); }
+    .pam-rv-avatar {
+      width:36px; height:36px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.78rem; font-weight:800; color:#fff;
+      box-shadow:0 3px 8px rgba(0,0,0,.22);
+    }
+    .pam-rv-name { font-weight:700; font-size:.82rem; color:var(--txt); }
+    .pam-rv-sub  { font-size:.68rem; color:var(--txt4); margin-top:.04rem; }
+    @media(max-width:640px) {
+      .pam-rv-section { padding: 2.5rem 4vw 3rem; }
+      .pam-rv-title { font-size:1.4rem; }
+      .pam-rv-header { flex-direction:column; align-items:flex-start; gap:.9rem; }
+      .pam-rv-card { flex:0 0 min(250px, calc(100vw - 84px)); }
+      .pam-rv-clip { margin:0 32px; }
+      .pam-rv-nav { width:32px; height:32px; }
+    }
+    @media(max-width:380px) {
+      .pam-rv-card { flex:0 0 calc(100vw - 60px); }
+      .pam-rv-clip { margin:0 22px; }
+      .pam-rv-nav { width:26px; height:26px; }
+    }
   </style>
 </head>
 <body>
@@ -862,6 +1024,48 @@
       <div id="course-popup-content"></div>
     </div>
   </div>
+
+  <!-- Student Reviews -->
+  <section class="pam-rv-section">
+    <div class="pam-rv-inner">
+      <div class="pam-rv-header">
+        <div>
+          <div class="pam-rv-kicker">⭐ Student Reviews</div>
+          <h2 class="pam-rv-title">Real feedback from our learners.</h2>
+          <p class="pam-rv-sub">Verified reviews from students who have completed our programmes.</p>
+        </div>
+        <a href="reviews.html" class="pam-rv-btn">
+          All Reviews
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="pam-rv-filters" id="pam-rv-filters">
+        <button type="button" class="pam-rv-filter active" data-cat="all">All</button>
+        <button type="button" class="pam-rv-filter" data-cat="course">📚 Courses</button>
+        <button type="button" class="pam-rv-filter" data-cat="mentor">👨‍🏫 Mentors</button>
+        <button type="button" class="pam-rv-filter" data-cat="admin">🏛 Admin</button>
+        <button type="button" class="pam-rv-filter" data-cat="website">🌐 Website</button>
+      </div>
+
+      <div class="pam-rv-empty" id="pam-rv-empty">
+        <p>💬 No reviews yet — be the first to share your experience.</p>
+      </div>
+
+      <div class="pam-rv-carousel-outer" id="pam-rv-outer">
+        <button type="button" class="pam-rv-nav pam-rv-prev" id="pam-rv-prev" onclick="pamRvNav(-1)" aria-label="Previous" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="pam-rv-clip">
+          <div class="pam-rv-track" id="pam-rv-track"></div>
+        </div>
+        <button type="button" class="pam-rv-nav pam-rv-next" id="pam-rv-next" onclick="pamRvNav(1)" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="pam-rv-dots" id="pam-rv-dots"></div>
+    </div>
+  </section>
 
   <!-- CTA -->
   <section class="cta-banner">
@@ -1511,6 +1715,135 @@ async function loadPopupStudents(courseId, mentorUserId) {
       </div>`;
     }).join('')}`;
 }
+
+// ══ STUDENT REVIEWS CAROUSEL ══════════════════════════════════════════════════
+(function() {
+  let _all = [], _filtered = [], _idx = 0, _cat = 'all';
+  const CARD_W = 280, GAP = 18;
+
+  function _getPerPage() {
+    const clip = document.querySelector('.pam-rv-clip');
+    if (!clip) return 1;
+    return Math.max(1, Math.floor((clip.offsetWidth + GAP) / (CARD_W + GAP)));
+  }
+  function _cardStep() {
+    return CARD_W + GAP;
+  }
+  function _esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function _buildCard(d, i) {
+    const rating = Math.min(5, Math.max(0, Math.round(d.rating || 0)));
+    const starsHtml = Array.from({length:5}, (_,j) =>
+      `<span class="pam-rv-star${j < rating ? ' on' : ''}"${j < rating ? ` style="animation-delay:${(j*.1).toFixed(1)}s"` : ''} aria-hidden="true">★</span>`
+    ).join('');
+    const type = d.feedback_type || (d.source === 'review' ? 'course' : 'general');
+    const typeMap = { course:{l:'Course',i:'📚',c:'#7c5cfc'}, mentor:{l:'Mentor',i:'👨‍🏫',c:'#3d6bff'}, admin:{l:'Admin',i:'🏛',c:'#06b6d4'}, website:{l:'Website',i:'🌐',c:'#10b981'} };
+    const tm = typeMap[type] || {l:'General',i:'💬',c:'#9b8fff'};
+    const name = _esc(d._name || d.full_name || 'Student');
+    const initials = name.replace(/&amp;/g,'&').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const grads = ['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#06b6d4,#3d6bff)','linear-gradient(135deg,#10b981,#06b6d4)','linear-gradient(135deg,#f59e0b,#ef4444)','linear-gradient(135deg,#ec4899,#7c5cfc)'];
+    const grad = grads[(name.charCodeAt(0)||0) % grads.length];
+    const comment = d.comment || d.message || '';
+    const course = _esc(d.course_title || d._courseName || '');
+    return `<div class="pam-rv-card" data-cat="${type}" style="animation-delay:${(i*.055).toFixed(2)}s">
+      <div class="pam-rv-card-top">
+        <div class="pam-rv-stars" aria-label="${rating} out of 5">${starsHtml}</div>
+        <span class="pam-rv-badge" style="--rv-dot:${tm.c}">${tm.i} ${tm.l}</span>
+      </div>
+      <div class="pam-rv-quote-wrap">
+        <div class="pam-rv-quote-icon">❝</div>
+        <p class="pam-rv-text">${_esc(comment)}</p>
+      </div>
+      <div class="pam-rv-footer">
+        <div class="pam-rv-avatar" style="background:${grad}">${initials}</div>
+        <div>
+          <div class="pam-rv-name">${name}</div>
+          <div class="pam-rv-sub">${course || tm.l + ' Review'}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  function _render() {
+    const t = document.getElementById('pam-rv-track');
+    if (t) t.innerHTML = _filtered.map((d,i) => _buildCard(d,i)).join('');
+  }
+  function _update() {
+    const t = document.getElementById('pam-rv-track');
+    if (!t) return;
+    t.style.transform = `translateX(${-_idx * _cardStep()}px)`;
+    const pp = _getPerPage();
+    const maxIdx = Math.max(0, _filtered.length - pp);
+    const prev = document.getElementById('pam-rv-prev');
+    const next = document.getElementById('pam-rv-next');
+    if (prev) prev.disabled = _idx <= 0;
+    if (next) next.disabled = _idx >= maxIdx;
+    const totalDots = Math.ceil(_filtered.length / Math.max(1, pp));
+    const activeDot = Math.min(Math.floor(_idx / Math.max(1, pp)), totalDots - 1);
+    const dotsEl = document.getElementById('pam-rv-dots');
+    if (dotsEl) dotsEl.innerHTML = Array.from({length:totalDots}, (_,i) =>
+      `<button type="button" class="pam-rv-dot${i===activeDot?' active':''}" onclick="pamRvPage(${i})" aria-label="Page ${i+1}"></button>`
+    ).join('');
+  }
+  window.pamRvNav = function(dir) {
+    const maxIdx = Math.max(0, _filtered.length - _getPerPage());
+    _idx = Math.max(0, Math.min(_idx + dir, maxIdx));
+    _update();
+  };
+  window.pamRvPage = function(page) {
+    _idx = page * _getPerPage();
+    _update();
+  };
+  window.pamRvFilter = function(cat, btn) {
+    _cat = cat; _idx = 0;
+    document.querySelectorAll('.pam-rv-filter').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    _filtered = cat === 'all' ? [..._all] : _all.filter(d => {
+      const t = d.feedback_type || (d.source === 'review' ? 'course' : 'general');
+      return t === cat;
+    });
+    _render(); _update();
+  };
+  document.querySelectorAll('.pam-rv-filter').forEach(b => {
+    b.addEventListener('click', () => pamRvFilter(b.dataset.cat, b));
+  });
+  window.addEventListener('resize', _update);
+
+  async function loadPamReviews() {
+    let tries = 0;
+    while (!window.supabaseConfig?.getClient() && tries++ < 20)
+      await new Promise(r => setTimeout(r, 150));
+    const client = window.supabaseConfig?.getClient();
+    if (!client) return;
+    try {
+      const [rvRes, fbRes] = await Promise.all([
+        client.from('reviews').select('id,comment,rating,created_at,user_id,course_id').eq('is_approved', true).order('created_at', { ascending: false }).limit(16),
+        client.from('feedback').select('id,message,rating,full_name,course_title,feedback_type,created_at').not('rating','is',null).in('status',['reviewed','resolved']).order('created_at', { ascending: false }).limit(8)
+      ]);
+      const rvRows = rvRes.data || [];
+      const rvUids = [...new Set(rvRows.map(r=>r.user_id).filter(Boolean))];
+      const rvCids = [...new Set(rvRows.map(r=>r.course_id).filter(Boolean))];
+      const [profRes, courseRes] = await Promise.all([
+        rvUids.length ? client.from('user_profiles').select('user_id,full_name').in('user_id', rvUids) : Promise.resolve({data:[]}),
+        rvCids.length ? client.from('courses').select('id,title').in('id', rvCids) : Promise.resolve({data:[]})
+      ]);
+      const nameMap   = Object.fromEntries((profRes.data||[]).map(p=>[p.user_id, p.full_name]));
+      const courseMap = Object.fromEntries((courseRes.data||[]).map(c=>[c.id, c.title]));
+      const reviews  = rvRows.map(r=>({...r, source:'review', _name:nameMap[r.user_id]||'Student', feedback_type:'course', course_title:courseMap[r.course_id]||''}));
+      const feedback = (fbRes.data||[]).map(f=>({...f, source:'feedback', comment:f.message, _name:f.full_name||'Student'}));
+      _all = [...reviews,...feedback].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+      if (!_all.length) {
+        const e = document.getElementById('pam-rv-empty');
+        if (e) e.classList.add('show');
+        const o = document.getElementById('pam-rv-outer');
+        if (o) o.style.display = 'none';
+        return;
+      }
+      _filtered = [..._all];
+      _render(); _update();
+    } catch(e) { /* leave empty state */ }
+  }
+  loadPamReviews();
+})();
 
 // Close popup on Escape key
 document.addEventListener('keydown', e => {

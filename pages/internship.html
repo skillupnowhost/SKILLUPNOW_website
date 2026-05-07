@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internship Portal — SkillUpNow</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Internship-only tokens (no site-variable conflicts) ─ */
+    :root {
+      --itp-gold:    #f59e0b;
+      --itp-emerald: #10b981;
+      --itp-rose:    #f43f5e;
+      --itp-cyan:    #06b6d4;
+      --itp-sky:     #38bdf8;
+      --itp-r:       14px;
+      --itp-rsm:     10px;
+      --itp-glow:    0 0 24px rgba(124,108,255,0.15);
+      --itp-shadow-p:0 8px 32px rgba(124,108,255,0.22);
+    }
+
+    img { -webkit-user-drag: none; user-drag: none; }
+
+    /* ─── Page wrapper ──────────────────────────────── */
+    .itp-page { padding-bottom: 6rem; }
+
+    /* ─── Hero ──────────────────────────────────────── */
+    .itp-hero {
+      position: relative; overflow: hidden;
+      padding: 3.5rem 0 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .itp-hero-mesh {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 50%, rgba(124,108,255,0.16) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 20%, rgba(6,182,212,0.09) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 60% at 60% 90%, rgba(245,158,11,0.06) 0%, transparent 55%);
+    }
+    .itp-hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+      opacity: 0.4;
+    }
+    .itp-container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; position: relative; }
+    .itp-hero-inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+    .itp-hero-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.28rem 0.9rem; border-radius: 999px; margin-bottom: 0.75rem;
+      background: rgba(124,108,255,0.12); border: 1px solid var(--border2);
+      font-size: 0.72rem; font-weight: 700; color: var(--v2);
+      letter-spacing: 0.07em; text-transform: uppercase;
+    }
+    .itp-hero-left h1 {
+      font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1.15;
+      background: linear-gradient(135deg, var(--txt) 30%, var(--v2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .itp-hero-left p { font-size: 0.92rem; color: var(--txt2); margin-top: 0.45rem; }
+
+    /* ─── Status badges ─────────────────────────────── */
+    .itp-status-badge {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.45rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+    }
+    .itp-status-badge.pending  { background: rgba(245,158,11,.1);  color: var(--itp-gold);    border: 1px solid rgba(245,158,11,.28); }
+    .itp-status-badge.approved { background: rgba(16,185,129,.09); color: var(--itp-emerald); border: 1px solid rgba(16,185,129,.26); }
+    .itp-status-badge.rejected { background: rgba(244,63,94,.09);  color: var(--itp-rose);    border: 1px solid rgba(244,63,94,.26); }
+    .itp-status-badge.info     { background: rgba(124,108,255,.1); color: var(--v2);           border: 1px solid var(--border); }
+
+    /* ─── Tabs ──────────────────────────────────────── */
+    .itp-tabs {
+      display: flex; gap: 0.3rem; padding: 0.28rem;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: 2rem;
+      overflow-x: auto; scrollbar-width: none;
+      width: fit-content; max-width: 100%;
+    }
+    .itp-tabs::-webkit-scrollbar { display: none; }
+    .itp-tab {
+      padding: 0.5rem 1.1rem; border-radius: 9px;
+      font-size: 0.83rem; font-weight: 600; cursor: pointer;
+      color: var(--txt3); background: transparent; border: none;
+      transition: all 0.2s; white-space: nowrap; font-family: inherit;
+    }
+    .itp-tab:hover { color: var(--txt); background: var(--panel2); }
+    .itp-tab.active { color: #fff; background: linear-gradient(135deg, var(--v1), #4f46e5); box-shadow: 0 4px 12px rgba(124,108,255,0.3); }
+    .itp-pane { display: none; }
+    .itp-pane.active { display: block; }
+
+    /* ─── Cards ─────────────────────────────────────── */
+    .itp-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--itp-r); padding: 1.6rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .itp-card:hover { border-color: var(--border2); box-shadow: var(--itp-glow); }
+    .itp-card + .itp-card { margin-top: 1.25rem; }
+    .itp-card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+    .itp-card-title { font-size: 1rem; font-weight: 800; color: var(--txt); }
+
+    /* ─── Project cards ─────────────────────────────── */
+    .itp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); gap: 1.25rem; }
+    .itp-proj-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--itp-r); padding: 1.4rem;
+      transition: all 0.25s; display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    .itp-proj-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--v1), var(--itp-cyan)); opacity: 0; transition: opacity 0.25s;
+    }
+    .itp-proj-card:hover { border-color: var(--border2); transform: translateY(-3px); box-shadow: var(--itp-shadow-p); }
+    .itp-proj-card:hover::before { opacity: 1; }
+    .itp-proj-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--txt); }
+    .itp-proj-desc { font-size: 0.82rem; color: var(--txt2); line-height: 1.6; margin-bottom: 0.85rem; flex: 1; }
+
+    /* ─── Tags ──────────────────────────────────────── */
+    .itp-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.8rem; }
+    .itp-tag { padding: 0.18rem 0.6rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; background: rgba(124,108,255,0.1); color: var(--v2); border: 1px solid rgba(124,108,255,0.2); }
+    .itp-tag.gold { background: rgba(245,158,11,0.1); color: var(--itp-gold); border-color: rgba(245,158,11,0.25); }
+    .itp-tag.cyan { background: rgba(6,182,212,0.1);  color: var(--itp-cyan); border-color: rgba(6,182,212,0.25); }
+
+    /* ─── Meta row ──────────────────────────────────── */
+    .itp-meta { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.75rem; }
+    .itp-meta-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.83rem; color: var(--txt2); }
+
+    /* ─── Task list ─────────────────────────────────── */
+    .itp-task {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1rem 1.1rem; border-radius: 12px; margin-bottom: 0.65rem;
+      background: var(--panel); border: 1px solid var(--border); transition: border-color 0.2s, background 0.2s;
+    }
+    .itp-task:hover { border-color: var(--border2); background: var(--panel2); }
+    .itp-task-num {
+      width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--v1), #4f46e5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 900; color: #fff;
+      box-shadow: 0 4px 10px rgba(124,108,255,0.28);
+    }
+    .itp-task h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; color: var(--txt); }
+    .itp-task p  { font-size: 0.81rem; color: var(--txt2); line-height: 1.55; }
+    .itp-task-dl { margin-top: 0.3rem; font-size: 0.72rem; color: var(--itp-gold); font-weight: 600; }
+
+    /* ─── Stats ─────────────────────────────────────── */
+    .itp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .itp-stat {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--itp-r); padding: 1.1rem 1.2rem;
+      position: relative; overflow: hidden; transition: border-color 0.2s;
+    }
+    .itp-stat::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--v1), transparent); }
+    .itp-stat:hover { border-color: var(--border2); }
+    .itp-stat-v { font-size: 1.65rem; font-weight: 900; color: var(--v2); letter-spacing: -0.03em; }
+    .itp-stat-l { font-size: 0.7rem; color: var(--txt3); margin-top: 0.15rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ─── Form ──────────────────────────────────────── */
+    .itp-fg { margin-bottom: 1.15rem; }
+    .itp-fg label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--txt2); }
+    .itp-fg input, .itp-fg textarea, .itp-fg select {
+      width: 100%; padding: 0.7rem 0.95rem;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--itp-rsm); color: var(--txt);
+      font-family: inherit; font-size: 0.87rem; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .itp-fg input:focus, .itp-fg textarea:focus, .itp-fg select:focus {
+      outline: none; border-color: var(--v1); box-shadow: 0 0 0 3px rgba(124,108,255,0.1);
+    }
+    .itp-fg textarea { min-height: 92px; resize: vertical; }
+    .itp-fr { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+
+    /* ─── Mood ──────────────────────────────────────── */
+    .itp-mood { display: flex; gap: 0.5rem; margin-top: 0.45rem; }
+    .itp-mood-star {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1.2rem; background: var(--panel);
+      border: 1px solid var(--border); transition: all 0.18s;
+    }
+    .itp-mood-star:hover { background: var(--panel2); border-color: var(--border2); transform: scale(1.1); }
+    .itp-mood-star.sel { background: rgba(124,108,255,0.18); border-color: var(--v1); transform: scale(1.1); box-shadow: 0 0 12px rgba(124,108,255,0.2); }
+
+    /* ─── Tasklist ──────────────────────────────────── */
+    .itp-tasklist { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--itp-rsm); padding: 0.5rem; background: var(--panel); }
+    .itp-tasklist::-webkit-scrollbar { width: 4px; }
+    .itp-tasklist::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+    .itp-tasklist label { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.55rem; border-radius: 8px; cursor: pointer; font-size: 0.83rem; transition: background 0.15s; }
+    .itp-tasklist label:hover { background: var(--panel2); }
+    .itp-tasklist input[type="checkbox"] { accent-color: var(--v1); width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* ─── Buttons ───────────────────────────────────── */
+    .itp-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.65rem 1.35rem; border-radius: var(--itp-rsm);
+      font-size: 0.85rem; font-weight: 700; cursor: pointer;
+      border: none; transition: all 0.2s; font-family: inherit;
+      text-decoration: none; white-space: nowrap;
+    }
+    .itp-btn-pr { background: linear-gradient(135deg, var(--v1) 0%, #4f46e5 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,108,255,0.32); }
+    .itp-btn-pr:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,108,255,0.42); opacity: 0.95; }
+    .itp-btn-gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.3); }
+    .itp-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.4); }
+    .itp-btn-sec { background: var(--panel); color: var(--v2); border: 1px solid var(--border); }
+    .itp-btn-sec:hover { background: var(--panel2); border-color: var(--border2); }
+    .itp-btn-ol  { background: transparent; color: var(--txt2); border: 1px solid var(--border); }
+    .itp-btn-ol:hover  { color: var(--txt); border-color: var(--border2); }
+    .itp-btn:disabled  { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+    /* ─── Tables ────────────────────────────────────── */
+    .itp-tbl-wrap { overflow-x: auto; border-radius: var(--itp-r); border: 1px solid var(--border); }
+    .itp-tbl { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .itp-tbl th { background: var(--panel); padding: 0.75rem 1rem; text-align: left; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--txt3); border-bottom: 1px solid var(--border); }
+    .itp-tbl td { padding: 0.78rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--txt); }
+    .itp-tbl tr:last-child td { border-bottom: none; }
+    .itp-tbl tr:hover td { background: var(--panel); }
+
+    /* ─── Attendance dots ───────────────────────────── */
+    .atd { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .atd.present  { background: var(--itp-emerald); }
+    .atd.absent   { background: var(--itp-rose); }
+    .atd.late     { background: var(--itp-gold); }
+    .atd.half_day { background: var(--itp-sky); }
+    .atd.holiday  { background: var(--v2); opacity: 0.7; }
+    .atd.excused  { background: var(--txt3); }
+
+    /* ─── Alerts ────────────────────────────────────── */
+    .itp-alert { padding: 1.1rem 1.3rem; border-radius: var(--itp-r); margin-bottom: 1.5rem; font-size: 0.87rem; display: flex; gap: 0.75rem; align-items: flex-start; line-height: 1.6; }
+    .itp-alert.warn  { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.28); color: var(--itp-gold); }
+    .itp-alert.ok    { background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.26); color: var(--itp-emerald); }
+    .itp-alert.info  { background: rgba(124,108,255,.08); border: 1px solid rgba(124,108,255,.26); color: var(--v2); }
+    .itp-alert.err   { background: rgba(244,63,94,.08);  border: 1px solid rgba(244,63,94,.26);  color: var(--itp-rose); }
+    .itp-alert-icon { font-size: 1.25rem; flex-shrink: 0; }
+    .itp-alert strong { display: block; font-weight: 800; margin-bottom: 0.2rem; }
+
+    /* ─── Certificate ───────────────────────────────── */
+    .itp-cert {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, rgba(124,108,255,.1) 0%, rgba(79,70,229,.06) 100%);
+      border: 1px solid var(--border2); border-radius: 18px;
+      padding: 2.5rem; text-align: center; margin-top: 1.5rem;
+    }
+    .itp-cert::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,.1), transparent 70%); pointer-events: none; }
+    .itp-cert-icon  { font-size: 3.5rem; margin-bottom: 0.85rem; filter: drop-shadow(0 4px 12px rgba(245,158,11,0.35)); }
+    .itp-cert-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.4rem; color: var(--txt); }
+    .itp-cert-sub   { font-size: 0.85rem; color: var(--txt2); }
+
+    /* ─── Pending block ─────────────────────────────── */
+    .itp-pending-block { background: rgba(245,158,11,.06); border: 1px solid rgba(245,158,11,.2); border-radius: var(--itp-rsm); padding: 1.1rem; margin-top: 1rem; }
+
+    /* ─── Toast ─────────────────────────────────────── */
+    #itp-toast {
+      position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 9998;
+      background: var(--bg2); color: var(--txt);
+      padding: 0.85rem 1.25rem; border-radius: var(--itp-rsm);
+      font-size: 0.84rem; font-weight: 600;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3); border: 1px solid var(--border2);
+      max-width: 320px; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s; transform: translateY(10px);
+    }
+    #itp-toast.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    /* ─── Spinner ───────────────────────────────────── */
+    .itp-spin {
+      width: 44px; height: 44px; margin: 3rem auto;
+      border: 3px solid var(--border);
+      border-top-color: var(--v1); border-radius: 50%;
+      animation: itpSpin 0.8s linear infinite;
+    }
+    @keyframes itpSpin { to { transform: rotate(360deg); } }
+
+    /* ─── Auth / empty states ───────────────────────── */
+    .itp-empty-state { text-align: center; padding: 5rem 2rem; }
+    .itp-empty-icon { font-size: 3.5rem; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 16px rgba(124,108,255,0.28)); }
+    .itp-empty-state h2 { font-size: 1.3rem; font-weight: 900; margin-bottom: 0.6rem; color: var(--txt); }
+    .itp-empty-state p  { color: var(--txt2); font-size: 0.9rem; margin-bottom: 1.75rem; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.65; }
+
+    /* ─── Tech grid ─────────────────────────────────── */
+    .itp-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-top: 0.75rem; }
+    .itp-sub-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--txt3); margin-bottom: 0.65rem; }
+    .itp-lo-item { display: flex; gap: 0.45rem; align-items: flex-start; font-size: 0.83rem; color: var(--txt2); padding: 0.22rem 0; line-height: 1.5; }
+    .itp-lo-icon { color: var(--itp-emerald); flex-shrink: 0; font-weight: 900; }
+
+    /* ─── Responsive ────────────────────────────────── */
+    @media (max-width: 768px) {
+      .itp-fr { grid-template-columns: 1fr; }
+      .itp-two-col { grid-template-columns: 1fr; }
+      .itp-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .itp-hero { padding: 2.25rem 0 2rem; }
+      .itp-hero-inner { flex-direction: column; align-items: flex-start; }
+      .itp-stats { grid-template-columns: 1fr 1fr; }
+      .itp-card { padding: 1.1rem; }
+      .itp-tabs { width: 100%; }
+    }
+
+    /* ─── Print block ───────────────────────────────── */
+    @media print {
+      body > * { display: none !important; }
+      body::after {
+        display: block !important;
+        content: "SkillUpNow — Content printing is disabled.";
+        font-size: 1.2rem; text-align: center; padding: 4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav></nav>
+
+<!-- ── Toast ── -->
+<div id="itp-toast"></div>
+
+<div class="itp-page">
+
+  <!-- ── Hero ── -->
+  <div class="itp-hero">
+    <div class="itp-hero-mesh"></div>
+    <div class="itp-hero-grid"></div>
+    <div class="itp-container">
+      <div class="itp-hero-inner">
+        <div class="itp-hero-left">
+          <div class="itp-hero-badge">🎓 SkillUpNow Internship Program</div>
+          <h1 id="itp-h1">Internship Portal</h1>
+          <p id="itp-sub">Track your progress, submit reports, and grow your career</p>
+        </div>
+        <div id="itp-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="itp-container" style="margin-top:2.5rem">
+
+    <!-- Loading -->
+    <div id="itp-loading"><div class="itp-spin"></div></div>
+
+    <!-- Not signed in -->
+    <div id="itp-auth" style="display:none">
+      <div class="itp-empty-state">
+        <div class="itp-empty-icon">🔐</div>
+        <h2>Sign In Required</h2>
+        <p>Please sign in to your SkillUpNow account to access the internship portal and manage your progress.</p>
+        <button class="itp-btn itp-btn-pr" onclick="document.getElementById('pn-login-btn')?.click()">Sign In to Continue →</button>
+      </div>
+    </div>
+
+    <!-- No enrollment -->
+    <div id="itp-none" style="display:none">
+      <div class="itp-alert info">
+        <span class="itp-alert-icon">✨</span>
+        <div>
+          <strong>Welcome to the Internship Portal!</strong>
+          Browse available projects below and submit your application. Our team will review and approve your placement.
+        </div>
+      </div>
+      <div class="itp-card">
+        <div class="itp-card-hdr">
+          <div class="itp-card-title">Available Internship Projects</div>
+        </div>
+        <div class="itp-grid" id="itp-avail-grid"><div class="itp-spin"></div></div>
+      </div>
+    </div>
+
+    <!-- Pending -->
+    <div id="itp-pending" style="display:none">
+      <div class="itp-alert warn">
+        <span class="itp-alert-icon">⏳</span>
+        <div>
+          <strong>Application Under Review</strong>
+          Your application is being reviewed by the admin team. Full project details will unlock once approved.
+        </div>
+      </div>
+      <div id="itp-pending-card"></div>
+    </div>
+
+    <!-- Rejected -->
+    <div id="itp-rejected" style="display:none">
+      <div class="itp-alert err">
+        <span class="itp-alert-icon">❌</span>
+        <div>
+          <strong>Application Not Approved</strong>
+          <div id="itp-rej-reason" style="margin-top:0.3rem;font-size:0.83rem;opacity:0.85"></div>
+          <div style="margin-top:0.5rem">You may apply for another project below.</div>
+        </div>
+      </div>
+      <div class="itp-grid" id="itp-rej-grid"><div class="itp-spin"></div></div>
+    </div>
+
+    <!-- Approved: full access -->
+    <div id="itp-approved" style="display:none">
+      <div class="itp-stats" id="itp-stats"></div>
+
+      <div class="itp-tabs">
+        <button class="itp-tab active" data-tab="overview">📋 Overview</button>
+        <button class="itp-tab" data-tab="tasks">✅ Tasks</button>
+        <button class="itp-tab" data-tab="reports">📝 Daily Reports</button>
+        <button class="itp-tab" data-tab="attendance">📅 Attendance</button>
+      </div>
+
+      <!-- Overview -->
+      <div class="itp-pane active" id="itp-pane-overview">
+        <div class="itp-card" id="itp-overview-main"></div>
+        <div class="itp-card" id="itp-overview-tech" style="margin-top:1.25rem"></div>
+      </div>
+
+      <!-- Tasks -->
+      <div class="itp-pane" id="itp-pane-tasks">
+        <div class="itp-card">
+          <div class="itp-card-hdr">
+            <div class="itp-card-title">Project Tasks</div>
+            <span class="itp-status-badge info" id="itp-task-count">0 tasks</span>
+          </div>
+          <div id="itp-tasks-list"></div>
+        </div>
+      </div>
+
+      <!-- Daily Reports -->
+      <div class="itp-pane" id="itp-pane-reports">
+        <div class="itp-card">
+          <div class="itp-card-hdr">
+            <div class="itp-card-title">Submit Daily Report</div>
+            <div id="itp-today-badge"></div>
+          </div>
+          <form id="itp-rpt-form" autocomplete="off">
+            <div class="itp-fr">
+              <div class="itp-fg">
+                <label>Report Date *</label>
+                <input type="date" id="itp-date" required>
+              </div>
+              <div class="itp-fg">
+                <label>Hours Worked *</label>
+                <input type="number" id="itp-hours" min="0.5" max="12" step="0.5" placeholder="e.g. 4.5" required>
+              </div>
+            </div>
+            <div class="itp-fg">
+              <label>Work Summary *</label>
+              <textarea id="itp-summary" placeholder="Describe what you worked on today in detail…" required></textarea>
+            </div>
+            <div class="itp-fg">
+              <label>Tasks Worked On (select all that apply)</label>
+              <div class="itp-tasklist" id="itp-form-tasks">
+                <span style="color:var(--txt3);font-size:0.8rem;padding:0.5rem;display:block">Loading…</span>
+              </div>
+            </div>
+            <div class="itp-fr">
+              <div class="itp-fg">
+                <label>Challenges Faced</label>
+                <textarea id="itp-challenges" placeholder="Any blockers or difficulties…" style="min-height:76px"></textarea>
+              </div>
+              <div class="itp-fg">
+                <label>Plan for Tomorrow</label>
+                <textarea id="itp-nextplan" placeholder="What will you work on next?" style="min-height:76px"></textarea>
+              </div>
+            </div>
+            <div class="itp-fg">
+              <label>Today's Mood</label>
+              <div class="itp-mood" id="itp-mood">
+                <div class="itp-mood-star" data-m="1" title="Frustrated">😤</div>
+                <div class="itp-mood-star" data-m="2" title="Uncertain">😕</div>
+                <div class="itp-mood-star sel" data-m="3" title="Okay">😐</div>
+                <div class="itp-mood-star" data-m="4" title="Good">😊</div>
+                <div class="itp-mood-star" data-m="5" title="Excellent">🤩</div>
+              </div>
+              <input type="hidden" id="itp-mood-val" value="3">
+            </div>
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem">
+              <button type="submit" class="itp-btn itp-btn-pr" id="itp-rpt-btn">📤 Submit Report</button>
+              <button type="button" class="itp-btn itp-btn-ol" onclick="itpResetForm()">↺ Clear</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="itp-card" style="margin-top:1.25rem">
+          <div class="itp-card-hdr">
+            <div class="itp-card-title">Report History</div>
+            <button class="itp-btn itp-btn-sec" style="font-size:0.77rem;padding:0.38rem 0.85rem" onclick="itpExportPDF()">⬇ Export PDF</button>
+          </div>
+          <div class="itp-tbl-wrap">
+            <table class="itp-tbl">
+              <thead><tr><th>Date</th><th>Hours</th><th>Summary</th><th>Status</th><th>Admin Notes</th><th>Action</th></tr></thead>
+              <tbody id="itp-rpt-tbody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No reports yet</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance -->
+      <div class="itp-pane" id="itp-pane-attendance">
+        <div class="itp-stats" id="itp-atd-stats"></div>
+        <div class="itp-card">
+          <div class="itp-card-hdr">
+            <div class="itp-card-title">Attendance Record</div>
+            <div style="display:flex;gap:0.6rem;font-size:0.73rem;align-items:center;flex-wrap:wrap;color:var(--txt3)">
+              <span><span class="atd present"></span>Present</span>
+              <span><span class="atd absent"></span>Absent</span>
+              <span><span class="atd late"></span>Late</span>
+              <span><span class="atd half_day"></span>Half Day</span>
+              <span><span class="atd holiday"></span>Holiday</span>
+            </div>
+          </div>
+          <div class="itp-tbl-wrap">
+            <table class="itp-tbl">
+              <thead><tr><th>Date</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Notes</th></tr></thead>
+              <tbody id="itp-atd-tbody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No attendance records yet</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="itp-cert-area" style="display:none">
+          <div class="itp-cert">
+            <div class="itp-cert-icon">🏆</div>
+            <div class="itp-cert-title">Attendance Certificate Available!</div>
+            <div class="itp-cert-sub" id="itp-cert-sub">You've completed the internship. Download your certificate below.</div>
+            <button class="itp-btn itp-btn-gold" style="margin-top:1.5rem" onclick="itpDownloadCert()">🎓 Download Certificate</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /itp-approved -->
+
+  </div><!-- /.itp-container -->
+</div><!-- /.itp-page -->
+
+<footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="../config/supabase-config.js"></script>
+<script src="../js/profile-nav.js"></script>
+
+<script>
+'use strict';
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const _sb = supabase.createClient(
+  'https://kenlnisfhrkgolvxitfc.supabase.co',
+  'sb_publishable_bn3ALAJLmsKePx3V-NsMBw_ADJ-3S3D'
+);
+let _user  = null;
+let _enrol = null;
+let _proj  = null;
+let _mood  = 3;
+
+/* ============================================================
+   INIT
+   ============================================================ */
+async function itpInit() {
+  await new Promise(res => {
+    const { data: { subscription } } = _sb.auth.onAuthStateChange((ev, ses) => {
+      subscription.unsubscribe();
+      _user = ses?.user || null;
+      res();
+    });
+    setTimeout(res, 2200);
+  });
+
+  if (!_user) { _itpShow('itp-auth'); return; }
+  await itpLoadStatus();
+}
+
+function _itpShow(id) {
+  document.getElementById('itp-loading').style.display = 'none';
+  ['itp-auth','itp-none','itp-pending','itp-rejected','itp-approved'].forEach(i => {
+    const el = document.getElementById(i);
+    if (el) el.style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  if (el) el.style.display = '';
+}
+
+/* ============================================================
+   ENROLLMENT STATUS
+   ============================================================ */
+async function itpLoadStatus() {
+  const { data: enrol } = await _sb
+    .from('internship_enrollments')
+    .select('*, internship_projects(*)')
+    .eq('student_user_id', _user.id)
+    .order('enrolled_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!enrol) {
+    await itpLoadProjects('itp-avail-grid');
+    _itpShow('itp-none');
+    return;
+  }
+  _enrol = enrol;
+  _proj  = enrol.internship_projects;
+  _itpUpdateHero();
+
+  if (enrol.approval_status === 'pending') {
+    _itpRenderPendingCard();
+    _itpShow('itp-pending');
+  } else if (enrol.approval_status === 'rejected') {
+    const rr = document.getElementById('itp-rej-reason');
+    if (enrol.rejection_reason) rr.textContent = 'Reason: ' + enrol.rejection_reason;
+    await itpLoadProjects('itp-rej-grid');
+    _itpShow('itp-rejected');
+  } else {
+    await _itpLoadApproved();
+    _itpShow('itp-approved');
+  }
+}
+
+function _itpUpdateHero() {
+  if (!_proj) return;
+  document.getElementById('itp-h1').textContent = _proj.project_name;
+  document.getElementById('itp-sub').textContent = _proj.client_name + ' · ' + _proj.country;
+  const statusMap = { pending:'pending', approved:'approved', rejected:'rejected' };
+  const labelMap  = { pending:'⏳ Pending Approval', approved:'✅ Approved', rejected:'❌ Rejected' };
+  const s = _enrol.approval_status;
+  document.getElementById('itp-status').innerHTML =
+    `<span class="itp-status-badge ${statusMap[s]}">${labelMap[s]}</span>`;
+}
+
+/* ============================================================
+   AVAILABLE PROJECTS
+   ============================================================ */
+async function itpLoadProjects(gridId) {
+  const { data: projects } = await _sb
+    .from('internship_projects')
+    .select('id,project_name,client_name,country,domain,description,duration_weeks,tech_stack,max_students')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  const grid = document.getElementById(gridId);
+  if (!projects?.length) {
+    grid.innerHTML = '<p style="color:var(--txt2);font-size:0.87rem;padding:1.5rem;text-align:center">No internship projects available right now. Check back soon.</p>';
+    return;
+  }
+  grid.innerHTML = projects.map(p => `
+    <div class="itp-proj-card">
+      <h3>${_esc(p.project_name)}</h3>
+      <div class="itp-proj-desc">${_esc(p.description || 'No description provided.')}</div>
+      <div class="itp-meta" style="margin-bottom:0.85rem">
+        <span class="itp-meta-item">🏢 ${_esc(p.client_name)}</span>
+        <span class="itp-meta-item">🌍 ${_esc(p.country)}</span>
+        <span class="itp-meta-item">⏱ ${p.duration_weeks}w</span>
+      </div>
+      <div class="itp-tags">
+        <span class="itp-tag gold">${_esc(p.domain||'General')}</span>
+        ${(p.tech_stack||[]).slice(0,3).map(t=>`<span class="itp-tag">${_esc(t)}</span>`).join('')}
+      </div>
+      <button class="itp-btn itp-btn-pr" style="width:100%;justify-content:center;margin-top:0.75rem"
+        onclick="itpApply('${p.id}','${_esc(p.project_name)}')">Apply Now →</button>
+    </div>
+  `).join('');
+}
+
+async function itpApply(projectId, projectName) {
+  if (!confirm(`Apply for "${projectName}"? Your application will be reviewed by admin.`)) return;
+  const { error } = await _sb.from('internship_enrollments').insert({
+    student_user_id: _user.id,
+    project_id: projectId,
+    approval_status: 'pending'
+  });
+  if (error) { itpToast('❌ ' + error.message, 'err'); return; }
+  itpToast('✅ Application submitted! Awaiting admin approval.');
+  setTimeout(() => location.reload(), 1400);
+}
+
+/* ============================================================
+   PENDING VIEW
+   ============================================================ */
+function _itpRenderPendingCard() {
+  if (!_proj) return;
+  document.getElementById('itp-pending-card').innerHTML = `
+    <div class="itp-card">
+      <div class="itp-card-hdr">
+        <div class="itp-card-title">${_esc(_proj.project_name)}</div>
+        <span class="itp-status-badge pending">⏳ Under Review</span>
+      </div>
+      <div class="itp-meta">
+        <span class="itp-meta-item">🏢 ${_esc(_proj.client_name)}</span>
+        <span class="itp-meta-item">🌍 ${_esc(_proj.country)}</span>
+        <span class="itp-meta-item">🗂 ${_esc(_proj.domain||'General')}</span>
+        <span class="itp-meta-item">⏱ ${_proj.duration_weeks} weeks</span>
+      </div>
+      <div class="itp-pending-block">
+        <p style="font-size:0.85rem;color:var(--txt2);line-height:1.65">${_esc(_proj.description||'Project details will be visible after approval.')}</p>
+      </div>
+      <p style="margin-top:0.9rem;font-size:0.79rem;color:var(--txt3)">
+        Applied: ${new Date(_enrol.enrolled_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
+      </p>
+    </div>`;
+}
+
+/* ============================================================
+   APPROVED VIEW
+   ============================================================ */
+async function _itpLoadApproved() {
+  _itpRenderOverview();
+  await _itpRenderTasks();
+  await _itpLoadReports();
+  await _itpLoadAttendance();
+  _itpSetupForm();
+  _itpSetupTabs();
+
+  const [{ data: rpts }, { data: atd }] = await Promise.all([
+    _sb.from('internship_daily_reports').select('hours_worked,report_status').eq('enrollment_id', _enrol.id),
+    _sb.from('internship_attendance').select('status').eq('enrollment_id', _enrol.id),
+  ]);
+  const totalHrs = (rpts||[]).reduce((s,r) => s + Number(r.hours_worked||0), 0);
+  const present  = (atd||[]).filter(a => ['present','late','half_day'].includes(a.status)).length;
+  const tasks    = Array.isArray(_proj.tasks) ? _proj.tasks : [];
+
+  document.getElementById('itp-stats').innerHTML = `
+    <div class="itp-stat"><div class="itp-stat-v">${(rpts||[]).length}</div><div class="itp-stat-l">Reports</div></div>
+    <div class="itp-stat"><div class="itp-stat-v">${totalHrs.toFixed(1)}h</div><div class="itp-stat-l">Hours Logged</div></div>
+    <div class="itp-stat"><div class="itp-stat-v" style="color:#10b981">${present}</div><div class="itp-stat-l">Days Present</div></div>
+    <div class="itp-stat"><div class="itp-stat-v">${tasks.length}</div><div class="itp-stat-l">Tasks</div></div>
+    <div class="itp-stat"><div class="itp-stat-v" style="color:var(--itp-gold)">${_proj.duration_weeks}w</div><div class="itp-stat-l">Duration</div></div>
+  `;
+}
+
+function _itpRenderOverview() {
+  const lo = Array.isArray(_proj.learning_outcomes) ? _proj.learning_outcomes : [];
+  const ts = Array.isArray(_proj.tech_stack) ? _proj.tech_stack : [];
+  document.getElementById('itp-overview-main').innerHTML = `
+    <div class="itp-card-hdr">
+      <div class="itp-card-title">Project Overview</div>
+      <span class="itp-status-badge approved">✅ Approved</span>
+    </div>
+    <div class="itp-meta" style="margin-bottom:1.1rem">
+      <span class="itp-meta-item">🏢 ${_esc(_proj.client_name)}</span>
+      <span class="itp-meta-item">🌍 ${_esc(_proj.country)}</span>
+      <span class="itp-meta-item">🗂 ${_esc(_proj.domain||'General')}</span>
+      <span class="itp-meta-item">⏱ ${_proj.duration_weeks} weeks</span>
+      ${_enrol.start_date ? `<span class="itp-meta-item">📅 Start: ${new Date(_enrol.start_date+'T00:00:00').toLocaleDateString('en-IN')}</span>` : ''}
+    </div>
+    <p style="font-size:0.88rem;line-height:1.75;color:var(--txt2);white-space:pre-wrap">${_esc(_proj.detailed_description||_proj.description||'')}</p>
+    <p style="margin-top:1rem;font-size:0.78rem;color:var(--itp-emerald);font-weight:600">
+      ✓ Approved ${_enrol.approved_at ? new Date(_enrol.approved_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : ''}
+    </p>`;
+
+  document.getElementById('itp-overview-tech').innerHTML = `
+    <div class="itp-card-hdr"><div class="itp-card-title">Tech Stack &amp; Learning Outcomes</div></div>
+    <div class="itp-two-col">
+      <div>
+        <div class="itp-sub-label">🛠 Tech Stack</div>
+        <div class="itp-tags">${ts.length ? ts.map(t=>`<span class="itp-tag cyan">${_esc(t)}</span>`).join('') : '<span style="color:var(--txt3);font-size:0.82rem">Not specified</span>'}</div>
+      </div>
+      <div>
+        <div class="itp-sub-label">🎯 Learning Outcomes</div>
+        <div>${lo.length ? lo.map(o=>`<div class="itp-lo-item"><span class="itp-lo-icon">✓</span>${_esc(o)}</div>`).join('') : '<span style="color:var(--txt3);font-size:0.82rem">Not specified</span>'}</div>
+      </div>
+    </div>`;
+}
+
+async function _itpRenderTasks() {
+  const tasks = Array.isArray(_proj?.tasks) ? _proj.tasks : [];
+  document.getElementById('itp-task-count').textContent = `${tasks.length} task${tasks.length!==1?'s':''}`;
+  document.getElementById('itp-tasks-list').innerHTML = tasks.length
+    ? tasks.map((t,i) => `
+        <div class="itp-task">
+          <div class="itp-task-num">${i+1}</div>
+          <div style="flex:1">
+            <h4>${_esc(t.title||'Task '+(i+1))}</h4>
+            <p>${_esc(t.description||'')}</p>
+            ${t.deadline_days ? `<div class="itp-task-dl">⏱ Deadline: ${t.deadline_days} days from start</div>` : ''}
+          </div>
+        </div>`).join('')
+    : '<p style="color:var(--txt2);font-size:0.85rem;padding:1rem;text-align:center">No tasks defined yet.</p>';
+}
+
+/* ============================================================
+   REPORT FORM
+   ============================================================ */
+function _itpSetupForm() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('itp-date').value = today;
+  document.getElementById('itp-date').max   = today;
+
+  const tasks = Array.isArray(_proj?.tasks) ? _proj.tasks : [];
+  document.getElementById('itp-form-tasks').innerHTML = tasks.length
+    ? tasks.map((t,i) => `
+        <label>
+          <input type="checkbox" name="itp-tc" value="${i}">
+          ${_esc(t.title||'Task '+(i+1))}
+        </label>`).join('')
+    : '<span style="color:var(--txt3);font-size:0.8rem;padding:0.5rem;display:block">No project tasks defined.</span>';
+
+  document.querySelectorAll('.itp-mood-star').forEach(s => {
+    s.addEventListener('click', () => {
+      document.querySelectorAll('.itp-mood-star').forEach(x => x.classList.remove('sel'));
+      s.classList.add('sel');
+      _mood = Number(s.dataset.m);
+      document.getElementById('itp-mood-val').value = _mood;
+    });
+  });
+
+  document.getElementById('itp-rpt-form').addEventListener('submit', itpSubmitReport);
+}
+
+async function itpSubmitReport(e) {
+  e.preventDefault();
+  const btn = document.getElementById('itp-rpt-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const rDate    = document.getElementById('itp-date').value;
+  const summary  = document.getElementById('itp-summary').value.trim();
+  const hours    = parseFloat(document.getElementById('itp-hours').value);
+  const chal     = document.getElementById('itp-challenges').value.trim();
+  const nextPlan = document.getElementById('itp-nextplan').value.trim();
+
+  if (!rDate || !summary || !hours) {
+    itpToast('❌ Please fill in all required fields.', 'err');
+    btn.disabled = false; btn.textContent = '📤 Submit Report'; return;
+  }
+
+  const tasks   = Array.isArray(_proj?.tasks) ? _proj.tasks : [];
+  const checked = [...document.querySelectorAll('input[name="itp-tc"]:checked')]
+    .map(cb => tasks[Number(cb.value)]?.title || cb.value);
+
+  const { error } = await _sb.from('internship_daily_reports').upsert({
+    enrollment_id: _enrol.id, student_user_id: _user.id,
+    report_date: rDate, work_summary: summary, tasks_completed: checked,
+    hours_worked: hours, challenges: chal, next_day_plan: nextPlan,
+    mood_rating: _mood, report_status: 'submitted',
+  }, { onConflict: 'enrollment_id,report_date' });
+
+  if (error) { itpToast('❌ Submit failed: ' + error.message, 'err'); btn.disabled = false; btn.textContent = '📤 Submit Report'; return; }
+  itpToast('✅ Report submitted!');
+  itpResetForm();
+  await _itpLoadReports();
+  await _itpAutoAttend(rDate);
+  btn.disabled = false; btn.textContent = '📤 Submit Report';
+}
+
+async function _itpAutoAttend(date) {
+  await _sb.from('internship_attendance').upsert({
+    enrollment_id: _enrol.id, student_user_id: _user.id,
+    attendance_date: date, status: 'present',
+    check_in_time: new Date().toTimeString().slice(0,5),
+    notes: 'Auto via daily report',
+  }, { onConflict: 'enrollment_id,attendance_date' });
+}
+
+function itpResetForm() {
+  document.getElementById('itp-rpt-form').reset();
+  document.getElementById('itp-date').value = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.itp-mood-star').forEach(s => s.classList.remove('sel'));
+  document.querySelector('.itp-mood-star[data-m="3"]')?.classList.add('sel');
+  _mood = 3;
+}
+
+/* ============================================================
+   REPORT HISTORY
+   ============================================================ */
+async function _itpLoadReports() {
+  const { data: rpts } = await _sb
+    .from('internship_daily_reports').select('*')
+    .eq('enrollment_id', _enrol.id).order('report_date', { ascending: false });
+
+  const tbody = document.getElementById('itp-rpt-tbody');
+  if (!rpts?.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No reports yet. Submit your first report above!</td></tr>';
+    return;
+  }
+  const today = new Date().toISOString().split('T')[0];
+  if (rpts.find(r => r.report_date === today)) {
+    document.getElementById('itp-today-badge').innerHTML = '<span class="itp-status-badge approved">✅ Submitted Today</span>';
+  }
+  const sc = { submitted:'#f59e0b', reviewed:'#38bdf8', flagged:'#f43f5e', approved:'#10b981' };
+  tbody.innerHTML = rpts.map(r => {
+    const col = sc[r.report_status] || '#f59e0b';
+    const dt  = new Date(r.report_date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const sm  = (_esc(r.work_summary||'')).slice(0,55) + (r.work_summary?.length>55?'…':'');
+    return `<tr>
+      <td>${dt}</td>
+      <td>${Number(r.hours_worked).toFixed(1)}h</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${_esc(r.work_summary)}">${sm}</td>
+      <td><span class="itp-status-badge" style="background:${col}15;color:${col};border:1px solid ${col}40;padding:.28rem .75rem;font-size:.75rem">${(r.report_status||'submitted').charAt(0).toUpperCase()+(r.report_status||'').slice(1)}</span></td>
+      <td style="font-size:0.78rem;color:var(--txt2);max-width:140px">${_esc(r.admin_notes||'—')}</td>
+      <td><button class="itp-btn itp-btn-ol" style="font-size:0.72rem;padding:.28rem .65rem" onclick="itpViewRpt(this,'${r.id}')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function itpViewRpt(btn, id) { itpToast('ℹ️ Detailed view available in future update.', 'info'); }
+
+/* ============================================================
+   ATTENDANCE
+   ============================================================ */
+async function _itpLoadAttendance() {
+  const { data: recs } = await _sb
+    .from('internship_attendance').select('*')
+    .eq('enrollment_id', _enrol.id).order('attendance_date', { ascending: false });
+
+  const tbody = document.getElementById('itp-atd-tbody');
+  if (!recs?.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No records yet. Attendance is marked by admin or auto on report submission.</td></tr>';
+    document.getElementById('itp-atd-stats').innerHTML = `
+      <div class="itp-stat"><div class="itp-stat-v" style="color:#10b981">0</div><div class="itp-stat-l">Days Present</div></div>
+      <div class="itp-stat"><div class="itp-stat-v" style="color:#f43f5e">0</div><div class="itp-stat-l">Days Absent</div></div>
+      <div class="itp-stat"><div class="itp-stat-v">0%</div><div class="itp-stat-l">Attendance</div></div>`;
+    return;
+  }
+  const present = recs.filter(r=>['present','late','half_day'].includes(r.status)).length;
+  const absent  = recs.filter(r=>r.status==='absent').length;
+  const pct     = Math.round(present / recs.length * 100);
+  const pctCol  = pct>=75 ? '#10b981' : pct>=50 ? '#f59e0b' : '#f43f5e';
+
+  document.getElementById('itp-atd-stats').innerHTML = `
+    <div class="itp-stat"><div class="itp-stat-v" style="color:#10b981">${present}</div><div class="itp-stat-l">Days Present</div></div>
+    <div class="itp-stat"><div class="itp-stat-v" style="color:#f43f5e">${absent}</div><div class="itp-stat-l">Days Absent</div></div>
+    <div class="itp-stat"><div class="itp-stat-v" style="color:${pctCol}">${pct}%</div><div class="itp-stat-l">Attendance</div></div>
+    <div class="itp-stat"><div class="itp-stat-v">${recs.length}</div><div class="itp-stat-l">Total Tracked</div></div>`;
+
+  tbody.innerHTML = recs.map(r => {
+    const dt  = new Date(r.attendance_date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const hrs = (r.check_in_time && r.check_out_time) ? _calcHrs(r.check_in_time, r.check_out_time) : '—';
+    const lbl = r.status.charAt(0).toUpperCase()+r.status.slice(1).replace('_',' ');
+    return `<tr>
+      <td>${dt}</td>
+      <td><span class="atd ${r.status}"></span>${lbl}</td>
+      <td>${r.check_in_time||'—'}</td><td>${r.check_out_time||'—'}</td>
+      <td>${hrs}</td>
+      <td style="font-size:0.78rem;color:var(--txt2)">${_esc(r.notes||'—')}</td>
+    </tr>`;
+  }).join('');
+
+  if (pct >= 75 && _enrol.end_date && new Date(_enrol.end_date) < new Date()) {
+    document.getElementById('itp-cert-area').style.display = '';
+    document.getElementById('itp-cert-sub').textContent =
+      `Attendance: ${pct}% (${present}/${recs.length} days) — Congratulations on completing your internship!`;
+  }
+}
+
+function _calcHrs(tin, tout) {
+  try {
+    const [h1,m1] = tin.split(':').map(Number);
+    const [h2,m2] = tout.split(':').map(Number);
+    const hrs = ((h2*60+m2)-(h1*60+m1))/60;
+    return hrs > 0 ? hrs.toFixed(1)+'h' : '—';
+  } catch { return '—'; }
+}
+
+/* ============================================================
+   PDF EXPORT
+   ============================================================ */
+async function itpExportPDF() {
+  if (!window.jspdf?.jsPDF) { itpToast('❌ PDF library not loaded', 'err'); return; }
+  const { jsPDF } = window.jspdf;
+  const [{ data: rpts }, { data: prof }] = await Promise.all([
+    _sb.from('internship_daily_reports').select('*').eq('enrollment_id', _enrol.id).order('report_date', { ascending: true }),
+    _sb.from('user_profiles').select('full_name').eq('user_id', _user.id).single(),
+  ]);
+  const doc   = new jsPDF({ unit:'mm', format:'a4' });
+  const pw    = doc.internal.pageSize.getWidth();
+  const sName = prof?.full_name || _user.email;
+
+  doc.setFillColor(124, 58, 237);
+  doc.rect(0, 0, pw, 26, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('SkillUpNow — Internship Daily Report', 14, 11);
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('For Internal Use Only', 14, 19);
+  doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, pw-14, 19, { align:'right' });
+
+  let y = 36;
+  doc.setTextColor(20,10,50);
+  doc.setFontSize(10); doc.setFont('helvetica','bold');
+  doc.text('Student Information', 14, y); y += 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text(`Name: ${sName}`, 14, y); y += 5;
+  doc.text(`Email: ${_user.email}`, 14, y); y += 5;
+  doc.text(`Project: ${_proj.project_name}`, 14, y); y += 5;
+  doc.text(`Client: ${_proj.client_name}  |  Country: ${_proj.country}  |  Duration: ${_proj.duration_weeks} weeks`, 14, y); y += 5;
+  if (_enrol.approved_at) { doc.text(`Approved: ${new Date(_enrol.approved_at).toLocaleDateString('en-IN')}`, 14, y); y += 5; }
+
+  y += 3; doc.setDrawColor(180,160,230); doc.line(14, y, pw-14, y); y += 7;
+  doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text('Daily Reports', 14, y); y += 6;
+  const cols = [14, 36, 52, 108, 147, 170];
+  doc.setFillColor(220, 210, 255); doc.rect(12, y-4, pw-24, 6, 'F');
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  ['Date','Hours','Work Summary','Challenges','Status','Mood'].forEach((h,i) => doc.text(h, cols[i], y));
+  y += 5; doc.setFont('helvetica','normal');
+
+  for (const r of (rpts||[])) {
+    if (y > 268) { doc.addPage(); y = 20; }
+    doc.text(r.report_date||'', cols[0], y);
+    doc.text(String(r.hours_worked||0), cols[1], y);
+    doc.text(((r.work_summary||'').slice(0,50)+(r.work_summary?.length>50?'…':'')), cols[2], y);
+    doc.text(((r.challenges||'—').slice(0,32)+((r.challenges?.length||0)>32?'…':'')), cols[3], y);
+    doc.text(r.report_status||'', cols[4], y);
+    doc.text(String(r.mood_rating||''), cols[5], y);
+    y += 5; doc.setDrawColor(220,215,245); doc.line(12, y-1, pw-12, y-1);
+  }
+  y += 6;
+  const totalH = (rpts||[]).reduce((s,r) => s+Number(r.hours_worked||0), 0);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+  doc.text(`Total Reports: ${(rpts||[]).length}  |  Total Hours: ${totalH.toFixed(1)}h`, 14, y);
+  doc.save(`internship-report-${_proj.project_name.replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`);
+  itpToast('✅ PDF downloaded!');
+}
+
+/* ============================================================
+   CERTIFICATE PDF
+   ============================================================ */
+async function itpDownloadCert() {
+  if (!window.jspdf?.jsPDF) { itpToast('❌ PDF library not loaded', 'err'); return; }
+  const { jsPDF } = window.jspdf;
+  const [{ data: atd }, { data: prof }] = await Promise.all([
+    _sb.from('internship_attendance').select('status').eq('enrollment_id', _enrol.id),
+    _sb.from('user_profiles').select('full_name').eq('user_id', _user.id).single(),
+  ]);
+  const present = (atd||[]).filter(a=>['present','late'].includes(a.status)).length;
+  const total   = (atd||[]).length;
+  const pct     = total ? Math.round(present/total*100) : 0;
+  const sName   = prof?.full_name || _user.email;
+  const doc = new jsPDF({ unit:'mm', format:'a4', orientation:'landscape' });
+  const w   = doc.internal.pageSize.getWidth();
+  const h   = doc.internal.pageSize.getHeight();
+
+  doc.setDrawColor(124,58,237); doc.setLineWidth(3); doc.rect(8,8,w-16,h-16);
+  doc.setLineWidth(0.8); doc.rect(13,13,w-26,h-26);
+  doc.setTextColor(70,40,170); doc.setFontSize(26); doc.setFont('helvetica','bold');
+  doc.text('CERTIFICATE OF INTERNSHIP COMPLETION', w/2, 44, { align:'center' });
+  doc.setFontSize(10); doc.setTextColor(110,90,190); doc.setFont('helvetica','normal');
+  doc.text('This is to certify that', w/2, 60, { align:'center' });
+  doc.setFontSize(22); doc.setTextColor(25,12,75); doc.setFont('helvetica','bolditalic');
+  doc.text(sName, w/2, 77, { align:'center' });
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,40,120);
+  doc.text('has successfully completed the internship program', w/2, 92, { align:'center' });
+  doc.setFontSize(15); doc.setFont('helvetica','bold'); doc.setTextColor(80,50,180);
+  doc.text(`"${_proj.project_name}"`, w/2, 107, { align:'center' });
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(80,70,140);
+  doc.text(`Client: ${_proj.client_name}  |  Country: ${_proj.country}  |  Duration: ${_proj.duration_weeks} Weeks`, w/2, 120, { align:'center' });
+  doc.text(`Attendance: ${pct}%  (${present} / ${total} days)`, w/2, 130, { align:'center' });
+  if (_enrol.start_date && _enrol.end_date) {
+    doc.text(`Period: ${new Date(_enrol.start_date+'T00:00:00').toLocaleDateString('en-IN')} to ${new Date(_enrol.end_date+'T00:00:00').toLocaleDateString('en-IN')}`, w/2, 140, { align:'center' });
+  }
+  doc.setDrawColor(124,58,237); doc.setLineWidth(0.5); doc.line(40,153,w-40,153);
+  doc.setFontSize(8); doc.setTextColor(110,90,170);
+  doc.text(`Issued by: SkillUpNow  |  Date: ${new Date().toLocaleDateString('en-IN')}`, w/2, 160, { align:'center' });
+  doc.text('This certificate is digitally generated. Verify at: skillupnow.in', w/2, 166, { align:'center' });
+  doc.text(`Certificate ID: SKN-INT-${_enrol.id.slice(0,8).toUpperCase()}`, w/2, 172, { align:'center' });
+  doc.save(`certificate-${sName.replace(/\s+/g,'-')}-${_proj.project_name.replace(/\s+/g,'-')}.pdf`);
+  itpToast('🎓 Certificate downloaded!');
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function _itpSetupTabs() {
+  document.querySelectorAll('.itp-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.itp-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.itp-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const pane = document.getElementById('itp-pane-' + tab.dataset.tab);
+      if (pane) pane.classList.add('active');
+    });
+  });
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function _esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function itpToast(msg, type='ok') {
+  const t = document.getElementById('itp-toast');
+  t.textContent = msg;
+  const bm = { ok:'rgba(16,185,129,.35)', err:'rgba(244,63,94,.35)', warn:'rgba(245,158,11,.35)', info:'rgba(124,58,237,.35)' };
+  t.style.borderColor = bm[type] || bm.ok;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 3600);
+}
+
+/* ============================================================
+   START
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', itpInit);
+</script>
+</body>
+</html>

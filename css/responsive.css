@@ -119,8 +119,8 @@
   .nav-cta, #cta-btn { display: none !important; }
 
   /* Login/profile dropdowns on tablet: full-width panels below nav */
-  .login-wrapper,
-  #profile-section { position: static !important; }
+  .login-wrapper { position: static !important; }
+  /* Keep #profile-section relative so streak-badge absolute positioning works */
 
   .login-dropdown,
   .profile-dropdown {

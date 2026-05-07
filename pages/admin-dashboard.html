@@ -373,6 +373,10 @@
       <div class="nav-item" data-section="batches">
         <span class="nav-icon">👨‍👩‍👧‍👦</span> Batches
       </div>
+      <div class="nav-item" data-section="internships">
+        <span class="nav-icon">🎓</span> Internships
+        <span class="badge" id="intern-badge" style="display:none">0</span>
+      </div>
     </div>
     <div class="nav-section">
       <div class="nav-label">Finance</div>
@@ -1509,6 +1513,113 @@
       </div>
     </div><!-- /section-holidays -->
 
+    <!-- ===== INTERNSHIPS ===== -->
+    <div class="section" id="section-internships">
+      <style>
+        .it-sub-tabs { display:flex; gap:0.25rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0; overflow-x:auto; }
+        .it-sub-tab  { padding:.55rem 1.1rem; border-radius:9px 9px 0 0; font-size:.82rem; font-weight:600; cursor:pointer;
+                        color:var(--txt3); background:transparent; border:none; border-bottom:2px solid transparent;
+                        transition:all .18s; white-space:nowrap; font-family:inherit; }
+        .it-sub-tab:hover  { color:var(--txt2); background:rgba(124,92,252,.08); }
+        .it-sub-tab.active { color:var(--v1); border-bottom-color:var(--v1); background:rgba(124,92,252,.1); }
+        .it-itab-pane { display:none; }
+        .it-itab-pane.active { display:block; }
+      </style>
+
+      <div class="it-sub-tabs">
+        <button class="it-sub-tab active" data-itab="projects"   onclick="switchInternTab('projects')">📁 Projects</button>
+        <button class="it-sub-tab"        data-itab="students"   onclick="switchInternTab('students')">👥 Students</button>
+        <button class="it-sub-tab"        data-itab="reports"    onclick="switchInternTab('reports')">📝 Reports</button>
+        <button class="it-sub-tab"        data-itab="attendance" onclick="switchInternTab('attendance')">📅 Attendance</button>
+      </div>
+
+      <!-- Projects -->
+      <div class="it-itab-pane active" id="itab-projects">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Internship Projects</h3>
+            <div class="table-actions">
+              <input class="tbl-search" placeholder="Search projects…" oninput="filterTable('intern-proj-tbody',this.value,[0,1,2])">
+              <button class="btn-primary" onclick="openInternProjModal()">+ New Project</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Project Name</th><th>Client</th><th>Country</th><th>Domain</th><th>Duration</th><th>Students</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody id="intern-proj-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Students -->
+      <div class="it-itab-pane" id="itab-students">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Student Enrollments</h3>
+            <div class="table-actions">
+              <select id="intern-enrol-filter" onchange="loadInternStudents()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button class="btn-secondary" onclick="exportInternStudentsCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Project</th><th>Applied</th><th>Status</th><th>Reports</th><th>Attendance %</th><th>Actions</th></tr></thead>
+            <tbody id="intern-students-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div class="it-itab-pane" id="itab-reports">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Daily Reports</h3>
+            <div class="table-actions">
+              <select id="intern-rpt-proj-filter" onchange="loadInternReports()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);max-width:170px">
+                <option value="">All Projects</option>
+              </select>
+              <select id="intern-rpt-status-filter" onchange="loadInternReports()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="submitted">Submitted</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="flagged">Flagged</option>
+                <option value="approved">Approved</option>
+              </select>
+              <button class="btn-secondary" onclick="exportInternReportsCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Date</th><th>Student</th><th>Project</th><th>Hours</th><th>Summary</th><th>Mood</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="intern-rpt-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Attendance -->
+      <div class="it-itab-pane" id="itab-attendance">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Attendance Management</h3>
+            <div class="table-actions">
+              <select id="intern-atd-proj-filter" onchange="loadInternAttendance()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);max-width:170px">
+                <option value="">All Projects</option>
+              </select>
+              <input type="date" id="intern-atd-date-filter" onchange="loadInternAttendance()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+              <button class="btn-primary" onclick="openBulkAttendModal()">✅ Mark Attendance</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Date</th><th>Student</th><th>Project</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Notes</th><th>Actions</th></tr></thead>
+            <tbody id="intern-atd-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+    </div><!-- /section-internships -->
+
   </div><!-- /content -->
 </main>
 
@@ -2021,6 +2132,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="../config/supabase-config.js"></script>
 <script src="../js/profile-nav.js"></script>
 <script src="../js/course-icons.js"></script>
@@ -2093,6 +2205,7 @@ function loadSection(sec) {
     reviews: loadReviews, forms: loadFormsSection, inquiries: loadInquiries,
     feedback: loadFeedback, interests: loadInterested,
     holidays: loadHolidays,
+    internships: loadInternships,
   };
   loaders[sec]?.();
 }
@@ -7154,6 +7267,629 @@ async function cancelSchedule(id) {
   await sendSessionNotificationEmails(id, 'cancelled');
 }
 
+// ============================================================
+// ===== INTERNSHIP MANAGEMENT =====
+// ============================================================
+
+/* ── Sub-tab switcher ── */
+function switchInternTab(tab) {
+  document.querySelectorAll('.it-sub-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.itab === tab);
+  });
+  document.querySelectorAll('.it-itab-pane').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('itab-' + tab);
+  if (pane) pane.classList.add('active');
+
+  if (tab === 'projects')   loadInternProjects();
+  if (tab === 'students')   loadInternStudents();
+  if (tab === 'reports')    { _populateInternProjFilter('intern-rpt-proj-filter'); loadInternReports(); }
+  if (tab === 'attendance') { _populateInternProjFilter('intern-atd-proj-filter'); loadInternAttendance(); }
+}
+
+function loadInternships() {
+  loadInternProjects();
+  _updateInternBadge();
+}
+
+async function _updateInternBadge() {
+  const { count } = await db.client.from('internship_enrollments')
+    .select('id', { count:'exact', head:true })
+    .eq('approval_status','pending');
+  const badge = document.getElementById('intern-badge');
+  if (badge) {
+    badge.textContent = count || 0;
+    badge.style.display = count > 0 ? '' : 'none';
+  }
+}
+
+async function _populateInternProjFilter(selectId) {
+  const { data } = await db.client.from('internship_projects').select('id,project_name').eq('is_active',true).order('project_name');
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  const cur = el.value;
+  el.innerHTML = '<option value="">All Projects</option>' +
+    (data||[]).map(p=>`<option value="${p.id}"${p.id===cur?' selected':''}>${_adm_esc(p.project_name)}</option>`).join('');
+}
+
+/* ============================================================
+   PROJECTS CRUD
+   ============================================================ */
+async function loadInternProjects() {
+  const tbody = document.getElementById('intern-proj-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+
+  const { data: projects, error } = await db.client
+    .from('internship_projects')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!projects?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No projects yet. Click "+ New Project" to create one.</td></tr>'; return; }
+
+  // Get enrollment counts
+  const { data: counts } = await db.client
+    .from('internship_enrollments')
+    .select('project_id')
+    .eq('approval_status','approved');
+  const countMap = {};
+  (counts||[]).forEach(c => { countMap[c.project_id] = (countMap[c.project_id]||0)+1; });
+
+  tbody.innerHTML = projects.map(p => `
+    <tr>
+      <td><strong>${_adm_esc(p.project_name)}</strong></td>
+      <td>${_adm_esc(p.client_name)}</td>
+      <td>${_adm_esc(p.country)}</td>
+      <td><span class="badge" style="background:rgba(99,102,241,.15);color:#a5b4fc">${_adm_esc(p.domain||'General')}</span></td>
+      <td>${p.duration_weeks}w</td>
+      <td>${countMap[p.id]||0} / ${p.max_students}</td>
+      <td><span class="badge" style="background:${p.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${p.is_active?'#4ade80':'#f87171'}">${p.is_active?'Active':'Inactive'}</span></td>
+      <td>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editInternProj('${p.id}')">Edit</button>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteInternProj('${p.id}','${_adm_esc(p.project_name)}')">Delete</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openInternProjModal(existingId) {
+  document.getElementById('ipj-id').value = existingId || '';
+  document.getElementById('intern-proj-modal-title').textContent = existingId ? 'Edit Project' : 'New Internship Project';
+  if (!existingId) {
+    ['ipj-name','ipj-client','ipj-country','ipj-domain','ipj-desc','ipj-detail','ipj-tech','ipj-outcomes','ipj-tasks'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('ipj-weeks').value = '4';
+    document.getElementById('ipj-max').value   = '10';
+    document.getElementById('ipj-active').value = 'true';
+  }
+  openModal('intern-proj-modal');
+}
+
+async function editInternProj(id) {
+  const { data: p } = await db.client.from('internship_projects').select('*').eq('id',id).single();
+  if (!p) return;
+  document.getElementById('ipj-id').value      = p.id;
+  document.getElementById('ipj-name').value    = p.project_name;
+  document.getElementById('ipj-client').value  = p.client_name;
+  document.getElementById('ipj-country').value = p.country;
+  document.getElementById('ipj-domain').value  = p.domain||'';
+  document.getElementById('ipj-desc').value    = p.description||'';
+  document.getElementById('ipj-detail').value  = p.detailed_description||'';
+  document.getElementById('ipj-tech').value    = (p.tech_stack||[]).join(', ');
+  document.getElementById('ipj-outcomes').value= (p.learning_outcomes||[]).join('\n');
+  document.getElementById('ipj-tasks').value   = JSON.stringify(p.tasks||[], null, 2);
+  document.getElementById('ipj-weeks').value   = p.duration_weeks;
+  document.getElementById('ipj-max').value     = p.max_students;
+  document.getElementById('ipj-active').value  = String(p.is_active);
+  document.getElementById('intern-proj-modal-title').textContent = 'Edit Project';
+  openModal('intern-proj-modal');
+}
+
+async function saveInternProj() {
+  const id       = document.getElementById('ipj-id').value;
+  const name     = document.getElementById('ipj-name').value.trim();
+  const client   = document.getElementById('ipj-client').value.trim();
+  const country  = document.getElementById('ipj-country').value.trim();
+  const domain   = document.getElementById('ipj-domain').value.trim();
+  const desc     = document.getElementById('ipj-desc').value.trim();
+  const detail   = document.getElementById('ipj-detail').value.trim();
+  const techRaw  = document.getElementById('ipj-tech').value.trim();
+  const outRaw   = document.getElementById('ipj-outcomes').value.trim();
+  const tasksRaw = document.getElementById('ipj-tasks').value.trim();
+  const weeks    = parseInt(document.getElementById('ipj-weeks').value,10);
+  const maxS     = parseInt(document.getElementById('ipj-max').value,10);
+  const active   = document.getElementById('ipj-active').value === 'true';
+
+  if (!name || !client || !country) { _showAdminToast('Project name, client, and country are required.','error'); return; }
+
+  let tasks = [];
+  if (tasksRaw) {
+    try { tasks = JSON.parse(tasksRaw); }
+    catch { _showAdminToast('Tasks JSON is invalid. Please fix before saving.','error'); return; }
+  }
+
+  const tech     = techRaw   ? techRaw.split(',').map(s=>s.trim()).filter(Boolean)  : [];
+  const outcomes = outRaw    ? outRaw.split('\n').map(s=>s.trim()).filter(Boolean) : [];
+
+  const { data: adminData } = await db.client.auth.getUser();
+  const payload = {
+    project_name: name, client_name: client, country, domain, description: desc,
+    detailed_description: detail, tech_stack: tech, learning_outcomes: outcomes,
+    tasks, duration_weeks: weeks, max_students: maxS, is_active: active,
+    created_by: adminData?.user?.id || null,
+  };
+
+  const { error } = id
+    ? await db.client.from('internship_projects').update(payload).eq('id',id)
+    : await db.client.from('internship_projects').insert(payload);
+
+  if (error) { _showAdminToast('Save failed: ' + error.message,'error'); return; }
+  _showAdminToast(id ? 'Project updated!' : 'Project created!','success');
+  closeModal('intern-proj-modal');
+  loadInternProjects();
+}
+
+async function deleteInternProj(id, name) {
+  if (!confirm(`Delete project "${name}"? This will also remove all enrollments and reports.`)) return;
+  const { error } = await db.client.from('internship_projects').delete().eq('id',id);
+  if (error) { _showAdminToast('Delete failed: ' + error.message,'error'); return; }
+  _showAdminToast('Project deleted.','success');
+  loadInternProjects();
+}
+
+/* ============================================================
+   STUDENT ENROLLMENTS
+   ============================================================ */
+async function loadInternStudents() {
+  const tbody  = document.getElementById('intern-students-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  const statusF = document.getElementById('intern-enrol-filter')?.value;
+
+  let q = db.client
+    .from('internship_enrollments')
+    .select('*, internship_projects(project_name)')
+    .order('enrolled_at', { ascending: false });
+  if (statusF) q = q.eq('approval_status', statusF);
+
+  const { data: enrols, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!enrols?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No enrollments found.</td></tr>'; return; }
+
+  // Fetch student names separately
+  const studentIds = [...new Set(enrols.map(e => e.student_user_id))];
+  const { data: profiles } = await db.client
+    .from('user_profiles')
+    .select('user_id, full_name, email')
+    .in('user_id', studentIds);
+  const profileMap = {};
+  (profiles||[]).forEach(p => { profileMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+
+  // Fetch report counts and attendance per enrollment
+  const enrolIds = enrols.map(e => e.id);
+  const [{ data: rptCounts }, { data: atdAll }] = await Promise.all([
+    db.client.from('internship_daily_reports').select('enrollment_id').in('enrollment_id', enrolIds),
+    db.client.from('internship_attendance').select('enrollment_id,status').in('enrollment_id', enrolIds),
+  ]);
+  const rptMap = {}; (rptCounts||[]).forEach(r => { rptMap[r.enrollment_id] = (rptMap[r.enrollment_id]||0)+1; });
+  const atdMap = {}; (atdAll||[]).forEach(a => {
+    if (!atdMap[a.enrollment_id]) atdMap[a.enrollment_id] = { p:0, t:0 };
+    atdMap[a.enrollment_id].t++;
+    if (['present','late','half_day'].includes(a.status)) atdMap[a.enrollment_id].p++;
+  });
+
+  const sColors = { pending:'#fbbf24', approved:'#4ade80', rejected:'#f87171' };
+  tbody.innerHTML = enrols.map(e => {
+    const sName = profileMap[e.student_user_id] || '—';
+    const pName = e.internship_projects?.project_name || '—';
+    const sc    = sColors[e.approval_status] || '#fff';
+    const atd   = atdMap[e.id];
+    const pct   = atd?.t ? Math.round(atd.p / atd.t * 100) + '%' : '—';
+    const rpts  = rptMap[e.id] || 0;
+    const dt    = new Date(e.enrolled_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+    const sNameE = _adm_esc(sName), pNameE = _adm_esc(pName);
+    return `<tr>
+      <td>${sNameE}</td>
+      <td>${pNameE}</td>
+      <td>${dt}</td>
+      <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}44">${e.approval_status}</span></td>
+      <td>${rpts}</td>
+      <td>${pct}</td>
+      <td>
+        ${e.approval_status === 'pending' ? `
+          <button class="btn-primary"   style="font-size:.72rem;padding:.25rem .55rem" onclick="approveEnrol('${e.id}','${sNameE}')">✅ Approve</button>
+          <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;color:#f87171;margin-left:.25rem" onclick="rejectEnrol('${e.id}')">❌ Reject</button>` : ''}
+        ${e.approval_status === 'approved' ? `
+          <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem" onclick="openSetDateModal('${e.id}','${e.start_date||''}','${e.end_date||''}')">📅 Dates</button>
+          <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;margin-left:.25rem" onclick="generateStudentReport('${e.id}','${sNameE}','${pNameE}')">📄 Report</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function approveEnrol(enrollId, studentName) {
+  if (!confirm(`Approve internship for "${studentName}"?`)) return;
+  const { data: { user } } = await db.client.auth.getUser();
+  const { error } = await db.client.from('internship_enrollments').update({
+    approval_status: 'approved',
+    approved_by: user?.id,
+    approved_at: new Date().toISOString(),
+  }).eq('id', enrollId);
+  if (error) { _showAdminToast('Approval failed: ' + error.message,'error'); return; }
+  _showAdminToast('Enrollment approved!','success');
+  _updateInternBadge();
+  loadInternStudents();
+}
+
+async function rejectEnrol(enrollId) {
+  const reason = prompt('Rejection reason (optional):');
+  if (reason === null) return;
+  const { error } = await db.client.from('internship_enrollments').update({
+    approval_status: 'rejected',
+    rejection_reason: reason || null,
+  }).eq('id', enrollId);
+  if (error) { _showAdminToast('Rejection failed: ' + error.message,'error'); return; }
+  _showAdminToast('Enrollment rejected.','success');
+  _updateInternBadge();
+  loadInternStudents();
+}
+
+function openSetDateModal(enrollId, startDate, endDate) {
+  document.getElementById('isd-enrol-id').value = enrollId;
+  document.getElementById('isd-start').value    = startDate || '';
+  document.getElementById('isd-end').value      = endDate   || '';
+  openModal('intern-date-modal');
+}
+
+async function saveInternDates() {
+  const id    = document.getElementById('isd-enrol-id').value;
+  const start = document.getElementById('isd-start').value;
+  const end   = document.getElementById('isd-end').value;
+  if (!start || !end) { _showAdminToast('Both start and end dates are required.','error'); return; }
+  const { error } = await db.client.from('internship_enrollments').update({ start_date: start, end_date: end }).eq('id',id);
+  if (error) { _showAdminToast('Save failed: ' + error.message,'error'); return; }
+  _showAdminToast('Dates saved!','success');
+  closeModal('intern-date-modal');
+  loadInternStudents();
+}
+
+/* ============================================================
+   DAILY REPORTS
+   ============================================================ */
+async function loadInternReports() {
+  const tbody   = document.getElementById('intern-rpt-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+  const projF   = document.getElementById('intern-rpt-proj-filter')?.value;
+  const statusF = document.getElementById('intern-rpt-status-filter')?.value;
+
+  let q = db.client
+    .from('internship_daily_reports')
+    .select('*, internship_enrollments(project_id, student_user_id, internship_projects(project_name))')
+    .order('report_date', { ascending: false });
+  if (statusF) q = q.eq('report_status', statusF);
+  if (projF)   q = q.eq('internship_enrollments.project_id', projF);
+
+  const { data: rpts, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!rpts?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No reports found.</td></tr>'; return; }
+
+  // Fetch student names
+  const studentIds = [...new Set(rpts.map(r => r.student_user_id))];
+  const { data: profiles } = await db.client
+    .from('user_profiles').select('user_id,full_name,email').in('user_id', studentIds);
+  const profMap = {};
+  (profiles||[]).forEach(p => { profMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+
+  const moodEmoji = { 1:'😤', 2:'😕', 3:'😐', 4:'😊', 5:'🤩' };
+  const sc = { submitted:'#fbbf24', reviewed:'#60a5fa', flagged:'#f87171', approved:'#4ade80' };
+  tbody.innerHTML = rpts.map(r => {
+    const sName = profMap[r.student_user_id] || '—';
+    const pName = r.internship_enrollments?.internship_projects?.project_name || '—';
+    const col   = sc[r.report_status] || '#fbbf24';
+    const sm    = (r.work_summary||'').slice(0,50) + (r.work_summary?.length>50?'…':'');
+    return `<tr>
+      <td>${r.report_date||'—'}</td>
+      <td>${_adm_esc(sName)}</td>
+      <td>${_adm_esc(pName)}</td>
+      <td>${Number(r.hours_worked).toFixed(1)}h</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${_adm_esc(r.work_summary)}">${_adm_esc(sm)}</td>
+      <td style="text-align:center">${moodEmoji[r.mood_rating]||'—'}</td>
+      <td><span class="badge" style="background:${col}18;color:${col};border:1px solid ${col}44">${r.report_status}</span></td>
+      <td><button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem" onclick="openReportReview('${r.id}')">Review</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function openReportReview(reportId) {
+  const { data: r } = await db.client
+    .from('internship_daily_reports')
+    .select('*, internship_enrollments(student_user_id, internship_projects(project_name))')
+    .eq('id', reportId)
+    .single();
+  if (!r) return;
+
+  const pName = r.internship_enrollments?.internship_projects?.project_name || '—';
+  // Fetch student name separately
+  let sName = '—';
+  if (r.internship_enrollments?.student_user_id) {
+    const { data: prof } = await db.client
+      .from('user_profiles').select('full_name,email')
+      .eq('user_id', r.internship_enrollments.student_user_id).single();
+    sName = prof?.full_name || prof?.email || '—';
+  }
+  const moodEmoji = { 1:'😤 Frustrated',2:'😕 Uncertain',3:'😐 Okay',4:'😊 Good',5:'🤩 Excellent' };
+
+  document.getElementById('irr-id').value    = r.id;
+  document.getElementById('irr-notes').value = r.admin_notes || '';
+  document.getElementById('irr-status').value = r.report_status || 'submitted';
+  document.getElementById('irr-info').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;font-size:.85rem;margin-bottom:.75rem">
+      <div><span style="opacity:.55;font-size:.75rem">STUDENT</span><br><strong>${_adm_esc(sName)}</strong></div>
+      <div><span style="opacity:.55;font-size:.75rem">PROJECT</span><br><strong>${_adm_esc(pName)}</strong></div>
+      <div><span style="opacity:.55;font-size:.75rem">DATE</span><br>${r.report_date||'—'}</div>
+      <div><span style="opacity:.55;font-size:.75rem">HOURS</span><br>${Number(r.hours_worked).toFixed(1)}h</div>
+      <div><span style="opacity:.55;font-size:.75rem">MOOD</span><br>${moodEmoji[r.mood_rating]||'—'}</div>
+    </div>
+    <div style="margin-bottom:.75rem">
+      <div style="opacity:.55;font-size:.75rem;margin-bottom:.25rem">WORK SUMMARY</div>
+      <div style="font-size:.85rem;line-height:1.6;padding:.75rem;background:rgba(124,92,252,.05);border:1px solid var(--border);border-radius:8px;white-space:pre-wrap">${_adm_esc(r.work_summary||'')}</div>
+    </div>
+    ${r.challenges?`<div style="margin-bottom:.75rem"><div style="opacity:.55;font-size:.75rem;margin-bottom:.25rem">CHALLENGES</div><div style="font-size:.84rem;color:rgba(248,113,113,.8)">${_adm_esc(r.challenges)}</div></div>`:''}
+    ${r.next_day_plan?`<div><div style="opacity:.55;font-size:.75rem;margin-bottom:.25rem">PLAN FOR TOMORROW</div><div style="font-size:.84rem;color:rgba(74,222,128,.8)">${_adm_esc(r.next_day_plan)}</div></div>`:''}
+  `;
+  openModal('intern-report-review-modal');
+}
+
+async function saveReportReview() {
+  const id     = document.getElementById('irr-id').value;
+  const notes  = document.getElementById('irr-notes').value.trim();
+  const status = document.getElementById('irr-status').value;
+  const { data: { user } } = await db.client.auth.getUser();
+  const { error } = await db.client.from('internship_daily_reports').update({
+    admin_notes: notes || null,
+    report_status: status,
+    reviewed_at: new Date().toISOString(),
+    reviewed_by: user?.id,
+  }).eq('id',id);
+  if (error) { _showAdminToast('Save failed: ' + error.message,'error'); return; }
+  _showAdminToast('Review saved!','success');
+  closeModal('intern-report-review-modal');
+  loadInternReports();
+}
+
+/* ============================================================
+   ATTENDANCE
+   ============================================================ */
+async function loadInternAttendance() {
+  const tbody   = document.getElementById('intern-atd-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+  const projF   = document.getElementById('intern-atd-proj-filter')?.value;
+  const dateF   = document.getElementById('intern-atd-date-filter')?.value;
+
+  let q = db.client
+    .from('internship_attendance')
+    .select('*, internship_enrollments(project_id, student_user_id, internship_projects(project_name))')
+    .order('attendance_date', { ascending: false });
+  if (dateF) q = q.eq('attendance_date', dateF);
+  if (projF) q = q.eq('internship_enrollments.project_id', projF);
+
+  const { data: records, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!records?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No records yet. Use "Mark Attendance" to add records.</td></tr>'; return; }
+
+  // Fetch student names
+  const studentIds = [...new Set(records.map(a => a.student_user_id))];
+  const { data: profiles } = await db.client
+    .from('user_profiles').select('user_id,full_name,email').in('user_id', studentIds);
+  const profMap = {};
+  (profiles||[]).forEach(p => { profMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+
+  const dotColor = { present:'#4ade80', absent:'#f87171', late:'#fbbf24', half_day:'#60a5fa', holiday:'#a5b4fc', excused:'rgba(200,191,255,.5)' };
+  tbody.innerHTML = records.map(a => {
+    const sName = profMap[a.student_user_id] || '—';
+    const pName = a.internship_enrollments?.internship_projects?.project_name || '—';
+    const col   = dotColor[a.status] || '#fff';
+    return `<tr>
+      <td>${a.attendance_date||'—'}</td>
+      <td>${_adm_esc(sName)}</td>
+      <td>${_adm_esc(pName)}</td>
+      <td><span style="width:9px;height:9px;border-radius:50%;background:${col};display:inline-block;margin-right:5px"></span>${a.status}</td>
+      <td>${a.check_in_time||'—'}</td>
+      <td>${a.check_out_time||'—'}</td>
+      <td style="font-size:.79rem;color:var(--txt2)">${_adm_esc(a.notes||'—')}</td>
+      <td><button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem" onclick="editAttendanceRecord('${a.id}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function openBulkAttendModal() {
+  const { data: enrols } = await db.client
+    .from('internship_enrollments')
+    .select('id, student_user_id, internship_projects(project_name)')
+    .eq('approval_status', 'approved');
+
+  // Fetch student names
+  const studentIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
+  const { data: profiles } = studentIds.length
+    ? await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id', studentIds)
+    : { data: [] };
+  const profMap = {};
+  (profiles||[]).forEach(p => { profMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+
+  const sel = document.getElementById('ibatd-enrol');
+  sel.innerHTML = '<option value="">Select student…</option>' +
+    (enrols||[]).map(e => {
+      const sN = profMap[e.student_user_id] || '—';
+      const pN = e.internship_projects?.project_name || '—';
+      return `<option value="${e.id}">${_adm_esc(sN)} — ${_adm_esc(pN)}</option>`;
+    }).join('');
+  document.getElementById('ibatd-date').value     = new Date().toISOString().split('T')[0];
+  document.getElementById('ibatd-status').value   = 'present';
+  document.getElementById('ibatd-checkin').value  = '';
+  document.getElementById('ibatd-checkout').value = '';
+  document.getElementById('ibatd-notes').value    = '';
+  openModal('intern-attend-modal');
+}
+
+async function saveBulkAttendance() {
+  const enrollId = document.getElementById('ibatd-enrol').value;
+  const date     = document.getElementById('ibatd-date').value;
+  const status   = document.getElementById('ibatd-status').value;
+  const checkin  = document.getElementById('ibatd-checkin').value  || null;
+  const checkout = document.getElementById('ibatd-checkout').value || null;
+  const notes    = document.getElementById('ibatd-notes').value.trim()   || null;
+  if (!enrollId || !date || !status) { _showAdminToast('Student, date, and status are required.','error'); return; }
+
+  // Get student_user_id from enrollment
+  const { data: enrol } = await db.client.from('internship_enrollments').select('student_user_id').eq('id',enrollId).single();
+  if (!enrol) { _showAdminToast('Enrollment not found.','error'); return; }
+
+  const { data: adminData } = await db.client.auth.getUser();
+  const { error } = await db.client.from('internship_attendance').upsert({
+    enrollment_id: enrollId,
+    student_user_id: enrol.student_user_id,
+    attendance_date: date,
+    status,
+    check_in_time:  checkin,
+    check_out_time: checkout,
+    notes,
+    marked_by: adminData?.user?.id || null,
+    marked_at: new Date().toISOString(),
+  }, { onConflict: 'enrollment_id,attendance_date' });
+
+  if (error) { _showAdminToast('Save failed: ' + error.message,'error'); return; }
+  _showAdminToast('Attendance saved!','success');
+  closeModal('intern-attend-modal');
+  loadInternAttendance();
+}
+
+async function editAttendanceRecord(atdId) {
+  const { data: a } = await db.client.from('internship_attendance').select('*').eq('id',atdId).single();
+  if (!a) return;
+  const { data: enrols } = await db.client
+    .from('internship_enrollments')
+    .select('id, student_user_id, internship_projects(project_name)')
+    .eq('approval_status', 'approved');
+
+  const studentIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
+  const { data: profiles } = studentIds.length
+    ? await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id', studentIds)
+    : { data: [] };
+  const profMap = {};
+  (profiles||[]).forEach(p => { profMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+
+  const sel = document.getElementById('ibatd-enrol');
+  sel.innerHTML = '<option value="">Select student…</option>' +
+    (enrols||[]).map(e => {
+      const sN = profMap[e.student_user_id] || '—';
+      const pN = e.internship_projects?.project_name || '—';
+      return `<option value="${e.id}"${e.id===a.enrollment_id?' selected':''}>${_adm_esc(sN)} — ${_adm_esc(pN)}</option>`;
+    }).join('');
+  document.getElementById('ibatd-date').value     = a.attendance_date;
+  document.getElementById('ibatd-status').value   = a.status;
+  document.getElementById('ibatd-checkin').value  = a.check_in_time  || '';
+  document.getElementById('ibatd-checkout').value = a.check_out_time || '';
+  document.getElementById('ibatd-notes').value    = a.notes || '';
+  openModal('intern-attend-modal');
+}
+
+/* ============================================================
+   PDF REPORT — Admin generates for individual student
+   ============================================================ */
+async function generateStudentReport(enrollId, studentName, projectName) {
+  if (!window.jspdf?.jsPDF) { _showAdminToast('jsPDF not loaded.','error'); return; }
+  const { jsPDF } = window.jspdf;
+
+  const [{ data: rpts }, { data: atd }, { data: enrol }] = await Promise.all([
+    db.client.from('internship_daily_reports').select('*').eq('enrollment_id', enrollId).order('report_date', { ascending: true }),
+    db.client.from('internship_attendance').select('status').eq('enrollment_id', enrollId),
+    db.client.from('internship_enrollments').select('*, internship_projects(*)').eq('id', enrollId).single(),
+  ]);
+
+  const present = (atd||[]).filter(a=>['present','late'].includes(a.status)).length;
+  const total   = (atd||[]).length;
+  const pct     = total ? Math.round(present/total*100) : 0;
+  const proj    = enrol?.internship_projects;
+  const totalH  = (rpts||[]).reduce((s,r) => s + Number(r.hours_worked||0), 0);
+
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const pw  = doc.internal.pageSize.getWidth();
+
+  doc.setFillColor(124,92,252); doc.rect(0,0,pw,26,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text('SkillUpNow — Internship Progress Report', 14, 11);
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('ADMIN COPY — CONFIDENTIAL', 14, 19);
+  doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, pw-14, 19, { align:'right' });
+
+  let y = 36;
+  doc.setTextColor(20,10,50); doc.setFontSize(9.5); doc.setFont('helvetica','bold');
+  doc.text('Student & Project Information', 14, y); y += 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text(`Student:   ${studentName}`, 14, y); y += 5;
+  doc.text(`Project:   ${proj?.project_name||projectName}`, 14, y); y += 5;
+  doc.text(`Client:    ${proj?.client_name||'—'}  |  Country: ${proj?.country||'—'}`, 14, y); y += 5;
+  doc.text(`Duration:  ${proj?.duration_weeks||'—'} weeks`, 14, y); y += 5;
+  if (enrol?.approved_at) doc.text(`Approved:  ${new Date(enrol.approved_at).toLocaleDateString('en-IN')}`, 14, y), y += 5;
+  if (enrol?.start_date)  doc.text(`Period:    ${enrol.start_date} to ${enrol.end_date||'ongoing'}`, 14, y), y += 5;
+
+  y += 4; doc.setDrawColor(200,190,255); doc.line(14, y, pw-14, y); y += 6;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+  doc.text('Summary Statistics', 14, y); y += 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text(`Total Reports Submitted: ${(rpts||[]).length}`, 14, y); y += 5;
+  doc.text(`Total Hours Logged:      ${totalH.toFixed(1)}h`, 14, y); y += 5;
+  doc.text(`Days Present:            ${present} / ${total}  (${pct}%)`, 14, y); y += 8;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+  doc.text('Daily Reports', 14, y); y += 6;
+  const cols = [14, 36, 52, 108, 147];
+  doc.setFillColor(210,200,255); doc.rect(12,y-4,pw-24,6,'F');
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  ['Date','Hours','Summary','Challenges','Status'].forEach((h,i) => doc.text(h, cols[i], y));
+  y += 5; doc.setFont('helvetica','normal');
+  for (const r of (rpts||[])) {
+    if (y > 268) { doc.addPage(); y = 20; }
+    doc.text(r.report_date||'', cols[0], y);
+    doc.text(String(r.hours_worked||0), cols[1], y);
+    doc.text(((r.work_summary||'').slice(0,50)+(r.work_summary?.length>50?'…':'')), cols[2], y);
+    doc.text(((r.challenges||'—').slice(0,32)+((r.challenges?.length||0)>32?'…':'')), cols[3], y);
+    doc.text(r.report_status||'', cols[4], y);
+    y += 5; doc.setDrawColor(225,220,245); doc.line(12,y-1,pw-12,y-1);
+  }
+
+  doc.save(`intern-report-${studentName.replace(/\s+/g,'-')}-admin.pdf`);
+  _showAdminToast('PDF generated!','success');
+}
+
+/* ============================================================
+   EXPORT CSV
+   ============================================================ */
+function exportInternStudentsCSV() {
+  const tbody = document.getElementById('intern-students-tbody');
+  if (!tbody) return;
+  const rows = [...tbody.querySelectorAll('tr')];
+  const csv  = rows.map(r => [...r.querySelectorAll('td')].map(td => '"'+td.textContent.replace(/"/g,'""').trim()+'"').join(',')).join('\n');
+  const a    = document.createElement('a');
+  a.href     = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
+  a.download = 'internship-students-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+function exportInternReportsCSV() {
+  const tbody = document.getElementById('intern-rpt-tbody');
+  if (!tbody) return;
+  const rows = [...tbody.querySelectorAll('tr')];
+  const csv  = rows.map(r => [...r.querySelectorAll('td')].map(td => '"'+td.textContent.replace(/"/g,'""').trim()+'"').join(',')).join('\n');
+  const a    = document.createElement('a');
+  a.href     = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
+  a.download = 'internship-reports-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+function _adm_esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // ===== SIDEBAR TOGGLE =====
 (function setupSidebar() {
   const sidebar = document.getElementById('sidebar');
@@ -7176,7 +7912,7 @@ async function cancelSchedule(id) {
     'dashboard','courses','categories','users','mentors',
     'enrollments','batches','payments','emi','pricing',
     'discounts','referrals','reports','recordings','schedules',
-    'reviews','forms','inquiries',
+    'reviews','forms','inquiries','internships',
   ];
   // Map single letter shortcuts → section keys (used with Alt)
   const ALT_MAP = {
@@ -7232,5 +7968,169 @@ async function cancelSchedule(id) {
   initRealtime();
 })();
 </script>
+
+<!-- ===== INTERNSHIP MODALS ===== -->
+
+<!-- Internship Project Modal -->
+<div class="modal-overlay" id="intern-proj-modal" onclick="if(event.target===this)closeModal('intern-proj-modal')">
+  <div class="modal-box" style="max-width:640px;max-height:90vh;overflow-y:auto">
+    <div class="modal-close" onclick="closeModal('intern-proj-modal')">✕</div>
+    <div class="modal-title" id="intern-proj-modal-title">New Internship Project</div>
+    <input type="hidden" id="ipj-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group" style="grid-column:1/-1">
+        <label>Project Name *</label>
+        <input type="text" id="ipj-name" placeholder="e.g. AI Chatbot Development">
+      </div>
+      <div class="f-group">
+        <label>Client Name *</label>
+        <input type="text" id="ipj-client" placeholder="e.g. TechCorp India">
+      </div>
+      <div class="f-group">
+        <label>Country *</label>
+        <input type="text" id="ipj-country" placeholder="e.g. India" value="India">
+      </div>
+      <div class="f-group">
+        <label>Domain</label>
+        <input type="text" id="ipj-domain" placeholder="e.g. Web Development, Data Science">
+      </div>
+      <div class="f-group">
+        <label>Duration (weeks)</label>
+        <input type="number" id="ipj-weeks" min="1" max="52" value="4">
+      </div>
+      <div class="f-group">
+        <label>Max Students</label>
+        <input type="number" id="ipj-max" min="1" max="100" value="10">
+      </div>
+      <div class="f-group">
+        <label>Active</label>
+        <select id="ipj-active">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="f-group">
+      <label>General Description (shown before approval)</label>
+      <textarea id="ipj-desc" style="min-height:70px" placeholder="Brief project overview visible to all students…"></textarea>
+    </div>
+    <div class="f-group">
+      <label>Detailed Description (shown after approval only)</label>
+      <textarea id="ipj-detail" style="min-height:90px" placeholder="Full project scope, objectives, deliverables…"></textarea>
+    </div>
+    <div class="f-group">
+      <label>Tech Stack (comma-separated)</label>
+      <input type="text" id="ipj-tech" placeholder="e.g. React, Node.js, PostgreSQL, Python">
+    </div>
+    <div class="f-group">
+      <label>Learning Outcomes (one per line)</label>
+      <textarea id="ipj-outcomes" style="min-height:70px" placeholder="What students will learn from this internship…"></textarea>
+    </div>
+    <div class="f-group">
+      <label>Tasks (JSON array — format: <code>[{"title":"…","description":"…","deadline_days":7}]</code>)</label>
+      <textarea id="ipj-tasks" style="min-height:100px;font-family:monospace;font-size:.8rem" placeholder='[{"title":"Setup Project","description":"Initialize the repository and configure the environment.","deadline_days":3}]'></textarea>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:0.5rem">
+      <button class="btn-primary" onclick="saveInternProj()">Save Project</button>
+      <button class="btn-secondary" onclick="closeModal('intern-proj-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Internship Dates Modal -->
+<div class="modal-overlay" id="intern-date-modal" onclick="if(event.target===this)closeModal('intern-date-modal')">
+  <div class="modal-box" style="max-width:400px">
+    <div class="modal-close" onclick="closeModal('intern-date-modal')">✕</div>
+    <div class="modal-title">Set Internship Dates</div>
+    <input type="hidden" id="isd-enrol-id">
+    <div class="f-group">
+      <label>Start Date *</label>
+      <input type="date" id="isd-start">
+    </div>
+    <div class="f-group">
+      <label>End Date *</label>
+      <input type="date" id="isd-end">
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:0.5rem">
+      <button class="btn-primary" onclick="saveInternDates()">Save Dates</button>
+      <button class="btn-secondary" onclick="closeModal('intern-date-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Review Modal -->
+<div class="modal-overlay" id="intern-report-review-modal" onclick="if(event.target===this)closeModal('intern-report-review-modal')">
+  <div class="modal-box" style="max-width:560px;max-height:88vh;overflow-y:auto">
+    <div class="modal-close" onclick="closeModal('intern-report-review-modal')">✕</div>
+    <div class="modal-title">Review Daily Report</div>
+    <input type="hidden" id="irr-id">
+    <div id="irr-info" style="margin-bottom:1rem;padding:.9rem;background:rgba(124,92,252,.05);border:1px solid rgba(124,92,252,.15);border-radius:10px"></div>
+    <div class="f-group">
+      <label>Admin Notes / Feedback</label>
+      <textarea id="irr-notes" style="min-height:80px" placeholder="Add feedback, corrections, or encouragement…"></textarea>
+    </div>
+    <div class="f-group">
+      <label>Update Status</label>
+      <select id="irr-status">
+        <option value="submitted">Submitted</option>
+        <option value="reviewed">Reviewed</option>
+        <option value="approved">Approved</option>
+        <option value="flagged">Flagged</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:0.5rem">
+      <button class="btn-primary" onclick="saveReportReview()">Save Review</button>
+      <button class="btn-secondary" onclick="closeModal('intern-report-review-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attendance Mark Modal -->
+<div class="modal-overlay" id="intern-attend-modal" onclick="if(event.target===this)closeModal('intern-attend-modal')">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-close" onclick="closeModal('intern-attend-modal')">✕</div>
+    <div class="modal-title">Mark Attendance</div>
+    <div class="f-group">
+      <label>Student (Approved Enrollment) *</label>
+      <select id="ibatd-enrol">
+        <option value="">Loading…</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group">
+        <label>Date *</label>
+        <input type="date" id="ibatd-date">
+      </div>
+      <div class="f-group">
+        <label>Status *</label>
+        <select id="ibatd-status">
+          <option value="present">Present</option>
+          <option value="absent">Absent</option>
+          <option value="late">Late</option>
+          <option value="half_day">Half Day</option>
+          <option value="holiday">Holiday</option>
+          <option value="excused">Excused</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label>Check In Time</label>
+        <input type="time" id="ibatd-checkin">
+      </div>
+      <div class="f-group">
+        <label>Check Out Time</label>
+        <input type="time" id="ibatd-checkout">
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Notes</label>
+      <input type="text" id="ibatd-notes" placeholder="Optional notes…">
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:0.5rem">
+      <button class="btn-primary" onclick="saveBulkAttendance()">Save Attendance</button>
+      <button class="btn-secondary" onclick="closeModal('intern-attend-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

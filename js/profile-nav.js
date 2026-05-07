@@ -373,10 +373,11 @@ class ProfileNavigationManager {
     const pageSuffix = window.location.protocol === 'file:' ? '.html' : '';
     const homeHref = window.location.protocol === 'file:' ? `${r || './'}index.html` : (r || '/');
     const path = window.location.pathname.replace(/\\/g, '/');
-    const isHome    = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index');
-    const isCourses = path.includes('courses');
-    const isPamphlet = path.includes('pamphlet');
-    const isContact = path.includes('contact-enquiry') || path.includes('forms');
+    const isHome       = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index');
+    const isCourses    = path.includes('courses');
+    const isPamphlet   = path.includes('pamphlet');
+    const isContact    = path.includes('contact-enquiry') || path.includes('forms');
+    const isInternship = path.includes('internship');
 
     return `
       <a href="${homeHref}" class="nav-logo" aria-label="SkillUpNow Home" style="padding:0;background:none;gap:0;">
@@ -385,10 +386,11 @@ class ProfileNavigationManager {
       </a>
 
       <ul class="nav-links" id="nav-links-list" role="navigation" aria-label="Main navigation">
-        <li><a href="${homeHref}"                        class="nav-link-item ${isHome    ? 'active' : ''}">Home</a></li>
-        <li><a href="${p}courses${pageSuffix}"                        class="nav-link-item ${isCourses ? 'active' : ''}">Courses</a></li>
-        <li><a href="${p}pamphlet${pageSuffix}"                       class="nav-link-item ${isPamphlet ? 'active' : ''}">Pamphlet</a></li>
-        <li><a href="${p}contact-enquiry${pageSuffix}"                class="nav-link-item ${isContact ? 'active' : ''}">Contact & Forms</a></li>
+        <li><a href="${homeHref}"                        class="nav-link-item ${isHome       ? 'active' : ''}">Home</a></li>
+        <li><a href="${p}courses${pageSuffix}"           class="nav-link-item ${isCourses    ? 'active' : ''}">Courses</a></li>
+        <li><a href="${p}internship${pageSuffix}"        class="nav-link-item ${isInternship ? 'active' : ''}">Internship</a></li>
+        <li><a href="${p}pamphlet${pageSuffix}"          class="nav-link-item ${isPamphlet   ? 'active' : ''}">Pamphlet</a></li>
+        <li><a href="${p}contact-enquiry${pageSuffix}"   class="nav-link-item ${isContact    ? 'active' : ''}">Contact & Forms</a></li>
       </ul>
 
       <div class="nav-actions" id="nav-actions">
@@ -548,10 +550,10 @@ class ProfileNavigationManager {
           <h5 class="footer-col-title" style="margin-bottom:.3rem;">Platform</h5>
           <ul class="footer-col-links">
             <li><a href="${p}courses${pageSuffix}"          class="footer-link">All Courses</a></li>
-            <li><a href="${p}recording-videos${pageSuffix}" class="footer-link">Recorded Sessions</a></li>
+            <li><a href="${p}internship${pageSuffix}"       class="footer-link">Internship</a></li>
             <li><a href="${p}emi-application${pageSuffix}"  class="footer-link">EMI Options</a></li>
             <li><a href="${p}pamphlet${pageSuffix}"         class="footer-link">Brochure</a></li>
-            <li><a href="${p}contact-enquiry${pageSuffix}"            class="footer-link">Application Forms</a></li>
+            <li><a href="${p}contact-enquiry${pageSuffix}"  class="footer-link">Application Forms</a></li>
           </ul>
         </div>
 

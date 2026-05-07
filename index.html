@@ -1813,12 +1813,24 @@
     :root[data-theme="light"] #rv-modal-box { background:rgba(255,255,255,.96); }
 
     @media(max-width:640px) {
-      .rv-title { font-size:1.6rem; }
-      .rv-header { flex-direction:column; align-items:flex-start; }
-      .rv-card  { flex:0 0 260px; }
-      .rv-carousel-clip { margin:0 32px; }
-      .rv-nav { width:36px; height:36px; }
-      #rv-modal-box { padding:1.8rem 1.4rem 1.5rem; }
+      .rv-section { padding: 2.5rem 4vw 3rem; }
+      .rv-title { font-size:1.5rem; }
+      .rv-sub { font-size:.82rem; }
+      .rv-header { flex-direction:column; align-items:flex-start; gap:1rem; }
+      .rv-explore-btn { font-size:.78rem; padding:.5rem 1.1rem; }
+      .rv-card  { flex:0 0 min(260px, calc(100vw - 88px)); }
+      .rv-carousel-clip { margin:0 36px; }
+      .rv-nav { width:34px; height:34px; }
+      .rv-nav svg { width:14px; height:14px; }
+      .rv-filters { gap:.38rem; }
+      .rv-filter { font-size:.72rem; padding:.3rem .75rem; }
+      #rv-modal-box { padding:1.8rem 1.2rem 1.5rem; }
+    }
+    @media(max-width:380px) {
+      .rv-card { flex: 0 0 calc(100vw - 64px); }
+      .rv-carousel-clip { margin: 0 26px; }
+      .rv-nav { width: 28px; height: 28px; }
+      .rv-nav svg { width: 12px; height: 12px; }
     }
 
     /* ── 3D animations for home course cards ── */
