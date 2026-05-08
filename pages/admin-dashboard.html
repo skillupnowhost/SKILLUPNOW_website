@@ -374,7 +374,7 @@
         <span class="nav-icon">👨‍👩‍👧‍👦</span> Batches
       </div>
       <div class="nav-item" data-section="internships">
-        <span class="nav-icon">🎓</span> Internships
+        <span class="nav-icon">🗂️</span> Projects
         <span class="badge" id="intern-badge" style="display:none">0</span>
       </div>
     </div>
@@ -1527,10 +1527,14 @@
       </style>
 
       <div class="it-sub-tabs">
-        <button class="it-sub-tab active" data-itab="projects"   onclick="switchInternTab('projects')">📁 Projects</button>
-        <button class="it-sub-tab"        data-itab="students"   onclick="switchInternTab('students')">👥 Students</button>
-        <button class="it-sub-tab"        data-itab="reports"    onclick="switchInternTab('reports')">📝 Reports</button>
-        <button class="it-sub-tab"        data-itab="attendance" onclick="switchInternTab('attendance')">📅 Attendance</button>
+        <button class="it-sub-tab active" data-itab="projects"    onclick="switchInternTab('projects')">📁 Projects</button>
+        <button class="it-sub-tab"        data-itab="modules"     onclick="switchInternTab('modules')">📦 Modules</button>
+        <button class="it-sub-tab"        data-itab="assignments" onclick="switchInternTab('assignments')">👤 Assignments</button>
+        <button class="it-sub-tab"        data-itab="sessions"    onclick="switchInternTab('sessions')">🕒 Sessions</button>
+        <button class="it-sub-tab"        data-itab="git"         onclick="switchInternTab('git')">🔗 Git</button>
+        <button class="it-sub-tab"        data-itab="students"    onclick="switchInternTab('students')">👥 Students</button>
+        <button class="it-sub-tab"        data-itab="reports"     onclick="switchInternTab('reports')">📝 Reports</button>
+        <button class="it-sub-tab"        data-itab="attendance"  onclick="switchInternTab('attendance')">📅 Attendance</button>
       </div>
 
       <!-- Projects -->
@@ -1552,9 +1556,43 @@
 
       <!-- Students -->
       <div class="it-itab-pane" id="itab-students">
+
+        <!-- All Registered Users -->
+        <div class="table-card" style="margin-bottom:1rem">
+          <div class="table-header">
+            <h3>Registered Students / Users</h3>
+            <div class="table-actions">
+              <input type="text" id="prj-user-search" placeholder="Search name or email…"
+                oninput="filterProjUsers(this.value)"
+                style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);min-width:180px;outline:none">
+              <button class="btn-primary" onclick="openAddStudentModal()">+ Add Student</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="prj-users-tbody"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+
+        <!-- Security Alerts -->
+        <div class="table-card" style="margin-bottom:1rem">
+          <div class="table-header">
+            <h3>🔐 Security Alerts <span id="sec-alert-badge" style="display:none;margin-left:.5rem;padding:.15rem .55rem;border-radius:999px;background:rgba(244,63,94,.15);color:#f43f5e;font-size:.72rem;font-weight:800;border:1px solid rgba(244,63,94,.25)">0</span></h3>
+            <div class="table-actions">
+              <button class="btn-secondary" onclick="loadSecurityAlerts()">↻ Refresh</button>
+              <button class="btn-secondary" onclick="markAllAlertsRead()" id="sec-mark-read-btn" style="display:none">✓ Mark all read</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Time</th><th>Student</th><th>Violation</th><th>Device / Browser</th><th>Session</th><th>Status</th></tr></thead>
+            <tbody id="sec-alerts-tbody"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+
+        <!-- Student Enrollments (Internship projects) -->
         <div class="table-card">
           <div class="table-header">
-            <h3>Student Enrollments</h3>
+            <h3>Internship Enrollments</h3>
             <div class="table-actions">
               <select id="intern-enrol-filter" onchange="loadInternStudents()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
                 <option value="">All Status</option>
@@ -1614,6 +1652,104 @@
           <div class="table-scroll"><table class="data-table">
             <thead><tr><th>Date</th><th>Student</th><th>Project</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Notes</th><th>Actions</th></tr></thead>
             <tbody id="intern-atd-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+
+      <!-- Modules -->
+      <div class="it-itab-pane" id="itab-modules">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Project Modules</h3>
+            <div class="table-actions">
+              <select id="mod-proj-filter" onchange="loadProjectModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);max-width:200px">
+                <option value="">All Projects</option>
+              </select>
+              <button class="btn-primary" onclick="openModuleModal()">+ New Module</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Project</th><th>Module</th><th>Description</th><th>Deadline</th><th>Branch</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody id="mod-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Assignments -->
+      <div class="it-itab-pane" id="itab-assignments">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Module Assignments</h3>
+            <div class="table-actions">
+              <select id="assign-proj-filter" onchange="loadProjectAssignments()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);max-width:190px">
+                <option value="">All Projects</option>
+              </select>
+              <select id="assign-status-filter" onchange="loadProjectAssignments()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="revoked">Revoked</option>
+              </select>
+              <button class="btn-primary" onclick="openAssignModal()">+ Assign Student</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Project</th><th>Module</th><th>Assigned</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead>
+            <tbody id="assign-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Work Sessions -->
+      <div class="it-itab-pane" id="itab-sessions">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Work Sessions</h3>
+            <div class="table-actions">
+              <select id="sess-proj-filter" onchange="loadWorkSessions()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);max-width:190px">
+                <option value="">All Projects</option>
+              </select>
+              <input type="date" id="sess-date-from" onchange="loadWorkSessions()" title="From date" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+              <input type="date" id="sess-date-to"   onchange="loadWorkSessions()" title="To date"   style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+              <button class="btn-secondary" onclick="exportSessionsExcel()">⬇ Excel</button>
+            </div>
+          </div>
+          <div id="sess-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1rem;padding:0 .5rem"></div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Project</th><th>Date</th><th>Start</th><th>End</th><th>Duration</th><th>Device</th><th>Browser</th><th>OS</th></tr></thead>
+            <tbody id="sess-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Git Management -->
+      <div class="it-itab-pane" id="itab-git">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Git Repository Management</h3>
+            <div class="table-actions">
+              <button class="btn-primary" onclick="openGitRepoModal()">+ Add Repository</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Project</th><th>Platform</th><th>Repository URL</th><th>Private</th><th>Actions</th></tr></thead>
+            <tbody id="git-repo-tbody"><tr><td colspan="5" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+        <div class="table-card" style="margin-top:1rem">
+          <div class="table-header">
+            <h3>Student Git Access</h3>
+            <div class="table-actions">
+              <select id="git-access-proj-filter" onchange="loadGitAccess()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);max-width:190px">
+                <option value="">All Projects</option>
+              </select>
+              <button class="btn-primary" onclick="openGitAccessModal()">+ Grant Access</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Project</th><th>GitHub Username</th><th>Level</th><th>Granted</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="git-access-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -7280,10 +7416,14 @@ function switchInternTab(tab) {
   const pane = document.getElementById('itab-' + tab);
   if (pane) pane.classList.add('active');
 
-  if (tab === 'projects')   loadInternProjects();
-  if (tab === 'students')   loadInternStudents();
-  if (tab === 'reports')    { _populateInternProjFilter('intern-rpt-proj-filter'); loadInternReports(); }
-  if (tab === 'attendance') { _populateInternProjFilter('intern-atd-proj-filter'); loadInternAttendance(); }
+  if (tab === 'projects')    loadInternProjects();
+  if (tab === 'modules')     { _populateInternProjFilter('mod-proj-filter'); loadProjectModules(); }
+  if (tab === 'assignments') { _populateInternProjFilter('assign-proj-filter'); loadProjectAssignments(); }
+  if (tab === 'sessions')    { _populateInternProjFilter('sess-proj-filter'); loadWorkSessions(); }
+  if (tab === 'git')         { _populateInternProjFilter('git-access-proj-filter'); loadGitRepos(); loadGitAccess(); }
+  if (tab === 'students')    { loadProjStudents(); loadInternStudents(); loadSecurityAlerts(); }
+  if (tab === 'reports')     { _populateInternProjFilter('intern-rpt-proj-filter'); loadInternReports(); }
+  if (tab === 'attendance')  { _populateInternProjFilter('intern-atd-proj-filter'); loadInternAttendance(); }
 }
 
 function loadInternships() {
@@ -7302,13 +7442,23 @@ async function _updateInternBadge() {
   }
 }
 
-async function _populateInternProjFilter(selectId) {
+async function _populateInternProjFilter(selectId, placeholder) {
   const { data } = await db.client.from('internship_projects').select('id,project_name').eq('is_active',true).order('project_name');
   const el = document.getElementById(selectId);
   if (!el) return;
   const cur = el.value;
-  el.innerHTML = '<option value="">All Projects</option>' +
+  const firstOpt = placeholder || 'All Projects';
+  el.innerHTML = `<option value="">${firstOpt}</option>` +
     (data||[]).map(p=>`<option value="${p.id}"${p.id===cur?' selected':''}>${_adm_esc(p.project_name)}</option>`).join('');
+}
+
+async function _populateProjModalSelects() {
+  await Promise.all([
+    _populateInternProjFilter('mod-proj-sel',   '— select project —'),
+    _populateInternProjFilter('asgn-proj',      '— select project —'),
+    _populateInternProjFilter('gitrepo-proj',   '— select project —'),
+    _populateInternProjFilter('git-access-proj-filter'),
+  ]);
 }
 
 /* ============================================================
@@ -7352,15 +7502,17 @@ async function loadInternProjects() {
 
 function openInternProjModal(existingId) {
   document.getElementById('ipj-id').value = existingId || '';
-  document.getElementById('intern-proj-modal-title').textContent = existingId ? 'Edit Project' : 'New Internship Project';
+  document.getElementById('intern-proj-modal-title').textContent = existingId ? 'Edit Project' : 'New Project';
   if (!existingId) {
     ['ipj-name','ipj-client','ipj-country','ipj-domain','ipj-desc','ipj-detail','ipj-tech','ipj-outcomes','ipj-tasks'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
-    document.getElementById('ipj-weeks').value = '4';
-    document.getElementById('ipj-max').value   = '10';
-    document.getElementById('ipj-active').value = 'true';
+    document.getElementById('ipj-type').value      = 'internship';
+    document.getElementById('ipj-weeks').value     = '4';
+    document.getElementById('ipj-max').value       = '10';
+    document.getElementById('ipj-team-size').value = '5';
+    document.getElementById('ipj-active').value    = 'true';
   }
   openModal('intern-proj-modal');
 }
@@ -7368,19 +7520,21 @@ function openInternProjModal(existingId) {
 async function editInternProj(id) {
   const { data: p } = await db.client.from('internship_projects').select('*').eq('id',id).single();
   if (!p) return;
-  document.getElementById('ipj-id').value      = p.id;
-  document.getElementById('ipj-name').value    = p.project_name;
-  document.getElementById('ipj-client').value  = p.client_name;
-  document.getElementById('ipj-country').value = p.country;
-  document.getElementById('ipj-domain').value  = p.domain||'';
-  document.getElementById('ipj-desc').value    = p.description||'';
-  document.getElementById('ipj-detail').value  = p.detailed_description||'';
-  document.getElementById('ipj-tech').value    = (p.tech_stack||[]).join(', ');
-  document.getElementById('ipj-outcomes').value= (p.learning_outcomes||[]).join('\n');
-  document.getElementById('ipj-tasks').value   = JSON.stringify(p.tasks||[], null, 2);
-  document.getElementById('ipj-weeks').value   = p.duration_weeks;
-  document.getElementById('ipj-max').value     = p.max_students;
-  document.getElementById('ipj-active').value  = String(p.is_active);
+  document.getElementById('ipj-id').value        = p.id;
+  document.getElementById('ipj-name').value      = p.project_name;
+  document.getElementById('ipj-type').value      = p.project_type || 'internship';
+  document.getElementById('ipj-client').value    = p.client_name;
+  document.getElementById('ipj-country').value   = p.country;
+  document.getElementById('ipj-domain').value    = p.domain||'';
+  document.getElementById('ipj-desc').value      = p.description||'';
+  document.getElementById('ipj-detail').value    = p.detailed_description||'';
+  document.getElementById('ipj-tech').value      = (p.tech_stack||[]).join(', ');
+  document.getElementById('ipj-outcomes').value  = (p.learning_outcomes||[]).join('\n');
+  document.getElementById('ipj-tasks').value     = JSON.stringify(p.tasks||[], null, 2);
+  document.getElementById('ipj-weeks').value     = p.duration_weeks;
+  document.getElementById('ipj-max').value       = p.max_students;
+  document.getElementById('ipj-team-size').value = p.team_size || 5;
+  document.getElementById('ipj-active').value    = String(p.is_active);
   document.getElementById('intern-proj-modal-title').textContent = 'Edit Project';
   openModal('intern-proj-modal');
 }
@@ -7388,6 +7542,7 @@ async function editInternProj(id) {
 async function saveInternProj() {
   const id       = document.getElementById('ipj-id').value;
   const name     = document.getElementById('ipj-name').value.trim();
+  const projType = document.getElementById('ipj-type').value;
   const client   = document.getElementById('ipj-client').value.trim();
   const country  = document.getElementById('ipj-country').value.trim();
   const domain   = document.getElementById('ipj-domain').value.trim();
@@ -7396,8 +7551,9 @@ async function saveInternProj() {
   const techRaw  = document.getElementById('ipj-tech').value.trim();
   const outRaw   = document.getElementById('ipj-outcomes').value.trim();
   const tasksRaw = document.getElementById('ipj-tasks').value.trim();
-  const weeks    = parseInt(document.getElementById('ipj-weeks').value,10);
-  const maxS     = parseInt(document.getElementById('ipj-max').value,10);
+  const weeks    = parseInt(document.getElementById('ipj-weeks').value,10)     || 4;
+  const maxS     = parseInt(document.getElementById('ipj-max').value,10)       || 10;
+  const teamSz   = parseInt(document.getElementById('ipj-team-size').value,10) || 5;
   const active   = document.getElementById('ipj-active').value === 'true';
 
   if (!name || !client || !country) { _showAdminToast('Project name, client, and country are required.','error'); return; }
@@ -7408,14 +7564,15 @@ async function saveInternProj() {
     catch { _showAdminToast('Tasks JSON is invalid. Please fix before saving.','error'); return; }
   }
 
-  const tech     = techRaw   ? techRaw.split(',').map(s=>s.trim()).filter(Boolean)  : [];
-  const outcomes = outRaw    ? outRaw.split('\n').map(s=>s.trim()).filter(Boolean) : [];
+  const tech     = techRaw ? techRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  const outcomes = outRaw  ? outRaw.split('\n').map(s=>s.trim()).filter(Boolean) : [];
 
   const { data: adminData } = await db.client.auth.getUser();
   const payload = {
-    project_name: name, client_name: client, country, domain, description: desc,
-    detailed_description: detail, tech_stack: tech, learning_outcomes: outcomes,
-    tasks, duration_weeks: weeks, max_students: maxS, is_active: active,
+    project_name: name, project_type: projType, client_name: client, country, domain,
+    description: desc, detailed_description: detail, tech_stack: tech,
+    learning_outcomes: outcomes, tasks, duration_weeks: weeks,
+    max_students: maxS, team_size: teamSz, is_active: active,
     created_by: adminData?.user?.id || null,
   };
 
@@ -7435,6 +7592,737 @@ async function deleteInternProj(id, name) {
   if (error) { _showAdminToast('Delete failed: ' + error.message,'error'); return; }
   _showAdminToast('Project deleted.','success');
   loadInternProjects();
+}
+
+/* ============================================================
+   PROJECT MODULES CRUD
+   ============================================================ */
+async function loadProjectModules() {
+  const tbody = document.getElementById('mod-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  const projF = document.getElementById('mod-proj-filter')?.value;
+
+  let q = db.client.from('project_modules')
+    .select('*, internship_projects(project_name)')
+    .order('order_num').order('created_at', { ascending: false });
+  if (projF) q = q.eq('project_id', projF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No modules yet. Click "+ New Module" to add one.</td></tr>'; return; }
+
+  tbody.innerHTML = data.map(m => `<tr>
+    <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
+    <td><strong>${_adm_esc(m.module_name)}</strong></td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_adm_esc(m.description||'—')}</td>
+    <td>${m.deadline ? new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+    <td><code style="font-size:.75rem;background:rgba(124,92,252,.1);padding:.1rem .4rem;border-radius:4px">${_adm_esc(m.git_branch||'—')}</code></td>
+    <td><span class="badge" style="background:${m.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${m.is_active?'#4ade80':'#f87171'}">${m.is_active?'Active':'Inactive'}</span></td>
+    <td>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editModule('${m.id}')">Edit</button>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteModule('${m.id}','${_adm_esc(m.module_name)}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function openModuleModal(existingId) {
+  await _populateInternProjFilter('mod-proj-sel', '— select project —');
+  document.getElementById('mod-id').value = existingId || '';
+  document.getElementById('mod-modal-title').textContent = existingId ? 'Edit Module' : 'New Module';
+  if (!existingId) {
+    ['mod-name','mod-desc','mod-branch'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('mod-deadline').value = '';
+    document.getElementById('mod-order').value    = '0';
+    document.getElementById('mod-active-sel').value = 'true';
+    document.getElementById('mod-proj-sel').value = '';
+  }
+  openModal('module-modal');
+}
+
+async function editModule(id) {
+  const { data: m } = await db.client.from('project_modules').select('*').eq('id',id).single();
+  if (!m) return;
+  document.getElementById('mod-id').value          = m.id;
+  document.getElementById('mod-proj-sel').value    = m.project_id;
+  document.getElementById('mod-name').value        = m.module_name;
+  document.getElementById('mod-desc').value        = m.description||'';
+  document.getElementById('mod-deadline').value    = m.deadline||'';
+  document.getElementById('mod-order').value       = m.order_num;
+  document.getElementById('mod-branch').value      = m.git_branch||'';
+  document.getElementById('mod-active-sel').value  = String(m.is_active);
+  document.getElementById('mod-modal-title').textContent = 'Edit Module';
+  openModal('module-modal');
+}
+
+async function saveModule() {
+  const id       = document.getElementById('mod-id').value;
+  const projId   = document.getElementById('mod-proj-sel').value;
+  const name     = document.getElementById('mod-name').value.trim();
+  const desc     = document.getElementById('mod-desc').value.trim();
+  const deadline = document.getElementById('mod-deadline').value || null;
+  const order    = parseInt(document.getElementById('mod-order').value,10) || 0;
+  const branch   = document.getElementById('mod-branch').value.trim() || null;
+  const active   = document.getElementById('mod-active-sel').value === 'true';
+
+  if (!projId || !name) { _showAdminToast('Project and module name are required.','error'); return; }
+  const { data: adm } = await db.client.auth.getUser();
+  const payload = { project_id:projId, module_name:name, description:desc, deadline, order_num:order, git_branch:branch, is_active:active, created_by:adm?.user?.id||null };
+
+  const { error } = id
+    ? await db.client.from('project_modules').update(payload).eq('id',id)
+    : await db.client.from('project_modules').insert(payload);
+  if (error) { _showAdminToast('Save failed: '+error.message,'error'); return; }
+  _showAdminToast(id?'Module updated!':'Module created!','success');
+  closeModal('module-modal');
+  loadProjectModules();
+}
+
+async function deleteModule(id, name) {
+  if (!confirm(`Delete module "${name}"?`)) return;
+  const { error } = await db.client.from('project_modules').delete().eq('id',id);
+  if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
+  _showAdminToast('Module deleted.','success');
+  loadProjectModules();
+}
+
+/* ============================================================
+   PROJECT ASSIGNMENTS CRUD
+   ============================================================ */
+async function loadProjectAssignments() {
+  const tbody  = document.getElementById('assign-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  const projF  = document.getElementById('assign-proj-filter')?.value;
+  const statF  = document.getElementById('assign-status-filter')?.value;
+
+  let q = db.client.from('project_assignments')
+    .select('*, internship_projects(project_name), project_modules(module_name)')
+    .order('assigned_at', { ascending: false });
+  if (projF) q = q.eq('project_id', projF);
+  if (statF) q = q.eq('status', statF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No assignments yet.</td></tr>'; return; }
+
+  const stuIds = [...new Set(data.map(a => a.student_user_id))];
+  const { data: profs } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id',stuIds);
+  const pMap = {}; (profs||[]).forEach(p => { pMap[p.user_id] = p.full_name||p.email||p.user_id.slice(0,8); });
+  const statColors = { active:'#4ade80', completed:'#a5b4fc', revoked:'#f87171' };
+
+  tbody.innerHTML = data.map(a => {
+    const sc = statColors[a.status]||'#fff';
+    const dt = new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    return `<tr>
+      <td>${_adm_esc(pMap[a.student_user_id]||'—')}</td>
+      <td>${_adm_esc(a.internship_projects?.project_name||'—')}</td>
+      <td>${_adm_esc(a.project_modules?.module_name||'All Modules')}</td>
+      <td>${dt}</td>
+      <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}44">${a.status}</span></td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;font-size:.78rem;color:var(--txt2)">${_adm_esc(a.notes||'—')}</td>
+      <td>
+        ${a.status==='active'?`<button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;color:#f87171" onclick="revokeAssignment('${a.id}')">Revoke</button>`:''}
+        <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;margin-left:.25rem" onclick="deleteAssignment('${a.id}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function openAssignModal() {
+  await _populateInternProjFilter('asgn-proj', '— select project —');
+  document.getElementById('asgn-id').value                = '';
+  document.getElementById('asgn-student').value           = '';
+  document.getElementById('asgn-student-search').value    = '';
+  const dd = document.getElementById('asgn-user-dd');
+  if (dd) dd.style.display = 'none';
+  document.getElementById('asgn-notes').value             = '';
+  document.getElementById('asgn-proj').value              = '';
+  document.getElementById('asgn-module').innerHTML        = '<option value="">All Modules</option>';
+  document.getElementById('assign-modal-title').textContent = 'Assign Student to Module';
+  openModal('assign-modal');
+}
+
+async function _loadAssignModules() {
+  const projId = document.getElementById('asgn-proj').value;
+  const sel = document.getElementById('asgn-module');
+  sel.innerHTML = '<option value="">All Modules</option>';
+  if (!projId) return;
+  const { data } = await db.client.from('project_modules').select('id,module_name').eq('project_id',projId).eq('is_active',true).order('order_num');
+  (data||[]).forEach(m => { sel.innerHTML += `<option value="${m.id}">${_adm_esc(m.module_name)}</option>`; });
+}
+
+async function saveAssignment() {
+  const projId  = document.getElementById('asgn-proj').value;
+  const modId   = document.getElementById('asgn-module').value || null;
+  const stuEmail= document.getElementById('asgn-student').value.trim();
+  const notes   = document.getElementById('asgn-notes').value.trim();
+
+  if (!projId || !stuEmail) { _showAdminToast('Project and student email are required.','error'); return; }
+
+  // Resolve student by email
+  const { data: prof } = await db.client.from('user_profiles').select('user_id').eq('email', stuEmail).maybeSingle();
+  if (!prof) { _showAdminToast(`Student with email "${stuEmail}" not found.`,'error'); return; }
+
+  const { data: adm } = await db.client.auth.getUser();
+  const payload = {
+    project_id: projId, module_id: modId, student_user_id: prof.user_id,
+    assigned_by: adm.user.id, notes, status: 'active',
+  };
+
+  const { error } = await db.client.from('project_assignments').insert(payload);
+  if (error) { _showAdminToast('Assignment failed: '+error.message,'error'); return; }
+  _showAdminToast('Student assigned!','success');
+  closeModal('assign-modal');
+  loadProjectAssignments();
+}
+
+async function revokeAssignment(id) {
+  if (!confirm('Revoke this assignment?')) return;
+  const { error } = await db.client.from('project_assignments').update({ status:'revoked' }).eq('id',id);
+  if (error) { _showAdminToast('Failed: '+error.message,'error'); return; }
+  _showAdminToast('Assignment revoked.','success');
+  loadProjectAssignments();
+}
+
+async function deleteAssignment(id) {
+  if (!confirm('Delete this assignment record?')) return;
+  const { error } = await db.client.from('project_assignments').delete().eq('id',id);
+  if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
+  _showAdminToast('Deleted.','success');
+  loadProjectAssignments();
+}
+
+/* ============================================================
+   WORK SESSIONS — VIEW + EXCEL EXPORT
+   ============================================================ */
+let _sessData = [];
+
+async function loadWorkSessions() {
+  const tbody  = document.getElementById('sess-tbody');
+  const summEl = document.getElementById('sess-summary');
+  tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading…</td></tr>';
+  summEl.innerHTML = '';
+
+  const projF    = document.getElementById('sess-proj-filter')?.value;
+  const dateFrom = document.getElementById('sess-date-from')?.value;
+  const dateTo   = document.getElementById('sess-date-to')?.value;
+
+  // Get assignments for project filter
+  let assignIds = null;
+  if (projF) {
+    const { data: assigns } = await db.client.from('project_assignments').select('id').eq('project_id', projF);
+    assignIds = (assigns||[]).map(a=>a.id);
+    if (!assignIds.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No sessions for this project.</td></tr>';
+      return;
+    }
+  }
+
+  let q = db.client.from('project_work_sessions')
+    .select('session_start,session_end,duration_seconds,device_type,browser,os,student_user_id,assignment_id')
+    .order('session_start', { ascending: false })
+    .limit(500);
+  if (assignIds) q = q.in('assignment_id', assignIds);
+  if (dateFrom)  q = q.gte('session_start', dateFrom);
+  if (dateTo)    q = q.lte('session_start', dateTo + 'T23:59:59');
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+
+  _sessData = data || [];
+
+  if (!_sessData.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No sessions recorded.</td></tr>';
+    return;
+  }
+
+  // Fetch student names
+  const stuIds = [...new Set(_sessData.map(s => s.student_user_id))];
+  const { data: profs } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id',stuIds);
+  const pMap = {}; (profs||[]).forEach(p => { pMap[p.user_id] = { name:p.full_name||p.email, email:p.email }; });
+
+  // Fetch project names via assignments
+  const aIds = [...new Set(_sessData.map(s => s.assignment_id))];
+  const { data: assigns } = await db.client.from('project_assignments')
+    .select('id,internship_projects(project_name)').in('id', aIds);
+  const aMap = {}; (assigns||[]).forEach(a => { aMap[a.id] = a.internship_projects?.project_name||'—'; });
+
+  // Summary stats
+  const totalSecs  = _sessData.reduce((s,r) => s + (r.duration_seconds||0), 0);
+  const activeSess = _sessData.filter(s => !s.session_end).length;
+  const uniqueStus = new Set(_sessData.map(s=>s.student_user_id)).size;
+  summEl.innerHTML = [
+    { v:_sessData.length, l:'Total Sessions'   },
+    { v:_fmtDurAdmin(totalSecs), l:'Total Time' },
+    { v:uniqueStus, l:'Students'                },
+    { v:activeSess, l:'Live Now'                },
+  ].map(s=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem">
+    <div style="font-size:1.3rem;font-weight:900;color:var(--v2)">${s.v}</div>
+    <div style="font-size:.68rem;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.05em">${s.l}</div>
+  </div>`).join('');
+
+  // Enrich data for export
+  _sessData = _sessData.map(s => ({
+    ...s,
+    _studentName: pMap[s.student_user_id]?.name||'—',
+    _email:       pMap[s.student_user_id]?.email||'—',
+    _projectName: aMap[s.assignment_id]||'—',
+  }));
+
+  tbody.innerHTML = _sessData.map(s => {
+    const date  = new Date(s.session_start).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const start = new Date(s.session_start).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const end   = s.session_end ? new Date(s.session_end).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '<span style="color:#4ade80">Live</span>';
+    const dur   = s.duration_seconds != null ? _fmtDurAdmin(s.duration_seconds) : '—';
+    return `<tr>
+      <td>${_adm_esc(s._studentName)}</td>
+      <td>${_adm_esc(s._projectName)}</td>
+      <td>${date}</td>
+      <td style="font-size:.78rem">${start}</td>
+      <td style="font-size:.78rem">${end}</td>
+      <td><strong>${dur}</strong></td>
+      <td style="font-size:.75rem;color:var(--txt2)">${_adm_esc(s.device_type||'—')}</td>
+      <td style="font-size:.75rem;color:var(--txt2)">${_adm_esc(s.browser||'—')}</td>
+      <td style="font-size:.75rem;color:var(--txt2)">${_adm_esc(s.os||'—')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function _fmtDurAdmin(sec) {
+  if (!sec && sec !== 0) return '—';
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return h ? `${h}h ${m}m` : `${m}m ${s}s`;
+}
+
+function exportSessionsExcel() {
+  if (!_sessData.length) { _showAdminToast('No data to export.','warning'); return; }
+
+  const rows = [['Student','Email','Project','Date','Login Time','Logout Time','Duration (sec)','Duration (hh:mm:ss)','Device','Browser','OS']];
+  _sessData.forEach(s => {
+    const hms = s.duration_seconds != null
+      ? `${String(Math.floor(s.duration_seconds/3600)).padStart(2,'0')}:${String(Math.floor((s.duration_seconds%3600)/60)).padStart(2,'0')}:${String(s.duration_seconds%60).padStart(2,'0')}`
+      : '';
+    rows.push([
+      s._studentName||'', s._email||'', s._projectName||'',
+      s.session_start ? new Date(s.session_start).toLocaleDateString('en-IN') : '',
+      s.session_start ? new Date(s.session_start).toLocaleTimeString('en-IN') : '',
+      s.session_end   ? new Date(s.session_end).toLocaleTimeString('en-IN') : 'Active',
+      s.duration_seconds ?? '', hms,
+      s.device_type||'', s.browser||'', s.os||'',
+    ]);
+  });
+
+  // Build CSV (Excel-compatible)
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const bom  = '﻿';
+  const blob = new Blob([bom + csv], { type:'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `work-sessions-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  _showAdminToast('Excel (CSV) exported!','success');
+}
+
+/* ============================================================
+   GIT REPOSITORIES & ACCESS
+   ============================================================ */
+async function loadGitRepos() {
+  const tbody = document.getElementById('git-repo-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Loading…</td></tr>';
+
+  const { data, error } = await db.client.from('project_git_repos')
+    .select('*, internship_projects(project_name)').order('created_at', { ascending:false });
+  if (error) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No repositories added yet.</td></tr>'; return; }
+
+  tbody.innerHTML = data.map(r => `<tr>
+    <td>${_adm_esc(r.internship_projects?.project_name||'—')}</td>
+    <td><span class="badge" style="background:rgba(99,102,241,.15);color:#a5b4fc">${_adm_esc(r.repo_platform)}</span></td>
+    <td><a href="${_adm_esc(r.repo_url)}" target="_blank" rel="noopener" style="color:var(--v2);font-size:.8rem">${_adm_esc(r.repo_url)}</a></td>
+    <td><span class="badge" style="background:${r.is_private?'rgba(248,113,113,.12)':'rgba(74,222,128,.12)'};color:${r.is_private?'#f87171':'#4ade80'}">${r.is_private?'Private':'Public'}</span></td>
+    <td>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editGitRepo('${r.id}')">Edit</button>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteGitRepo('${r.id}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function openGitRepoModal(existingId) {
+  await _populateInternProjFilter('gitrepo-proj', '— select project —');
+  document.getElementById('gitrepo-id').value       = existingId||'';
+  document.getElementById('gitrepo-modal-title').textContent = existingId ? 'Edit Repository' : 'Add Repository';
+  if (!existingId) {
+    ['gitrepo-url','gitrepo-instructions'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('gitrepo-platform').value = 'github';
+    document.getElementById('gitrepo-private').value  = 'true';
+  }
+  openModal('git-repo-modal');
+}
+
+async function editGitRepo(id) {
+  const { data: r } = await db.client.from('project_git_repos').select('*').eq('id',id).single();
+  if (!r) return;
+  document.getElementById('gitrepo-id').value           = r.id;
+  document.getElementById('gitrepo-proj').value         = r.project_id;
+  document.getElementById('gitrepo-url').value          = r.repo_url;
+  document.getElementById('gitrepo-platform').value     = r.repo_platform||'github';
+  document.getElementById('gitrepo-private').value      = String(r.is_private);
+  document.getElementById('gitrepo-instructions').value = r.instructions||'';
+  document.getElementById('gitrepo-modal-title').textContent = 'Edit Repository';
+  openModal('git-repo-modal');
+}
+
+async function saveGitRepo() {
+  const id      = document.getElementById('gitrepo-id').value;
+  const projId  = document.getElementById('gitrepo-proj').value;
+  const url     = document.getElementById('gitrepo-url').value.trim();
+  const platform= document.getElementById('gitrepo-platform').value;
+  const priv    = document.getElementById('gitrepo-private').value === 'true';
+  const instr   = document.getElementById('gitrepo-instructions').value.trim();
+  const { data: adm } = await db.client.auth.getUser();
+
+  if (!projId || !url) { _showAdminToast('Project and repository URL are required.','error'); return; }
+  const payload = { project_id:projId, repo_url:url, repo_platform:platform, is_private:priv, instructions:instr||null, created_by:adm?.user?.id||null };
+  const { error } = id
+    ? await db.client.from('project_git_repos').update(payload).eq('id',id)
+    : await db.client.from('project_git_repos').insert(payload);
+  if (error) { _showAdminToast('Save failed: '+error.message,'error'); return; }
+  _showAdminToast(id?'Repository updated!':'Repository added!','success');
+  closeModal('git-repo-modal');
+  loadGitRepos();
+}
+
+async function deleteGitRepo(id) {
+  if (!confirm('Delete this repository? All student git access records will also be removed.')) return;
+  const { error } = await db.client.from('project_git_repos').delete().eq('id',id);
+  if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
+  _showAdminToast('Repository deleted.','success');
+  loadGitRepos();
+}
+
+async function loadGitAccess() {
+  const tbody = document.getElementById('git-access-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  const projF = document.getElementById('git-access-proj-filter')?.value;
+
+  let q = db.client.from('project_git_access')
+    .select('*, project_assignments(student_user_id,project_id,internship_projects(project_name)), project_git_repos(repo_platform)')
+    .order('granted_at', { ascending:false });
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  let rows = data||[];
+  if (projF) rows = rows.filter(r => r.project_assignments?.project_id === projF);
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No git access records yet.</td></tr>'; return; }
+
+  const stuIds = [...new Set(rows.map(r => r.project_assignments?.student_user_id).filter(Boolean))];
+  const { data: profs } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id',stuIds);
+  const pMap = {}; (profs||[]).forEach(p => { pMap[p.user_id] = p.full_name||p.email||'—'; });
+
+  tbody.innerHTML = rows.map(r => {
+    const stuId = r.project_assignments?.student_user_id;
+    const sc = r.is_active ? '#4ade80' : '#f87171';
+    const dt = new Date(r.granted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    return `<tr>
+      <td>${_adm_esc(pMap[stuId]||'—')}</td>
+      <td>${_adm_esc(r.project_assignments?.internship_projects?.project_name||'—')}</td>
+      <td style="font-family:monospace;font-size:.82rem">${_adm_esc(r.github_username||'—')}</td>
+      <td><span class="badge" style="background:rgba(99,102,241,.15);color:#a5b4fc;text-transform:capitalize">${r.access_level}</span></td>
+      <td>${dt}</td>
+      <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}44">${r.is_active?'Active':'Revoked'}</span></td>
+      <td>
+        ${r.is_active?`<button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;color:#f87171" onclick="revokeGitAccess('${r.id}')">Revoke</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openGitAccessModal() {
+  document.getElementById('gita-id').value      = '';
+  document.getElementById('gita-assign').value  = '';
+  document.getElementById('gita-username').value= '';
+  document.getElementById('gita-level').value   = 'read';
+  openModal('git-access-modal');
+}
+
+async function _loadGitReposForAccess() {
+  const assignId = document.getElementById('gita-assign').value;
+  const sel = document.getElementById('gita-repo');
+  sel.innerHTML = '<option value="">— select repo —</option>';
+  if (!assignId) return;
+  const { data: assign } = await db.client.from('project_assignments').select('project_id').eq('id',assignId).single();
+  if (!assign) return;
+  const { data: repos } = await db.client.from('project_git_repos').select('id,repo_url').eq('project_id',assign.project_id);
+  (repos||[]).forEach(r => { sel.innerHTML += `<option value="${r.id}">${_adm_esc(r.repo_url)}</option>`; });
+}
+
+async function saveGitAccess() {
+  const assignId  = document.getElementById('gita-assign').value.trim();
+  const repoId    = document.getElementById('gita-repo').value;
+  const username  = document.getElementById('gita-username').value.trim();
+  const level     = document.getElementById('gita-level').value;
+  const { data: adm } = await db.client.auth.getUser();
+
+  if (!assignId || !repoId) { _showAdminToast('Assignment ID and repository are required.','error'); return; }
+  const payload = { assignment_id:assignId, repo_id:repoId, github_username:username||null, access_level:level, granted_by:adm?.user?.id||null, is_active:true };
+  const { error } = await db.client.from('project_git_access').upsert(payload, { onConflict:'assignment_id' });
+  if (error) { _showAdminToast('Failed: '+error.message,'error'); return; }
+  _showAdminToast('Git access granted!','success');
+  closeModal('git-access-modal');
+  loadGitAccess();
+}
+
+async function revokeGitAccess(id) {
+  if (!confirm('Revoke this git access?')) return;
+  const { error } = await db.client.from('project_git_access').update({ is_active:false, revoked_at: new Date().toISOString() }).eq('id',id);
+  if (error) { _showAdminToast('Failed: '+error.message,'error'); return; }
+  _showAdminToast('Access revoked.','success');
+  loadGitAccess();
+}
+
+/* ============================================================
+   SECURITY ALERTS
+   ============================================================ */
+async function loadSecurityAlerts() {
+  const tbody = document.getElementById('sec-alerts-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+
+  const { data, error } = await db.client
+    .from('security_alerts')
+    .select('id, alert_type, details, is_read, created_at, student_user_id')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;
+    return;
+  }
+
+  const rows = data || [];
+  const unread = rows.filter(r => !r.is_read).length;
+  const badge = document.getElementById('sec-alert-badge');
+  const markBtn = document.getElementById('sec-mark-read-btn');
+  if (unread > 0) {
+    badge.textContent = unread;
+    badge.style.display = '';
+    if (markBtn) markBtn.style.display = '';
+  } else {
+    badge.style.display = 'none';
+    if (markBtn) markBtn.style.display = 'none';
+  }
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No security alerts.</td></tr>';
+    return;
+  }
+
+  const typeLabels = {
+    copy_attempt:    '📋 Copy attempt',
+    cut_attempt:     '✂️ Cut attempt',
+    right_click:     '🖱️ Right-click',
+    drag_attempt:    '↕️ Drag attempt',
+    keyboard_copy:   '⌨️ Keyboard copy',
+    print_attempt:   '🖨️ Print attempt',
+  };
+
+  tbody.innerHTML = rows.map(r => {
+    const dt  = new Date(r.created_at);
+    const ts  = dt.toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    const d   = r.details || {};
+    const label = typeLabels[r.alert_type] || r.alert_type;
+    const rowCls = r.is_read ? '' : 'style="background:rgba(244,63,94,.04)"';
+    return `<tr ${rowCls}>
+      <td style="font-size:.78rem;white-space:nowrap">${ts}</td>
+      <td><div style="font-size:.82rem;font-weight:700">${d.name||'—'}</div><div style="font-size:.72rem;color:var(--txt3)">${d.email||''}</div></td>
+      <td><span style="font-size:.8rem;font-weight:700;color:#f43f5e">${label}</span></td>
+      <td style="font-size:.78rem">${d.device||'—'} / ${d.browser||'—'}<br><span style="color:var(--txt3)">${d.os||''}</span></td>
+      <td style="font-size:.72rem;color:var(--txt3)">${d.session_id?d.session_id.slice(0,8)+'…':'—'}</td>
+      <td>${r.is_read
+        ? '<span style="font-size:.72rem;color:var(--txt3)">Read</span>'
+        : `<button onclick="markAlertRead('${r.id}',this)" style="font-size:.72rem;padding:.2rem .55rem;border-radius:7px;background:rgba(124,92,252,.1);color:var(--prj-v);border:1px solid rgba(124,92,252,.2);cursor:pointer">Mark read</button>`
+      }</td>
+    </tr>`;
+  }).join('');
+}
+
+async function markAlertRead(id, btn) {
+  btn.disabled = true;
+  await db.client.from('security_alerts').update({ is_read: true }).eq('id', id);
+  loadSecurityAlerts();
+}
+
+async function markAllAlertsRead() {
+  await db.client.from('security_alerts').update({ is_read: true }).eq('is_read', false);
+  loadSecurityAlerts();
+}
+
+/* ============================================================
+   REGISTERED USERS / STUDENT MANAGEMENT
+   ============================================================ */
+let _projUsersAll = [];
+
+async function loadProjStudents() {
+  const tbody = document.getElementById('prj-users-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+  const { data, error } = await db.client
+    .from('user_profiles')
+    .select('user_id, full_name, email, phone, role, created_at')
+    .order('created_at', { ascending: false })
+    .limit(300);
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;
+    return;
+  }
+  _projUsersAll = data || [];
+  _renderProjUsers(_projUsersAll);
+}
+
+function _renderProjUsers(users) {
+  const tbody = document.getElementById('prj-users-tbody');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No users found.</td></tr>'; return; }
+  tbody.innerHTML = users.map(u => {
+    const dt   = u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+    const role = u.role || 'student';
+    const clr  = role === 'admin' || role === 'super_admin' ? '#f59e0b' : '#7c6cff';
+    const init = (u.full_name || u.email || '?')[0].toUpperCase();
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:.6rem">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c6cff,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.8rem;flex-shrink:0">${_adm_esc(init)}</div>
+          <span style="font-weight:600;font-size:.85rem">${_adm_esc(u.full_name || '—')}</span>
+        </div>
+      </td>
+      <td style="font-size:.82rem">${_adm_esc(u.email || '—')}</td>
+      <td style="font-size:.82rem;color:rgba(200,191,255,.5)">${_adm_esc(u.phone || '—')}</td>
+      <td><span style="padding:.2rem .6rem;border-radius:999px;font-size:.65rem;font-weight:700;background:rgba(124,108,255,.1);color:${clr};border:1px solid rgba(124,108,255,.2)">${_adm_esc(role)}</span></td>
+      <td style="font-size:.78rem;color:rgba(200,191,255,.4)">${dt}</td>
+      <td>
+        <button class="btn-small btn-secondary" onclick="openAssignModalFor('${_adm_esc(u.email || '')}','${_adm_esc(u.full_name || '')}')">Assign</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterProjUsers(val) {
+  if (!val) { _renderProjUsers(_projUsersAll); return; }
+  const q = val.toLowerCase();
+  _renderProjUsers(_projUsersAll.filter(u =>
+    (u.full_name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q)
+  ));
+}
+
+async function openAssignModalFor(email, name) {
+  await openAssignModal();
+  if (email) {
+    document.getElementById('asgn-student-search').value = name ? `${name} (${email})` : email;
+    document.getElementById('asgn-student').value = email;
+  }
+}
+
+/* ── User search autocomplete inside assign modal ── */
+let _asgnSearchTimer;
+async function _asgnUserSearch(val) {
+  clearTimeout(_asgnSearchTimer);
+  const dd = document.getElementById('asgn-user-dd');
+  if (!dd) return;
+  if (!val || val.length < 2) { dd.style.display = 'none'; return; }
+  _asgnSearchTimer = setTimeout(async () => {
+    const { data } = await db.client
+      .from('user_profiles')
+      .select('user_id, full_name, email')
+      .or(`full_name.ilike.%${val}%,email.ilike.%${val}%`)
+      .limit(8);
+    if (!data?.length) {
+      dd.innerHTML = `<div style="padding:.75rem 1rem;color:rgba(200,191,255,.4);font-size:.82rem">No users found for "${_adm_esc(val)}"</div>`;
+      dd.style.display = 'block'; return;
+    }
+    dd.innerHTML = data.map(u => `
+      <div onclick="_pickAsgnUser('${_adm_esc(u.email||'')}','${_adm_esc(u.full_name||'')}')"
+        style="padding:.6rem 1rem;cursor:pointer;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid rgba(124,92,252,.12);transition:background .15s"
+        onmouseover="this.style.background='rgba(124,92,252,.1)'" onmouseout="this.style.background=''">
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c6cff,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.88rem;flex-shrink:0">
+          ${_adm_esc((u.full_name||u.email||'?')[0].toUpperCase())}
+        </div>
+        <div style="min-width:0">
+          <div style="font-weight:600;font-size:.83rem;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_adm_esc(u.full_name||'—')}</div>
+          <div style="font-size:.72rem;color:rgba(200,191,255,.45)">${_adm_esc(u.email||'')}</div>
+        </div>
+      </div>`).join('');
+    dd.style.display = 'block';
+  }, 280);
+}
+
+function _pickAsgnUser(email, name) {
+  document.getElementById('asgn-student-search').value = name ? `${name} (${email})` : email;
+  document.getElementById('asgn-student').value = email;
+  const dd = document.getElementById('asgn-user-dd');
+  if (dd) dd.style.display = 'none';
+}
+
+/* Close dropdown on outside click */
+document.addEventListener('click', e => {
+  if (!e.target.closest('#asgn-user-dd') && !e.target.closest('#asgn-student-search')) {
+    const dd = document.getElementById('asgn-user-dd');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
+/* ── Add Student modal ── */
+function openAddStudentModal() {
+  document.getElementById('ns-name').value = '';
+  document.getElementById('ns-email').value = '';
+  document.getElementById('ns-phone').value = '';
+  _genStudentPwd();
+  const btn = document.getElementById('ns-save-btn');
+  btn.disabled = false; btn.textContent = 'Create Account';
+  openModal('add-student-modal');
+}
+
+function _genStudentPwd() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+  let pwd = '';
+  for (let i = 0; i < 12; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('ns-password').value = pwd;
+}
+
+async function saveNewStudent() {
+  const name  = document.getElementById('ns-name').value.trim();
+  const email = document.getElementById('ns-email').value.trim();
+  const phone = document.getElementById('ns-phone').value.trim();
+  const pwd   = document.getElementById('ns-password').value;
+  if (!name || !email || !pwd) { _showAdminToast('Name, email and password are required.', 'error'); return; }
+
+  const btn = document.getElementById('ns-save-btn');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  try {
+    const { data, error } = await db.client.auth.signUp({
+      email,
+      password: pwd,
+      options: { data: { full_name: name, phone: phone || undefined } }
+    });
+    if (error) throw error;
+
+    if (data?.user) {
+      await db.client.from('user_profiles').upsert({
+        user_id: data.user.id,
+        full_name: name,
+        email,
+        phone: phone || null,
+        role: 'student'
+      }, { onConflict: 'user_id' });
+    }
+
+    _showAdminToast(`Student "${name}" created! Temp password: ${pwd}`, 'success');
+    closeModal('add-student-modal');
+    loadProjStudents();
+  } catch(err) {
+    _showAdminToast('Failed: ' + err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
 }
 
 /* ============================================================
@@ -7975,12 +8863,20 @@ function _adm_esc(s) {
 <div class="modal-overlay" id="intern-proj-modal" onclick="if(event.target===this)closeModal('intern-proj-modal')">
   <div class="modal-box" style="max-width:640px;max-height:90vh;overflow-y:auto">
     <div class="modal-close" onclick="closeModal('intern-proj-modal')">✕</div>
-    <div class="modal-title" id="intern-proj-modal-title">New Internship Project</div>
+    <div class="modal-title" id="intern-proj-modal-title">New Project</div>
     <input type="hidden" id="ipj-id">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
       <div class="f-group" style="grid-column:1/-1">
         <label>Project Name *</label>
         <input type="text" id="ipj-name" placeholder="e.g. AI Chatbot Development">
+      </div>
+      <div class="f-group">
+        <label>Project Type *</label>
+        <select id="ipj-type">
+          <option value="available">Available</option>
+          <option value="internship" selected>Internship</option>
+          <option value="upcoming">Upcoming</option>
+        </select>
       </div>
       <div class="f-group">
         <label>Client Name *</label>
@@ -7993,6 +8889,10 @@ function _adm_esc(s) {
       <div class="f-group">
         <label>Domain</label>
         <input type="text" id="ipj-domain" placeholder="e.g. Web Development, Data Science">
+      </div>
+      <div class="f-group">
+        <label>Team Size</label>
+        <input type="number" id="ipj-team-size" min="1" max="100" value="5">
       </div>
       <div class="f-group">
         <label>Duration (weeks)</label>
@@ -8081,6 +8981,214 @@ function _adm_esc(s) {
     <div style="display:flex;gap:.75rem;margin-top:0.5rem">
       <button class="btn-primary" onclick="saveReportReview()">Save Review</button>
       <button class="btn-secondary" onclick="closeModal('intern-report-review-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROJECT MODULE MODALS ===== -->
+
+<!-- Module Modal -->
+<div class="modal-overlay" id="module-modal" onclick="if(event.target===this)closeModal('module-modal')">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-close" onclick="closeModal('module-modal')">✕</div>
+    <div class="modal-title" id="mod-modal-title">New Module</div>
+    <input type="hidden" id="mod-id">
+    <div class="f-group">
+      <label>Project *</label>
+      <select id="mod-proj-sel" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— select project —</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group" style="grid-column:1/-1">
+        <label>Module Name *</label>
+        <input type="text" id="mod-name" placeholder="e.g. Database Design & Setup">
+      </div>
+      <div class="f-group">
+        <label>Deadline</label>
+        <input type="date" id="mod-deadline">
+      </div>
+      <div class="f-group">
+        <label>Order</label>
+        <input type="number" id="mod-order" value="0" min="0">
+      </div>
+      <div class="f-group">
+        <label>Git Branch</label>
+        <input type="text" id="mod-branch" placeholder="e.g. feature/module-1">
+      </div>
+      <div class="f-group">
+        <label>Active</label>
+        <select id="mod-active-sel">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Description</label>
+      <textarea id="mod-desc" style="min-height:80px" placeholder="What students will do in this module…"></textarea>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveModule()">Save Module</button>
+      <button class="btn-secondary" onclick="closeModal('module-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal-overlay" id="add-student-modal" onclick="if(event.target===this)closeModal('add-student-modal')">
+  <div class="modal-box" style="max-width:460px">
+    <div class="modal-close" onclick="closeModal('add-student-modal')">✕</div>
+    <div class="modal-title">Add New Student</div>
+    <div style="background:rgba(124,108,255,.07);border:1px solid rgba(124,108,255,.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.82rem;color:rgba(200,191,255,.7);line-height:1.5">
+      Creates a student login account. Share the temporary password with the student so they can sign in.
+    </div>
+    <div class="f-group">
+      <label>Full Name *</label>
+      <input type="text" id="ns-name" placeholder="e.g. Priya Sharma">
+    </div>
+    <div class="f-group">
+      <label>Email Address *</label>
+      <input type="email" id="ns-email" placeholder="student@example.com">
+    </div>
+    <div class="f-group">
+      <label>Phone (optional)</label>
+      <input type="text" id="ns-phone" placeholder="+91 98765 43210">
+    </div>
+    <div class="f-group">
+      <label>Temporary Password *</label>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <input type="text" id="ns-password" readonly style="flex:1;font-family:monospace;font-size:.9rem;letter-spacing:.04em">
+        <button class="btn-secondary" onclick="_genStudentPwd()" style="white-space:nowrap;flex-shrink:0">🔄 New</button>
+      </div>
+      <div style="font-size:.72rem;color:rgba(200,191,255,.4);margin-top:.3rem">Copy and share this with the student before closing.</div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.75rem">
+      <button class="btn-primary" id="ns-save-btn" onclick="saveNewStudent()">Create Account</button>
+      <button class="btn-secondary" onclick="closeModal('add-student-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assignment Modal -->
+<div class="modal-overlay" id="assign-modal" onclick="if(event.target===this)closeModal('assign-modal')">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-close" onclick="closeModal('assign-modal')">✕</div>
+    <div class="modal-title" id="assign-modal-title">Assign Student to Module</div>
+    <input type="hidden" id="asgn-id">
+    <div class="f-group">
+      <label>Project *</label>
+      <select id="asgn-proj" onchange="_loadAssignModules()" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— select project —</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label>Module (optional — leave blank to assign all)</label>
+      <select id="asgn-module" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">All Modules</option>
+      </select>
+    </div>
+    <div class="f-group" style="position:relative">
+      <label>Student * <small style="color:rgba(200,191,255,.4);font-weight:400">— type name or email</small></label>
+      <input type="text" id="asgn-student-search" placeholder="Search by name or email…"
+        oninput="_asgnUserSearch(this.value)"
+        onfocus="if(this.value.length>=2)_asgnUserSearch(this.value)"
+        autocomplete="off"
+        style="width:100%;background:var(--bg2);border:1px solid rgba(124,92,252,.25);border-radius:8px;color:var(--txt);padding:.45rem .75rem;font-size:.85rem;outline:none;font-family:inherit;box-sizing:border-box">
+      <input type="hidden" id="asgn-student">
+      <div id="asgn-user-dd"
+        style="display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:9999;background:var(--bg2);border:1px solid rgba(124,92,252,.3);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:230px;overflow-y:auto">
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Notes (optional)</label>
+      <input type="text" id="asgn-notes" placeholder="Any special instructions…">
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveAssignment()">Assign</button>
+      <button class="btn-secondary" onclick="closeModal('assign-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Git Repo Modal -->
+<div class="modal-overlay" id="git-repo-modal" onclick="if(event.target===this)closeModal('git-repo-modal')">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-close" onclick="closeModal('git-repo-modal')">✕</div>
+    <div class="modal-title" id="gitrepo-modal-title">Add Repository</div>
+    <input type="hidden" id="gitrepo-id">
+    <div class="f-group">
+      <label>Project *</label>
+      <select id="gitrepo-proj" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— select project —</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group" style="grid-column:1/-1">
+        <label>Repository URL *</label>
+        <input type="url" id="gitrepo-url" placeholder="https://github.com/org/repo">
+      </div>
+      <div class="f-group">
+        <label>Platform</label>
+        <select id="gitrepo-platform">
+          <option value="github">GitHub</option>
+          <option value="gitlab">GitLab</option>
+          <option value="bitbucket">Bitbucket</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label>Visibility</label>
+        <select id="gitrepo-private">
+          <option value="true">Private</option>
+          <option value="false">Public</option>
+        </select>
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Access Instructions (shown to assigned students)</label>
+      <textarea id="gitrepo-instructions" style="min-height:80px" placeholder="How students should clone, branch naming conventions, PR process…"></textarea>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveGitRepo()">Save Repository</button>
+      <button class="btn-secondary" onclick="closeModal('git-repo-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Git Access Modal -->
+<div class="modal-overlay" id="git-access-modal" onclick="if(event.target===this)closeModal('git-access-modal')">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-close" onclick="closeModal('git-access-modal')">✕</div>
+    <div class="modal-title">Grant Git Access</div>
+    <input type="hidden" id="gita-id">
+    <div class="f-group">
+      <label>Assignment ID * <span style="font-size:.72rem;color:var(--txt3)">(from Assignments tab)</span></label>
+      <input type="text" id="gita-assign" placeholder="UUID of the project assignment" onchange="_loadGitReposForAccess()">
+    </div>
+    <div class="f-group">
+      <label>Repository *</label>
+      <select id="gita-repo" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— enter assignment ID first —</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group">
+        <label>GitHub/GitLab Username</label>
+        <input type="text" id="gita-username" placeholder="e.g. john_doe">
+      </div>
+      <div class="f-group">
+        <label>Access Level</label>
+        <select id="gita-level">
+          <option value="read">Read</option>
+          <option value="write">Write</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveGitAccess()">Grant Access</button>
+      <button class="btn-secondary" onclick="closeModal('git-access-modal')">Cancel</button>
     </div>
   </div>
 </div>

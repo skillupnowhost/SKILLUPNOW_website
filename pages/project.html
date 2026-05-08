@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — SkillUpNow</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       PROJECTS PAGE — LIQUID GLASS REDESIGN
+    ═══════════════════════════════════════════════════════════ */
+    @property --prj-angle  { syntax:'<angle>';   initial-value:0deg;  inherits:false; }
+    @property --prj-hue    { syntax:'<number>';  initial-value:260;   inherits:false; }
+
+    :root {
+      --prj-v:      #7c6cff;
+      --prj-cyan:   #06b6d4;
+      --prj-gold:   #f59e0b;
+      --prj-em:     #10b981;
+      --prj-rose:   #f43f5e;
+      --prj-sky:    #38bdf8;
+      --prj-r:      18px;
+      /* glass surface */
+      --glass-bg:   rgba(255,255,255,0.03);
+      --glass-brd:  rgba(255,255,255,0.08);
+      --glass-blur: blur(22px) saturate(160%);
+    }
+
+    img { -webkit-user-drag:none; user-drag:none; }
+    .prj-page { padding-bottom: 7rem; }
+    .prj-container { max-width:1160px; margin:0 auto; padding:0 1.5rem; position:relative; }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    .prj-hero {
+      position:relative; overflow:hidden;
+      padding:4rem 0 3.5rem;
+      border-bottom:1px solid var(--border);
+    }
+    .prj-hero-mesh {
+      position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(ellipse 70% 55% at 8%  50%, rgba(124,108,255,.22) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 15%, rgba(6,182,212,.12)   0%, transparent 55%),
+        radial-gradient(ellipse 40% 55% at 55% 95%, rgba(245,158,11,.07)  0%, transparent 55%);
+    }
+    .prj-hero-grid {
+      position:absolute; inset:0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size:48px 48px;
+      mask-image:radial-gradient(ellipse 85% 85% at 50% 50%, black, transparent);
+      opacity:.35;
+    }
+    .prj-hero-inner    { display:flex; align-items:center; justify-content:space-between; gap:2rem; flex-wrap:wrap; }
+    .prj-hero-badge {
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:.3rem 1rem; border-radius:999px; margin-bottom:.8rem;
+      background: linear-gradient(90deg,
+        rgba(124,108,255,.22) 0%,
+        rgba(6,182,212,.18)   40%,
+        rgba(245,158,11,.14)  70%,
+        rgba(124,108,255,.22) 100%);
+      background-size: 250% 100%;
+      border: 1px solid rgba(124,108,255,.32);
+      font-size:.7rem; font-weight:700;
+      background-clip: padding-box;
+      letter-spacing:.08em; text-transform:uppercase;
+      animation: badgeFlow 4s ease-in-out infinite;
+      position: relative; overflow: hidden;
+      /* text color via gradient */
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      background-image: linear-gradient(90deg, var(--prj-v), var(--prj-cyan), var(--prj-gold), var(--prj-v));
+      background-size: 250% 100%;
+    }
+    @keyframes badgeFlow {
+      0%,100% { background-position: 0%   50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    .prj-hero-badge-dot {
+      width:6px; height:6px; border-radius:50%; background:var(--prj-em);
+      animation:pulseDot 1.6s ease-in-out infinite; flex-shrink:0;
+      /* dot needs its own bg, not affected by text clip */
+      -webkit-background-clip: unset;
+      background-clip: unset;
+    }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+    /* "My Work" badge (in student area) uses solid style */
+    .prj-student-hdr .prj-hero-badge {
+      background: linear-gradient(90deg, rgba(124,108,255,.18), rgba(6,182,212,.14));
+      background-size: 100%; -webkit-background-clip: unset; background-clip: unset;
+      color: var(--prj-v); animation: none;
+      border: 1px solid rgba(124,108,255,.28);
+    }
+    .prj-hero-left h1 {
+      font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; letter-spacing:-.035em; line-height:1.1;
+      background:linear-gradient(125deg, var(--txt) 25%, var(--prj-v) 65%, var(--prj-cyan) 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .prj-hero-left p { font-size:.92rem; color:var(--txt2); margin-top:.5rem; max-width:480px; line-height:1.6; }
+    .prj-hero-stats  { display:flex; gap:0; border:1px solid var(--border); border-radius:16px; overflow:hidden; background:var(--panel); }
+    .prj-hero-stat   { padding:.9rem 1.5rem; text-align:center; position:relative; }
+    .prj-hero-stat + .prj-hero-stat { border-left:1px solid var(--border); }
+    .prj-hero-stat-v { font-size:1.65rem; font-weight:900; color:var(--prj-v); letter-spacing:-.04em; display:block; }
+    .prj-hero-stat-l { font-size:.65rem; color:var(--txt3); font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-top:.1rem; display:block; }
+
+    /* ── Section headers ───────────────────────────────────── */
+    .prj-section { margin:4rem 0; }
+    .prj-section-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; gap:1rem; flex-wrap:wrap; }
+    .prj-section-title-wrap { display:flex; align-items:center; gap:.85rem; }
+    .prj-section-icon {
+      width:46px; height:46px; border-radius:14px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+      background:linear-gradient(135deg, rgba(124,108,255,.22), rgba(79,70,229,.1));
+      border:1px solid rgba(124,108,255,.22);
+      box-shadow:0 0 20px rgba(124,108,255,.12);
+    }
+    .prj-section-title { font-size:1.3rem; font-weight:900; color:var(--txt); letter-spacing:-.025em; }
+    .prj-section-sub   { font-size:.78rem; color:var(--txt3); margin-top:.18rem; }
+    .prj-section-count {
+      padding:.22rem .75rem; border-radius:999px;
+      background:rgba(124,108,255,.1); border:1px solid rgba(124,108,255,.2);
+      font-size:.72rem; font-weight:800; color:var(--prj-v);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       LIQUID GLASS CARD — Available Projects
+    ═══════════════════════════════════════════════════════ */
+    .lg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:1.5rem; }
+
+    .lg-card {
+      position:relative; border-radius:var(--prj-r); cursor:pointer;
+      background:var(--glass-bg);
+      backdrop-filter:var(--glass-blur);
+      -webkit-backdrop-filter:var(--glass-blur);
+      border:1px solid var(--glass-brd);
+      overflow:hidden;
+      display:flex; flex-direction:column;
+      transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
+      animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(22px) scale(.97); }
+      to   { opacity:1; transform:translateY(0)   scale(1);    }
+    }
+
+    /* Animated gradient border */
+    .lg-card::before {
+      content:''; position:absolute; inset:-1px;
+      border-radius:calc(var(--prj-r) + 1px); z-index:0;
+      background:conic-gradient(
+        from var(--prj-angle),
+        transparent 0%,
+        var(--lg-c1,#7c6cff) 15%,
+        var(--lg-c2,#06b6d4) 35%,
+        transparent 50%,
+        var(--lg-c1,#7c6cff) 85%,
+        transparent 100%
+      );
+      opacity:.55;
+      animation:borderSpin 5s linear infinite;
+      transition:opacity .35s;
+    }
+    .lg-card:hover::before { opacity:1; }
+    @keyframes borderSpin { to { --prj-angle:360deg; } }
+
+    /* Inner frosted surface */
+    .lg-card::after {
+      content:''; position:absolute; inset:1px;
+      border-radius:calc(var(--prj-r) - 1px); z-index:0;
+      background:var(--bg2);
+    }
+    .lg-card > * { position:relative; z-index:1; }
+    .lg-card:hover {
+      transform:translateY(-6px) scale(1.012);
+      box-shadow:0 24px 56px rgba(0,0,0,.28), 0 0 0 1px var(--lg-c1,#7c6cff) inset;
+    }
+
+    /* Shimmer sweep on hover */
+    .lg-shimmer {
+      position:absolute; inset:0; z-index:2; pointer-events:none;
+      background:linear-gradient(115deg,
+        transparent 30%,
+        rgba(255,255,255,.07) 48%,
+        rgba(255,255,255,.12) 50%,
+        rgba(255,255,255,.07) 52%,
+        transparent 70%);
+      background-size:220% 100%; background-position:220%;
+      opacity:0; transition:opacity .3s;
+    }
+    .lg-card:hover .lg-shimmer { opacity:1; animation:shimSweep .65s ease forwards; }
+    @keyframes shimSweep { to { background-position:-20%; } }
+
+    /* Icon orb */
+    .lg-icon-wrap {
+      padding:1.5rem 1.5rem .5rem;
+      display:flex; align-items:flex-start; justify-content:space-between;
+    }
+    .lg-icon-orb {
+      width:58px; height:58px; border-radius:16px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+      background:linear-gradient(135deg, var(--lg-c1,#7c6cff), var(--lg-c2,#06b6d4));
+      box-shadow:0 8px 24px color-mix(in srgb, var(--lg-c1,#7c6cff) 40%, transparent);
+      transition: box-shadow .35s, transform .35s;
+    }
+    .lg-icon-orb svg { width:28px; height:28px; color:#fff; filter:drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
+    .lg-status-pill {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.2rem .65rem; border-radius:999px; font-size:.67rem; font-weight:700;
+    }
+    .lg-pill-live    { background:rgba(16,185,129,.12); color:var(--prj-em); border:1px solid rgba(16,185,129,.25); }
+    .lg-pill-soon    { background:rgba(6,182,212,.1);   color:var(--prj-cyan); border:1px solid rgba(6,182,212,.25); }
+    .lg-pill-intern  { background:rgba(124,108,255,.1); color:var(--prj-v);   border:1px solid rgba(124,108,255,.25); }
+    .lg-pill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; animation:pulseDot 1.6s ease-in-out infinite; }
+
+    /* Card body */
+    .lg-body { padding:.75rem 1.5rem 1.25rem; display:flex; flex-direction:column; flex:1; }
+    .lg-tags { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:.65rem; }
+    .lg-tag  {
+      padding:.15rem .5rem; border-radius:999px; font-size:.65rem; font-weight:700;
+      background:rgba(124,108,255,.1); color:var(--prj-v); border:1px solid rgba(124,108,255,.18);
+    }
+    .lg-tag-c { background:rgba(6,182,212,.1);  color:var(--prj-cyan); border-color:rgba(6,182,212,.2); }
+    .lg-tag-g { background:rgba(16,185,129,.1); color:var(--prj-em);   border-color:rgba(16,185,129,.2); }
+    .lg-tag-o { background:rgba(245,158,11,.1); color:var(--prj-gold); border-color:rgba(245,158,11,.2); }
+    .lg-title { font-size:1.05rem; font-weight:800; color:var(--txt); line-height:1.3; margin-bottom:.5rem; letter-spacing:-.015em; }
+    .lg-desc  { font-size:.81rem; color:var(--txt2); line-height:1.65; flex:1; margin-bottom:1rem;
+                display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+    /* Meta row */
+    .lg-meta { display:flex; flex-wrap:wrap; gap:.6rem; padding-top:.85rem; border-top:1px solid var(--border); }
+    .lg-meta-item {
+      display:flex; align-items:center; gap:.3rem;
+      font-size:.75rem; color:var(--txt3); font-weight:500;
+    }
+    .lg-meta-item svg { opacity:.65; flex-shrink:0; }
+
+    /* Team dots */
+    .lg-team-dots { display:flex; gap:2px; align-items:center; }
+    .lg-dot { width:7px; height:7px; border-radius:50%; background:var(--lg-c1,#7c6cff); opacity:.35; }
+    .lg-dot.filled { opacity:1; }
+
+    /* ═══════════════════════════════════════════════════════
+       INTERNSHIP CARDS — Full glass cards in a grid
+    ═══════════════════════════════════════════════════════ */
+    .intern-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1.5rem; }
+
+    .intern-card {
+      position:relative; border-radius:var(--prj-r); cursor:pointer; overflow:hidden;
+      background:var(--glass-bg);
+      backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+      border:1px solid var(--glass-brd);
+      transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
+      animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    /* Accent line top */
+    .intern-card::before {
+      content:''; position:absolute; inset:0; z-index:0;
+      background:linear-gradient(135deg, color-mix(in srgb, var(--lg-c1,#7c6cff) 8%, transparent), transparent 60%);
+      transition:opacity .35s;
+    }
+    /* Left accent bar */
+    .intern-card::after {
+      content:''; position:absolute; left:0; top:0; bottom:0; width:3px; z-index:2;
+      background:linear-gradient(180deg, var(--lg-c1,#7c6cff), var(--lg-c2,#06b6d4));
+      transform:scaleY(0); transform-origin:top;
+      transition:transform .35s cubic-bezier(.22,1,.36,1);
+    }
+    .intern-card:hover::after { transform:scaleY(1); }
+    .intern-card:hover {
+      transform:translateY(-5px) translateX(3px);
+      box-shadow:0 20px 50px rgba(0,0,0,.22), 0 0 40px color-mix(in srgb,var(--lg-c1,#7c6cff) 15%, transparent);
+    }
+    .intern-card > * { position:relative; z-index:1; }
+
+    .intern-card-inner { display:flex; align-items:flex-start; gap:1rem; padding:1.35rem 1.4rem; }
+    .intern-card-icon  {
+      width:52px; height:52px; flex-shrink:0; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+      background:linear-gradient(135deg, var(--lg-c1,#7c6cff), var(--lg-c2,#06b6d4));
+      box-shadow:0 6px 20px color-mix(in srgb, var(--lg-c1,#7c6cff) 35%, transparent);
+      transition: box-shadow .35s;
+    }
+    .intern-card-icon svg { width:24px; height:24px; color:#fff; }
+    .intern-card-body { flex:1; min-width:0; }
+    .intern-card-row  { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; }
+    .intern-card-title{ font-size:.98rem; font-weight:800; color:var(--txt); line-height:1.3; }
+    .intern-card-arrow{
+      width:28px; height:28px; border-radius:50%; flex-shrink:0;
+      background:rgba(124,108,255,.1); border:1px solid rgba(124,108,255,.2);
+      display:flex; align-items:center; justify-content:center; color:var(--prj-v);
+      transition:all .25s;
+    }
+    .intern-card:hover .intern-card-arrow {
+      background:var(--prj-v); color:#fff;
+      box-shadow:0 4px 12px rgba(124,108,255,.4);
+      transform:translateX(2px);
+    }
+    .intern-card-meta { display:flex; flex-wrap:wrap; gap:.5rem .85rem; margin-top:.5rem; }
+    .intern-meta-item { display:flex; align-items:center; gap:.3rem; font-size:.75rem; color:var(--txt2); }
+    .intern-meta-item svg { opacity:.6; flex-shrink:0; }
+    .intern-card-tags { display:flex; flex-wrap:wrap; gap:.28rem; margin-top:.6rem; }
+
+    /* ═══════════════════════════════════════════════════════
+       UPCOMING CARDS — Frosted glass with pulse overlay
+    ═══════════════════════════════════════════════════════ */
+    .upcoming-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; }
+
+    .upcoming-card {
+      position:relative; border-radius:var(--prj-r); cursor:pointer; overflow:hidden;
+      background:var(--glass-bg);
+      backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+      border:1px solid var(--glass-brd);
+      transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
+      animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    /* Slow rotating glow in background */
+    .upcoming-card::before {
+      content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+      background:conic-gradient(
+        transparent 0deg,
+        color-mix(in srgb, var(--lg-c1,#7c6cff) 14%, transparent) 70deg,
+        color-mix(in srgb, var(--lg-c2,#06b6d4) 10%, transparent) 140deg,
+        transparent 200deg
+      );
+      animation:upcomingGlow 7s linear infinite;
+      pointer-events:none; z-index:0;
+    }
+    @keyframes upcomingGlow { to { transform:rotate(360deg); } }
+    .upcoming-card:hover { transform:translateY(-5px); box-shadow:0 18px 48px rgba(0,0,0,.24); }
+    .upcoming-card > * { position:relative; z-index:1; }
+
+    /* Noise texture overlay for depth */
+    .upcoming-noise {
+      position:absolute; inset:0; z-index:1; pointer-events:none; border-radius:var(--prj-r);
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+      opacity:.4;
+    }
+
+    .upcoming-icon-row { display:flex; align-items:center; justify-content:space-between; padding:1.4rem 1.4rem .6rem; }
+    .upcoming-orb {
+      width:54px; height:54px; border-radius:15px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+      background:linear-gradient(135deg, var(--lg-c1,#7c6cff), var(--lg-c2,#06b6d4));
+      box-shadow:0 8px 28px color-mix(in srgb, var(--lg-c1,#7c6cff) 30%, transparent);
+      transition: box-shadow .35s;
+    }
+    .upcoming-orb svg { width:26px; height:26px; color:#fff; }
+    .upcoming-soon-badge {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.28rem .75rem; border-radius:999px;
+      font-size:.67rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+      background:rgba(6,182,212,.1); color:var(--prj-cyan); border:1px solid rgba(6,182,212,.25);
+    }
+    .upcoming-body   { padding:.4rem 1.4rem 1.4rem; }
+    .upcoming-title  { font-size:1rem; font-weight:800; color:var(--txt); margin-bottom:.45rem; letter-spacing:-.015em; }
+    .upcoming-desc   {
+      font-size:.8rem; color:var(--txt2); line-height:1.65; margin-bottom:.9rem;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .upcoming-meta   { display:flex; flex-wrap:wrap; gap:.5rem .85rem; padding-top:.85rem; border-top:1px solid var(--border); }
+
+    /* ═══════════════════════════════════════════════════════
+       EMPTY STATES
+    ═══════════════════════════════════════════════════════ */
+    .prj-empty {
+      text-align:center; padding:4rem 2rem;
+      border:1px dashed var(--border); border-radius:var(--prj-r);
+    }
+    .prj-empty-icon { font-size:2.8rem; margin-bottom:.9rem; display:block; opacity:.5; }
+    .prj-empty h3   { font-size:.98rem; font-weight:700; margin-bottom:.35rem; color:var(--txt); }
+    .prj-empty p    { font-size:.8rem;  color:var(--txt2); }
+
+    /* ═══════════════════════════════════════════════════════
+       PROJECT DETAIL MODAL
+    ═══════════════════════════════════════════════════════ */
+    .prj-modal-overlay {
+      position:fixed; inset:0; z-index:10000;
+      background:rgba(0,0,0,.65);
+      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      display:none; align-items:center; justify-content:center;
+      padding:1rem;
+      animation:none;
+    }
+    .prj-modal-overlay.open {
+      display:flex;
+      animation:fadeInOverlay .22s ease;
+    }
+    @keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
+    .prj-modal {
+      background:var(--bg2); border:1px solid var(--border2);
+      border-radius:22px; max-width:520px; width:100%;
+      max-height:90vh; overflow-y:auto;
+      box-shadow:0 32px 80px rgba(0,0,0,.5);
+      position:relative; padding:2rem;
+      animation:modalSlideIn .28s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes modalSlideIn { from{transform:translateY(18px) scale(.96);opacity:0} to{transform:none;opacity:1} }
+    .prj-modal-close {
+      position:absolute; top:1rem; right:1rem;
+      width:32px; height:32px; border-radius:50%;
+      background:var(--panel); border:1px solid var(--border);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      font-size:.85rem; color:var(--txt2); transition:all .18s;
+    }
+    .prj-modal-close:hover { background:rgba(244,63,94,.12); color:#f43f5e; border-color:rgba(244,63,94,.35); }
+    .prj-modal-hero {
+      display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;
+    }
+    .prj-modal-orb {
+      width:56px; height:56px; border-radius:16px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg, var(--lg-c1,#7c6cff), var(--lg-c2,#06b6d4));
+      box-shadow:0 8px 24px color-mix(in srgb,var(--lg-c1,#7c6cff) 35%, transparent);
+    }
+    .prj-modal-orb svg { width:26px; height:26px; color:#fff; }
+    .prj-modal-badge {
+      display:inline-flex; align-items:center; gap:.35rem;
+      padding:.22rem .75rem; border-radius:999px; margin-bottom:.35rem;
+      background:rgba(124,108,255,.1); border:1px solid rgba(124,108,255,.25);
+      font-size:.67rem; font-weight:700; color:var(--prj-v); text-transform:uppercase; letter-spacing:.07em;
+    }
+    .prj-modal-title { font-size:1.35rem; font-weight:900; color:var(--txt); letter-spacing:-.02em; }
+    .prj-modal-desc  { font-size:.88rem; color:var(--txt2); line-height:1.65; margin-bottom:1.25rem; }
+    .prj-modal-facts { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; margin-bottom:1.25rem; }
+    .prj-modal-fact  {
+      background:var(--panel); border:1px solid var(--border);
+      border-radius:12px; padding:.85rem 1rem;
+    }
+    .prj-modal-fact-label { font-size:.64rem; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.07em; }
+    .prj-modal-fact-value { font-size:1rem; font-weight:800; color:var(--txt); margin-top:.2rem; }
+    .prj-modal-tech  { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:1.2rem; }
+    .prj-modal-action {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.7rem 1.4rem; border-radius:10px;
+      background:linear-gradient(135deg, var(--prj-v), #4f46e5);
+      color:#fff; font-size:.85rem; font-weight:700;
+      border:none; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(124,108,255,.32);
+      transition:all .2s;
+    }
+    .prj-modal-action:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,108,255,.45); }
+    .prj-modal-login-note { font-size:.77rem; color:var(--txt3); margin-top:.7rem; }
+
+    /* ═══════════════════════════════════════════════════════
+       SHARED SMALL COMPONENTS
+    ═══════════════════════════════════════════════════════ */
+    .prj-tag  { padding:.15rem .52rem; border-radius:999px; font-size:.65rem; font-weight:700; }
+    .prj-tag-v { background:rgba(124,108,255,.1); color:var(--prj-v); border:1px solid rgba(124,108,255,.2); }
+    .prj-tag-c { background:rgba(6,182,212,.1);  color:var(--prj-cyan); border:1px solid rgba(6,182,212,.2); }
+    .prj-tag-g { background:rgba(16,185,129,.1); color:var(--prj-em);   border:1px solid rgba(16,185,129,.2); }
+    .prj-tag-o { background:rgba(245,158,11,.1); color:var(--prj-gold); border:1px solid rgba(245,158,11,.2); }
+
+    .prj-alert { padding:1rem 1.2rem; border-radius:12px; margin-bottom:1.25rem; font-size:.86rem; display:flex; gap:.7rem; align-items:flex-start; line-height:1.6; }
+    .prj-alert.info { background:rgba(124,108,255,.07); border:1px solid rgba(124,108,255,.22); color:var(--prj-v); }
+    .prj-alert.warn { background:rgba(245,158,11,.07);  border:1px solid rgba(245,158,11,.22);  color:var(--prj-gold); }
+    .prj-alert.ok   { background:rgba(16,185,129,.07);  border:1px solid rgba(16,185,129,.22);  color:var(--prj-em); }
+
+    /* ── Spinner ── */
+    .prj-spin {
+      width:40px; height:40px; margin:4rem auto; display:block;
+      border:3px solid var(--border); border-top-color:var(--prj-v);
+      border-radius:50%; animation:prjSpin .8s linear infinite;
+    }
+    @keyframes prjSpin { to { transform:rotate(360deg); } }
+
+    /* ── Toast ── */
+    #prj-toast {
+      position:fixed; bottom:1.75rem; right:1.75rem; z-index:99999;
+      background:var(--bg2); color:var(--txt);
+      padding:.88rem 1.25rem; border-radius:14px; font-size:.84rem; font-weight:600;
+      box-shadow:0 8px 32px rgba(0,0,0,.32); border:1px solid var(--border2);
+      max-width:320px; opacity:0; pointer-events:none;
+      transition:opacity .25s, transform .25s; transform:translateY(10px);
+    }
+    #prj-toast.show { opacity:1; pointer-events:auto; transform:translateY(0); }
+
+    /* ═══════════════════════════════════════════════════════
+       STUDENT WORK AREA
+    ═══════════════════════════════════════════════════════ */
+    #prj-student-area { margin-top:3.5rem; }
+    .prj-locked { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+    .prj-student-hdr {
+      background:linear-gradient(135deg, rgba(124,108,255,.1), rgba(6,182,212,.05));
+      border:1px solid rgba(124,108,255,.2); border-radius:20px;
+      padding:1.85rem; margin-bottom:2rem; position:relative; overflow:hidden;
+    }
+    .prj-student-hdr::before {
+      content:''; position:absolute; top:-55%; right:-15%; width:400px; height:400px;
+      background:radial-gradient(circle, rgba(124,108,255,.15), transparent 70%);
+      pointer-events:none;
+    }
+    .prj-student-hdr-title { font-size:1.15rem; font-weight:900; color:var(--txt); margin-bottom:.3rem; position:relative; }
+    .prj-student-hdr-sub   { font-size:.83rem; color:var(--txt2); position:relative; }
+    .prj-timer-bar {
+      display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:16px; padding:1.2rem 1.5rem; margin-bottom:2rem;
+    }
+    .prj-timer-display {
+      font-size:2.1rem; font-weight:900; font-variant-numeric:tabular-nums;
+      letter-spacing:.05em; color:var(--prj-v); font-family:'Courier New',monospace;
+    }
+    .prj-timer-status { font-size:.72rem; color:var(--txt3); font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-top:.1rem; }
+    .prj-timer-btns  { display:flex; gap:.6rem; flex-wrap:wrap; }
+    .prj-btn { display:inline-flex; align-items:center; gap:.45rem; padding:.6rem 1.25rem; border-radius:10px; font-size:.83rem; font-weight:700; cursor:pointer; border:none; font-family:inherit; transition:all .2s; white-space:nowrap; }
+    .prj-btn-pr     { background:linear-gradient(135deg,var(--prj-v),#4f46e5); color:#fff; box-shadow:0 4px 14px rgba(124,108,255,.3); }
+    .prj-btn-pr:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(124,108,255,.4); }
+    .prj-btn-sec    { background:var(--panel); color:var(--txt2); border:1px solid var(--border); }
+    .prj-btn-sec:hover { background:var(--panel2); border-color:var(--border2); color:var(--txt); }
+    .prj-btn-danger { background:rgba(244,63,94,.1); color:var(--prj-rose); border:1px solid rgba(244,63,94,.25); }
+    .prj-btn-danger:hover { background:rgba(244,63,94,.18); }
+    .prj-btn:disabled { opacity:.42; cursor:not-allowed; transform:none !important; }
+    .prj-module-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.2rem; }
+
+    /* ── Liquid Glass Module Card ── */
+    .prj-module-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(124,108,255,0.04) 50%, rgba(6,182,212,0.03) 100%);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all .32s cubic-bezier(.22,1,.36,1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .prj-module-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, var(--prj-v), var(--prj-cyan), var(--prj-em));
+      border-radius: 20px 20px 0 0;
+    }
+    /* shimmer sweep on hover */
+    .prj-module-card::after {
+      content:''; position:absolute; inset:0; border-radius:20px;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.07) 50%, transparent 60%);
+      transform: translateX(-100%);
+      transition: transform .55s ease;
+      pointer-events:none;
+    }
+    .prj-module-card:hover::after { transform: translateX(100%); }
+    .prj-module-card:hover {
+      border-color: rgba(124,108,255,.35);
+      box-shadow: 0 8px 40px rgba(124,108,255,.2), 0 0 0 1px rgba(124,108,255,.15), inset 0 1px 0 rgba(255,255,255,.18);
+      transform: translateY(-4px) scale(1.012);
+    }
+    .prj-module-card:active { transform: translateY(-1px) scale(1.005); }
+
+    /* Card content */
+    .prj-module-card-proj {
+      font-size:.7rem; color:var(--prj-cyan); font-weight:700; margin-bottom:.55rem;
+      text-transform:uppercase; letter-spacing:.08em;
+      display:flex; align-items:center; gap:.4rem;
+    }
+    .prj-module-card-proj::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--prj-cyan); flex-shrink:0; }
+    .prj-module-card-name   { font-size:1.05rem; font-weight:900; color:var(--txt); margin-bottom:.5rem; letter-spacing:-.02em; line-height:1.3; }
+    .prj-module-card-desc   { font-size:.81rem; color:var(--txt2); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .prj-module-card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:1rem; gap:.5rem; flex-wrap:wrap; }
+    .prj-module-card-dl {
+      display:inline-flex; align-items:center; gap:.35rem;
+      font-size:.72rem; color:var(--prj-gold); font-weight:700;
+      background: rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);
+      padding:.22rem .65rem; border-radius:8px;
+    }
+    .prj-module-card-status { display:inline-flex; align-items:center; gap:.3rem; padding:.22rem .65rem; border-radius:999px; font-size:.68rem; font-weight:700; }
+    .prj-mod-active  { background:rgba(16,185,129,.1); color:var(--prj-em); border:1px solid rgba(16,185,129,.25); }
+    .prj-mod-git-tag {
+      display:inline-flex; align-items:center; gap:.3rem;
+      font-size:.68rem; color:var(--prj-v); font-weight:700;
+      background:rgba(124,108,255,.08); border:1px solid rgba(124,108,255,.18);
+      padding:.2rem .6rem; border-radius:8px;
+    }
+    .prj-module-card-view-hint {
+      position:absolute; bottom:.85rem; right:.9rem;
+      font-size:.65rem; color:var(--txt3); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+      display:flex; align-items:center; gap:.25rem; opacity:0; transition:opacity .2s;
+    }
+    .prj-module-card:hover .prj-module-card-view-hint { opacity:1; }
+    .prj-mod-git-btn { display:none; }
+
+    /* ── Module Detail Modal ── */
+    #prj-module-modal .prj-modal { max-width:520px; }
+    .prj-mod-modal-hero {
+      display:flex; align-items:flex-start; gap:1rem; margin-bottom:1.5rem;
+    }
+    .prj-mod-modal-orb {
+      width:56px; height:56px; border-radius:16px; flex-shrink:0;
+      background:linear-gradient(135deg, rgba(124,108,255,.25), rgba(6,182,212,.15));
+      border:1px solid rgba(124,108,255,.25);
+      display:flex; align-items:center; justify-content:center; font-size:1.5rem;
+    }
+    .prj-mod-modal-badge {
+      font-size:.65rem; font-weight:800; color:var(--prj-cyan); text-transform:uppercase;
+      letter-spacing:.09em; margin-bottom:.35rem;
+    }
+    .prj-mod-modal-title { font-size:1.3rem; font-weight:900; color:var(--txt); letter-spacing:-.025em; line-height:1.2; }
+    .prj-mod-modal-desc {
+      font-size:.87rem; color:var(--txt2); line-height:1.7;
+      background:rgba(255,255,255,.03); border:1px solid var(--border);
+      border-radius:12px; padding:1rem; margin-bottom:1.2rem;
+    }
+    .prj-mod-modal-facts {
+      display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-bottom:1.2rem;
+    }
+    .prj-mod-modal-fact {
+      background:rgba(255,255,255,.03); border:1px solid var(--border);
+      border-radius:12px; padding:.8rem 1rem;
+    }
+    .prj-mod-modal-fact-label { font-size:.65rem; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:.3rem; }
+    .prj-mod-modal-fact-value { font-size:.9rem; font-weight:700; color:var(--txt); }
+    .prj-mod-modal-git {
+      background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.2);
+      border-radius:14px; padding:1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    }
+    .prj-mod-modal-git-info { font-size:.83rem; color:var(--txt2); }
+    .prj-mod-modal-git-info strong { color:var(--prj-em); }
+    .prj-mod-modal-git-btn {
+      display:inline-flex; align-items:center; gap:.35rem;
+      padding:.35rem .8rem; border-radius:9px; font-size:.75rem; font-weight:700;
+      background:rgba(16,185,129,.1); color:var(--prj-em);
+      border:1px solid rgba(16,185,129,.25); cursor:pointer;
+      font-family:inherit; transition:all .18s;
+    }
+    .prj-mod-modal-git-btn:hover { background:rgba(16,185,129,.18); }
+    .prj-mod-modal-dl-note    { font-size:.68rem; color:var(--prj-em); font-weight:700; margin-left:.35rem; background:rgba(16,185,129,.1); border-radius:6px; padding:.1rem .4rem; }
+    .prj-mod-modal-dl-overdue { font-size:.68rem; color:var(--prj-rose); font-weight:700; margin-left:.35rem; background:rgba(244,63,94,.1); border-radius:6px; padding:.1rem .4rem; }
+    .prj-mod-modal-status-active { color:var(--prj-em); }
+    .prj-mod-empty { color:var(--txt3); font-size:.85rem; padding:1rem; }
+    .prj-session-tbl-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:14px; }
+    .prj-session-tbl  { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .prj-session-tbl th { background:var(--panel); padding:.65rem 1rem; text-align:left; font-weight:700; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--txt3); border-bottom:1px solid var(--border); }
+    .prj-session-tbl td { padding:.7rem 1rem; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--txt); }
+    .prj-session-tbl tr:last-child td { border-bottom:none; }
+    .prj-session-tbl tr:hover td { background:var(--panel); }
+
+    /* ── Watermark ── */
+    #prj-watermark { position:fixed; inset:0; pointer-events:none; z-index:5000; overflow:hidden; opacity:.012; }
+    #prj-watermark span { position:absolute; white-space:nowrap; font-size:1rem; font-weight:600; color:var(--txt); transform:rotate(-35deg); transform-origin:center; letter-spacing:.1em; }
+
+    /* ═══════════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════════ */
+    @media(max-width:900px) {
+      .intern-grid { grid-template-columns:1fr; }
+    }
+    @media(max-width:768px) {
+      .lg-grid, .upcoming-grid { grid-template-columns:1fr; }
+      .prj-modal-facts { grid-template-columns:1fr; }
+      .prj-timer-bar { flex-direction:column; align-items:flex-start; }
+      .prj-module-grid { grid-template-columns:1fr; }
+      .prj-hero-stats { width:100%; justify-content:space-around; }
+    }
+    @media(max-width:480px) {
+      .prj-hero-stat-v { font-size:1.35rem; }
+      .prj-hero-stat   { padding:.75rem 1rem; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       PROFESSIONAL DYNAMIC ICON SYSTEM
+    ═══════════════════════════════════════════════════════ */
+
+    /* ── 3D wrapper ── */
+    .icon-3d-wrap {
+      position: relative; display: inline-flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* ── Orbit ring — spins clockwise, fades in ── */
+    .icon-orbit-ring {
+      position: absolute; inset: -9px; border-radius: 50%;
+      border: 1px dashed color-mix(in srgb, var(--oc,#7c6cff) 42%, transparent);
+      pointer-events: none; z-index: -1; opacity: 0;
+      animation-name: iconOrbitCW, iconFadeIn;
+      animation-duration: var(--orbit-dur,5s), .5s;
+      animation-timing-function: linear, ease;
+      animation-iteration-count: infinite, 1;
+      animation-fill-mode: none, forwards;
+      animation-delay: 0s, .4s;
+    }
+    .icon-orbit-ring::after {
+      content: ''; position: absolute;
+      top: -4.5px; left: calc(50% - 4.5px);
+      width: 8px; height: 8px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.95) 10%, var(--oc,#7c6cff) 60%, transparent);
+      box-shadow: 0 0 10px 3px var(--oc,#7c6cff);
+    }
+    /* ── Counter-orbit ring ── */
+    .icon-orbit-ring2 {
+      position: absolute; inset: -5px; border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--oc2,#06b6d4) 25%, transparent);
+      animation: iconOrbitCCW 4.5s linear infinite;
+      transform: rotateX(55deg);
+      pointer-events: none; z-index: -1; opacity: .55;
+    }
+    @keyframes iconOrbitCW  { to { transform: rotate(360deg); } }
+    @keyframes iconOrbitCCW { to { transform: rotateX(55deg) rotate(-360deg); } }
+    @keyframes iconFadeIn   { to { opacity: 1; } }
+
+    /* ── Pulse ring ── */
+    .icon-pulse-a {
+      position: absolute; inset: 0; border-radius: inherit;
+      border: 1.5px solid color-mix(in srgb, var(--oc,#7c6cff) 38%, transparent);
+      animation: iconPulseOut 3.2s ease-out infinite;
+      pointer-events: none; z-index: -1;
+    }
+    .icon-pulse-b { display: none; }
+    @keyframes iconPulseOut {
+      0%   { transform: scale(1);   opacity: .55; }
+      100% { transform: scale(2.0); opacity: 0;   }
+    }
+
+    /* ── Micro particles ── */
+    .icon-particle { position: absolute; border-radius: 50%; background: var(--oc,#7c6cff); pointer-events: none; z-index: -1; }
+    .icon-particle.p1 { width:4px; height:4px; box-shadow:0 0 6px 2px var(--oc,#7c6cff); animation:iconPart1 3.8s ease-in-out infinite; }
+    .icon-particle.p2 { width:3px; height:3px; background:var(--oc2,#06b6d4); box-shadow:0 0 5px 1px var(--oc2,#06b6d4); animation:iconPart2 3.2s ease-in-out infinite .9s; }
+    .icon-particle.p3 { display:none; }
+    @keyframes iconPart1 { 0%,100%{transform:translate(-17px,-13px);opacity:.7} 50%{transform:translate(-24px,-21px);opacity:.15} }
+    @keyframes iconPart2 { 0%,100%{transform:translate(19px,-11px);opacity:.65} 50%{transform:translate(26px,-19px);opacity:.1} }
+
+    /* ── Orb base — shared ── */
+    .lg-icon-orb, .intern-card-icon, .upcoming-orb { overflow: hidden; position: relative; }
+
+    /* ── SVG icon wrapper ── */
+    .icon-svg-wrap {
+      width: 28px; height: 28px;
+      position: relative; z-index: 3; flex-shrink: 0;
+      animation: iconSvgIn .55s cubic-bezier(.22,1,.36,1) both var(--appear-delay,0ms),
+                 iconSvgFloat var(--float-dur,4s) ease-in-out infinite var(--float-start,0ms);
+      will-change: transform; user-select: none;
+    }
+    .icon-svg-wrap svg { width:100%; height:100%; overflow:visible; display:block; }
+    .intern-card-icon .icon-svg-wrap { width:22px; height:22px; }
+    .upcoming-orb .icon-svg-wrap     { width:24px; height:24px; }
+
+    @keyframes iconSvgIn {
+      0%   { opacity:0; transform:scale(.25) rotate(-20deg); }
+      65%  { opacity:1; transform:scale(1.1) rotate(4deg); }
+      100% { opacity:1; transform:scale(1)  rotate(0deg); }
+    }
+    @keyframes iconSvgFloat {
+      0%,100% { transform: translateY(0)    scale(1); }
+      50%      { transform: translateY(-5px) scale(1.04); }
+    }
+
+    /* Hover: SVG icon lifts */
+    .lg-card:hover .icon-svg-wrap,
+    .intern-card:hover .icon-svg-wrap,
+    .upcoming-card:hover .icon-svg-wrap {
+      transform: translateY(-6px) scale(1.15) !important;
+      animation-play-state: paused;
+      transition: transform .28s cubic-bezier(.22,1,.36,1);
+    }
+
+    /* ── SVG micro-animation classes ── */
+    @keyframes icBlink { 0%,44%,56%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes icPulse { 0%,100%{opacity:.25;transform:scale(.85)} 50%{opacity:.9;transform:scale(1)} }
+    @keyframes icSpin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes icBeat  { 0%,40%,100%{transform:scale(1)} 18%{transform:scale(1.35)} 30%{transform:scale(.93)} }
+    @keyframes icFlash { 0%,78%,100%{opacity:.3} 85%{opacity:1} }
+    @keyframes icBob   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2.5px)} }
+    @keyframes icSlide { 0%,100%{transform:translateX(0)} 50%{transform:translateX(2.5px)} }
+    @keyframes icWiggle{ 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+
+    .ic-blink  { animation: icBlink  1.3s ease-in-out infinite; }
+    .ic-pulse  { animation: icPulse  2.4s ease-in-out infinite; }
+    .ic-spin   { animation: icSpin   3.8s linear infinite; transform-box:fill-box; transform-origin:center; }
+    .ic-beat   { animation: icBeat   1.6s cubic-bezier(.36,.07,.19,.97) infinite; transform-box:fill-box; transform-origin:center; }
+    .ic-flash  { animation: icFlash  3s ease-in-out infinite; }
+    .ic-bob    { animation: icBob    2.2s ease-in-out infinite; }
+    .ic-slide  { animation: icSlide  2.6s ease-in-out infinite; }
+    .ic-wiggle { animation: icWiggle 3s ease-in-out infinite; }
+    .ic-d1 { animation-delay: 0s; }
+    .ic-d2 { animation-delay: .45s; }
+    .ic-d3 { animation-delay: .9s; }
+
+    /* ── Type indicator badge (below orb) ── */
+    .icon-type-badge {
+      position: absolute; bottom: -6px; right: -6px; z-index: 5;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; line-height: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,.28), 0 0 0 1.5px rgba(255,255,255,.18);
+    }
+    .icon-badge-internship { background: linear-gradient(135deg,#f59e0b,#fbbf24); }
+    .icon-badge-upcoming   { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+
+    /* ── Gloss / depth overlays ── */
+    .icon-gloss {
+      position:absolute; inset:0; z-index:2; border-radius:inherit; pointer-events:none;
+      background:
+        radial-gradient(ellipse 68% 55% at 28% 18%, rgba(255,255,255,.7), rgba(255,255,255,.05) 50%, transparent 72%),
+        linear-gradient(145deg, rgba(255,255,255,.12) 0%, transparent 55%);
+    }
+    .icon-bottom-shade {
+      position:absolute; bottom:0; left:0; right:0; height:40%; z-index:2;
+      border-radius:0 0 inherit inherit; pointer-events:none;
+      background:linear-gradient(to top, rgba(0,0,0,.28), transparent);
+    }
+    .icon-inner-ring {
+      position:absolute; inset:0; z-index:1; border-radius:inherit; pointer-events:none;
+      box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.16), inset 0 1px 0 rgba(255,255,255,.32);
+    }
+
+    /* ── Depth box-shadows on orbs ── */
+    .lg-icon-orb {
+      box-shadow:
+        inset 0 2px 3px rgba(255,255,255,.22), inset 0 -3px 5px rgba(0,0,0,.26),
+        0 10px 30px color-mix(in srgb, var(--lg-c1,#7c6cff) 50%, transparent), 0 2px 8px rgba(0,0,0,.2);
+      transition: box-shadow .35s;
+    }
+    .intern-card-icon {
+      box-shadow:
+        inset 0 2px 3px rgba(255,255,255,.22), inset 0 -3px 5px rgba(0,0,0,.26),
+        0 8px 24px color-mix(in srgb, var(--lg-c1,#7c6cff) 42%, transparent), 0 2px 6px rgba(0,0,0,.18);
+      transition: box-shadow .35s;
+    }
+    .upcoming-orb {
+      box-shadow:
+        inset 0 2px 3px rgba(255,255,255,.22), inset 0 -3px 5px rgba(0,0,0,.26),
+        0 10px 32px color-mix(in srgb, var(--lg-c1,#7c6cff) 40%, transparent), 0 2px 8px rgba(0,0,0,.2);
+      transition: box-shadow .35s;
+    }
+    /* Upcoming orb — slightly dimmed to show "not yet open" */
+    .upcoming-orb { filter: saturate(.8); }
+    .upcoming-card:hover .upcoming-orb { filter: saturate(1.1); }
+
+    /* Orb glow amplifies on hover */
+    .lg-card:hover .lg-icon-orb {
+      box-shadow:
+        inset 0 2px 4px rgba(255,255,255,.34), inset 0 -4px 7px rgba(0,0,0,.3),
+        0 22px 58px color-mix(in srgb, var(--lg-c1,#7c6cff) 72%, transparent), 0 4px 14px rgba(0,0,0,.24);
+    }
+    .intern-card:hover .intern-card-icon {
+      box-shadow:
+        inset 0 2px 4px rgba(255,255,255,.34), inset 0 -4px 7px rgba(0,0,0,.3),
+        0 16px 44px color-mix(in srgb, var(--lg-c1,#7c6cff) 62%, transparent), 0 4px 12px rgba(0,0,0,.22);
+    }
+    .upcoming-card:hover .upcoming-orb {
+      box-shadow:
+        inset 0 2px 4px rgba(255,255,255,.34), inset 0 -4px 7px rgba(0,0,0,.3),
+        0 18px 50px color-mix(in srgb, var(--lg-c1,#7c6cff) 62%, transparent), 0 4px 12px rgba(0,0,0,.22);
+    }
+
+    /* Orbit ring speeds up on hover */
+    .lg-card:hover .icon-orbit-ring,
+    .intern-card:hover .icon-orbit-ring,
+    .upcoming-card:hover .icon-orbit-ring {
+      border-color: color-mix(in srgb, var(--oc,#7c6cff) 78%, transparent);
+      animation-duration: 1.6s, .6s;
+    }
+    .lg-card:hover .icon-pulse-a,
+    .intern-card:hover .icon-pulse-a,
+    .upcoming-card:hover .icon-pulse-a { animation-duration: 1.9s; }
+
+    /* ── Card 3D perspective tilt ── */
+    .lg-card:hover {
+      transform: perspective(900px) translateY(-7px) scale(1.014) rotateX(-3.5deg);
+    }
+    .intern-card:hover {
+      transform: perspective(900px) translateY(-6px) translateX(3px) rotateX(-2.5deg) rotateY(1.5deg);
+    }
+    .upcoming-card:hover {
+      transform: perspective(900px) translateY(-6px) rotateX(-2deg);
+      box-shadow: 0 22px 56px rgba(0,0,0,.28);
+    }
+
+    /* ── orbFloat: keep for backward compat (used on base animation) ── */
+    @keyframes orbFloat {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-5px) scale(1.04); }
+    }
+  </style>
+</head>
+<body class="prj-page">
+  <nav></nav>
+
+  <!-- ── Watermark (rendered after auth) ── -->
+  <div id="prj-watermark" style="display:none" aria-hidden="true"></div>
+
+  <!-- ── Toast ── -->
+  <div id="prj-toast" role="alert" aria-live="polite"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="prj-hero">
+    <div class="prj-hero-mesh"></div>
+    <div class="prj-hero-grid"></div>
+    <div class="prj-container">
+      <div class="prj-hero-inner">
+        <div class="prj-hero-left">
+          <div class="prj-hero-badge">
+            <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>
+            Live Projects
+          </div>
+          <h1>Projects</h1>
+          <p>Real-world projects. Build experience, earn recognition, and grow professionally.</p>
+        </div>
+        <div class="prj-hero-stats" id="prj-hero-stats">
+          <div class="prj-hero-stat"><div class="prj-hero-stat-v" id="stat-available">—</div><div class="prj-hero-stat-l">Available</div></div>
+          <div class="prj-hero-stat"><div class="prj-hero-stat-v" id="stat-internship">—</div><div class="prj-hero-stat-l">Internships</div></div>
+          <div class="prj-hero-stat"><div class="prj-hero-stat-v" id="stat-upcoming">—</div><div class="prj-hero-stat-l">Upcoming</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════════ -->
+  <main>
+    <div class="prj-container">
+
+      <!-- ── STUDENT WORK AREA (shown only when logged in + assigned) ── -->
+      <section id="prj-student-area" style="display:none" class="prj-locked">
+        <div class="prj-student-hdr">
+          <div style="position:relative;z-index:1">
+            <div class="prj-hero-badge" style="margin-bottom:.5rem">My Work</div>
+            <div class="prj-student-hdr-title" id="prj-student-name">Welcome back!</div>
+            <div class="prj-student-hdr-sub">Track your modules and log your work sessions below.</div>
+          </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="prj-timer-bar" id="prj-timer-bar">
+          <div>
+            <div class="prj-timer-display" id="prj-timer-display">00:00:00</div>
+            <div class="prj-timer-status" id="prj-timer-status">Session inactive</div>
+          </div>
+          <div class="prj-timer-btns">
+            <button class="prj-btn prj-btn-pr"    id="prj-start-btn"  onclick="startWorkSession()">▶ Start Working</button>
+            <button class="prj-btn prj-btn-danger" id="prj-end-btn"    onclick="endWorkSession()"   style="display:none">■ Stop Working</button>
+          </div>
+        </div>
+
+        <!-- Assigned Modules -->
+        <div style="margin-bottom:2rem">
+          <div class="prj-section-hdr">
+            <div class="prj-section-title-wrap">
+              <div class="prj-section-icon">📦</div>
+              <div>
+                <div class="prj-section-title">My Modules</div>
+                <div class="prj-section-sub">Modules assigned to you by admin</div>
+              </div>
+            </div>
+          </div>
+          <div class="prj-module-grid" id="prj-module-grid">
+            <div class="prj-spin"></div>
+          </div>
+        </div>
+
+        <!-- Session History -->
+        <div>
+          <div class="prj-section-hdr">
+            <div class="prj-section-title-wrap">
+              <div class="prj-section-icon">🕒</div>
+              <div>
+                <div class="prj-section-title">Session History</div>
+                <div class="prj-section-sub">Your past work sessions</div>
+              </div>
+            </div>
+          </div>
+          <div class="prj-session-tbl-wrap">
+            <table class="prj-session-tbl">
+              <thead><tr><th>Date</th><th>Start</th><th>End</th><th>Duration</th><th>Device</th></tr></thead>
+              <tbody id="prj-session-tbody"><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--txt3)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PUBLIC PROJECT SECTIONS ── -->
+      <div id="prj-public-sections">
+
+        <!-- Available Projects -->
+        <section class="prj-section">
+          <div class="prj-section-hdr">
+            <div class="prj-section-title-wrap">
+              <div class="prj-section-icon">🚀</div>
+              <div>
+                <div class="prj-section-title">Available Projects</div>
+                <div class="prj-section-sub">Open for student applications</div>
+              </div>
+            </div>
+            <span class="prj-section-count" id="count-available">0</span>
+          </div>
+          <div class="lg-grid" id="prj-available-grid">
+            <div class="prj-spin"></div>
+          </div>
+        </section>
+
+        <!-- Internships -->
+        <section class="prj-section">
+          <div class="prj-section-hdr">
+            <div class="prj-section-title-wrap">
+              <div class="prj-section-icon">🎓</div>
+              <div>
+                <div class="prj-section-title">Internships</div>
+                <div class="prj-section-sub">Structured internship programmes</div>
+              </div>
+            </div>
+            <span class="prj-section-count" id="count-internship">0</span>
+          </div>
+          <div class="intern-grid" id="prj-intern-list">
+            <div class="prj-spin"></div>
+          </div>
+        </section>
+
+        <!-- Upcoming Projects -->
+        <section class="prj-section">
+          <div class="prj-section-hdr">
+            <div class="prj-section-title-wrap">
+              <div class="prj-section-icon">⏳</div>
+              <div>
+                <div class="prj-section-title">Upcoming Projects</div>
+                <div class="prj-section-sub">Opening soon — register your interest</div>
+              </div>
+            </div>
+            <span class="prj-section-count" id="count-upcoming">0</span>
+          </div>
+          <div class="upcoming-grid" id="prj-upcoming-grid">
+            <div class="prj-spin"></div>
+          </div>
+        </section>
+
+      </div><!-- /prj-public-sections -->
+    </div><!-- /prj-container -->
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MODULE DETAIL MODAL
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="prj-module-modal" class="prj-modal-overlay" onclick="if(event.target===this)closePrjModuleModal()">
+    <div class="prj-modal">
+      <button class="prj-modal-close" onclick="closePrjModuleModal()">✕</button>
+      <div class="prj-mod-modal-hero">
+        <div class="prj-mod-modal-orb" id="mod-modal-orb">📦</div>
+        <div>
+          <div class="prj-mod-modal-badge" id="mod-modal-proj">Project</div>
+          <div class="prj-mod-modal-title" id="mod-modal-name">Module</div>
+        </div>
+      </div>
+      <div class="prj-mod-modal-desc" id="mod-modal-desc">No description provided.</div>
+      <div class="prj-mod-modal-facts" id="mod-modal-facts"></div>
+      <div id="mod-modal-git" style="display:none" class="prj-mod-modal-git">
+        <div class="prj-mod-modal-git-info">
+          <strong>Git Branch:</strong> <span id="mod-modal-branch">main</span>
+        </div>
+        <button type="button" class="prj-mod-modal-git-btn" id="mod-modal-git-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>
+          View Git Access
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PROJECT DETAIL MODAL
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="prj-detail-modal" class="prj-modal-overlay" onclick="if(event.target===this)closePrjModal()">
+    <div class="prj-modal">
+      <button class="prj-modal-close" onclick="closePrjModal()">✕</button>
+      <div class="prj-modal-hero">
+        <div class="prj-modal-orb" id="md-orb">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div>
+          <div class="prj-modal-badge" id="md-type-badge">Project</div>
+          <div class="prj-modal-title" id="md-title">Project Name</div>
+        </div>
+      </div>
+      <div class="prj-modal-desc"  id="md-desc">Description</div>
+      <div class="prj-modal-facts">
+        <div class="prj-modal-fact">
+          <div class="prj-modal-fact-label">Country</div>
+          <div class="prj-modal-fact-value" id="md-country">—</div>
+        </div>
+        <div class="prj-modal-fact">
+          <div class="prj-modal-fact-label">Team Size</div>
+          <div class="prj-modal-fact-value" id="md-team">—</div>
+        </div>
+        <div class="prj-modal-fact">
+          <div class="prj-modal-fact-label">Duration</div>
+          <div class="prj-modal-fact-value" id="md-duration">—</div>
+        </div>
+        <div class="prj-modal-fact">
+          <div class="prj-modal-fact-label">Domain</div>
+          <div class="prj-modal-fact-value" id="md-domain">—</div>
+        </div>
+      </div>
+      <div class="prj-modal-tech" id="md-tech"></div>
+      <div id="md-action-area">
+        <!-- filled by JS based on auth state -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Git Access Modal -->
+  <div id="prj-git-modal" class="prj-modal-overlay" onclick="if(event.target===this)document.getElementById('prj-git-modal').classList.remove('open')">
+    <div class="prj-modal" style="max-width:460px">
+      <button class="prj-modal-close" onclick="document.getElementById('prj-git-modal').classList.remove('open')">✕</button>
+      <div class="prj-modal-badge">Git Repository</div>
+      <div class="prj-modal-title" id="git-modal-title">Repository Access</div>
+      <div id="git-modal-body" style="font-size:.87rem;color:var(--txt2);line-height:1.65"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config/supabase-config.js"></script>
+  <script src="../js/profile-nav.js"></script>
+
+  <script>
+  /* ============================================================
+     SECURITY — Disable copy, right-click, print, drag on locked areas
+  ============================================================ */
+  document.addEventListener('contextmenu', e => {
+    if (e.target.closest('.prj-locked')) { e.preventDefault(); logSecurityViolation('right_click'); }
+  });
+  document.addEventListener('copy', e => {
+    if (e.target.closest('.prj-locked')) { e.preventDefault(); logSecurityViolation('copy_attempt'); }
+  });
+  document.addEventListener('cut', e => {
+    if (e.target.closest('.prj-locked')) { e.preventDefault(); logSecurityViolation('cut_attempt'); }
+  });
+  document.addEventListener('drag', e => {
+    if (e.target.closest('.prj-locked')) { e.preventDefault(); logSecurityViolation('drag_attempt'); }
+  });
+  document.addEventListener('keydown', e => {
+    if (!e.target.closest('.prj-locked')) return;
+    const k = e.key.toLowerCase();
+    if ((e.ctrlKey||e.metaKey) && ['c','x','s','p','a'].includes(k)) {
+      e.preventDefault();
+      if (['c','x'].includes(k)) logSecurityViolation('keyboard_copy', { key: k });
+      if (k === 'p')             logSecurityViolation('print_attempt',  { method: 'keyboard' });
+    }
+    if (e.key === 'F12') e.preventDefault();
+  });
+  window.addEventListener('beforeprint', () => {
+    if (document.getElementById('prj-student-area')?.style.display !== 'none') {
+      logSecurityViolation('print_attempt', { method: 'browser_menu' });
+    }
+  });
+
+  /* ============================================================
+     SUPABASE CLIENT — reuse the instance from supabase-config.js
+  ============================================================ */
+  let _prjSb = null;
+
+  /* ============================================================
+     STATE
+  ============================================================ */
+  let _prjUser        = null;
+  let _prjProfile     = null;
+  let _prjAssignments = [];
+  let _activeSessId   = null;
+  let _sessStartTime  = null;
+  let _timerInterval  = null;
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  async function prjInit() {
+    await loadProjects();
+    const { data: { session } } = await _prjSb.auth.getSession();
+    if (session?.user) {
+      _prjUser = session.user;
+      await loadStudentProfile();
+      await loadAssignments();
+      renderStudentArea();
+    }
+  }
+
+  /* ============================================================
+     LOAD PROJECTS (public)
+  ============================================================ */
+  async function loadProjects() {
+    const { data, error } = await _prjSb
+      .from('internship_projects')
+      .select('id,project_name,country,domain,description,tech_stack,duration_weeks,max_students,team_size,project_type,is_active')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) { console.error(error); return; }
+    const projects = data || [];
+
+    const available  = projects.filter(p => p.project_type === 'available');
+    const internship = projects.filter(p => p.project_type === 'internship');
+    const upcoming   = projects.filter(p => p.project_type === 'upcoming');
+
+    // Update hero stats
+    document.getElementById('stat-available').textContent  = available.length;
+    document.getElementById('stat-internship').textContent = internship.length;
+    document.getElementById('stat-upcoming').textContent   = upcoming.length;
+    document.getElementById('count-available').textContent  = available.length;
+    document.getElementById('count-internship').textContent = internship.length;
+    document.getElementById('count-upcoming').textContent   = upcoming.length;
+
+    renderCrystalGrid(available,  'prj-available-grid');
+    renderInternList(internship,  'prj-intern-list');
+    renderLiquidGrid(upcoming,    'prj-upcoming-grid');
+  }
+
+  /* ── Domain → emoji + brand colors + orbit speed ── */
+  /* ── Domain icon SVGs ─────────────────────────────────────────
+     Each returns inner SVG paths for viewBox="0 0 28 28"
+     White/rgba shapes = main form  |  colored class = animated accent
+  ──────────────────────────────────────────────────────────── */
+  const _domainSVGs = {
+    web: `
+      <rect x="1" y="2" width="26" height="17" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.72)" stroke-width="1.4"/>
+      <line x1="4" y1="8" x2="10" y2="8" stroke="rgba(255,255,255,.9)" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="4" y1="11" x2="16" y2="11" stroke="rgba(255,255,255,.6)" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="4" y1="14" x2="8" y2="14" stroke="#67e8f9" stroke-width="1.4" stroke-linecap="round"/>
+      <rect class="ic-blink" x="14" y="12" width="1.5" height="4" rx=".75" fill="#67e8f9"/>
+      <path d="M19 7 L22.5 10.5 L19 14" stroke="rgba(255,255,255,.55)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M12 19 L11 23 H17 L16 19" fill="rgba(255,255,255,.18)"/>
+      <rect x="8" y="23" width="12" height="1.5" rx=".75" fill="rgba(255,255,255,.2)"/>`,
+
+    ai: `
+      <line x1="7" y1="9" x2="14" y2="5"  stroke="rgba(255,255,255,.28)" stroke-width=".9"/>
+      <line x1="14" y1="5" x2="21" y2="9" stroke="rgba(255,255,255,.28)" stroke-width=".9"/>
+      <line x1="7" y1="9" x2="11" y2="17" stroke="rgba(255,255,255,.28)" stroke-width=".9"/>
+      <line x1="21" y1="9" x2="17" y2="17" stroke="rgba(255,255,255,.28)" stroke-width=".9"/>
+      <line x1="11" y1="17" x2="14" y2="22" stroke="rgba(255,255,255,.28)" stroke-width=".9"/>
+      <line x1="17" y1="17" x2="14" y2="22" stroke="rgba(255,255,255,.28)" stroke-width=".9"/>
+      <circle cx="7"  cy="9"  r="2"   fill="rgba(255,255,255,.72)"/>
+      <circle cx="14" cy="5"  r="2.4" fill="rgba(255,255,255,.9)"/>
+      <circle cx="21" cy="9"  r="2"   fill="rgba(255,255,255,.72)"/>
+      <circle cx="11" cy="17" r="1.8" fill="rgba(255,255,255,.6)"/>
+      <circle cx="17" cy="17" r="1.8" fill="rgba(255,255,255,.6)"/>
+      <circle class="ic-pulse ic-d1" cx="14" cy="13" r="4.2" fill="rgba(240,171,252,.35)"/>
+      <circle cx="14" cy="13" r="2.1" fill="#e879f9"/>
+      <circle cx="14" cy="22" r="2"   fill="#a5f3fc" class="ic-bob"/>`,
+
+    data: `
+      <ellipse cx="14" cy="6.5" rx="8" ry="3" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.7)" stroke-width="1.3"/>
+      <path d="M6 6.5v7a8 3 0 0 0 16 0v-7" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.65)" stroke-width="1.3"/>
+      <ellipse cx="14" cy="10" rx="8" ry="3" fill="none" stroke="rgba(255,255,255,.2)" stroke-width=".9" stroke-dasharray="2 1.5"/>
+      <rect x="4"  y="18" width="3" height="8" rx="1" fill="rgba(255,255,255,.75)"/>
+      <rect x="9"  y="15" width="3" height="11" rx="1" fill="#6ee7b7" class="ic-bob ic-d2"/>
+      <rect x="14" y="20" width="3" height="6" rx="1" fill="rgba(255,255,255,.6)"/>
+      <rect x="19" y="17" width="3" height="9" rx="1" fill="rgba(255,255,255,.72)"/>`,
+
+    mobile: `
+      <rect x="6" y="1" width="16" height="26" rx="3.5" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.78)" stroke-width="1.5"/>
+      <rect x="8" y="4.5" width="12" height="17.5" rx="1.5" fill="rgba(255,255,255,.13)"/>
+      <circle cx="11.5" cy="9"   r="1.6" fill="rgba(255,255,255,.85)"/>
+      <circle cx="16.5" cy="9"   r="1.6" fill="#fbbf24"/>
+      <circle cx="11.5" cy="13.5" r="1.6" fill="#86efac"/>
+      <circle cx="16.5" cy="13.5" r="1.6" fill="#93c5fd"/>
+      <rect x="10" y="5.5" width="8" height=".8" rx=".4" fill="rgba(255,255,255,.35)"/>
+      <circle class="ic-pulse ic-d1" cx="18" cy="6" r="3" fill="rgba(248,113,113,.35)"/>
+      <circle cx="18" cy="6" r="1.4" fill="#f87171"/>
+      <circle cx="14" cy="25.5" r="1.4" fill="rgba(255,255,255,.45)" stroke="rgba(255,255,255,.6)" stroke-width="1"/>`,
+
+    cloud: `
+      <path d="M6 18 a4 4 0 0 1 0-8 a5 5 0 0 1 9.5-2 a4 4 0 1 1 .5 10Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.75)" stroke-width="1.4"/>
+      <path class="ic-flash ic-d2" d="M16 7 L13 14 h3 L12 22 L20 13 h-3 L20 7Z" fill="#fbbf24"/>
+      <g class="ic-spin" style="transform-origin:22px 23px">
+        <circle cx="22" cy="23" r="3" fill="none" stroke="#67e8f9" stroke-width="1.3"/>
+        <path d="M22 19.5v1.5M22 24.5v1.5M18.5 23h1.5M24.5 23h1.5M19.6 20.1l1 1M23.4 23.9l1 1M19.6 25.9l1-1M23.4 22.1l1-1" stroke="#67e8f9" stroke-width="1.1" stroke-linecap="round"/>
+      </g>`,
+
+    security: `
+      <path d="M14 2 L4 6.5 V13.5 C4 18.8 14 24 14 24 S24 18.8 24 13.5 V6.5 Z" fill="rgba(255,255,255,.17)" stroke="rgba(255,255,255,.78)" stroke-width="1.5"/>
+      <rect x="10.5" y="14" width="7" height="5.5" rx="1.5" fill="rgba(255,255,255,.78)"/>
+      <path d="M12 14 v-1.5 a2 2 0 0 1 4 0 V14" stroke="rgba(255,255,255,.9)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <circle cx="14" cy="16.8" r="1.1" fill="rgba(0,0,0,.28)"/>
+      <rect x="13.4" y="17.5" width="1.2" height="1.2" rx=".4" fill="rgba(0,0,0,.28)"/>
+      <circle class="ic-pulse ic-d1" cx="14" cy="13" r="11.5" fill="none" stroke="rgba(255,255,255,.18)" stroke-width=".8"/>`,
+
+    game: `
+      <path d="M5 14 Q4 8 8 7 L10.5 10 H17.5 L20 7 Q24 8 23 14 Q22 20 19 20 L17.5 17 H10.5 L9 20 Q6 20 5 14Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.72)" stroke-width="1.3"/>
+      <rect x="7.5" y="12.5" width="1.8" height="5"   rx=".7" fill="rgba(255,255,255,.85)"/>
+      <rect x="6"   y="14"   width="5"   height="1.8" rx=".7" fill="rgba(255,255,255,.85)"/>
+      <circle cx="18.5" cy="11.5" r="1.4" fill="#f87171" class="ic-pulse ic-d1"/>
+      <circle cx="21"   cy="13.5" r="1.4" fill="#86efac" class="ic-pulse ic-d2"/>
+      <circle cx="16"   cy="13.5" r="1.4" fill="#93c5fd"/>
+      <circle cx="18.5" cy="15.5" r="1.4" fill="#fbbf24" class="ic-pulse ic-d3"/>`,
+
+    design: `
+      <path d="M17 2 L24.5 9.5 L11.5 22.5 L3.5 24.5 L5.5 16.5 Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.78)" stroke-width="1.4" stroke-linejoin="round"/>
+      <line x1="15" y1="4.5" x2="22.5" y2="12" stroke="rgba(255,255,255,.4)" stroke-width="1.3"/>
+      <path d="M5.5 16.5 L3.5 24.5 L11.5 22.5" fill="rgba(255,255,255,.22)"/>
+      <circle cx="21.5" cy="20"   r="2.5" fill="#f0abfc" class="ic-bob ic-d1"/>
+      <circle cx="25"   cy="16.5" r="2"   fill="#6ee7b7" class="ic-bob ic-d2"/>
+      <circle cx="23.5" cy="24"   r="2"   fill="#93c5fd" class="ic-bob ic-d3"/>
+      <path d="M7 4.5 L7.8 7 L10 7.8 L7.8 8.6 L7 11 L6.2 8.6 L4 7.8 L6.2 7Z" fill="rgba(255,255,255,.92)" class="ic-flash"/>`,
+
+    backend: `
+      <rect x="3" y="3"  width="22" height="5" rx="1.5" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.68)" stroke-width="1.2"/>
+      <rect x="3" y="10" width="22" height="5" rx="1.5" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.68)" stroke-width="1.2"/>
+      <rect x="3" y="17" width="22" height="5" rx="1.5" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.68)" stroke-width="1.2"/>
+      <rect x="5" y="4.5" width="10" height="2" rx=".8" fill="rgba(255,255,255,.28)"/>
+      <rect x="5" y="11.5" width="10" height="2" rx=".8" fill="rgba(255,255,255,.28)"/>
+      <rect x="5" y="18.5" width="10" height="2" rx=".8" fill="rgba(255,255,255,.28)"/>
+      <circle class="ic-blink ic-d1" cx="21" cy="5.5"  r="1.2" fill="#4ade80"/>
+      <circle class="ic-blink ic-d2" cx="21" cy="12.5" r="1.2" fill="#4ade80"/>
+      <circle class="ic-flash ic-d3" cx="21" cy="19.5" r="1.2" fill="#fbbf24"/>`,
+
+    finance: `
+      <polyline points="3,24 8,17 13,20 19,10 25,4" stroke="rgba(255,255,255,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M3,24 8,17 13,20 19,10 25,4 V27 H3Z" fill="rgba(255,255,255,.07)"/>
+      <path d="M22 4 L26 4 L26 8" stroke="#4ade80" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="8" cy="24" r="3.5" fill="rgba(251,191,36,.85)" class="ic-bob"/>
+      <line x1="6" y1="24" x2="10" y2="24" stroke="rgba(0,0,0,.22)" stroke-width=".8"/>
+      <line x1="8" y1="22" x2="8"  y2="26" stroke="rgba(0,0,0,.22)" stroke-width=".8"/>
+      <circle cx="13" cy="20" r="1.8" fill="#fbbf24"/>
+      <circle cx="19" cy="10" r="1.8" fill="#4ade80" class="ic-pulse ic-d2"/>`,
+
+    health: `
+      <path d="M14 22 C14 22 4 16 4 9.5 A5 5 0 0 1 14 8 A5 5 0 0 1 24 9.5 C24 16 14 22 14 22Z" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.78)" stroke-width="1.5" class="ic-beat"/>
+      <path d="M5 13 H8.5 L10 10 L12 16 L14 8 L16 13 H18 L19.5 11 L20.5 13 H24" stroke="#f87171" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle class="ic-pulse ic-d1" cx="14" cy="14" r="4.5" fill="rgba(248,113,113,.28)"/>`,
+
+    education: `
+      <path d="M14 4 C14 4 7 6.5 5 7.5 V21 C7 20 14 19 14 19Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.72)" stroke-width="1.3" stroke-linejoin="round"/>
+      <path d="M14 4 C14 4 21 6.5 23 7.5 V21 C21 20 14 19 14 19Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.72)" stroke-width="1.3" stroke-linejoin="round"/>
+      <line x1="14" y1="4" x2="14" y2="19" stroke="rgba(255,255,255,.45)" stroke-width=".9"/>
+      <line x1="7"  y1="10" x2="12" y2="9.5" stroke="rgba(255,255,255,.55)" stroke-width=".9" stroke-linecap="round"/>
+      <line x1="7"  y1="13" x2="12" y2="12.5" stroke="rgba(255,255,255,.4)" stroke-width=".9" stroke-linecap="round"/>
+      <path d="M14 22 L7.5 19 L14 16 L20.5 19 Z" fill="rgba(255,255,255,.82)"/>
+      <line x1="20" y1="19" x2="20.5" y2="23.5" stroke="rgba(255,255,255,.6)" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M7 3 L7.8 5.5 L10 6.3 L7.8 7.1 L7 9.5 L6.2 7.1 L4 6.3 L6.2 5.5Z" fill="#fbbf24" class="ic-flash"/>`,
+
+    marketing: `
+      <path d="M3 11.5 H9 L19 5.5 V22.5 L9 16.5 H3 Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.75)" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M3 16.5 L3.5 21 Q6 22 8 18.5 L8 16.5" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.55)" stroke-width="1.2"/>
+      <path class="ic-pulse ic-d1" d="M21.5 8.5 Q25 11 25 14 Q25 17 21.5 19.5" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <path class="ic-pulse ic-d2" d="M22.5 11 Q25.5 13 25.5 14 Q25.5 15 22.5 17" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" fill="none"/>`,
+
+    iot: `
+      <rect x="8" y="8" width="12" height="12" rx="2" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.78)" stroke-width="1.5"/>
+      <line x1="3.5" y1="11" x2="8"   y2="11"   stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="3.5" y1="14" x2="8"   y2="14"   stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="3.5" y1="17" x2="8"   y2="17"   stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="20"  y1="11" x2="24.5" y2="11"  stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="20"  y1="14" x2="24.5" y2="14"  stroke="#67e8f9" stroke-width="1.3" stroke-linecap="round" class="ic-pulse ic-d1"/>
+      <line x1="20"  y1="17" x2="24.5" y2="17"  stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="11"  y1="3.5" x2="11" y2="8"    stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="14"  y1="3.5" x2="14" y2="8"    stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="17"  y1="3.5" x2="17" y2="8"    stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/>
+      <rect x="11" y="11" width="6" height="6" rx="1.2" fill="rgba(255,255,255,.32)"/>
+      <circle cx="14" cy="14" r="1.8" fill="#67e8f9" class="ic-pulse ic-d2"/>`,
+
+    default: `
+      <path d="M14 2 C14 2 20 7.5 20 16 L17.5 20 H10.5 L8 16 C8 7.5 14 2 14 2Z" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.8)" stroke-width="1.5"/>
+      <circle cx="14" cy="12.5" r="3"   fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.65)" stroke-width="1.2"/>
+      <circle cx="14" cy="12.5" r="1.5" fill="rgba(135,206,250,.7)"/>
+      <path d="M10.5 16 L8 22 L10.5 20Z" fill="rgba(255,255,255,.32)"/>
+      <path d="M17.5 16 L20 22 L17.5 20Z" fill="rgba(255,255,255,.32)"/>
+      <path class="ic-beat"       d="M12 20 Q11 24.5 14 26.5 Q17 24.5 16 20Z" fill="#fbbf24"/>
+      <path class="ic-beat ic-d2" d="M13 21 Q12.5 24.5 14 25.5 Q15.5 24.5 15 21Z" fill="#fb923c"/>
+      <circle cx="5"  cy="6"  r="1"   fill="rgba(255,255,255,.7)" class="ic-flash"/>
+      <circle cx="23" cy="9"  r="1"   fill="rgba(255,255,255,.7)" class="ic-flash ic-d2"/>
+      <circle cx="5"  cy="19" r=".8"  fill="rgba(255,255,255,.5)" class="ic-flash ic-d3"/>`
+  };
+
+  /* ── Icon config per domain ─────────────────────────────────── */
+  function getProjectIcon(domain, name) {
+    const d = (domain || name || '').toLowerCase();
+    if (/web|front|react|vue|angular|html|css|ui|ux/.test(d))
+      return { c1:'#6366f1', c2:'#06b6d4', key:'web',       orbitDur:'4.5s', floatDur:'3.8s', floatStart:'0ms'    };
+    if (/machine|ml|ai|deep|neural|learn|gpt|llm/.test(d))
+      return { c1:'#8b5cf6', c2:'#ec4899', key:'ai',        orbitDur:'3.2s', floatDur:'3.5s', floatStart:'200ms'  };
+    if (/data|analytics|sql|database|bi|excel|tableau/.test(d))
+      return { c1:'#f59e0b', c2:'#10b981', key:'data',      orbitDur:'5s',   floatDur:'4.2s', floatStart:'100ms'  };
+    if (/mobile|android|ios|flutter|swift/.test(d))
+      return { c1:'#06b6d4', c2:'#3b82f6', key:'mobile',    orbitDur:'4.5s', floatDur:'3.9s', floatStart:'300ms'  };
+    if (/cloud|aws|azure|gcp|devops|docker|kubernetes|k8s|cicd/.test(d))
+      return { c1:'#38bdf8', c2:'#6366f1', key:'cloud',     orbitDur:'6s',   floatDur:'5s',   floatStart:'500ms'  };
+    if (/security|cyber|pentest|ethical|hack|infosec/.test(d))
+      return { c1:'#f43f5e', c2:'#7c6cff', key:'security',  orbitDur:'3.5s', floatDur:'3.4s', floatStart:'0ms'    };
+    if (/game|unity|unreal|3d|ar|vr|xr/.test(d))
+      return { c1:'#10b981', c2:'#f59e0b', key:'game',      orbitDur:'2.8s', floatDur:'3s',   floatStart:'150ms'  };
+    if (/design|figma|adobe|graphic|brand|product/.test(d))
+      return { c1:'#ec4899', c2:'#f59e0b', key:'design',    orbitDur:'4.2s', floatDur:'4s',   floatStart:'400ms'  };
+    if (/backend|api|node|express|django|laravel|spring|server/.test(d))
+      return { c1:'#10b981', c2:'#06b6d4', key:'backend',   orbitDur:'5.5s', floatDur:'4.5s', floatStart:'0ms'    };
+    if (/finance|fintech|payment|bank|invest|crypto|block/.test(d))
+      return { c1:'#f59e0b', c2:'#10b981', key:'finance',   orbitDur:'4s',   floatDur:'3.8s', floatStart:'250ms'  };
+    if (/health|medical|bio|hospital|pharma|care/.test(d))
+      return { c1:'#ef4444', c2:'#10b981', key:'health',    orbitDur:'4.8s', floatDur:'4.2s', floatStart:'100ms'  };
+    if (/education|learn|teach|school|train|course/.test(d))
+      return { c1:'#8b5cf6', c2:'#06b6d4', key:'education', orbitDur:'5.2s', floatDur:'4.5s', floatStart:'0ms'    };
+    if (/marketing|social|media|content|brand|ads/.test(d))
+      return { c1:'#f43f5e', c2:'#f59e0b', key:'marketing', orbitDur:'3.8s', floatDur:'3.6s', floatStart:'350ms'  };
+    if (/iot|hardware|embedded|robot|sensor/.test(d))
+      return { c1:'#06b6d4', c2:'#10b981', key:'iot',       orbitDur:'3s',   floatDur:'3.2s', floatStart:'200ms'  };
+    return { c1:'#7c6cff', c2:'#06b6d4', key:'default',    orbitDur:'4.5s', floatDur:'4s',   floatStart:'0ms'    };
+  }
+
+  /* ── Build full icon HTML ─────────────────────────────────────
+     orbClass   : 'lg-icon-orb' | 'intern-card-icon' | 'upcoming-orb'
+     projectType: 'available' | 'internship' | 'upcoming'
+  ──────────────────────────────────────────────────────────── */
+  let _iconUid = 0;
+  function _buildIcon3d(iconData, orbClass, appearDelay, projectType) {
+    const { c1, c2, key, orbitDur, floatDur, floatStart } = iconData;
+    const svg = _domainSVGs[key] || _domainSVGs.default;
+    const uid  = ++_iconUid;
+    const fStart = floatStart || appearDelay || '0ms';
+
+    const typeBadge = projectType === 'internship'
+      ? `<div class="icon-type-badge icon-badge-internship">🎓</div>`
+      : projectType === 'upcoming'
+        ? `<div class="icon-type-badge icon-badge-upcoming">⏳</div>`
+        : '';
+
+    return `
+    <div class="icon-3d-wrap" style="--oc:${c1};--oc2:${c2};--orbit-dur:${orbitDur}">
+      <div class="icon-orbit-ring"></div>
+      <div class="icon-orbit-ring2"></div>
+      <div class="icon-pulse-a"></div>
+      <div class="icon-particle p1"></div>
+      <div class="icon-particle p2"></div>
+      <div class="${orbClass}">
+        <div class="icon-svg-wrap" style="--appear-delay:${appearDelay};--float-dur:${floatDur};--float-start:${fStart}">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">${svg}</svg>
+        </div>
+        <div class="icon-gloss"></div>
+        <div class="icon-inner-ring"></div>
+        <div class="icon-bottom-shade"></div>
+      </div>
+      ${typeBadge}
+    </div>`;
+  }
+
+  /* ── Team dot indicator ── */
+  function renderTeamDots(filled, total) {
+    const t = Math.min(total || 5, 8);
+    const f = Math.min(filled || 0, t);
+    return Array.from({length:t}, (_, i) => `<span class="lg-dot${i < f ? ' filled' : ''}"></span>`).join('');
+  }
+
+  /* ── Tag pills ── */
+  function renderTags(p) {
+    const tags = [];
+    if (p.domain) tags.push(`<span class="prj-tag prj-tag-v">${_esc(p.domain)}</span>`);
+    (p.tech_stack || []).slice(0, 3).forEach(t => tags.push(`<span class="prj-tag prj-tag-c">${_esc(t)}</span>`));
+    return tags.join('');
+  }
+
+  /* ── SVG icons for meta rows ── */
+  const _svgPin   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>`;
+  const _svgTeam  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+  const _svgClock = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const _svgChev  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>`;
+
+  /* ── Available Projects — lg-card liquid glass grid ── */
+  function renderCrystalGrid(projects, containerId) {
+    const el = document.getElementById(containerId);
+    if (!projects.length) {
+      el.innerHTML = `<div class="prj-empty"><div class="prj-empty-icon">🚀</div><h3>No available projects</h3><p>Check back soon — new projects are added regularly.</p></div>`;
+      return;
+    }
+    el.className = 'lg-grid';
+    el.innerHTML = projects.map((p, i) => {
+      const icon   = getProjectIcon(p.domain, p.project_name);
+      const { c1, c2 } = icon;
+      const teamSz = p.team_size || p.max_students || 5;
+      const delay  = (i * 85) + 'ms';
+      return `
+      <div class="lg-card" style="--lg-c1:${c1};--lg-c2:${c2};animation-delay:${delay}"
+           onclick="openProjectModal('${p.id}')">
+        <div class="lg-shimmer"></div>
+        <div class="lg-icon-wrap">
+          ${_buildIcon3d(icon, 'lg-icon-orb', delay)}
+          <span class="lg-status-pill lg-pill-live"><span class="lg-pill-dot"></span>Live</span>
+        </div>
+        <div class="lg-body">
+          <div class="lg-tags">${renderTags(p)}</div>
+          <div class="lg-title">${_esc(p.project_name)}</div>
+          <div class="lg-desc">${_esc(p.description || 'Real-world project experience awaits.')}</div>
+          <div class="lg-meta">
+            <div class="lg-meta-item">${_svgPin} ${_esc(p.country || '—')}</div>
+            <div class="lg-meta-item">${_svgTeam}
+              <div class="lg-team-dots">${renderTeamDots(0, teamSz)}</div>
+              ${teamSz}
+            </div>
+            <div class="lg-meta-item">${_svgClock} ${p.duration_weeks}w</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ── Internships — intern-card glass grid ── */
+  function renderInternList(projects, containerId) {
+    const el = document.getElementById(containerId);
+    if (!projects.length) {
+      el.innerHTML = `<div class="prj-empty"><div class="prj-empty-icon">🎓</div><h3>No internships listed</h3><p>Internship opportunities will appear here soon.</p></div>`;
+      return;
+    }
+    el.className = 'intern-grid';
+    el.innerHTML = projects.map((p, i) => {
+      const icon = getProjectIcon(p.domain, p.project_name);
+      const { c1, c2 } = icon;
+      const delay = (i * 95) + 'ms';
+      return `
+      <div class="intern-card" style="--lg-c1:${c1};--lg-c2:${c2};animation-delay:${delay}"
+           onclick="openProjectModal('${p.id}')">
+        <div class="intern-card-inner">
+          ${_buildIcon3d(icon, 'intern-card-icon', delay)}
+          <div class="intern-card-body">
+            <div class="intern-card-row">
+              <div class="intern-card-title">${_esc(p.project_name)}</div>
+              <div class="intern-card-arrow">${_svgChev}</div>
+            </div>
+            <div class="intern-card-meta">
+              <div class="intern-meta-item">${_svgPin} ${_esc(p.country || '—')}</div>
+              <div class="intern-meta-item">${_svgTeam} ${p.team_size || p.max_students} members</div>
+              <div class="intern-meta-item">${_svgClock} ${p.duration_weeks}w</div>
+            </div>
+            <div class="intern-card-tags">${renderTags(p)}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ── Upcoming Projects — upcoming-card frosted glow ── */
+  function renderLiquidGrid(projects, containerId) {
+    const el = document.getElementById(containerId);
+    if (!projects.length) {
+      el.innerHTML = `<div class="prj-empty"><div class="prj-empty-icon">⏳</div><h3>No upcoming projects</h3><p>New projects coming soon. Stay tuned!</p></div>`;
+      return;
+    }
+    el.className = 'upcoming-grid';
+    el.innerHTML = projects.map((p, i) => {
+      const icon = getProjectIcon(p.domain, p.project_name);
+      const { c1, c2 } = icon;
+      const delay = (i * 100) + 'ms';
+      return `
+      <div class="upcoming-card" style="--lg-c1:${c1};--lg-c2:${c2};animation-delay:${delay}"
+           onclick="openProjectModal('${p.id}')">
+        <div class="upcoming-noise"></div>
+        <div class="upcoming-icon-row">
+          ${_buildIcon3d(icon, 'upcoming-orb', delay)}
+          <span class="upcoming-soon-badge">
+            <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>
+            Soon
+          </span>
+        </div>
+        <div class="upcoming-body">
+          <div class="upcoming-title">${_esc(p.project_name)}</div>
+          <div class="upcoming-desc">${_esc(p.description || 'Details coming soon.')}</div>
+          <div class="upcoming-meta">
+            <div class="intern-meta-item">${_svgPin} ${_esc(p.country || '—')}</div>
+            <div class="intern-meta-item">${_svgTeam} ${p.team_size || p.max_students} members</div>
+            <div class="intern-meta-item">${_svgClock} ${p.duration_weeks}w</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ============================================================
+     PROJECT DETAIL MODAL
+  ============================================================ */
+  let _allProjects = {};
+
+  async function openProjectModal(id) {
+    let p = _allProjects[id];
+    if (!p) {
+      const { data } = await _prjSb.from('internship_projects')
+        .select('id,project_name,country,domain,description,tech_stack,duration_weeks,max_students,team_size,project_type')
+        .eq('id', id).single();
+      p = data;
+      if (p) _allProjects[id] = p;
+    }
+    if (!p) return;
+
+    const typeLabels = { available:'Available Project', internship:'Internship', upcoming:'Upcoming' };
+    document.getElementById('md-type-badge').textContent = typeLabels[p.project_type] || 'Project';
+    document.getElementById('md-title').textContent    = p.project_name;
+    document.getElementById('md-desc').textContent     = p.description || 'More details coming soon.';
+
+    // Dynamic icon + colors on modal orb
+    const { c1, c2, emoji, orbitDur, floatDur } = getProjectIcon(p.domain, p.project_name);
+    const orb = document.getElementById('md-orb');
+    orb.style.background = `linear-gradient(135deg,${c1},${c2})`;
+    orb.style.boxShadow  = `inset 0 2px 3px rgba(255,255,255,.24),inset 0 -3px 5px rgba(0,0,0,.28),0 10px 32px color-mix(in srgb,${c1} 50%,transparent)`;
+    orb.innerHTML = `<span class="icon-emoji" style="font-size:1.5rem;--float-dur:${floatDur}">${emoji}</span><div class="icon-gloss"></div><div class="icon-inner-ring"></div><div class="icon-bottom-shade"></div>`;
+    document.getElementById('md-country').textContent  = p.country || '—';
+    document.getElementById('md-team').textContent     = (p.team_size || p.max_students) + ' members';
+    document.getElementById('md-duration').textContent = p.duration_weeks + ' weeks';
+    document.getElementById('md-domain').textContent   = p.domain || 'General';
+    document.getElementById('md-tech').innerHTML       = (p.tech_stack || []).map(t =>
+      `<span class="prj-tag prj-tag-c">${_esc(t)}</span>`).join('') || '';
+
+    // Action area
+    const actionArea = document.getElementById('md-action-area');
+    if (_prjUser) {
+      const myAssign = _prjAssignments.find(a => a.project_id === id && a.status === 'active');
+      if (myAssign) {
+        actionArea.innerHTML = `<div class="prj-alert ok">
+          <span>✅</span><span>You are <strong>assigned</strong> to this project. Scroll up to your work area.</span>
+        </div>`;
+      } else {
+        actionArea.innerHTML = `
+          <div class="prj-alert info"><span>ℹ️</span><span>Access to this project is <strong>by admin assignment only</strong>. Contact us if you're interested.</span></div>`;
+      }
+    } else {
+      actionArea.innerHTML = `
+        <button class="prj-modal-action" onclick="window.profileNav&&window.profileNav.openLoginModal()">
+          Login to Apply
+        </button>
+        <div class="prj-modal-login-note">Already registered? Log in to see your assignment status.</div>`;
+    }
+
+    document.getElementById('prj-detail-modal').classList.add('open');
+  }
+
+  function closePrjModal() {
+    document.getElementById('prj-detail-modal').classList.remove('open');
+  }
+
+  /* ============================================================
+     STUDENT PROFILE & ASSIGNMENTS
+  ============================================================ */
+  async function loadStudentProfile() {
+    const { data } = await _prjSb.from('user_profiles')
+      .select('full_name, email').eq('user_id', _prjUser.id).single();
+    _prjProfile = data;
+  }
+
+  async function loadAssignments() {
+    const { data } = await _prjSb
+      .from('project_assignments')
+      .select('id,project_id,module_id,status,project_modules(id,module_name,description,deadline,git_branch),internship_projects(id,project_name,country)')
+      .eq('student_user_id', _prjUser.id)
+      .eq('status', 'active');
+    _prjAssignments = data || [];
+  }
+
+  /* ============================================================
+     RENDER STUDENT AREA
+  ============================================================ */
+  function renderStudentArea() {
+    if (!_prjAssignments.length) return; // no assignments → stay on public view
+    document.getElementById('prj-student-area').style.display = 'block';
+
+    // Update welcome name
+    const name = _prjProfile?.full_name || _prjUser.email;
+    document.getElementById('prj-student-name').textContent = `Welcome back, ${name}!`;
+
+    // Render watermark
+    renderWatermark(name, _prjProfile?.email || _prjUser.email);
+
+    // Render modules
+    renderModuleCards();
+    // Load session history
+    loadSessionHistory();
+    // Check for active (orphaned) session
+    resumeOrphanSession();
+  }
+
+  /* ── Watermark ── */
+  function renderWatermark(name, email) {
+    const wm = document.getElementById('prj-watermark');
+    wm.innerHTML = '';
+    const text = `${name} · ${email} · SkillUpNow`;
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 4; col++) {
+        const span = document.createElement('span');
+        span.textContent = text;
+        span.style.cssText = `top:${row*14}%;left:${col*28-10}%;`;
+        wm.appendChild(span);
+      }
+    }
+    wm.style.display = 'block';
+  }
+
+  /* ── Module cards ── */
+  function renderModuleCards() {
+    const grid = document.getElementById('prj-module-grid');
+    if (!_prjAssignments.length) {
+      grid.innerHTML = `<div class="prj-mod-empty">No modules assigned yet.</div>`;
+      return;
+    }
+    grid.innerHTML = _prjAssignments.map((a, i) => {
+      const m   = a.project_modules;
+      const prj = a.internship_projects;
+      const dl  = m?.deadline
+        ? new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+        : '';
+      const gitTag = m?.git_branch
+        ? `<span class="prj-mod-git-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>
+            ${_esc(m.git_branch)}
+           </span>`
+        : '';
+      return `<div class="prj-module-card prj-locked" onclick="openModuleDetail(${i})" style="animation-delay:${i*60}ms">
+        <div class="prj-module-card-proj">${_esc(prj?.project_name || 'Project')}</div>
+        <div class="prj-module-card-name">${_esc(m?.module_name || 'Module')}</div>
+        <div class="prj-module-card-desc">${_esc(m?.description || 'No description provided.')}</div>
+        <div class="prj-module-card-footer">
+          ${dl ? `<span class="prj-module-card-dl">📅 ${dl}</span>` : '<span></span>'}
+          <span class="prj-module-card-status prj-mod-active">● Active</span>
+        </div>
+        ${gitTag}
+        <span class="prj-module-card-view-hint">View details →</span>
+      </div>`;
+    }).join('');
+  }
+
+  /* ── Module detail modal ── */
+  function openModuleDetail(idx) {
+    const a   = _prjAssignments[idx];
+    if (!a) return;
+    const m   = a.project_modules;
+    const prj = a.internship_projects;
+
+    // Icon based on module name
+    const icons = { 'base':'📦','design':'🎨','api':'⚙️','frontend':'🖥️','backend':'🗄️','test':'🧪','deploy':'🚀','auth':'🔐','data':'📊','mobile':'📱' };
+    const key   = (m?.module_name||'').toLowerCase().split(/\s/)[0];
+    const emoji = icons[key] || '📦';
+
+    document.getElementById('mod-modal-orb').textContent  = emoji;
+    document.getElementById('mod-modal-proj').textContent = prj?.project_name || 'Project';
+    document.getElementById('mod-modal-name').textContent = m?.module_name || 'Module';
+    document.getElementById('mod-modal-desc').textContent = m?.description || 'No description provided.';
+
+    // Facts grid
+    const dl = m?.deadline
+      ? new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})
+      : '—';
+    const daysLeft = m?.deadline
+      ? Math.ceil((new Date(m.deadline) - new Date()) / 86400000)
+      : null;
+    const dlNote = daysLeft !== null
+      ? (daysLeft > 0 ? `<span class="prj-mod-modal-dl-note">${daysLeft}d left</span>` : `<span class="prj-mod-modal-dl-overdue">Overdue</span>`)
+      : '';
+    const country = prj?.country || '—';
+    document.getElementById('mod-modal-facts').innerHTML = `
+      <div class="prj-mod-modal-fact">
+        <div class="prj-mod-modal-fact-label">Deadline</div>
+        <div class="prj-mod-modal-fact-value">${dl} ${dlNote}</div>
+      </div>
+      <div class="prj-mod-modal-fact">
+        <div class="prj-mod-modal-fact-label">Status</div>
+        <div class="prj-mod-modal-fact-value prj-mod-modal-status-active">● Active</div>
+      </div>
+      <div class="prj-mod-modal-fact">
+        <div class="prj-mod-modal-fact-label">Project</div>
+        <div class="prj-mod-modal-fact-value">${_esc(prj?.project_name||'—')}</div>
+      </div>
+      <div class="prj-mod-modal-fact">
+        <div class="prj-mod-modal-fact-label">Country</div>
+        <div class="prj-mod-modal-fact-value">${_esc(country)}</div>
+      </div>`;
+
+    // Git row
+    const gitEl  = document.getElementById('mod-modal-git');
+    const gitBtn = document.getElementById('mod-modal-git-btn');
+    if (m?.git_branch) {
+      document.getElementById('mod-modal-branch').textContent = m.git_branch;
+      gitBtn.onclick = () => { closePrjModuleModal(); openGitInfo(a.id); };
+      gitEl.style.display = '';
+    } else {
+      gitEl.style.display = 'none';
+    }
+
+    document.getElementById('prj-module-modal').classList.add('open');
+  }
+
+  function closePrjModuleModal() {
+    document.getElementById('prj-module-modal').classList.remove('open');
+  }
+
+  /* ── Git info modal ── */
+  async function openGitInfo(assignmentId) {
+    const a = _prjAssignments.find(x => x.id === assignmentId);
+    if (!a) return;
+
+    // Load git repo + access
+    const [{ data: repo }, { data: access }] = await Promise.all([
+      _prjSb.from('project_git_repos').select('*').eq('project_id', a.project_id).maybeSingle(),
+      _prjSb.from('project_git_access').select('*').eq('assignment_id', assignmentId).eq('is_active', true).maybeSingle(),
+    ]);
+
+    const modal = document.getElementById('prj-git-modal');
+    document.getElementById('git-modal-title').textContent = repo ? 'Your Repository Access' : 'Git Access';
+    if (!repo) {
+      document.getElementById('git-modal-body').innerHTML = `<p>No repository has been configured for this project yet. Check back later or contact your admin.</p>`;
+    } else {
+      const branch = a.project_modules?.git_branch || 'main';
+      const username = access?.github_username || '—';
+      const level    = access?.access_level    || 'none';
+      document.getElementById('git-modal-body').innerHTML = `
+        <div class="prj-alert info" style="margin-bottom:1rem"><span>🔒</span><span>Repository access is managed by your admin. Do not share your credentials.</span></div>
+        <div class="prj-modal-facts" style="margin-bottom:1rem">
+          <div class="prj-modal-fact"><div class="prj-modal-fact-label">Platform</div><div class="prj-modal-fact-value" style="font-size:.85rem">${_esc(repo.repo_platform||'GitHub')}</div></div>
+          <div class="prj-modal-fact"><div class="prj-modal-fact-label">Branch</div><div class="prj-modal-fact-value" style="font-size:.85rem">${_esc(branch)}</div></div>
+          <div class="prj-modal-fact"><div class="prj-modal-fact-label">Your Handle</div><div class="prj-modal-fact-value" style="font-size:.85rem">${_esc(username)}</div></div>
+          <div class="prj-modal-fact"><div class="prj-modal-fact-label">Access Level</div><div class="prj-modal-fact-value" style="font-size:.85rem;text-transform:capitalize">${level}</div></div>
+        </div>
+        ${repo.instructions ? `<div style="font-size:.83rem;color:var(--txt2);margin-top:.5rem"><strong style="color:var(--txt)">Instructions:</strong><br>${_esc(repo.instructions)}</div>` : ''}
+        <a href="${_esc(repo.repo_url)}" target="_blank" rel="noopener noreferrer"
+           style="display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;padding:.55rem 1rem;border-radius:9px;background:rgba(16,185,129,.1);color:var(--prj-emerald);border:1px solid rgba(16,185,129,.25);font-size:.82rem;font-weight:700;text-decoration:none;">
+          Open Repository ↗
+        </a>`;
+    }
+    modal.classList.add('open');
+  }
+
+  /* ============================================================
+     WORK SESSION TRACKING
+  ============================================================ */
+  function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let dt = 'desktop', br = 'Other', brVer = '', os = 'Other', osVer = '';
+
+    if (/Mobi|Android/i.test(ua)) dt = 'mobile';
+    else if (/Tablet|iPad/i.test(ua)) dt = 'tablet';
+
+    const chromeM = ua.match(/Chrome\/([\d.]+)/);
+    const ffM     = ua.match(/Firefox\/([\d.]+)/);
+    const safM    = ua.match(/Version\/([\d.]+).*Safari/);
+    const edgeM   = ua.match(/Edg\/([\d.]+)/);
+    if (edgeM)                             { br = 'Edge';    brVer = edgeM[1]; }
+    else if (chromeM && !/Edg/i.test(ua)) { br = 'Chrome';  brVer = chromeM[1]; }
+    else if (ffM)                          { br = 'Firefox'; brVer = ffM[1]; }
+    else if (safM)                         { br = 'Safari';  brVer = safM[1]; }
+
+    const winM = ua.match(/Windows NT ([\d.]+)/);
+    const macM = ua.match(/Mac OS X ([\d_]+)/);
+    if (winM)                    { os = 'Windows'; osVer = ({10:'10',6.3:'8.1',6.2:'8',6.1:'7'}[winM[1]])||winM[1]; }
+    else if (macM)               { os = 'macOS';   osVer = macM[1].replace(/_/g,'.'); }
+    else if (/Linux/i.test(ua))  { os = 'Linux'; }
+    else if (/Android/i.test(ua)){ os = 'Android'; const am = ua.match(/Android ([\d.]+)/); osVer = am?am[1]:''; }
+    else if (/iPhone|iPad/i.test(ua)){ os = 'iOS'; const im = ua.match(/OS ([\d_]+)/); osVer = im?im[1].replace(/_/g,'.'):''; }
+
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    return {
+      device_type:   dt,
+      browser:       br,
+      os,
+      user_agent:    ua,
+      /* extended — logged in activity_data */
+      _ext: {
+        browser_version:  brVer,
+        os_version:       osVer,
+        screen:           `${screen.width}×${screen.height}`,
+        viewport:         `${window.innerWidth}×${window.innerHeight}`,
+        color_depth:      screen.colorDepth,
+        timezone:         Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language:         navigator.language,
+        cpu_cores:        navigator.hardwareConcurrency || null,
+        device_memory_gb: navigator.deviceMemory        || null,
+        touch_points:     navigator.maxTouchPoints       || 0,
+        connection_type:  conn?.effectiveType            || null,
+        downlink_mbps:    conn?.downlink                 || null,
+        platform:         navigator.platform             || null,
+        online:           navigator.onLine,
+      }
+    };
+  }
+
+  /* ── Security violation: log to DB + alert admin ── */
+  const _violationCooldown = {};
+  async function logSecurityViolation(type, extra = {}) {
+    if (!_prjUser || !_prjAssignments.length) return;
+    const now = Date.now();
+    if (_violationCooldown[type] && now - _violationCooldown[type] < 15000) return;
+    _violationCooldown[type] = now;
+
+    const assign = _prjAssignments[0];
+    const dinfo  = getDeviceInfo();
+    const payload = {
+      student_user_id: _prjUser.id,
+      assignment_id:   assign.id,
+      session_id:      _activeSessId || null,
+      alert_type:      type,
+      details: {
+        ...extra,
+        name:      _prjProfile?.full_name || '',
+        email:     _prjProfile?.email    || _prjUser.email,
+        browser:   dinfo.browser,
+        os:        dinfo.os,
+        device:    dinfo.device_type,
+        timestamp: new Date().toISOString(),
+      }
+    };
+    await _prjSb.from('security_alerts').insert(payload);
+    await _prjSb.from('project_activity_logs').insert({
+      session_id:      _activeSessId,
+      assignment_id:   assign.id,
+      student_user_id: _prjUser.id,
+      action_type:     'security_violation',
+      action_data:     { violation_type: type, ...extra },
+    });
+  }
+
+  async function startWorkSession() {
+    if (!_prjAssignments.length) { showToast('No active assignments.','warn'); return; }
+    const btn = document.getElementById('prj-start-btn');
+    btn.disabled = true;
+
+    const assign = _prjAssignments[0];
+    const dinfo  = getDeviceInfo();
+
+    const { data, error } = await _prjSb.from('project_work_sessions').insert({
+      assignment_id:   assign.id,
+      student_user_id: _prjUser.id,
+      session_start:   new Date().toISOString(),
+      device_type:     dinfo.device_type,
+      browser:         dinfo.browser,
+      os:              dinfo.os,
+      user_agent:      dinfo.user_agent,
+      is_active:       true,
+    }).select('id').single();
+
+    if (error) { showToast('Failed to start session: ' + error.message,'error'); btn.disabled=false; return; }
+
+    _activeSessId  = data.id;
+    _sessStartTime = Date.now();
+    localStorage.setItem('prj_active_session', JSON.stringify({ id:data.id, start:_sessStartTime, assignId:assign.id }));
+
+    startTimer();
+    document.getElementById('prj-start-btn').style.display = 'none';
+    document.getElementById('prj-end-btn').style.display   = '';
+    document.getElementById('prj-timer-status').textContent = 'Session active';
+
+    logActivity('session_start', {
+      device:          dinfo.device_type,
+      browser:         dinfo.browser,
+      browser_version: dinfo._ext.browser_version,
+      os:              dinfo.os,
+      os_version:      dinfo._ext.os_version,
+      screen:          dinfo._ext.screen,
+      viewport:        dinfo._ext.viewport,
+      timezone:        dinfo._ext.timezone,
+      language:        dinfo._ext.language,
+      cpu_cores:       dinfo._ext.cpu_cores,
+      device_memory_gb:dinfo._ext.device_memory_gb,
+      connection_type: dinfo._ext.connection_type,
+      downlink_mbps:   dinfo._ext.downlink_mbps,
+      platform:        dinfo._ext.platform,
+    });
+    showToast('Work session started!','ok');
+  }
+
+  async function endWorkSession() {
+    if (!_activeSessId) return;
+    clearInterval(_timerInterval);
+
+    const sessId = _activeSessId;
+    const { error } = await _prjSb.rpc('end_work_session', { p_session_id: sessId });
+
+    if (error) { showToast('Failed to end session: ' + error.message,'error'); startTimer(); return; }
+
+    logActivity('session_end', { duration_seconds: Math.floor((Date.now() - _sessStartTime)/1000) });
+    localStorage.removeItem('prj_active_session');
+    _activeSessId  = null;
+    _sessStartTime = null;
+
+    document.getElementById('prj-end-btn').style.display   = 'none';
+    document.getElementById('prj-start-btn').style.display = '';
+    document.getElementById('prj-timer-status').textContent = 'Session ended';
+    document.getElementById('prj-timer-display').textContent = '00:00:00';
+
+    showToast('Session ended and saved!','ok');
+    loadSessionHistory();
+  }
+
+  /* Resume orphaned session from localStorage */
+  async function resumeOrphanSession() {
+    const stored = localStorage.getItem('prj_active_session');
+    if (!stored) return;
+    try {
+      const s = JSON.parse(stored);
+      // Verify it's still active in DB
+      const { data } = await _prjSb.from('project_work_sessions')
+        .select('id,is_active').eq('id', s.id).maybeSingle();
+      if (data?.is_active) {
+        _activeSessId  = s.id;
+        _sessStartTime = s.start;
+        startTimer();
+        document.getElementById('prj-start-btn').style.display = 'none';
+        document.getElementById('prj-end-btn').style.display   = '';
+        document.getElementById('prj-timer-status').textContent = 'Session resumed';
+      } else {
+        localStorage.removeItem('prj_active_session');
+      }
+    } catch {}
+  }
+
+  /* Timer tick */
+  function startTimer() {
+    if (_timerInterval) clearInterval(_timerInterval);
+    _timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - _sessStartTime) / 1000);
+      const h = Math.floor(elapsed / 3600).toString().padStart(2,'0');
+      const m = Math.floor((elapsed % 3600) / 60).toString().padStart(2,'0');
+      const s = (elapsed % 60).toString().padStart(2,'0');
+      document.getElementById('prj-timer-display').textContent = `${h}:${m}:${s}`;
+    }, 1000);
+  }
+
+  /* Log tab-switch activity */
+  document.addEventListener('visibilitychange', () => {
+    if (!_activeSessId) return;
+    logActivity(document.hidden ? 'tab_hidden' : 'tab_visible', {});
+  });
+
+  async function logActivity(actionType, actionData) {
+    if (!_prjUser || !_prjAssignments.length) return;
+    await _prjSb.from('project_activity_logs').insert({
+      session_id:      _activeSessId,
+      assignment_id:   _prjAssignments[0].id,
+      student_user_id: _prjUser.id,
+      action_type:     actionType,
+      action_data:     actionData,
+    });
+  }
+
+  /* ── Load session history ── */
+  async function loadSessionHistory() {
+    const tbody = document.getElementById('prj-session-tbody');
+    if (!_prjAssignments.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--txt3)">No assignments</td></tr>'; return; }
+
+    const assignIds = _prjAssignments.map(a => a.id);
+    const { data, error } = await _prjSb
+      .from('project_work_sessions')
+      .select('session_start,session_end,duration_seconds,device_type,browser,os')
+      .in('assignment_id', assignIds)
+      .order('session_start', { ascending: false })
+      .limit(30);
+
+    if (error || !data?.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--txt3)">No sessions recorded yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.map(s => {
+      const date  = new Date(s.session_start).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+      const start = new Date(s.session_start).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+      const end   = s.session_end ? new Date(s.session_end).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const dur   = s.duration_seconds != null ? fmtDur(s.duration_seconds) : (s.session_end ? '—' : '<span style="color:var(--prj-emerald)">Live</span>');
+      const dev   = [s.device_type, s.browser, s.os].filter(Boolean).join(' · ') || '—';
+      return `<tr>
+        <td>${date}</td><td>${start}</td><td>${end}</td><td>${dur}</td>
+        <td style="font-size:.75rem;color:var(--txt3)">${_esc(dev)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function fmtDur(sec) {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    if (h) return `${h}h ${m}m`;
+    return `${m}m ${s}s`;
+  }
+
+  /* ============================================================
+     HELPERS
+  ============================================================ */
+  function _esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  let _toastTimer;
+  function showToast(msg, type='info') {
+    const t = document.getElementById('prj-toast');
+    const colors = { ok:'#10b981', warn:'#f59e0b', error:'#f43f5e', info:'var(--v2)' };
+    t.style.borderColor = colors[type] || colors.info;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* Keyboard Escape closes modal */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePrjModal();
+  });
+
+  /* ============================================================
+     BOOT — wait for window.supabaseConfig.client (set by supabase-config.js)
+  ============================================================ */
+  document.addEventListener('DOMContentLoaded', () => {
+    let tries = 0;
+    const poll = setInterval(() => {
+      if (window.supabaseConfig?.client) {
+        clearInterval(poll);
+        _prjSb = window.supabaseConfig.client;
+        prjInit();
+        return;
+      }
+      if (++tries > 50) {
+        clearInterval(poll);
+        const errHtml = `<div class="prj-empty"><div class="prj-empty-icon">⚠️</div><h3>Connection error</h3><p>Could not reach the database. Please refresh the page.</p></div>`;
+        ['prj-available-grid','prj-intern-list','prj-upcoming-grid'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = errHtml;
+        });
+      }
+    }, 100);
+  });
+  </script>
+  <footer></footer>
+</body>
+</html>

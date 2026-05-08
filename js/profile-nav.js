@@ -377,7 +377,7 @@ class ProfileNavigationManager {
     const isCourses    = path.includes('courses');
     const isPamphlet   = path.includes('pamphlet');
     const isContact    = path.includes('contact-enquiry') || path.includes('forms');
-    const isInternship = path.includes('internship');
+    const isInternship = path.includes('project') || path.includes('internship');
 
     return `
       <a href="${homeHref}" class="nav-logo" aria-label="SkillUpNow Home" style="padding:0;background:none;gap:0;">
@@ -388,7 +388,7 @@ class ProfileNavigationManager {
       <ul class="nav-links" id="nav-links-list" role="navigation" aria-label="Main navigation">
         <li><a href="${homeHref}"                        class="nav-link-item ${isHome       ? 'active' : ''}">Home</a></li>
         <li><a href="${p}courses${pageSuffix}"           class="nav-link-item ${isCourses    ? 'active' : ''}">Courses</a></li>
-        <li><a href="${p}internship${pageSuffix}"        class="nav-link-item ${isInternship ? 'active' : ''}">Internship</a></li>
+        <li><a href="${p}project${pageSuffix}"            class="nav-link-item ${isInternship ? 'active' : ''}">Projects</a></li>
         <li><a href="${p}pamphlet${pageSuffix}"          class="nav-link-item ${isPamphlet   ? 'active' : ''}">Pamphlet</a></li>
         <li><a href="${p}contact-enquiry${pageSuffix}"   class="nav-link-item ${isContact    ? 'active' : ''}">Contact & Forms</a></li>
       </ul>
@@ -550,7 +550,7 @@ class ProfileNavigationManager {
           <h5 class="footer-col-title" style="margin-bottom:.3rem;">Platform</h5>
           <ul class="footer-col-links">
             <li><a href="${p}courses${pageSuffix}"          class="footer-link">All Courses</a></li>
-            <li><a href="${p}internship${pageSuffix}"       class="footer-link">Internship</a></li>
+            <li><a href="${p}project${pageSuffix}"           class="footer-link">Projects</a></li>
             <li><a href="${p}emi-application${pageSuffix}"  class="footer-link">EMI Options</a></li>
             <li><a href="${p}pamphlet${pageSuffix}"         class="footer-link">Brochure</a></li>
             <li><a href="${p}contact-enquiry${pageSuffix}"  class="footer-link">Application Forms</a></li>
