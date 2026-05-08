@@ -1548,8 +1548,8 @@
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Project Name</th><th>Client</th><th>Country</th><th>Domain</th><th>Duration</th><th>Students</th><th>Active</th><th>Actions</th></tr></thead>
-            <tbody id="intern-proj-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+            <thead><tr><th>Project Name</th><th>Client</th><th>Country</th><th>Domain</th><th>Type</th><th>Duration</th><th>Students</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody id="intern-proj-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -7484,12 +7484,21 @@ async function loadInternProjects() {
   const countMap = {};
   (counts||[]).forEach(c => { countMap[c.project_id] = (countMap[c.project_id]||0)+1; });
 
-  tbody.innerHTML = projects.map(p => `
+  const _typeStyle = {
+    available:  { bg:'rgba(99,102,241,.15)',  color:'#a5b4fc',  label:'Available'  },
+    internship: { bg:'rgba(251,191,36,.12)',  color:'#fbbf24',  label:'Internship' },
+    upcoming:   { bg:'rgba(34,211,238,.12)',  color:'#22d3ee',  label:'Upcoming'   },
+    completed:  { bg:'rgba(74,222,128,.12)',  color:'#4ade80',  label:'Completed'  },
+  };
+  tbody.innerHTML = projects.map(p => {
+    const ts = _typeStyle[p.project_type] || _typeStyle.internship;
+    return `
     <tr>
       <td><strong>${_adm_esc(p.project_name)}</strong></td>
       <td>${_adm_esc(p.client_name)}</td>
       <td>${_adm_esc(p.country)}</td>
       <td><span class="badge" style="background:rgba(99,102,241,.15);color:#a5b4fc">${_adm_esc(p.domain||'General')}</span></td>
+      <td><span class="badge" style="background:${ts.bg};color:${ts.color}">${ts.label}</span></td>
       <td>${p.duration_weeks}w</td>
       <td>${countMap[p.id]||0} / ${p.max_students}</td>
       <td><span class="badge" style="background:${p.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${p.is_active?'#4ade80':'#f87171'}">${p.is_active?'Active':'Inactive'}</span></td>
@@ -7497,7 +7506,8 @@ async function loadInternProjects() {
         <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editInternProj('${p.id}')">Edit</button>
         <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteInternProj('${p.id}','${_adm_esc(p.project_name)}')">Delete</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function openInternProjModal(existingId) {
@@ -8876,6 +8886,7 @@ function _adm_esc(s) {
           <option value="available">Available</option>
           <option value="internship" selected>Internship</option>
           <option value="upcoming">Upcoming</option>
+          <option value="completed">Completed</option>
         </select>
       </div>
       <div class="f-group">

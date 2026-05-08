@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Detail — SkillUpNow</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    @property --pd-angle { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+
+    :root {
+      --prj-v:    var(--v1, #441998);
+      --prj-cyan: #06b6d4;
+      --prj-em:   #10b981;
+      --prj-gold: #f59e0b;
+      --prj-rose: #f43f5e;
+      --pd-r:     20px;
+    }
+
+    img { -webkit-user-drag:none; user-drag:none; }
+    .pd-page { padding-bottom:7rem; min-height:100vh; }
+    .pd-container { max-width:900px; margin:0 auto; padding:0 1.5rem; }
+
+    /* ── Hero ── */
+    @keyframes pdOrbFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-18px) scale(1.04)} }
+    @keyframes pdBorderSpin { to { --pd-angle:360deg; } }
+    @keyframes pdCardIn { from{opacity:0;transform:translateY(24px) scale(.97)} to{opacity:1;transform:none} }
+    @keyframes pdShimSweep { to { background-position:-20%; } }
+    @keyframes pdPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+    .pd-hero {
+      position:relative; overflow:hidden; padding:3.5rem 2rem 2.8rem;
+      background:linear-gradient(170deg,#0d0621 0%,#130d2e 50%,#06021a 100%);
+      border-bottom:1px solid rgba(109,40,217,.2);
+    }
+    :root[data-theme="light"] .pd-hero {
+      background:linear-gradient(155deg,#fefcff 0%,#f3f0fe 28%,#ebe6fd 58%,#f5f3ff 100%);
+      border-bottom-color:rgba(68,25,152,.12);
+    }
+    .pd-hero::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 40%, rgba(109,40,217,.38) 0%, transparent 55%),
+        radial-gradient(ellipse 65% 55% at 85% 65%, rgba(139,92,246,.28) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 55% 8%,  rgba(6,182,212,.12)  0%, transparent 45%);
+    }
+    :root[data-theme="light"] .pd-hero::before {
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 40%, rgba(109,40,217,.12) 0%, transparent 55%),
+        radial-gradient(ellipse 65% 55% at 85% 65%, rgba(139,92,246,.08) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 55% 8%,  rgba(6,182,212,.05)  0%, transparent 45%);
+    }
+    .pd-hero-orb {
+      position:absolute; border-radius:50%; pointer-events:none;
+    }
+    .pd-hero-orb1 { width:440px; height:440px; left:-130px; top:-100px;
+      background:radial-gradient(circle,rgba(109,40,217,.22) 0%,transparent 70%);
+      animation:pdOrbFloat 9s ease-in-out infinite; }
+    .pd-hero-orb2 { width:320px; height:320px; right:-80px; bottom:-60px;
+      background:radial-gradient(circle,rgba(139,92,246,.18) 0%,transparent 70%);
+      animation:pdOrbFloat 11s ease-in-out infinite; animation-delay:-4s; }
+    :root[data-theme="light"] .pd-hero-orb1 { background:radial-gradient(circle,rgba(109,40,217,.1) 0%,transparent 70%); }
+    :root[data-theme="light"] .pd-hero-orb2 { background:radial-gradient(circle,rgba(139,92,246,.08) 0%,transparent 70%); }
+
+    .pd-hero-inner { position:relative; z-index:2; max-width:860px; margin:0 auto; }
+
+    /* Back button */
+    .pd-back {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.38rem .9rem; border-radius:9px; margin-bottom:1.8rem;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
+      color:rgba(220,200,255,.8); font-size:.78rem; font-weight:700;
+      text-decoration:none; transition:all .2s; cursor:pointer;
+      backdrop-filter:blur(10px);
+    }
+    .pd-back:hover { background:rgba(255,255,255,.13); color:#fff; border-color:rgba(255,255,255,.28); }
+    :root[data-theme="light"] .pd-back {
+      background:rgba(68,25,152,.07); border-color:rgba(68,25,152,.18);
+      color:var(--prj-v);
+    }
+    :root[data-theme="light"] .pd-back:hover { background:rgba(68,25,152,.14); border-color:rgba(68,25,152,.35); }
+
+    /* Hero type badge */
+    .pd-type-badge {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.3rem 1rem; border-radius:50px; margin-bottom:1.1rem;
+      background:rgba(139,92,246,.1); border:1px solid rgba(139,92,246,.35);
+      font-size:.67rem; font-weight:800; color:#c084fc;
+      letter-spacing:.12em; text-transform:uppercase;
+      backdrop-filter:blur(8px);
+    }
+    :root[data-theme="light"] .pd-type-badge { background:rgba(68,25,152,.08); border-color:rgba(68,25,152,.28); color:#441998; }
+    .pd-type-dot { width:6px; height:6px; border-radius:50%; background:currentColor; animation:pdPulse 2s ease-in-out infinite; flex-shrink:0; }
+
+    .pd-hero-row { display:flex; align-items:flex-start; gap:1.6rem; flex-wrap:wrap; }
+    .pd-hero-icon {
+      flex-shrink:0; width:72px; height:72px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:20px;
+      background:color-mix(in srgb, var(--pd-c1, var(--prj-v)) 16%, rgba(0,0,0,.2));
+      border:1px solid color-mix(in srgb, var(--pd-c1, var(--prj-v)) 35%, transparent);
+      box-shadow:0 8px 32px color-mix(in srgb, var(--pd-c1, var(--prj-v)) 30%, transparent);
+    }
+    .pd-hero-icon svg { width:40px; height:40px; }
+
+    .pd-hero-text { flex:1; min-width:0; }
+    .pd-hero-title {
+      font-size:clamp(1.7rem,4vw,2.8rem); font-weight:900; line-height:1.12;
+      letter-spacing:-.03em; margin-bottom:.6rem;
+      background:linear-gradient(135deg,#ffffff 0%,#e0d4ff 30%,#c084fc 60%,#67e8f9 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    :root[data-theme="light"] .pd-hero-title {
+      background:linear-gradient(135deg,#160840 0%,#441998 35%,#5c22c5 65%,#441998 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .pd-hero-meta { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.8rem; }
+    .pd-meta-pill {
+      display:inline-flex; align-items:center; gap:.35rem;
+      font-size:.78rem; font-weight:600; padding:.28rem .75rem; border-radius:999px;
+    }
+    .pd-meta-loc  { color:#fb923c; background:rgba(251,146,60,.1);  border:1px solid rgba(251,146,60,.22); }
+    .pd-meta-team { color:#38bdf8; background:rgba(56,189,248,.1);  border:1px solid rgba(56,189,248,.22); }
+    .pd-meta-dur  { color:#a78bfa; background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.22); }
+
+    /* ── Main content ── */
+    .pd-main { padding:2.5rem 0 3rem; }
+
+    /* Glass card wrapper */
+    .pd-glass-card {
+      position:relative; border-radius:var(--pd-r); overflow:visible;
+      animation:pdCardIn .45s cubic-bezier(.22,1,.36,1) both;
+      margin-bottom:2rem;
+    }
+    /* Spinning gradient border */
+    .pd-glass-card::before {
+      content:''; position:absolute; inset:-1.5px;
+      border-radius:calc(var(--pd-r) + 1.5px); z-index:0;
+      background:conic-gradient(
+        from var(--pd-angle),
+        transparent 0%,
+        var(--pd-c1, var(--prj-v)) 14%,
+        var(--pd-c2, #06b6d4) 34%,
+        transparent 52%,
+        var(--pd-c1, var(--prj-v)) 82%,
+        transparent 100%
+      );
+      opacity:.5;
+      animation:pdBorderSpin 6s linear infinite;
+    }
+    .pd-glass-card::after {
+      content:''; position:absolute; inset:1.5px;
+      border-radius:calc(var(--pd-r) - 1.5px); z-index:0;
+      background:var(--bg2);
+    }
+    :root[data-theme="light"] .pd-glass-card::after { background:rgba(255,255,255,.98); }
+    .pd-glass-card > * { position:relative; z-index:1; }
+
+    /* Shimmer */
+    .pd-shimmer {
+      position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:var(--pd-r);
+      background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.05) 48%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.05) 52%,transparent 70%);
+      background-size:220% 100%; background-position:220%;
+      animation:pdShimSweep .9s ease .4s forwards;
+    }
+
+    /* Card inner padding */
+    .pd-card-inner { padding:1.8rem 2rem; }
+    @media(max-width:600px) { .pd-card-inner { padding:1.3rem 1.2rem; } }
+
+    /* Section label */
+    .pd-section-label {
+      font-size:.62rem; font-weight:800; color:var(--txt3);
+      text-transform:uppercase; letter-spacing:.1em; margin-bottom:.75rem;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .pd-section-label::before {
+      content:''; display:inline-block; width:3px; height:14px; border-radius:2px;
+      background:linear-gradient(to bottom, var(--prj-v), #06b6d4); flex-shrink:0;
+    }
+
+    /* Description block */
+    .pd-desc {
+      font-size:.92rem; color:var(--txt2); line-height:1.85;
+      background:color-mix(in srgb, var(--prj-v) 5%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 12%, transparent);
+      border-radius:14px; padding:1.2rem 1.4rem; white-space:pre-wrap; word-break:break-word;
+    }
+
+    /* Facts grid */
+    .pd-facts {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:.7rem;
+      margin-bottom:0;
+    }
+    .pd-fact {
+      background:color-mix(in srgb, var(--prj-v) 6%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 14%, transparent);
+      border-radius:14px; padding:.9rem 1.1rem;
+    }
+    .pd-fact-label { font-size:.63rem; font-weight:800; color:var(--txt3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.3rem; }
+    .pd-fact-value { font-size:.95rem; font-weight:800; color:var(--txt); word-break:break-word; }
+
+    /* Tech tags */
+    .pd-tags { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .pd-tag {
+      padding:.22rem .68rem; border-radius:999px; font-size:.68rem; font-weight:700;
+      display:inline-flex; align-items:center;
+      background:color-mix(in srgb, var(--prj-cyan) 11%, transparent);
+      color:var(--prj-cyan); border:1px solid color-mix(in srgb, var(--prj-cyan) 26%, transparent);
+    }
+    .pd-tag-v { background:color-mix(in srgb, var(--prj-v) 12%, transparent); color:var(--prj-v); border-color:color-mix(in srgb, var(--prj-v) 28%, transparent); }
+    .pd-tag-g { background:color-mix(in srgb, var(--prj-em) 11%, transparent); color:var(--prj-em); border-color:color-mix(in srgb, var(--prj-em) 26%, transparent); }
+    .pd-tag-o { background:color-mix(in srgb, var(--prj-gold) 11%, transparent); color:var(--prj-gold); border-color:color-mix(in srgb, var(--prj-gold) 26%, transparent); }
+
+    /* Outcomes */
+    .pd-outcomes { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem; }
+    .pd-outcomes li {
+      display:flex; align-items:flex-start; gap:.65rem;
+      font-size:.88rem; color:var(--txt2); line-height:1.65;
+      padding:.6rem .95rem; border-radius:12px;
+      background:color-mix(in srgb, var(--prj-em) 5%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-em) 14%, transparent);
+    }
+    .pd-outcomes li::before { content:'✦'; color:var(--prj-em); font-size:.58rem; flex-shrink:0; margin-top:.28rem; }
+
+    /* Tasks */
+    .pd-tasks { display:flex; flex-direction:column; gap:.6rem; }
+    .pd-task {
+      display:flex; align-items:flex-start; gap:.7rem;
+      padding:.7rem 1rem; border-radius:13px;
+      background:color-mix(in srgb, var(--prj-v) 4%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 12%, transparent);
+      font-size:.87rem; color:var(--txt2); line-height:1.6;
+    }
+    .pd-task-num {
+      flex-shrink:0; width:24px; height:24px; border-radius:8px;
+      background:linear-gradient(135deg, var(--prj-v), #4f46e5);
+      display:flex; align-items:center; justify-content:center;
+      font-size:.68rem; font-weight:900; color:#fff;
+      box-shadow:0 2px 8px color-mix(in srgb, var(--prj-v) 40%, transparent);
+    }
+
+    /* Client chip */
+    .pd-client {
+      display:inline-flex; align-items:center; gap:.6rem;
+      padding:.5rem 1.2rem; border-radius:12px;
+      background:color-mix(in srgb, var(--prj-v) 8%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 18%, transparent);
+      font-size:.9rem; color:var(--txt); font-weight:700;
+    }
+
+    /* Action bar */
+    .pd-action-bar {
+      display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-top:2rem;
+    }
+    .pd-btn-back {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.68rem 1.3rem; border-radius:10px;
+      background:var(--panel); border:1px solid var(--border);
+      color:var(--txt2); font-size:.85rem; font-weight:700;
+      cursor:pointer; font-family:inherit; transition:all .2s; text-decoration:none;
+    }
+    .pd-btn-back:hover { background:var(--panel2); border-color:var(--border2); color:var(--txt); }
+    .pd-btn-apply {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.68rem 1.5rem; border-radius:10px;
+      background:linear-gradient(135deg, var(--prj-v), #4f46e5);
+      color:#fff; font-size:.85rem; font-weight:700;
+      border:none; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px color-mix(in srgb, var(--v1) 32%, transparent);
+      transition:all .2s; text-decoration:none;
+    }
+    .pd-btn-apply:hover { transform:translateY(-2px); box-shadow:0 8px 28px color-mix(in srgb, var(--v1) 44%, transparent); }
+
+    /* Alerts */
+    .pd-alert { padding:1rem 1.2rem; border-radius:13px; font-size:.87rem; display:flex; gap:.75rem; align-items:flex-start; line-height:1.65; }
+    .pd-alert.info { background:color-mix(in srgb, var(--v1) 7%, transparent); border:1px solid color-mix(in srgb, var(--v1) 22%, transparent); color:var(--prj-v); }
+
+    /* Spinner */
+    .pd-spin {
+      width:44px; height:44px; margin:5rem auto; display:block;
+      border:3px solid var(--border); border-top-color:var(--prj-v);
+      border-radius:50%; animation:pdSpinAnim .8s linear infinite;
+    }
+    @keyframes pdSpinAnim { to { transform:rotate(360deg); } }
+
+    /* 404 */
+    .pd-not-found {
+      text-align:center; padding:5rem 2rem;
+    }
+    .pd-not-found-icon { font-size:3.5rem; display:block; margin-bottom:1rem; opacity:.5; }
+    .pd-not-found h2 { font-size:1.2rem; font-weight:800; color:var(--txt); margin-bottom:.5rem; }
+    .pd-not-found p { font-size:.88rem; color:var(--txt2); margin-bottom:1.5rem; }
+
+    /* Responsive */
+    @media(max-width:680px) {
+      .pd-hero-row { flex-direction:column; gap:1rem; }
+      .pd-hero-icon { width:56px; height:56px; border-radius:16px; }
+      .pd-hero-icon svg { width:30px; height:30px; }
+      .pd-facts { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:400px) {
+      .pd-facts { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body class="pd-page">
+  <nav></nav>
+
+  <!-- Hero -->
+  <section class="pd-hero" id="pd-hero">
+    <div class="pd-hero-orb pd-hero-orb1"></div>
+    <div class="pd-hero-orb pd-hero-orb2"></div>
+    <div class="pd-container">
+      <div class="pd-hero-inner">
+        <a class="pd-back" href="project.html">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Projects
+        </a>
+        <div id="pd-hero-content">
+          <div class="pd-spin"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main content -->
+  <main class="pd-main">
+    <div class="pd-container" id="pd-main-content">
+      <!-- Populated by JS -->
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config/supabase-config.js"></script>
+  <script src="../js/profile-nav.js"></script>
+
+  <script>
+  /* ── Helpers ── */
+  function _esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  const _svgPin   = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>`;
+  const _svgTeam  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+  const _svgClock = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+
+  /* ── Domain icons & colors (matching project.html) ── */
+  const _domainColors = {
+    web:      { c1:'#6366f1', c2:'#06b6d4', icon:'🌐' },
+    ai:       { c1:'#8b5cf6', c2:'#c084fc', icon:'🤖' },
+    mobile:   { c1:'#f59e0b', c2:'#fb923c', icon:'📱' },
+    data:     { c1:'#10b981', c2:'#06b6d4', icon:'📊' },
+    security: { c1:'#ef4444', c2:'#f97316', icon:'🔒' },
+    cloud:    { c1:'#38bdf8', c2:'#818cf8', icon:'☁️' },
+    design:   { c1:'#ec4899', c2:'#a78bfa', icon:'🎨' },
+    finance:  { c1:'#f59e0b', c2:'#10b981', icon:'💰' },
+    health:   { c1:'#10b981', c2:'#34d399', icon:'🏥' },
+    iot:      { c1:'#06b6d4', c2:'#3b82f6', icon:'🔧' },
+    default:  { c1:'#441998', c2:'#06b6d4', icon:'💼' },
+  };
+
+  function _getDomainColors(domain) {
+    if (!domain) return _domainColors.default;
+    const d = domain.toLowerCase();
+    if (d.includes('web') || d.includes('full')) return _domainColors.web;
+    if (d.includes('ai') || d.includes('ml') || d.includes('machine')) return _domainColors.ai;
+    if (d.includes('mobile') || d.includes('android') || d.includes('ios') || d.includes('flutter')) return _domainColors.mobile;
+    if (d.includes('data') || d.includes('analytics')) return _domainColors.data;
+    if (d.includes('security') || d.includes('cyber')) return _domainColors.security;
+    if (d.includes('cloud') || d.includes('devops') || d.includes('aws') || d.includes('azure')) return _domainColors.cloud;
+    if (d.includes('design') || d.includes('ui') || d.includes('ux')) return _domainColors.design;
+    if (d.includes('finance') || d.includes('fintech')) return _domainColors.finance;
+    if (d.includes('health') || d.includes('medical') || d.includes('bio')) return _domainColors.health;
+    if (d.includes('iot') || d.includes('embedded') || d.includes('robotics')) return _domainColors.iot;
+    return _domainColors.default;
+  }
+
+  const _typeLabels = {
+    available:  'Available Project',
+    internship: 'Internship Programme',
+    upcoming:   'Coming Soon',
+    completed:  'Completed Project',
+  };
+
+  /* ── INIT ── */
+  async function pdInit() {
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) { showNotFound(); return; }
+
+    const sb = window.supabaseConfig?.client;
+    if (!sb) { showNotFound(); return; }
+
+    const { data: p, error } = await sb
+      .from('internship_projects')
+      .select('id,project_name,country,domain,description,detailed_description,client_name,tech_stack,learning_outcomes,tasks,duration_weeks,max_students,team_size,project_type,is_active')
+      .eq('id', id)
+      .single();
+
+    if (error || !p) { showNotFound(); return; }
+
+    document.title = `${p.project_name} — SkillUpNow`;
+    renderHero(p);
+    renderMain(p);
+
+    // Auth check
+    const { data: { session } } = await sb.auth.getSession();
+    renderAction(p, session?.user || null, sb);
+  }
+
+  function showNotFound() {
+    document.getElementById('pd-hero-content').innerHTML = '';
+    document.getElementById('pd-main-content').innerHTML = `
+      <div class="pd-not-found">
+        <span class="pd-not-found-icon">🔍</span>
+        <h2>Project not found</h2>
+        <p>The project you're looking for doesn't exist or is no longer available.</p>
+        <a class="pd-btn-back" href="project.html">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Projects
+        </a>
+      </div>`;
+  }
+
+  function renderHero(p) {
+    const dc = _getDomainColors(p.domain);
+    document.getElementById('pd-hero').style.setProperty('--pd-c1', dc.c1);
+    document.getElementById('pd-hero').style.setProperty('--pd-c2', dc.c2);
+
+    const typeLabel = _typeLabels[p.project_type] || 'Project';
+    const teamSz = p.team_size || p.max_students || '—';
+
+    document.getElementById('pd-hero-content').innerHTML = `
+      <div class="pd-type-badge">
+        <span class="pd-type-dot"></span>
+        ${_esc(typeLabel)}
+      </div>
+      <div class="pd-hero-row">
+        <div class="pd-hero-icon" style="--pd-c1:${dc.c1}">
+          <span style="font-size:2.2rem">${dc.icon}</span>
+        </div>
+        <div class="pd-hero-text">
+          <div class="pd-hero-title">${_esc(p.project_name)}</div>
+          <div class="pd-hero-meta">
+            <span class="pd-meta-pill pd-meta-loc">${_svgPin} ${_esc(p.country || '—')}</span>
+            <span class="pd-meta-pill pd-meta-team">${_svgTeam} ${teamSz} members</span>
+            <span class="pd-meta-pill pd-meta-dur">${_svgClock} ${p.duration_weeks || '—'} weeks</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderMain(p) {
+    const dc = _getDomainColors(p.domain);
+    const techHtml = (p.tech_stack || []).map(t => `<span class="pd-tag">${_esc(t)}</span>`).join('') || '<span style="font-size:.85rem;color:var(--txt3)">Not specified</span>';
+
+    let sections = '';
+
+    // Overview
+    const desc = p.detailed_description || p.description || 'No description available.';
+    sections += `
+      <div class="pd-glass-card" style="--pd-c1:${dc.c1};--pd-c2:${dc.c2}">
+        <div class="pd-shimmer"></div>
+        <div class="pd-card-inner">
+          <div class="pd-section-label">Overview</div>
+          <div class="pd-desc">${_esc(desc)}</div>
+        </div>
+      </div>`;
+
+    // Facts
+    sections += `
+      <div class="pd-glass-card" style="--pd-c1:${dc.c1};--pd-c2:${dc.c2};animation-delay:.08s">
+        <div class="pd-card-inner">
+          <div class="pd-section-label">Project Details</div>
+          <div class="pd-facts">
+            <div class="pd-fact">
+              <div class="pd-fact-label">Domain</div>
+              <div class="pd-fact-value">${_esc(p.domain || 'General')}</div>
+            </div>
+            <div class="pd-fact">
+              <div class="pd-fact-label">Duration</div>
+              <div class="pd-fact-value">${p.duration_weeks ? p.duration_weeks + ' weeks' : '—'}</div>
+            </div>
+            <div class="pd-fact">
+              <div class="pd-fact-label">Team Size</div>
+              <div class="pd-fact-value">${(p.team_size || p.max_students) ? (p.team_size || p.max_students) + ' members' : '—'}</div>
+            </div>
+            <div class="pd-fact">
+              <div class="pd-fact-label">Location</div>
+              <div class="pd-fact-value">${_esc(p.country || '—')}</div>
+            </div>
+            ${p.client_name ? `<div class="pd-fact" style="grid-column:1/-1">
+              <div class="pd-fact-label">Client / Company</div>
+              <div class="pd-fact-value">${_esc(p.client_name)}</div>
+            </div>` : ''}
+          </div>
+        </div>
+      </div>`;
+
+    // Tech stack
+    sections += `
+      <div class="pd-glass-card" style="--pd-c1:${dc.c1};--pd-c2:${dc.c2};animation-delay:.14s">
+        <div class="pd-card-inner">
+          <div class="pd-section-label">Tech Stack</div>
+          <div class="pd-tags">${techHtml}</div>
+        </div>
+      </div>`;
+
+    // Learning outcomes
+    if (p.learning_outcomes?.length) {
+      const outHtml = p.learning_outcomes.map(o => `<li>${_esc(o)}</li>`).join('');
+      sections += `
+        <div class="pd-glass-card" style="--pd-c1:${dc.c1};--pd-c2:${dc.c2};animation-delay:.2s">
+          <div class="pd-card-inner">
+            <div class="pd-section-label">Learning Outcomes</div>
+            <ul class="pd-outcomes">${outHtml}</ul>
+          </div>
+        </div>`;
+    }
+
+    // Tasks
+    if (p.tasks?.length) {
+      const taskHtml = p.tasks.map((t, i) => {
+        const label = typeof t === 'string' ? t : (t.title || t.name || JSON.stringify(t));
+        return `<div class="pd-task">
+          <div class="pd-task-num">${i + 1}</div>
+          <div>${_esc(label)}</div>
+        </div>`;
+      }).join('');
+      sections += `
+        <div class="pd-glass-card" style="--pd-c1:${dc.c1};--pd-c2:${dc.c2};animation-delay:.26s">
+          <div class="pd-card-inner">
+            <div class="pd-section-label">Key Tasks</div>
+            <div class="pd-tasks">${taskHtml}</div>
+          </div>
+        </div>`;
+    }
+
+    // Action area placeholder (filled by renderAction)
+    sections += `<div id="pd-action-area"></div>`;
+
+    document.getElementById('pd-main-content').innerHTML = sections;
+  }
+
+  async function renderAction(p, user, sb) {
+    const area = document.getElementById('pd-action-area');
+    if (!area) return;
+
+    let actionHtml = `<div class="pd-action-bar">
+      <a class="pd-btn-back" href="project.html">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to Projects
+      </a>`;
+
+    if (user) {
+      // Check assignment
+      const { data: assigns } = await sb
+        .from('project_assignments')
+        .select('id,status')
+        .eq('student_user_id', user.id)
+        .eq('status', 'active');
+      const isAssigned = (assigns || []).some(a => a.status === 'active');
+      if (isAssigned) {
+        actionHtml += `<span class="pd-alert info" style="flex:1">✅ You are <strong>assigned</strong> to a project. Visit the Projects page to access your work area.</span>`;
+      } else {
+        actionHtml += `<span style="font-size:.82rem;color:var(--txt3)">Access by admin assignment only. Contact us if you're interested.</span>`;
+      }
+    } else {
+      actionHtml += `<button class="pd-btn-apply" onclick="window.profileNav&&window.profileNav.openLoginModal()">
+        Login to Apply
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>`;
+    }
+
+    actionHtml += `</div>`;
+    area.innerHTML = actionHtml;
+  }
+
+  /* ── Bootstrap ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    let tries = 0;
+    const poll = setInterval(() => {
+      if (window.supabaseConfig?.client) {
+        clearInterval(poll);
+        pdInit();
+        return;
+      }
+      if (++tries > 60) { clearInterval(poll); showNotFound(); }
+    }, 100);
+  });
+  </script>
+</body>
+</html>

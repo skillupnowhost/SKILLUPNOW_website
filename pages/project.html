@@ -19,7 +19,7 @@
     @property --prj-hue    { syntax:'<number>';  initial-value:260;   inherits:false; }
 
     :root {
-      --prj-v:      var(--v1, #5c52f5);
+      --prj-v:      var(--v1, #441998);
       --prj-cyan:   #06b6d4;
       --prj-gold:   #f59e0b;
       --prj-em:     #10b981;
@@ -34,101 +34,197 @@
     }
     /* ── Theme-aware glass ── */
     :root[data-theme="light"] {
-      --glass-bg:   rgba(255,255,255,0.72);
-      --glass-brd:  color-mix(in srgb, var(--v1) 16%, transparent);
+      --glass-bg:   rgba(255,255,255,0.76);
+      --glass-brd:  color-mix(in srgb, var(--v1) 15%, transparent);
       --glass-blur: blur(28px) saturate(190%);
-      --card-shadow: 0 2px 0 rgba(255,255,255,.9) inset, 0 4px 24px rgba(92,82,245,.08);
+      --card-shadow: 0 2px 0 rgba(255,255,255,.9) inset, 0 4px 24px rgba(68,25,152,.09);
     }
     :root[data-theme="dark"] {
       --glass-bg:   rgba(255,255,255,0.03);
       --glass-brd:  color-mix(in srgb, var(--v1) 18%, transparent);
       --glass-blur: blur(22px) saturate(160%);
-      --card-shadow: 0 2px 0 rgba(255,255,255,.05) inset, 0 8px 36px rgba(0,0,0,.22);
+      --card-shadow: 0 2px 0 rgba(255,255,255,.05) inset, 0 8px 36px rgba(0,0,0,.26);
     }
 
     img { -webkit-user-drag:none; user-drag:none; }
     .prj-page { padding-bottom: 7rem; }
     .prj-container { max-width:1160px; margin:0 auto; padding:0 1.5rem; position:relative; }
 
-    /* ── Hero ──────────────────────────────────────────────── */
+    /* ── Hero (Contact-hero style) ───────────────────────── */
+    @keyframes prj-orb-float {
+      0%,100% { transform:translateY(0) scale(1); }
+      50%      { transform:translateY(-20px) scale(1.04); }
+    }
+    @keyframes prj-dot-pulse {
+      0%,100% { opacity:1; transform:scale(1); box-shadow:0 0 6px currentColor; }
+      50%      { opacity:.45; transform:scale(1.5); box-shadow:0 0 14px currentColor; }
+    }
+    @keyframes prj-underline-glow {
+      0%,100% { box-shadow:0 0 10px rgba(192,132,252,.45); }
+      50%      { box-shadow:0 0 22px rgba(192,132,252,.85); }
+    }
+    @keyframes statCountUp {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
     .prj-hero {
-      position:relative; overflow:hidden;
-      padding:4rem 0 3.5rem;
-      border-bottom:1px solid var(--border);
+      position:relative; overflow:hidden; text-align:center;
+      padding:3.8rem 2rem 3.2rem;
+      background:linear-gradient(170deg,#0d0621 0%,#130d2e 50%,#06021a 100%);
+      border-bottom:1px solid rgba(109,40,217,.2);
     }
-    .prj-hero-mesh {
-      position:absolute; inset:0; pointer-events:none;
+    :root[data-theme="light"] .prj-hero {
+      background:linear-gradient(155deg,#fefcff 0%,#f3f0fe 28%,#ebe6fd 58%,#f5f3ff 100%);
+      border-bottom-color:rgba(68,25,152,.12);
+    }
+    .prj-hero::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
       background:
-        radial-gradient(ellipse 70% 55% at 8%  50%, color-mix(in srgb, var(--v1) 22%, transparent) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 90% 15%, rgba(6,182,212,.12)   0%, transparent 55%),
-        radial-gradient(ellipse 40% 55% at 55% 95%, rgba(245,158,11,.07)  0%, transparent 55%);
+        radial-gradient(ellipse 80% 60% at 15% 40%, rgba(109,40,217,.38) 0%, transparent 55%),
+        radial-gradient(ellipse 65% 55% at 85% 65%, rgba(139,92,246,.28)  0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 55% 8%,  rgba(6,182,212,.12)   0%, transparent 45%);
     }
+    :root[data-theme="light"] .prj-hero::before {
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 40%, rgba(109,40,217,.13) 0%, transparent 55%),
+        radial-gradient(ellipse 65% 55% at 85% 65%, rgba(139,92,246,.09)  0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 55% 8%,  rgba(6,182,212,.05)   0%, transparent 45%);
+    }
+    .prj-hero::after {
+      content:''; position:absolute; inset:0; pointer-events:none; opacity:.035;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size:160px;
+    }
+    /* Floating orbs */
+    .prj-hero-orb { position:absolute; border-radius:50%; pointer-events:none; }
+    .prj-hero-orb1 { width:480px; height:480px; left:-150px; top:-110px; background:radial-gradient(circle,rgba(109,40,217,.2) 0%,transparent 70%); animation:prj-orb-float 9s ease-in-out infinite; }
+    .prj-hero-orb2 { width:360px; height:360px; right:-90px; bottom:-70px; background:radial-gradient(circle,rgba(139,92,246,.18) 0%,transparent 70%); animation:prj-orb-float 11s ease-in-out infinite; animation-delay:-4s; }
+    .prj-hero-orb3 { width:200px; height:200px; left:44%; top:4%; background:radial-gradient(circle,rgba(6,182,212,.1) 0%,transparent 70%); animation:prj-orb-float 8s ease-in-out infinite; animation-delay:-6.5s; }
+    :root[data-theme="light"] .prj-hero-orb1 { background:radial-gradient(circle,rgba(109,40,217,.1) 0%,transparent 70%); }
+    :root[data-theme="light"] .prj-hero-orb2 { background:radial-gradient(circle,rgba(139,92,246,.08) 0%,transparent 70%); }
+    :root[data-theme="light"] .prj-hero-orb3 { background:radial-gradient(circle,rgba(6,182,212,.05) 0%,transparent 70%); }
+    /* Grid overlay */
     .prj-hero-grid {
-      position:absolute; inset:0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size:48px 48px;
-      mask-image:radial-gradient(ellipse 85% 85% at 50% 50%, black, transparent);
-      opacity:.35;
+      position:absolute; inset:0; pointer-events:none; opacity:.055;
+      background-image:linear-gradient(rgba(167,139,250,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,.6) 1px,transparent 1px);
+      background-size:60px 60px;
+      -webkit-mask-image:radial-gradient(ellipse 88% 82% at 50% 50%,black 30%,transparent 100%);
+      mask-image:radial-gradient(ellipse 88% 82% at 50% 50%,black 30%,transparent 100%);
     }
-    .prj-hero-inner    { display:flex; align-items:center; justify-content:space-between; gap:2rem; flex-wrap:wrap; }
+    :root[data-theme="light"] .prj-hero-grid { opacity:.032; }
+    /* Hero inner — centered */
+    .prj-hero-inner {
+      position:relative; z-index:2;
+      display:flex; flex-direction:column; align-items:center; gap:0;
+      max-width:860px; margin:0 auto;
+    }
     .prj-hero-badge {
-      display:inline-flex; align-items:center; gap:.4rem;
-      padding:.3rem 1rem; border-radius:999px; margin-bottom:.8rem;
-      background: linear-gradient(90deg,
-        color-mix(in srgb, var(--v1) 22%, transparent) 0%,
-        rgba(6,182,212,.18)   40%,
-        rgba(245,158,11,.14)  70%,
-        color-mix(in srgb, var(--v1) 22%, transparent) 100%);
-      background-size: 250% 100%;
-      border: 1px solid color-mix(in srgb, var(--v1) 32%, transparent);
-      font-size:.7rem; font-weight:700;
-      background-clip: padding-box;
-      letter-spacing:.08em; text-transform:uppercase;
-      animation: badgeFlow 4s ease-in-out infinite;
-      position: relative; overflow: hidden;
-      /* text color via gradient */
-      color: transparent;
-      -webkit-background-clip: text;
-      background-clip: text;
-      background-image: linear-gradient(90deg, var(--prj-v), var(--prj-cyan), var(--prj-gold), var(--prj-v));
-      background-size: 250% 100%;
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.35rem 1.1rem; border-radius:50px;
+      background:rgba(139,92,246,.1); border:1px solid rgba(139,92,246,.35);
+      font-size:.68rem; font-weight:700; color:#c084fc;
+      letter-spacing:.12em; text-transform:uppercase; margin-bottom:1.4rem;
+      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      box-shadow:0 0 16px rgba(139,92,246,.15),inset 0 1px 0 rgba(255,255,255,.06);
     }
-    @keyframes badgeFlow {
-      0%,100% { background-position: 0%   50%; }
-      50%      { background-position: 100% 50%; }
-    }
+    :root[data-theme="light"] .prj-hero-badge { background:rgba(68,25,152,.08); border-color:rgba(68,25,152,.28); color:#441998; }
     .prj-hero-badge-dot {
-      width:6px; height:6px; border-radius:50%; background:var(--prj-em);
-      animation:pulseDot 1.6s ease-in-out infinite; flex-shrink:0;
-      /* dot needs its own bg, not affected by text clip */
-      -webkit-background-clip: unset;
-      background-clip: unset;
+      width:6px; height:6px; border-radius:50%;
+      background:#c084fc; color:#c084fc;
+      animation:prj-dot-pulse 2.2s ease-in-out infinite; flex-shrink:0;
     }
-    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
-
-    /* "My Work" badge (in student area) uses solid style */
-    .prj-student-hdr .prj-hero-badge {
-      background: linear-gradient(90deg, color-mix(in srgb, var(--v1) 18%, transparent), rgba(6,182,212,.14));
-      background-size: 100%; -webkit-background-clip: unset; background-clip: unset;
-      color: var(--prj-v); animation: none;
-      border: 1px solid color-mix(in srgb, var(--v1) 28%, transparent);
-    }
+    :root[data-theme="light"] .prj-hero-badge-dot { background:#441998; color:#441998; }
     .prj-hero-left h1 {
-      font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; letter-spacing:-.035em; line-height:1.1;
-      background:linear-gradient(125deg, var(--txt) 25%, var(--prj-v) 65%, var(--prj-cyan) 100%);
+      font-size:clamp(2.2rem,5vw,3.8rem); font-weight:900; letter-spacing:-.03em; line-height:1.12; margin-bottom:.5rem;
+      background:linear-gradient(135deg,#ffffff 0%,#e0d4ff 30%,#c084fc 60%,#67e8f9 100%);
       -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      filter:drop-shadow(0 0 40px rgba(192,132,252,.25));
     }
-    .prj-hero-left p { font-size:.92rem; color:var(--txt2); margin-top:.5rem; max-width:480px; line-height:1.6; }
-    .prj-hero-stats  { display:flex; gap:0; border:1px solid var(--border); border-radius:16px; overflow:hidden; background:var(--panel); }
-    .prj-hero-stat   { padding:.9rem 1.5rem; text-align:center; position:relative; }
-    .prj-hero-stat + .prj-hero-stat { border-left:1px solid var(--border); }
-    .prj-hero-stat-v { font-size:1.65rem; font-weight:900; color:var(--prj-v); letter-spacing:-.04em; display:block; }
-    .prj-hero-stat-l { font-size:.65rem; color:var(--txt3); font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-top:.1rem; display:block; }
+    :root[data-theme="light"] .prj-hero-left h1 {
+      background:linear-gradient(135deg,#160840 0%,#441998 35%,#5c22c5 65%,#441998 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      filter:drop-shadow(0 0 28px rgba(68,25,152,.22));
+    }
+    .prj-hero-underline {
+      display:block; width:72px; height:3px; margin:.8rem auto 1.3rem;
+      background:linear-gradient(90deg,#7c3aed,#c084fc,#67e8f9); border-radius:2px;
+      animation:prj-underline-glow 2.6s ease-in-out infinite;
+    }
+    :root[data-theme="light"] .prj-hero-underline {
+      animation:none; box-shadow:0 0 10px rgba(109,40,217,.3);
+    }
+    .prj-hero-left p {
+      font-size:clamp(.9rem,1.8vw,1.06rem); line-height:1.8;
+      color:rgba(210,195,255,.72); max-width:520px; margin:0 auto 2.4rem;
+    }
+    :root[data-theme="light"] .prj-hero-left p { color:rgba(30,15,60,.62); }
+    /* ── Stats: liquid glass pills ── */
+    .prj-hero-stats {
+      display:flex; gap:.9rem; flex-wrap:nowrap; justify-content:center; width:100%;
+      overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; scroll-snap-type:x mandatory;
+      padding-bottom:.4rem; padding-left:.5rem; padding-right:.5rem;
+    }
+    .prj-hero-stats::-webkit-scrollbar { display:none; }
+    .prj-hero-stat {
+      flex:0 0 auto; min-width:140px; max-width:195px;
+      scroll-snap-align:center;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.18rem;
+      padding:1.15rem 1.4rem; border-radius:20px; cursor:pointer; text-decoration:none;
+      background:rgba(255,255,255,.06); border:1px solid rgba(139,92,246,.22);
+      backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%);
+      box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 4px 20px rgba(0,0,0,.18);
+      transition:transform .3s cubic-bezier(.22,1,.36,1), background .3s, box-shadow .3s, border-color .3s;
+      position:relative; overflow:hidden;
+      animation:statCountUp .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    .prj-hero-stat::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 55%);
+    }
+    :root[data-theme="light"] .prj-hero-stat {
+      background:rgba(255,255,255,.82);
+      border-color:rgba(68,25,152,.16);
+      box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 4px 24px rgba(68,25,152,.09);
+    }
+    .prj-hero-stat:hover {
+      transform:translateY(-5px) scale(1.03);
+      background:rgba(68,25,152,.18);
+      border-color:rgba(92,34,197,.6);
+      box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 10px 36px rgba(68,25,152,.28);
+    }
+    :root[data-theme="light"] .prj-hero-stat:hover {
+      background:rgba(68,25,152,.07);
+      border-color:rgba(68,25,152,.4);
+      box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 10px 28px rgba(68,25,152,.18);
+    }
+    .prj-hero-stat-v {
+      font-size:1.9rem; font-weight:900; color:var(--prj-v); letter-spacing:-.04em; display:block;
+      text-shadow:0 0 24px color-mix(in srgb, var(--prj-v) 55%, transparent);
+    }
+    .prj-hero-stat-l {
+      font-size:.61rem; color:rgba(200,180,255,.7); font-weight:700;
+      text-transform:uppercase; letter-spacing:.09em; display:block;
+    }
+    :root[data-theme="light"] .prj-hero-stat-l { color:var(--txt3); }
+    /* student-area badge reuse */
+    .prj-student-hdr .prj-hero-badge {
+      background:color-mix(in srgb, var(--v1) 12%, transparent);
+      backdrop-filter:none; animation:none; color:var(--prj-v);
+      border-color:color-mix(in srgb, var(--v1) 28%, transparent);
+    }
 
     /* ── Section headers ───────────────────────────────────── */
-    .prj-section { margin:4rem 0; }
+    .prj-section { margin:0; }
+    #prj-public-sections {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:2.5rem 2rem;
+      align-items:start;
+    }
+    @media(max-width:960px) {
+      #prj-public-sections { grid-template-columns:1fr; }
+    }
     .prj-section-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; gap:1rem; flex-wrap:wrap; }
     .prj-section-title-wrap { display:flex; align-items:center; gap:.85rem; }
     .prj-section-icon {
@@ -182,7 +278,7 @@
     /* ═══════════════════════════════════════════════════════
        LIQUID GLASS CARD — Available Projects
     ═══════════════════════════════════════════════════════ */
-    .lg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:1.5rem; }
+    .lg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; }
 
     .lg-card {
       position:relative; border-radius:var(--prj-r); cursor:pointer;
@@ -193,6 +289,7 @@
       box-shadow: var(--card-shadow);
       overflow:hidden;
       display:flex; flex-direction:column;
+      min-height:380px; height:380px;
       transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
       animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
     }
@@ -269,8 +366,12 @@
     .lg-pill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; animation:pulseDot 1.6s ease-in-out infinite; }
 
     /* Card body */
-    .lg-body { padding:.75rem 1.5rem 1.25rem; display:flex; flex-direction:column; flex:1; }
-    .lg-tags { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:.65rem; }
+    .lg-body { padding:.75rem 1.5rem 1.25rem; display:flex; flex-direction:column; flex:1; min-height:0; }
+    .lg-tags {
+      display:flex; flex-wrap:nowrap; gap:.3rem; margin-bottom:.65rem;
+      overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    }
+    .lg-tags::-webkit-scrollbar { display:none; }
     .lg-tag  {
       padding:.18rem .58rem; border-radius:999px; font-size:.64rem; font-weight:700;
       backdrop-filter:blur(12px) saturate(160%); -webkit-backdrop-filter:blur(12px) saturate(160%);
@@ -282,16 +383,24 @@
     .lg-tag-g { background:color-mix(in srgb, var(--prj-em)   11%, transparent); color:var(--prj-em);   border-color:color-mix(in srgb, var(--prj-em)   26%, transparent); }
     .lg-tag-o { background:color-mix(in srgb, var(--prj-gold) 11%, transparent); color:var(--prj-gold); border-color:color-mix(in srgb, var(--prj-gold) 26%, transparent); }
     .lg-title { font-size:1.05rem; font-weight:800; color:var(--txt); line-height:1.3; margin-bottom:.5rem; letter-spacing:-.015em; }
-    .lg-desc  { font-size:.81rem; color:var(--txt2); line-height:1.65; flex:1; margin-bottom:1rem;
-                display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .lg-desc  { font-size:.81rem; color:var(--txt2); line-height:1.65; flex:1; margin-bottom:0;
+                display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 
-    /* Meta row */
-    .lg-meta { display:flex; flex-wrap:wrap; gap:.6rem; padding-top:.85rem; border-top:1px solid var(--border); }
+    /* Meta row — always pinned to bottom */
+    .lg-meta { display:flex; flex-wrap:wrap; gap:.6rem; padding-top:.85rem; border-top:1px solid var(--border); margin-top:auto; }
     .lg-meta-item {
-      display:flex; align-items:center; gap:.3rem;
-      font-size:.75rem; color:var(--txt3); font-weight:500;
+      display:inline-flex; align-items:center; gap:.35rem;
+      font-size:.74rem; font-weight:600;
+      padding:.22rem .65rem; border-radius:999px;
+      transition:all .2s;
     }
-    .lg-meta-item svg { opacity:.65; flex-shrink:0; }
+    .lg-meta-item.loc  { color:#fb923c; background:rgba(251,146,60,.08);  border:1px solid rgba(251,146,60,.18); }
+    .lg-meta-item.team { color:#38bdf8; background:rgba(56,189,248,.08);  border:1px solid rgba(56,189,248,.18); }
+    .lg-meta-item.dur  { color:#a78bfa; background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.18); }
+    .lg-meta-item svg  { flex-shrink:0; }
+    .lg-meta-item:hover { filter:brightness(1.25); transform:scale(1.03); }
+    @keyframes metaPulse { 0%,100%{opacity:1} 50%{opacity:.65} }
+    .lg-meta-item.loc svg { animation:metaPulse 2.4s ease-in-out infinite; }
 
     /* Team dots */
     .lg-team-dots { display:flex; gap:2px; align-items:center; }
@@ -301,7 +410,7 @@
     /* ═══════════════════════════════════════════════════════
        INTERNSHIP CARDS — Full glass cards in a grid
     ═══════════════════════════════════════════════════════ */
-    .intern-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1.5rem; }
+    .intern-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; }
 
     .intern-card {
       position:relative; border-radius:var(--prj-r); cursor:pointer; overflow:hidden;
@@ -309,6 +418,7 @@
       backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
       border:1px solid var(--glass-brd);
       box-shadow: var(--card-shadow);
+      display:flex; flex-direction:column; min-height:380px; height:380px;
       transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
       animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
     }
@@ -337,7 +447,8 @@
     }
     .intern-card > * { position:relative; z-index:1; }
 
-    .intern-card-inner { display:flex; align-items:flex-start; gap:1rem; padding:1.35rem 1.4rem; }
+    .intern-card-inner { display:flex; flex-direction:column; gap:.75rem; padding:1.35rem 1.4rem; flex:1; }
+    .intern-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem; }
     .intern-card-icon  {
       flex-shrink:0;
       display:flex; align-items:center; justify-content:center;
@@ -345,9 +456,11 @@
       transition: filter .35s;
     }
     .intern-card-icon svg { width:38px; height:38px; color:var(--oc,var(--v1)); }
-    .intern-card-body { flex:1; min-width:0; }
-    .intern-card-row  { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; }
-    .intern-card-title{ font-size:.98rem; font-weight:800; color:var(--txt); line-height:1.3; }
+    .intern-card-body { flex:1; min-width:0; display:flex; flex-direction:column; }
+    .intern-card-row  { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; margin-bottom:.5rem; }
+    .intern-card-title{ font-size:1.02rem; font-weight:800; color:var(--txt); line-height:1.3; }
+    .intern-card-desc { font-size:.8rem; color:var(--txt2); line-height:1.6; flex:1;
+                        display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
     .intern-card-arrow{
       width:28px; height:28px; border-radius:50%; flex-shrink:0;
       background:color-mix(in srgb, var(--v1) 10%, transparent); border:1px solid color-mix(in srgb, var(--v1) 20%, transparent);
@@ -362,12 +475,16 @@
     .intern-card-meta { display:flex; flex-wrap:wrap; gap:.5rem .85rem; margin-top:.5rem; }
     .intern-meta-item { display:flex; align-items:center; gap:.3rem; font-size:.75rem; color:var(--txt2); }
     .intern-meta-item svg { opacity:.6; flex-shrink:0; }
-    .intern-card-tags { display:flex; flex-wrap:wrap; gap:.28rem; margin-top:.6rem; }
+    .intern-card-tags {
+      display:flex; flex-wrap:nowrap; gap:.28rem; margin-top:.6rem;
+      overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    }
+    .intern-card-tags::-webkit-scrollbar { display:none; }
 
     /* ═══════════════════════════════════════════════════════
        UPCOMING CARDS — Frosted glass with pulse overlay
     ═══════════════════════════════════════════════════════ */
-    .upcoming-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; }
+    .upcoming-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; }
 
     .upcoming-card {
       position:relative; border-radius:var(--prj-r); cursor:pointer; overflow:hidden;
@@ -375,6 +492,7 @@
       backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
       border:1px solid var(--glass-brd);
       box-shadow: var(--card-shadow);
+      display:flex; flex-direction:column; min-height:380px; height:380px;
       transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
       animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
     }
@@ -420,13 +538,72 @@
       font-size:.67rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
       background:rgba(6,182,212,.1); color:var(--prj-cyan); border:1px solid rgba(6,182,212,.25);
     }
-    .upcoming-body   { padding:.4rem 1.4rem 1.4rem; }
+    .upcoming-body   { padding:.4rem 1.4rem 1.4rem; display:flex; flex-direction:column; flex:1; min-height:0; }
     .upcoming-title  { font-size:1rem; font-weight:800; color:var(--txt); margin-bottom:.45rem; letter-spacing:-.015em; }
     .upcoming-desc   {
-      font-size:.8rem; color:var(--txt2); line-height:1.65; margin-bottom:.9rem;
-      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      font-size:.8rem; color:var(--txt2); line-height:1.65; margin-bottom:0; flex:1;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
     }
-    .upcoming-meta   { display:flex; flex-wrap:wrap; gap:.5rem .85rem; padding-top:.85rem; border-top:1px solid var(--border); }
+    .upcoming-meta   { display:flex; flex-wrap:wrap; gap:.4rem; padding-top:.85rem; border-top:1px solid var(--border); margin-top:auto; }
+
+    /* ═══════════════════════════════════════════════════════
+       COMPLETED PROJECTS
+    ═══════════════════════════════════════════════════════ */
+    .completed-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; }
+
+    .completed-card {
+      position:relative; border-radius:var(--prj-r); cursor:pointer; overflow:hidden;
+      background:var(--glass-bg);
+      backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+      border:1px solid var(--glass-brd);
+      box-shadow: var(--card-shadow);
+      display:flex; flex-direction:column; min-height:380px; height:380px;
+      transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
+      animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    /* Spinning emerald gradient border */
+    .completed-card::before {
+      content:''; position:absolute; inset:-1px;
+      border-radius:calc(var(--prj-r) + 1px); z-index:0;
+      background:conic-gradient(
+        from var(--prj-angle),
+        transparent 0%, var(--lg-c1,#10b981) 14%, var(--lg-c2,#4ade80) 32%,
+        transparent 50%, var(--lg-c1,#10b981) 78%, transparent 100%
+      );
+      opacity:.35; animation:borderSpin 8s linear infinite; transition:opacity .35s;
+    }
+    .completed-card:hover::before { opacity:.82; }
+    .completed-card::after {
+      content:''; position:absolute; inset:1px;
+      border-radius:calc(var(--prj-r) - 1px); z-index:0;
+      background:var(--bg2);
+    }
+    .completed-card:hover { transform:translateY(-5px); box-shadow: var(--card-shadow), 0 18px 48px rgba(0,0,0,.18),
+      inset 4px 0 0 color-mix(in srgb, #10b981 45%, transparent); }
+    .completed-card > * { position:relative; z-index:1; }
+
+    .completed-icon-row { display:flex; align-items:center; justify-content:space-between; padding:1.4rem 1.4rem .6rem; }
+    .completed-orb {
+      flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      position:relative; background:none;
+      transition: filter .35s;
+    }
+    .completed-orb svg { width:40px; height:40px; color:var(--oc,var(--prj-em)); }
+    .completed-done-badge {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.28rem .75rem; border-radius:999px;
+      font-size:.67rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+      background:color-mix(in srgb, #10b981 12%, transparent);
+      color:var(--prj-em); border:1px solid color-mix(in srgb, #10b981 28%, transparent);
+    }
+    .completed-body   { padding:.4rem 1.4rem 1.4rem; display:flex; flex-direction:column; flex:1; min-height:0; }
+    .completed-title  { font-size:1rem; font-weight:800; color:var(--txt); margin-bottom:.45rem; letter-spacing:-.015em; }
+    .completed-desc   {
+      font-size:.8rem; color:var(--txt2); line-height:1.65; margin-bottom:0; flex:1;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .completed-meta   { display:flex; flex-wrap:wrap; gap:.4rem; padding-top:.85rem; border-top:1px solid var(--border); margin-top:auto; }
 
     /* ═══════════════════════════════════════════════════════
        EMPTY STATES
@@ -440,63 +617,170 @@
     .prj-empty p    { font-size:.8rem;  color:var(--txt2); }
 
     /* ═══════════════════════════════════════════════════════
-       PROJECT DETAIL MODAL
+       PROJECT DETAIL MODAL — Liquid Glass Card Style
     ═══════════════════════════════════════════════════════ */
     .prj-modal-overlay {
       position:fixed; inset:0; z-index:10000;
-      background:rgba(0,0,0,.65);
-      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      background:rgba(4,2,12,.72);
+      backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
       display:none; align-items:center; justify-content:center;
       padding:1rem;
-      animation:none;
     }
     .prj-modal-overlay.open {
       display:flex;
       animation:fadeInOverlay .22s ease;
     }
     @keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
+
+    /* Liquid glass card wrapper — animated border */
+    .prj-modal-glass-wrap {
+      position:relative; max-width:700px; width:100%;
+      border-radius:24px;
+      animation:modalSlideIn .32s cubic-bezier(.22,1,.36,1);
+    }
+    /* Spinning gradient border — same as lg-card */
+    .prj-modal-glass-wrap::before {
+      content:''; position:absolute; inset:-1.5px;
+      border-radius:25px; z-index:0;
+      background:conic-gradient(
+        from var(--prj-angle),
+        transparent 0%,
+        var(--modal-c1,var(--prj-v)) 14%,
+        var(--modal-c2,#06b6d4) 34%,
+        transparent 52%,
+        var(--modal-c1,var(--prj-v)) 82%,
+        transparent 100%
+      );
+      opacity:.65;
+      animation:borderSpin 6s linear infinite;
+    }
+    /* Frosted inner surface */
+    .prj-modal-glass-wrap::after {
+      content:''; position:absolute; inset:1.5px;
+      border-radius:23px; z-index:0;
+      background:var(--bg2);
+    }
+    :root[data-theme="light"] .prj-modal-glass-wrap::after {
+      background:rgba(255,255,255,.98);
+    }
     .prj-modal {
-      background:var(--bg2); border:1px solid var(--border2);
-      border-radius:22px; max-width:520px; width:100%;
-      max-height:90vh; overflow-y:auto;
-      box-shadow:0 32px 80px rgba(0,0,0,.5);
-      position:relative; padding:2rem;
-      animation:modalSlideIn .28s cubic-bezier(.22,1,.36,1);
+      position:relative; z-index:1;
+      background:transparent;
+      border-radius:22px; max-width:700px; width:100%;
+      max-height:88vh; overflow-y:auto;
+      padding:2rem 2.2rem;
+      scrollbar-width:thin;
+      scrollbar-color:color-mix(in srgb, var(--prj-v) 30%, transparent) transparent;
     }
-    @keyframes modalSlideIn { from{transform:translateY(18px) scale(.96);opacity:0} to{transform:none;opacity:1} }
+    .prj-modal::-webkit-scrollbar { width:4px; }
+    .prj-modal::-webkit-scrollbar-track { background:transparent; }
+    .prj-modal::-webkit-scrollbar-thumb { background:color-mix(in srgb, var(--prj-v) 35%, transparent); border-radius:4px; }
+
+    /* Shimmer sweep inside modal */
+    .prj-modal-shimmer {
+      position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:22px;
+      background:linear-gradient(115deg,
+        transparent 30%, rgba(255,255,255,.04) 48%,
+        rgba(255,255,255,.07) 50%, rgba(255,255,255,.04) 52%, transparent 70%);
+      background-size:220% 100%; background-position:220%;
+      opacity:0; animation:shimSweep .8s ease .35s forwards;
+    }
+
+    .prj-modal-section { margin-bottom:1.3rem; }
+    .prj-modal-section-label {
+      font-size:.63rem; font-weight:800; color:var(--txt3);
+      text-transform:uppercase; letter-spacing:.1em; margin-bottom:.6rem;
+      display:flex; align-items:center; gap:.45rem;
+    }
+    .prj-modal-section-label::before {
+      content:''; display:inline-block; width:3px; height:13px; border-radius:2px;
+      background:linear-gradient(to bottom, var(--prj-v), #06b6d4);
+      flex-shrink:0;
+    }
+    .prj-modal-full-desc {
+      font-size:.87rem; color:var(--txt2); line-height:1.8;
+      background:color-mix(in srgb, var(--prj-v) 5%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 14%, transparent);
+      border-radius:14px; padding:1rem 1.15rem; white-space:pre-wrap; word-break:break-word;
+    }
+    .prj-modal-outcomes { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem; }
+    .prj-modal-outcomes li {
+      display:flex; align-items:flex-start; gap:.6rem;
+      font-size:.84rem; color:var(--txt2); line-height:1.6;
+      padding:.5rem .8rem; border-radius:10px;
+      background:color-mix(in srgb, var(--prj-em) 5%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-em) 14%, transparent);
+    }
+    .prj-modal-outcomes li::before {
+      content:'✦'; color:var(--prj-em); font-size:.58rem; flex-shrink:0; margin-top:.25rem;
+    }
+    .prj-modal-client {
+      display:inline-flex; align-items:center; gap:.55rem;
+      padding:.45rem 1.1rem; border-radius:10px;
+      background:color-mix(in srgb, var(--prj-v) 8%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 18%, transparent);
+      font-size:.86rem; color:var(--txt); font-weight:700;
+    }
+    .prj-modal-tasks { display:flex; flex-direction:column; gap:.55rem; }
+    .prj-modal-task {
+      display:flex; align-items:flex-start; gap:.65rem;
+      padding:.65rem .9rem; border-radius:12px;
+      background:color-mix(in srgb, var(--prj-v) 4%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 12%, transparent);
+      font-size:.83rem; color:var(--txt2); line-height:1.55;
+    }
+    .prj-modal-task-num {
+      flex-shrink:0; width:22px; height:22px; border-radius:7px;
+      background:linear-gradient(135deg, var(--prj-v), #4f46e5);
+      display:flex; align-items:center; justify-content:center;
+      font-size:.65rem; font-weight:900; color:#fff;
+      box-shadow:0 2px 8px color-mix(in srgb, var(--prj-v) 40%, transparent);
+    }
+    @keyframes modalSlideIn { from{transform:translateY(22px) scale(.96);opacity:0} to{transform:none;opacity:1} }
     .prj-modal-close {
-      position:absolute; top:1rem; right:1rem;
+      position:absolute; top:1.1rem; right:1.1rem; z-index:10;
       width:32px; height:32px; border-radius:50%;
-      background:var(--panel); border:1px solid var(--border);
+      background:color-mix(in srgb, var(--prj-v) 10%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 22%, transparent);
       cursor:pointer; display:flex; align-items:center; justify-content:center;
-      font-size:.85rem; color:var(--txt2); transition:all .18s;
+      font-size:.82rem; color:var(--txt2); transition:all .2s;
+      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
     }
-    .prj-modal-close:hover { background:rgba(244,63,94,.12); color:#f43f5e; border-color:rgba(244,63,94,.35); }
+    .prj-modal-close:hover {
+      background:rgba(244,63,94,.15); color:#f43f5e;
+      border-color:rgba(244,63,94,.4);
+      transform:rotate(90deg);
+    }
     .prj-modal-hero {
-      display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;
+      display:flex; align-items:center; gap:1.1rem; margin-bottom:1.5rem;
     }
     .prj-modal-orb {
       flex-shrink:0;
       display:flex; align-items:center; justify-content:center;
-      background:none;
+      background:none; overflow:visible;
     }
     .prj-modal-orb svg { width:44px; height:44px; color:var(--oc,var(--v1)); }
     .prj-modal-badge {
-      display:inline-flex; align-items:center; gap:.35rem;
-      padding:.22rem .75rem; border-radius:999px; margin-bottom:.35rem;
-      background:color-mix(in srgb, var(--v1) 10%, transparent); border:1px solid color-mix(in srgb, var(--v1) 25%, transparent);
-      font-size:.67rem; font-weight:700; color:var(--prj-v); text-transform:uppercase; letter-spacing:.07em;
+      display:inline-flex; align-items:center; gap:.38rem;
+      padding:.25rem .85rem; border-radius:999px; margin-bottom:.4rem;
+      background:color-mix(in srgb, var(--prj-v) 10%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 26%, transparent);
+      font-size:.66rem; font-weight:800; color:var(--prj-v);
+      text-transform:uppercase; letter-spacing:.09em;
+      box-shadow:0 0 10px color-mix(in srgb, var(--prj-v) 15%, transparent);
     }
-    .prj-modal-title { font-size:1.35rem; font-weight:900; color:var(--txt); letter-spacing:-.02em; }
-    .prj-modal-desc  { font-size:.88rem; color:var(--txt2); line-height:1.65; margin-bottom:1.25rem; }
-    .prj-modal-facts { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; margin-bottom:1.25rem; }
+    .prj-modal-title { font-size:1.4rem; font-weight:900; color:var(--txt); letter-spacing:-.025em; line-height:1.2; }
+    .prj-modal-desc  { font-size:.88rem; color:var(--txt2); line-height:1.7; margin-bottom:1.3rem; }
+    .prj-modal-facts { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; margin-bottom:1.3rem; }
     .prj-modal-fact  {
-      background:var(--panel); border:1px solid var(--border);
-      border-radius:12px; padding:.85rem 1rem;
+      background:color-mix(in srgb, var(--prj-v) 6%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-v) 15%, transparent);
+      border-radius:13px; padding:.9rem 1.05rem;
+      backdrop-filter:blur(8px);
     }
-    .prj-modal-fact-label { font-size:.64rem; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.07em; }
-    .prj-modal-fact-value { font-size:1rem; font-weight:800; color:var(--txt); margin-top:.2rem; }
-    .prj-modal-tech  { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:1.2rem; }
+    .prj-modal-fact-label { font-size:.63rem; font-weight:800; color:var(--txt3); text-transform:uppercase; letter-spacing:.08em; }
+    .prj-modal-fact-value { font-size:1rem; font-weight:800; color:var(--txt); margin-top:.22rem; }
+    .prj-modal-tech  { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:1.2rem; }
     .prj-modal-action {
       display:inline-flex; align-items:center; gap:.5rem;
       padding:.7rem 1.4rem; border-radius:10px;
@@ -724,11 +1008,11 @@
       .prj-modal-facts { grid-template-columns:1fr; }
       .prj-timer-bar { flex-direction:column; align-items:flex-start; }
       .prj-module-grid { grid-template-columns:1fr; }
-      .prj-hero-stats { width:100%; justify-content:space-around; }
+      .prj-hero-stats { width:100%; justify-content:flex-start; }
     }
     @media(max-width:480px) {
       .prj-hero-stat-v { font-size:1.35rem; }
-      .prj-hero-stat   { padding:.75rem 1rem; }
+      .prj-hero-stat   { padding:.75rem 1rem; min-width:120px; }
     }
 
     /* ═══════════════════════════════════════════════════════
@@ -860,6 +1144,7 @@
     }
     .icon-badge-internship { background: linear-gradient(135deg,#f59e0b,#fbbf24); }
     .icon-badge-upcoming   { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+    .icon-badge-completed  { background: linear-gradient(135deg,#10b981,#4ade80); font-size:.65rem; font-weight:900; }
 
     /* ── Gloss / depth overlays — hidden (no orb bg) ── */
     .icon-gloss, .icon-bottom-shade, .icon-inner-ring { display: none; }
@@ -901,6 +1186,74 @@
       0%,100% { transform: translateY(0) scale(1); }
       50%      { transform: translateY(-5px) scale(1.04); }
     }
+
+    /* ═══════════════════════════════════════════════════════
+       PROJECT SLIDER
+    ═══════════════════════════════════════════════════════ */
+    .prj-slider-wrap { position:relative; }
+    .prj-slider-card-area { position:relative; min-height:420px; }
+    .prj-slider-card-area .lg-card,
+    .prj-slider-card-area .intern-card,
+    .prj-slider-card-area .upcoming-card,
+    .prj-slider-card-area .completed-card {
+      width:100%; height:auto; min-height:420px; box-sizing:border-box;
+    }
+    .prj-slider-controls {
+      display:flex; align-items:center; justify-content:center;
+      gap:.85rem; margin-top:1.1rem; flex-wrap:wrap;
+    }
+    .prj-slider-btn {
+      width:36px; height:36px; border-radius:50%;
+      border:1px solid var(--border2);
+      background:color-mix(in srgb, var(--v1) 8%, transparent);
+      color:var(--prj-v); cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .22s; flex-shrink:0;
+    }
+    .prj-slider-btn:hover:not(:disabled) {
+      background:var(--prj-v); color:#fff;
+      border-color:var(--prj-v);
+      box-shadow:0 4px 14px color-mix(in srgb, var(--v1) 35%, transparent);
+      transform:scale(1.1);
+    }
+    .prj-slider-btn:disabled { opacity:.28; cursor:not-allowed; transform:none !important; }
+    .prj-slider-dots { display:flex; gap:.45rem; align-items:center; }
+    .prj-slider-dot {
+      width:7px; height:7px; border-radius:50%; cursor:pointer;
+      background:color-mix(in srgb, var(--v1) 18%, transparent);
+      border:1px solid color-mix(in srgb, var(--v1) 32%, transparent);
+      transition:all .25s cubic-bezier(.22,1,.36,1);
+    }
+    .prj-slider-dot.active {
+      background:var(--prj-v); border-color:var(--prj-v);
+      transform:scale(1.45);
+      box-shadow:0 0 8px color-mix(in srgb, var(--v1) 50%, transparent);
+    }
+    .prj-slider-counter {
+      font-size:.72rem; font-weight:700; color:var(--txt3);
+      min-width:38px; text-align:center; font-variant-numeric:tabular-nums;
+    }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(42px)} to{opacity:1;transform:none} }
+    @keyframes slideInLeft  { from{opacity:0;transform:translateX(-42px)} to{opacity:1;transform:none} }
+    .slide-in-right { animation:slideInRight .32s cubic-bezier(.22,1,.36,1) both; }
+    .slide-in-left  { animation:slideInLeft  .32s cubic-bezier(.22,1,.36,1) both; }
+    .prj-explore-btn {
+      display:flex; align-items:center; justify-content:center; gap:.5rem;
+      width:100%; padding:.68rem 1.2rem; margin-top:.9rem;
+      border-radius:10px;
+      background:linear-gradient(135deg, var(--prj-v), #4f46e5);
+      color:#fff; font-size:.83rem; font-weight:700;
+      border:none; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 14px color-mix(in srgb, var(--v1) 28%, transparent);
+      transition:all .22s; text-decoration:none;
+    }
+    .prj-explore-btn:hover {
+      transform:translateY(-2px);
+      box-shadow:0 8px 24px color-mix(in srgb, var(--v1) 40%, transparent);
+      filter:brightness(1.08);
+    }
+    .prj-explore-btn svg { transition:transform .22s; }
+    .prj-explore-btn:hover svg { transform:translateX(3px); }
   </style>
 </head>
 <body class="prj-page">
@@ -916,22 +1269,38 @@
        HERO
   ═══════════════════════════════════════════════════════════ -->
   <section class="prj-hero">
-    <div class="prj-hero-mesh"></div>
+    <div class="prj-hero-orb prj-hero-orb1"></div>
+    <div class="prj-hero-orb prj-hero-orb2"></div>
+    <div class="prj-hero-orb prj-hero-orb3"></div>
     <div class="prj-hero-grid"></div>
     <div class="prj-container">
       <div class="prj-hero-inner">
         <div class="prj-hero-left">
           <div class="prj-hero-badge">
-            <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>
+            <span class="prj-hero-badge-dot"></span>
             Live Projects
           </div>
-          <h1>Projects</h1>
-          <p>Real-world projects. Build experience, earn recognition, and grow professionally.</p>
+          <h1>Explore Projects</h1>
+          <span class="prj-hero-underline"></span>
+          <p>Real-world projects across domains. Build experience, earn recognition, and grow professionally.</p>
         </div>
         <div class="prj-hero-stats" id="prj-hero-stats">
-          <div class="prj-hero-stat"><div class="prj-hero-stat-v" id="stat-available">—</div><div class="prj-hero-stat-l">Available</div></div>
-          <div class="prj-hero-stat"><div class="prj-hero-stat-v" id="stat-internship">—</div><div class="prj-hero-stat-l">Internships</div></div>
-          <div class="prj-hero-stat"><div class="prj-hero-stat-v" id="stat-upcoming">—</div><div class="prj-hero-stat-l">Upcoming</div></div>
+          <div class="prj-hero-stat" style="animation-delay:.05s" onclick="document.getElementById('prj-available-grid').closest('.prj-section').scrollIntoView({behavior:'smooth',block:'start'})">
+            <span class="prj-hero-stat-v" id="stat-available">—</span>
+            <span class="prj-hero-stat-l">Available</span>
+          </div>
+          <div class="prj-hero-stat" style="animation-delay:.12s" onclick="document.getElementById('prj-intern-list').closest('.prj-section').scrollIntoView({behavior:'smooth',block:'start'})">
+            <span class="prj-hero-stat-v" id="stat-internship">—</span>
+            <span class="prj-hero-stat-l">Internships</span>
+          </div>
+          <div class="prj-hero-stat" style="animation-delay:.19s" onclick="document.getElementById('prj-completed-grid').closest('.prj-section').scrollIntoView({behavior:'smooth',block:'start'})">
+            <span class="prj-hero-stat-v" id="stat-completed" style="color:var(--prj-em)">—</span>
+            <span class="prj-hero-stat-l">Completed</span>
+          </div>
+          <div class="prj-hero-stat" style="animation-delay:.26s" onclick="document.getElementById('prj-upcoming-grid').closest('.prj-section').scrollIntoView({behavior:'smooth',block:'start'})">
+            <span class="prj-hero-stat-v" id="stat-upcoming">—</span>
+            <span class="prj-hero-stat-l">Upcoming</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1060,8 +1429,18 @@
             </div>
             <span class="prj-section-count" id="count-available">0</span>
           </div>
-          <div class="lg-grid" id="prj-available-grid">
-            <div class="prj-spin"></div>
+          <div class="prj-slider-wrap">
+            <div class="prj-slider-card-area" id="prj-available-grid"><div class="prj-spin"></div></div>
+            <div class="prj-slider-controls" id="slider-controls-available" style="display:none">
+              <button class="prj-slider-btn" id="slider-prev-available" onclick="sliderGo('available',-1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="prj-slider-dots" id="slider-dots-available"></div>
+              <span class="prj-slider-counter" id="slider-counter-available"></span>
+              <button class="prj-slider-btn" id="slider-next-available" onclick="sliderGo('available',1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -1093,8 +1472,63 @@
             </div>
             <span class="prj-section-count" id="count-internship">0</span>
           </div>
-          <div class="intern-grid" id="prj-intern-list">
-            <div class="prj-spin"></div>
+          <div class="prj-slider-wrap">
+            <div class="prj-slider-card-area" id="prj-intern-list"><div class="prj-spin"></div></div>
+            <div class="prj-slider-controls" id="slider-controls-internship" style="display:none">
+              <button class="prj-slider-btn" id="slider-prev-internship" onclick="sliderGo('internship',-1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="prj-slider-dots" id="slider-dots-internship"></div>
+              <span class="prj-slider-counter" id="slider-counter-internship"></span>
+              <button class="prj-slider-btn" id="slider-next-internship" onclick="sliderGo('internship',1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Completed Projects -->
+        <section class="prj-section">
+          <div class="prj-section-hdr">
+            <div class="prj-section-title-wrap">
+              <div class="prj-section-icon prj-sec-emerald">
+                <svg class="prj-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Trophy cup body -->
+                  <path d="M10 4 H22 L20 16 Q16 20 12 16 Z" fill="currentColor" fill-opacity=".6" stroke="currentColor" stroke-opacity=".88" stroke-width="1.5" stroke-linejoin="round"/>
+                  <!-- Trophy handles -->
+                  <path d="M10 6 Q5 6 5 11 Q5 15 10 14" stroke="currentColor" stroke-opacity=".65" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+                  <path d="M22 6 Q27 6 27 11 Q27 15 22 14" stroke="currentColor" stroke-opacity=".65" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+                  <!-- Trophy stem -->
+                  <line x1="16" y1="20" x2="16" y2="25" stroke="currentColor" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>
+                  <!-- Trophy base -->
+                  <rect x="10" y="25" width="12" height="3" rx="1.5" fill="currentColor" fill-opacity=".55" stroke="currentColor" stroke-opacity=".75" stroke-width="1.2"/>
+                  <!-- Checkmark inside cup -->
+                  <path class="si-pulse" d="M12.5 11 L15 13.5 L20 8" stroke="#4ade80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <!-- Sparkle stars -->
+                  <circle class="si-blink"       cx="5"  cy="4"  r="1.1" fill="currentColor" fill-opacity=".6"/>
+                  <circle class="si-blink si-bob" cx="27" cy="6"  r="1.4" fill="currentColor" fill-opacity=".5"/>
+                  <circle class="si-blink si-bob2" cx="26" cy="24" r=".9" fill="currentColor" fill-opacity=".4"/>
+                </svg>
+              </div>
+              <div>
+                <div class="prj-section-title">Completed Projects</div>
+                <div class="prj-section-sub">Successfully delivered — proven track record</div>
+              </div>
+            </div>
+            <span class="prj-section-count" id="count-completed">0</span>
+          </div>
+          <div class="prj-slider-wrap">
+            <div class="prj-slider-card-area" id="prj-completed-grid"><div class="prj-spin"></div></div>
+            <div class="prj-slider-controls" id="slider-controls-completed" style="display:none">
+              <button class="prj-slider-btn" id="slider-prev-completed" onclick="sliderGo('completed',-1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="prj-slider-dots" id="slider-dots-completed"></div>
+              <span class="prj-slider-counter" id="slider-counter-completed"></span>
+              <button class="prj-slider-btn" id="slider-next-completed" onclick="sliderGo('completed',1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -1128,8 +1562,18 @@
             </div>
             <span class="prj-section-count" id="count-upcoming">0</span>
           </div>
-          <div class="upcoming-grid" id="prj-upcoming-grid">
-            <div class="prj-spin"></div>
+          <div class="prj-slider-wrap">
+            <div class="prj-slider-card-area" id="prj-upcoming-grid"><div class="prj-spin"></div></div>
+            <div class="prj-slider-controls" id="slider-controls-upcoming" style="display:none">
+              <button class="prj-slider-btn" id="slider-prev-upcoming" onclick="sliderGo('upcoming',-1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="prj-slider-dots" id="slider-dots-upcoming"></div>
+              <span class="prj-slider-counter" id="slider-counter-upcoming"></span>
+              <button class="prj-slider-btn" id="slider-next-upcoming" onclick="sliderGo('upcoming',1)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -1141,6 +1585,7 @@
        MODULE DETAIL MODAL
   ═══════════════════════════════════════════════════════════ -->
   <div id="prj-module-modal" class="prj-modal-overlay" onclick="if(event.target===this)closePrjModuleModal()">
+    <div class="prj-modal-glass-wrap" style="max-width:540px">
     <div class="prj-modal">
       <button class="prj-modal-close" onclick="closePrjModuleModal()">✕</button>
       <div class="prj-mod-modal-hero">
@@ -1162,56 +1607,72 @@
         </button>
       </div>
     </div>
+    </div>
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
-       PROJECT DETAIL MODAL
+       PROJECT DETAIL MODAL — Liquid Glass
   ═══════════════════════════════════════════════════════════ -->
   <div id="prj-detail-modal" class="prj-modal-overlay" onclick="if(event.target===this)closePrjModal()">
-    <div class="prj-modal">
-      <button class="prj-modal-close" onclick="closePrjModal()">✕</button>
-      <div class="prj-modal-hero">
-        <div class="prj-modal-orb" id="md-orb">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    <div class="prj-modal-glass-wrap" id="md-glass-wrap">
+      <div class="prj-modal">
+        <div class="prj-modal-shimmer"></div>
+        <button class="prj-modal-close" onclick="closePrjModal()">✕</button>
+
+        <!-- Hero row: animated icon + badge + title -->
+        <div class="prj-modal-hero">
+          <div class="prj-modal-orb" id="md-orb">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="prj-modal-badge" id="md-type-badge">Project</div>
+            <div class="prj-modal-title" id="md-title">Project Name</div>
+          </div>
         </div>
-        <div>
-          <div class="prj-modal-badge" id="md-type-badge">Project</div>
-          <div class="prj-modal-title" id="md-title">Project Name</div>
+
+        <!-- Meta pills: location, team, duration -->
+        <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.35rem">
+          <div id="md-country">—</div>
+          <div id="md-team">—</div>
+          <div id="md-duration">—</div>
         </div>
-      </div>
-      <div class="prj-modal-desc"  id="md-desc">Description</div>
-      <div class="prj-modal-facts">
-        <div class="prj-modal-fact">
-          <div class="prj-modal-fact-label">Country</div>
-          <div class="prj-modal-fact-value" id="md-country">—</div>
+
+        <!-- Description -->
+        <div class="prj-modal-section">
+          <div class="prj-modal-section-label">Overview</div>
+          <div class="prj-modal-full-desc" id="md-desc">Description</div>
         </div>
-        <div class="prj-modal-fact">
-          <div class="prj-modal-fact-label">Team Size</div>
-          <div class="prj-modal-fact-value" id="md-team">—</div>
+
+        <!-- Domain + Tech stack -->
+        <div class="prj-modal-facts" style="margin-bottom:1.2rem">
+          <div class="prj-modal-fact">
+            <div class="prj-modal-fact-label">Domain</div>
+            <div class="prj-modal-fact-value" id="md-domain">—</div>
+          </div>
+          <div class="prj-modal-fact" id="md-tech-fact">
+            <div class="prj-modal-fact-label">Tech Stack</div>
+            <div class="prj-modal-tech" id="md-tech" style="margin-bottom:0;margin-top:.35rem"></div>
+          </div>
         </div>
-        <div class="prj-modal-fact">
-          <div class="prj-modal-fact-label">Duration</div>
-          <div class="prj-modal-fact-value" id="md-duration">—</div>
-        </div>
-        <div class="prj-modal-fact">
-          <div class="prj-modal-fact-label">Domain</div>
-          <div class="prj-modal-fact-value" id="md-domain">—</div>
-        </div>
-      </div>
-      <div class="prj-modal-tech" id="md-tech"></div>
-      <div id="md-action-area">
-        <!-- filled by JS based on auth state -->
+
+        <!-- Dynamic extra: client, outcomes, tasks -->
+        <div id="md-extra"></div>
+
+        <!-- Action -->
+        <div id="md-action-area"></div>
       </div>
     </div>
   </div>
 
   <!-- Git Access Modal -->
   <div id="prj-git-modal" class="prj-modal-overlay" onclick="if(event.target===this)document.getElementById('prj-git-modal').classList.remove('open')">
-    <div class="prj-modal" style="max-width:460px">
-      <button class="prj-modal-close" onclick="document.getElementById('prj-git-modal').classList.remove('open')">✕</button>
-      <div class="prj-modal-badge">Git Repository</div>
-      <div class="prj-modal-title" id="git-modal-title">Repository Access</div>
-      <div id="git-modal-body" style="font-size:.87rem;color:var(--txt2);line-height:1.65"></div>
+    <div class="prj-modal-glass-wrap" style="max-width:480px">
+      <div class="prj-modal">
+        <button class="prj-modal-close" onclick="document.getElementById('prj-git-modal').classList.remove('open')">✕</button>
+        <div class="prj-modal-badge">Git Repository</div>
+        <div class="prj-modal-title" id="git-modal-title" style="margin-bottom:1.2rem">Repository Access</div>
+        <div id="git-modal-body" style="font-size:.87rem;color:var(--txt2);line-height:1.65"></div>
+      </div>
     </div>
   </div>
 
@@ -1299,18 +1760,22 @@
     const available  = projects.filter(p => p.project_type === 'available');
     const internship = projects.filter(p => p.project_type === 'internship');
     const upcoming   = projects.filter(p => p.project_type === 'upcoming');
+    const completed  = projects.filter(p => p.project_type === 'completed');
 
     // Update hero stats
     document.getElementById('stat-available').textContent  = available.length;
     document.getElementById('stat-internship').textContent = internship.length;
     document.getElementById('stat-upcoming').textContent   = upcoming.length;
+    document.getElementById('stat-completed').textContent  = completed.length;
     document.getElementById('count-available').textContent  = available.length;
     document.getElementById('count-internship').textContent = internship.length;
     document.getElementById('count-upcoming').textContent   = upcoming.length;
+    document.getElementById('count-completed').textContent  = completed.length;
 
-    renderCrystalGrid(available,  'prj-available-grid');
-    renderInternList(internship,  'prj-intern-list');
-    renderLiquidGrid(upcoming,    'prj-upcoming-grid');
+    initSlider('available',  available);
+    initSlider('internship', internship);
+    initSlider('upcoming',   upcoming);
+    initSlider('completed',  completed);
   }
 
   /* ── Domain → emoji + brand colors + orbit speed ── */
@@ -1518,7 +1983,9 @@
       ? `<div class="icon-type-badge icon-badge-internship">🎓</div>`
       : projectType === 'upcoming'
         ? `<div class="icon-type-badge icon-badge-upcoming">⏳</div>`
-        : '';
+        : projectType === 'completed'
+          ? `<div class="icon-type-badge icon-badge-completed">✓</div>`
+          : '';
 
     return `
     <div class="icon-3d-wrap" style="--oc:${c1};--oc2:${c2};--orbit-dur:${orbitDur}">
@@ -1557,112 +2024,233 @@
   const _svgClock = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
   const _svgChev  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>`;
 
-  /* ── Available Projects — lg-card liquid glass grid ── */
-  function renderCrystalGrid(projects, containerId) {
-    const el = document.getElementById(containerId);
-    if (!projects.length) {
-      el.innerHTML = `<div class="prj-empty"><div class="prj-empty-icon">🚀</div><h3>No available projects</h3><p>Check back soon — new projects are added regularly.</p></div>`;
-      return;
-    }
-    el.className = 'lg-grid';
-    el.innerHTML = projects.map((p, i) => {
-      const icon   = getProjectIcon(p.domain, p.project_name);
-      const { c1, c2 } = icon;
-      const teamSz = p.team_size || p.max_students || 5;
-      const delay  = (i * 85) + 'ms';
-      return `
-      <div class="lg-card" style="--lg-c1:${c1};--lg-c2:${c2};animation-delay:${delay}"
-           onclick="openProjectModal('${p.id}')">
-        <div class="lg-shimmer"></div>
-        <div class="lg-icon-wrap">
-          ${_buildIcon3d(icon, 'lg-icon-orb', delay, 'available')}
-          <span class="lg-status-pill lg-pill-live"><span class="lg-pill-dot"></span>Live</span>
-        </div>
-        <div class="lg-body">
-          <div class="lg-tags">${renderTags(p)}</div>
-          <div class="lg-title">${_esc(p.project_name)}</div>
-          <div class="lg-desc">${_esc(p.description || 'Real-world project experience awaits.')}</div>
-          <div class="lg-meta">
-            <div class="lg-meta-item">${_svgPin} ${_esc(p.country || '—')}</div>
-            <div class="lg-meta-item">${_svgTeam}
-              <div class="lg-team-dots">${renderTeamDots(0, teamSz)}</div>
-              ${teamSz}
-            </div>
-            <div class="lg-meta-item">${_svgClock} ${p.duration_weeks}w</div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
+  /* ============================================================
+     SLIDER SYSTEM — One project at a time per section
+  ============================================================ */
+  const _sliders = {};
+  const _sliderContainerId = {
+    available:  'prj-available-grid',
+    internship: 'prj-intern-list',
+    completed:  'prj-completed-grid',
+    upcoming:   'prj-upcoming-grid',
+  };
+  const _sliderEmpty = {
+    available:  ['🚀','No available projects','Check back soon — new projects are added regularly.'],
+    internship: ['🎓','No internships listed','Internship opportunities will appear here soon.'],
+    completed:  ['🏆','No completed projects yet','Successfully delivered projects will appear here.'],
+    upcoming:   ['⏳','No upcoming projects','New projects coming soon. Stay tuned!'],
+  };
+
+  function initSlider(type, projects) {
+    _sliders[type] = { projects, idx: 0 };
+    const ctrl = document.getElementById(`slider-controls-${type}`);
+    if (ctrl) ctrl.style.display = projects.length ? 'flex' : 'none';
+    _renderSlider(type, 'none');
   }
 
-  /* ── Internships — intern-card glass grid ── */
-  function renderInternList(projects, containerId) {
-    const el = document.getElementById(containerId);
-    if (!projects.length) {
-      el.innerHTML = `<div class="prj-empty"><div class="prj-empty-icon">🎓</div><h3>No internships listed</h3><p>Internship opportunities will appear here soon.</p></div>`;
-      return;
-    }
-    el.className = 'intern-grid';
-    el.innerHTML = projects.map((p, i) => {
-      const icon = getProjectIcon(p.domain, p.project_name);
-      const { c1, c2 } = icon;
-      const delay = (i * 95) + 'ms';
-      return `
-      <div class="intern-card" style="--lg-c1:${c1};--lg-c2:${c2};animation-delay:${delay}"
-           onclick="openProjectModal('${p.id}')">
-        <div class="intern-card-inner">
-          ${_buildIcon3d(icon, 'intern-card-icon', delay, 'internship')}
-          <div class="intern-card-body">
-            <div class="intern-card-row">
-              <div class="intern-card-title">${_esc(p.project_name)}</div>
-              <div class="intern-card-arrow">${_svgChev}</div>
-            </div>
-            <div class="intern-card-meta">
-              <div class="intern-meta-item">${_svgPin} ${_esc(p.country || '—')}</div>
-              <div class="intern-meta-item">${_svgTeam} ${p.team_size || p.max_students} members</div>
-              <div class="intern-meta-item">${_svgClock} ${p.duration_weeks}w</div>
-            </div>
-            <div class="intern-card-tags">${renderTags(p)}</div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
+  function sliderGo(type, dir) {
+    const s = _sliders[type];
+    if (!s || !s.projects.length) return;
+    s.idx = (s.idx + dir + s.projects.length) % s.projects.length;
+    _renderSlider(type, dir > 0 ? 'slide-in-right' : 'slide-in-left');
   }
 
-  /* ── Upcoming Projects — upcoming-card frosted glow ── */
-  function renderLiquidGrid(projects, containerId) {
-    const el = document.getElementById(containerId);
+  function sliderGoTo(type, idx) {
+    const s = _sliders[type];
+    if (!s || !s.projects.length) return;
+    const dir = idx > s.idx ? 1 : -1;
+    s.idx = idx;
+    _renderSlider(type, dir > 0 ? 'slide-in-right' : 'slide-in-left');
+  }
+
+  function _renderSlider(type, animClass) {
+    const s = _sliders[type];
+    if (!s) return;
+    const { projects, idx } = s;
+    const el = document.getElementById(_sliderContainerId[type]);
+    if (!el) return;
+
     if (!projects.length) {
-      el.innerHTML = `<div class="prj-empty"><div class="prj-empty-icon">⏳</div><h3>No upcoming projects</h3><p>New projects coming soon. Stay tuned!</p></div>`;
+      const [icon, title, msg] = _sliderEmpty[type];
+      el.innerHTML = `<div class="prj-empty"><div class="prj-empty-icon">${icon}</div><h3>${title}</h3><p>${msg}</p></div>`;
       return;
     }
-    el.className = 'upcoming-grid';
-    el.innerHTML = projects.map((p, i) => {
-      const icon = getProjectIcon(p.domain, p.project_name);
-      const { c1, c2 } = icon;
-      const delay = (i * 100) + 'ms';
-      return `
-      <div class="upcoming-card" style="--lg-c1:${c1};--lg-c2:${c2};animation-delay:${delay}"
-           onclick="openProjectModal('${p.id}')">
-        <div class="upcoming-noise"></div>
-        <div class="upcoming-icon-row">
-          ${_buildIcon3d(icon, 'upcoming-orb', delay, 'upcoming')}
-          <span class="upcoming-soon-badge">
-            <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>
-            Soon
-          </span>
-        </div>
-        <div class="upcoming-body">
-          <div class="upcoming-title">${_esc(p.project_name)}</div>
-          <div class="upcoming-desc">${_esc(p.description || 'Details coming soon.')}</div>
-          <div class="upcoming-meta">
-            <div class="intern-meta-item">${_svgPin} ${_esc(p.country || '—')}</div>
-            <div class="intern-meta-item">${_svgTeam} ${p.team_size || p.max_students} members</div>
-            <div class="intern-meta-item">${_svgClock} ${p.duration_weeks}w</div>
+
+    const p = projects[idx];
+    if (type === 'available')  el.innerHTML = _cardAvailable(p);
+    if (type === 'internship') el.innerHTML = _cardIntern(p);
+    if (type === 'completed')  el.innerHTML = _cardCompleted(p);
+    if (type === 'upcoming')   el.innerHTML = _cardUpcoming(p);
+
+    if (animClass && animClass !== 'none') {
+      const card = el.querySelector('.lg-card,.intern-card,.upcoming-card,.completed-card');
+      if (card) card.classList.add(animClass);
+    }
+
+    // Dots
+    const dotsEl = document.getElementById(`slider-dots-${type}`);
+    if (dotsEl) {
+      dotsEl.innerHTML = projects.map((_, i) =>
+        `<span class="prj-slider-dot${i === idx ? ' active' : ''}" onclick="sliderGoTo('${type}',${i})"></span>`
+      ).join('');
+    }
+
+    // Counter
+    const ctr = document.getElementById(`slider-counter-${type}`);
+    if (ctr) ctr.textContent = projects.length > 1 ? `${idx + 1} / ${projects.length}` : '';
+
+    // Arrows: disable only when 1 project
+    const prevBtn = document.getElementById(`slider-prev-${type}`);
+    const nextBtn = document.getElementById(`slider-next-${type}`);
+    if (prevBtn) prevBtn.disabled = projects.length <= 1;
+    if (nextBtn) nextBtn.disabled = projects.length <= 1;
+  }
+
+  /* ── Explore button ── */
+  function _exploreBtn(id) {
+    return `<a class="prj-explore-btn" href="project-detail.html?id=${id}" onclick="event.stopPropagation()">
+      Explore Project
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>`;
+  }
+
+  /* ── Available card (lg-card style) ── */
+  function _cardAvailable(p) {
+    const icon = getProjectIcon(p.domain, p.project_name);
+    const { c1, c2 } = icon;
+    const teamSz = p.team_size || p.max_students || 5;
+    return `<div class="lg-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
+      <div class="lg-shimmer"></div>
+      <div class="lg-icon-wrap">
+        ${_buildIcon3d(icon, 'lg-icon-orb', '0ms', 'available')}
+        <span class="lg-status-pill lg-pill-live"><span class="lg-pill-dot"></span>Live</span>
+      </div>
+      <div class="lg-body">
+        <div class="lg-title">${_esc(p.project_name)}</div>
+        <div class="lg-tags" style="margin-bottom:.65rem">${renderTags(p)}</div>
+        <div class="lg-desc">${_esc(p.description || 'Real-world project experience awaits.')}</div>
+        <div class="lg-meta">
+          <div class="lg-meta-item loc">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>
+            ${_esc(p.country || '—')}
+          </div>
+          <div class="lg-meta-item team">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            ${teamSz} members
+          </div>
+          <div class="lg-meta-item dur">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${p.duration_weeks}w
           </div>
         </div>
-      </div>`;
-    }).join('');
+        ${_exploreBtn(p.id)}
+      </div>
+    </div>`;
+  }
+
+  /* ── Internship card (intern-card style) ── */
+  function _cardIntern(p) {
+    const icon = getProjectIcon(p.domain, p.project_name);
+    const { c1, c2 } = icon;
+    return `<div class="intern-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
+      <div class="intern-card-inner">
+        <div class="intern-card-header">
+          ${_buildIcon3d(icon, 'intern-card-icon', '0ms', 'internship')}
+          <div class="intern-card-arrow">${_svgChev}</div>
+        </div>
+        <div class="intern-card-body">
+          <div class="intern-card-title">${_esc(p.project_name)}</div>
+          <div class="intern-card-tags" style="margin-bottom:.45rem">${renderTags(p)}</div>
+          <div class="intern-card-desc">${_esc(p.description || 'Structured internship programme with guided mentorship.')}</div>
+          <div class="intern-card-meta" style="margin-top:.5rem;padding-top:.7rem;border-top:1px solid var(--border)">
+            <div class="lg-meta-item loc" style="font-size:.72rem">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>
+              ${_esc(p.country || '—')}
+            </div>
+            <div class="lg-meta-item team" style="font-size:.72rem">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              ${p.team_size || p.max_students} members
+            </div>
+            <div class="lg-meta-item dur" style="font-size:.72rem">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${p.duration_weeks}w
+            </div>
+          </div>
+          ${_exploreBtn(p.id)}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  /* ── Completed card ── */
+  function _cardCompleted(p) {
+    const icon = getProjectIcon(p.domain, p.project_name);
+    const { c1, c2 } = icon;
+    return `<div class="completed-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
+      <div class="completed-icon-row">
+        ${_buildIcon3d(icon, 'completed-orb', '0ms', 'completed')}
+        <span class="completed-done-badge">
+          <svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 4 L3.5 6 L6.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          Done
+        </span>
+      </div>
+      <div class="completed-body">
+        <div class="completed-title">${_esc(p.project_name)}</div>
+        <div class="lg-tags" style="margin-bottom:.55rem;display:flex;flex-wrap:nowrap;gap:.3rem;overflow-x:auto;scrollbar-width:none">${renderTags(p)}</div>
+        <div class="completed-desc">${_esc(p.description || 'Project successfully completed.')}</div>
+        <div class="completed-meta">
+          <div class="lg-meta-item loc" style="font-size:.72rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>
+            ${_esc(p.country || '—')}
+          </div>
+          <div class="lg-meta-item team" style="font-size:.72rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            ${p.team_size || p.max_students} members
+          </div>
+          <div class="lg-meta-item dur" style="font-size:.72rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${p.duration_weeks}w
+          </div>
+        </div>
+        ${_exploreBtn(p.id)}
+      </div>
+    </div>`;
+  }
+
+  /* ── Upcoming card ── */
+  function _cardUpcoming(p) {
+    const icon = getProjectIcon(p.domain, p.project_name);
+    const { c1, c2 } = icon;
+    return `<div class="upcoming-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
+      <div class="upcoming-noise"></div>
+      <div class="upcoming-icon-row">
+        ${_buildIcon3d(icon, 'upcoming-orb', '0ms', 'upcoming')}
+        <span class="upcoming-soon-badge">
+          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>
+          Soon
+        </span>
+      </div>
+      <div class="upcoming-body">
+        <div class="upcoming-title">${_esc(p.project_name)}</div>
+        <div class="upcoming-desc">${_esc(p.description || 'Details coming soon.')}</div>
+        <div class="lg-tags" style="margin:.6rem 0;display:flex;flex-wrap:nowrap;gap:.3rem;overflow-x:auto;scrollbar-width:none">${renderTags(p)}</div>
+        <div class="upcoming-meta">
+          <div class="lg-meta-item loc" style="font-size:.72rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>
+            ${_esc(p.country || '—')}
+          </div>
+          <div class="lg-meta-item team" style="font-size:.72rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            ${p.team_size || p.max_students} members
+          </div>
+          <div class="lg-meta-item dur" style="font-size:.72rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${p.duration_weeks}w
+          </div>
+        </div>
+        ${_exploreBtn(p.id)}
+      </div>
+    </div>`;
   }
 
   /* ============================================================
@@ -1674,19 +2262,17 @@
     let p = _allProjects[id];
     if (!p) {
       const { data } = await _prjSb.from('internship_projects')
-        .select('id,project_name,country,domain,description,tech_stack,duration_weeks,max_students,team_size,project_type')
+        .select('id,project_name,country,domain,description,detailed_description,client_name,tech_stack,learning_outcomes,tasks,duration_weeks,max_students,team_size,project_type')
         .eq('id', id).single();
       p = data;
       if (p) _allProjects[id] = p;
     }
     if (!p) return;
 
-    const typeLabels = { available:'Available Project', internship:'Internship', upcoming:'Upcoming' };
+    const typeColors = { available:'var(--prj-em)', internship:'var(--prj-gold)', upcoming:'var(--prj-cyan)', completed:'var(--prj-em)' };
+    const typeLabels = { available:'Available Project', internship:'Internship Programme', upcoming:'Coming Soon', completed:'Completed' };
     document.getElementById('md-type-badge').textContent = typeLabels[p.project_type] || 'Project';
-    document.getElementById('md-title').textContent    = p.project_name;
-    document.getElementById('md-desc').textContent     = p.description || 'More details coming soon.';
 
-    // Dynamic icon + colors on modal orb
     const iconCfg = getProjectIcon(p.domain, p.project_name);
     const { c1, c2, key, orbitDur, floatDur } = iconCfg;
     const svg = _domainSVGs[key] || _domainSVGs.default;
@@ -1695,12 +2281,64 @@
     orb.style.boxShadow  = 'none';
     orb.style.setProperty('--oc', c1);
     orb.innerHTML = `<div class="icon-svg-wrap" style="--appear-delay:0ms;--float-dur:${floatDur};--float-start:0ms"><svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">${svg}</svg></div>`;
-    document.getElementById('md-country').textContent  = p.country || '—';
-    document.getElementById('md-team').textContent     = (p.team_size || p.max_students) + ' members';
-    document.getElementById('md-duration').textContent = p.duration_weeks + ' weeks';
-    document.getElementById('md-domain').textContent   = p.domain || 'General';
-    document.getElementById('md-tech').innerHTML       = (p.tech_stack || []).map(t =>
-      `<span class="prj-tag prj-tag-c">${_esc(t)}</span>`).join('') || '';
+    // Sync animated border colors on glass wrapper
+    const gw = document.getElementById('md-glass-wrap');
+    if (gw) { gw.style.setProperty('--modal-c1', c1); gw.style.setProperty('--modal-c2', c2); }
+
+    document.getElementById('md-title').textContent = p.project_name;
+
+    // Full description (no truncation)
+    const descEl = document.getElementById('md-desc');
+    descEl.textContent = '';
+    descEl.className = 'prj-modal-full-desc';
+    descEl.textContent = p.detailed_description || p.description || 'More details coming soon.';
+
+    // Facts grid with colored meta
+    document.getElementById('md-country').innerHTML  = `<span class="lg-meta-item loc" style="font-size:.88rem">${_svgPin} ${_esc(p.country || '—')}</span>`;
+    document.getElementById('md-team').innerHTML     = `<span class="lg-meta-item team" style="font-size:.88rem">${_svgTeam} ${(p.team_size || p.max_students)} members</span>`;
+    document.getElementById('md-duration').innerHTML = `<span class="lg-meta-item dur" style="font-size:.88rem">${_svgClock} ${p.duration_weeks} weeks</span>`;
+    document.getElementById('md-domain').textContent = p.domain || 'General';
+
+    // Tech stack
+    document.getElementById('md-tech').innerHTML = (p.tech_stack || []).map(t =>
+      `<span class="prj-tag prj-tag-c">${_esc(t)}</span>`).join('') || '<span style="font-size:.8rem;color:var(--txt3)">Not specified</span>';
+
+    // Extra sections
+    const extra = document.getElementById('md-extra');
+    let extraHtml = '';
+
+    if (p.client_name) {
+      extraHtml += `<div class="prj-modal-section">
+        <div class="prj-modal-section-label">Client / Company</div>
+        <div class="prj-modal-client">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          ${_esc(p.client_name)}
+        </div>
+      </div>`;
+    }
+
+    if (p.learning_outcomes?.length) {
+      extraHtml += `<div class="prj-modal-section">
+        <div class="prj-modal-section-label">Learning Outcomes</div>
+        <ul class="prj-modal-outcomes">
+          ${p.learning_outcomes.map(o => `<li>${_esc(o)}</li>`).join('')}
+        </ul>
+      </div>`;
+    }
+
+    if (p.tasks?.length) {
+      extraHtml += `<div class="prj-modal-section">
+        <div class="prj-modal-section-label">Key Tasks</div>
+        <div class="prj-modal-tasks">
+          ${p.tasks.map((t, i) => `<div class="prj-modal-task">
+            <div class="prj-modal-task-num">${i+1}</div>
+            <div>${_esc(typeof t === 'string' ? t : (t.title || t.name || JSON.stringify(t)))}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    if (extra) extra.innerHTML = extraHtml;
 
     // Action area
     const actionArea = document.getElementById('md-action-area');

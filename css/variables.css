@@ -1,47 +1,49 @@
 /* ================================================================
-   SkillUpNow — Clean Color System
-   Single-tone palette per theme, no orange/yellow noise
+   SkillUpNow — Royal Amethyst Design System
+   Deep indigo-violet palette — elegant, professional, theme-adaptive
+   Base hue: #441998 (Royal Deep Indigo)
    ================================================================ */
 
-/* ── LIGHT THEME ───────────────────────────────────────────────── */
+/* ── LIGHT THEME — Royal Amethyst ─────────────────────────────── */
 :root[data-theme="light"] {
-  --bg:           #ffffff;
-  --bg2:          #f7f8ff;
-  --bg-secondary: #eeeffe;
+  --bg:           #fefcff;
+  --bg2:          #f3f0fe;
+  --bg-secondary: #ebe6fd;
 
-  --txt:  #0d0b2a;
-  --txt2: #3a3760;
-  --txt3: #6b6898;
-  --txt4: #9996bc;
+  --txt:  #160840;
+  --txt2: #2e1472;
+  --txt3: #5a379a;
+  --txt4: #8c6ec0;
 
-  --panel:  #f0f0ff;
-  --panel2: #e6e4ff;
-  --glass:  rgba(255,255,255,0.95);
-  --border:  rgba(100,90,255,0.14);
-  --border2: rgba(100,90,255,0.26);
+  --panel:  #ede8fd;
+  --panel2: #ddd5fb;
+  --glass:  rgba(255,255,255,0.97);
+  --border:  rgba(68,25,152,0.13);
+  --border2: rgba(68,25,152,0.27);
 
-  --v1: #5c52f5;
-  --v2: #7b72ff;
-  --v3: #9d97ff;
-  --v4: #cac7ff;
-  --v5: rgba(92,82,245,0.1);
+  /* Primary scale — Royal Deep Indigo */
+  --v1: #441998;
+  --v2: #5c22c5;
+  --v3: #7c3aed;
+  --v4: #b09de8;
+  --v5: rgba(68,25,152,0.09);
 
-  --b1: #4a41e0;
-  --b2: #5c52f5;
-  --b3: #7b72ff;
+  --b1: #2e0f6e;
+  --b2: #441998;
+  --b3: #5c22c5;
 
-  --grad:       linear-gradient(135deg, #5c52f5 0%, #4a41e0 100%);
-  --grad2:      linear-gradient(135deg, #7b72ff 0%, #5c52f5 100%);
-  --grad-shine: linear-gradient(105deg, #5c52f5, #7b72ff, #9d97ff, #5c52f5);
+  --grad:       linear-gradient(135deg, #441998 0%, #2e0f6e 100%);
+  --grad2:      linear-gradient(135deg, #5c22c5 0%, #441998 100%);
+  --grad-shine: linear-gradient(105deg, #441998, #5c22c5, #7c3aed, #441998);
 
   --grad-hero:
-    radial-gradient(ellipse 70% 60% at 0% 30%,   rgba(92,82,245,0.12)  0%, transparent 65%),
-    radial-gradient(ellipse 55% 50% at 100% 70%,  rgba(123,114,255,0.1) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 50% 100%,  rgba(92,82,245,0.07)  0%, transparent 55%);
+    radial-gradient(ellipse 72% 62% at 0% 28%,   rgba(68,25,152,0.11)  0%, transparent 65%),
+    radial-gradient(ellipse 56% 52% at 100% 72%,  rgba(92,34,197,0.09)  0%, transparent 60%),
+    radial-gradient(ellipse 42% 42% at 52% 100%,  rgba(68,25,152,0.06)  0%, transparent 55%);
 
-  --shadow-card: 0 4px 20px rgba(92,82,245,0.08), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-glow: 0 0 28px rgba(92,82,245,0.15);
-  --shadow-btn:  0 4px 16px rgba(92,82,245,0.28);
+  --shadow-card: 0 4px 22px rgba(68,25,152,0.09), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-glow: 0 0 30px rgba(68,25,152,0.17);
+  --shadow-btn:  0 4px 18px rgba(68,25,152,0.32);
 
   --r1: 14px;
   --r2: 20px;
@@ -49,45 +51,46 @@
   --r4: 40px;
 }
 
-/* ── DARK THEME ────────────────────────────────────────────────── */
+/* ── DARK THEME — Deep Cosmos ──────────────────────────────────── */
 :root[data-theme="dark"] {
-  --bg:           #0a0912;
-  --bg2:          #100e1e;
-  --bg-secondary: #16142c;
+  --bg:           #07040f;
+  --bg2:          #0e0b1e;
+  --bg-secondary: #14102a;
 
-  --txt:  #eeecff;
-  --txt2: #b8b4e0;
-  --txt3: #7a7698;
-  --txt4: #504d6a;
+  --txt:  #f0eeff;
+  --txt2: #c4b5fd;
+  --txt3: #8a6ec8;
+  --txt4: #564080;
 
   --panel:  rgba(255,255,255,0.04);
   --panel2: rgba(255,255,255,0.08);
-  --glass:  rgba(255,255,255,0.05);
-  --border:  rgba(120,112,255,0.16);
-  --border2: rgba(120,112,255,0.3);
+  --glass:  rgba(255,255,255,0.04);
+  --border:  rgba(157,114,251,0.16);
+  --border2: rgba(157,114,251,0.30);
 
-  --v1: #8b83ff;
-  --v2: #a39dff;
-  --v3: #bdb9ff;
-  --v4: #d6d4ff;
-  --v5: rgba(139,131,255,0.13);
+  /* Primary scale — vivid violet for dark bg */
+  --v1: #9d72fb;
+  --v2: #b89dfd;
+  --v3: #d0c1fe;
+  --v4: #e8e0ff;
+  --v5: rgba(157,114,251,0.14);
 
-  --b1: #6b63f0;
-  --b2: #7b73ff;
-  --b3: #9d97ff;
+  --b1: #7c3aed;
+  --b2: #8b5cf6;
+  --b3: #9d72fb;
 
-  --grad:       linear-gradient(135deg, #7b73ff 0%, #6b63f0 100%);
-  --grad2:      linear-gradient(135deg, #a39dff 0%, #7b73ff 100%);
-  --grad-shine: linear-gradient(105deg, #7b73ff, #a39dff, #bdb9ff, #7b73ff);
+  --grad:       linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  --grad2:      linear-gradient(135deg, #9d72fb 0%, #8b5cf6 100%);
+  --grad-shine: linear-gradient(105deg, #8b5cf6, #9d72fb, #c4b5fd, #8b5cf6);
 
   --grad-hero:
-    radial-gradient(ellipse 70% 60% at 0% 30%,   rgba(107,99,240,0.22)  0%, transparent 65%),
-    radial-gradient(ellipse 55% 50% at 100% 70%,  rgba(139,131,255,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 50% 100%,  rgba(107,99,240,0.12)  0%, transparent 55%);
+    radial-gradient(ellipse 70% 60% at 0% 30%,   rgba(68,25,152,0.28)  0%, transparent 65%),
+    radial-gradient(ellipse 55% 50% at 100% 70%,  rgba(157,114,251,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 100%,  rgba(92,34,197,0.14)  0%, transparent 55%);
 
-  --shadow-card: 0 20px 56px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05) inset;
-  --shadow-glow: 0 0 40px rgba(123,115,255,0.32);
-  --shadow-btn:  0 8px 28px rgba(123,115,255,0.45);
+  --shadow-card: 0 20px 60px rgba(0,0,0,0.50), 0 1px 0 rgba(255,255,255,0.04) inset;
+  --shadow-glow: 0 0 48px rgba(157,114,251,0.36);
+  --shadow-btn:  0 8px 32px rgba(157,114,251,0.48);
 
   --r1: 14px;
   --r2: 20px;
@@ -218,45 +221,45 @@
   --shadow-btn:  0 8px 28px rgba(34,197,94,0.44);
 }
 
-/* ── GLOBAL (fallback = light) ─────────────────────────────────── */
+/* ── GLOBAL (fallback = light Royal Amethyst) ──────────────────── */
 :root {
-  --bg:           #ffffff;
-  --bg2:          #f7f8ff;
-  --bg-secondary: #eeeffe;
+  --bg:           #fefcff;
+  --bg2:          #f3f0fe;
+  --bg-secondary: #ebe6fd;
 
-  --txt:  #0d0b2a;
-  --txt2: #3a3760;
-  --txt3: #6b6898;
-  --txt4: #9996bc;
+  --txt:  #160840;
+  --txt2: #2e1472;
+  --txt3: #5a379a;
+  --txt4: #8c6ec0;
 
-  --panel:  #f0f0ff;
-  --panel2: #e6e4ff;
-  --glass:  rgba(255,255,255,0.95);
-  --border:  rgba(100,90,255,0.14);
-  --border2: rgba(100,90,255,0.26);
+  --panel:  #ede8fd;
+  --panel2: #ddd5fb;
+  --glass:  rgba(255,255,255,0.97);
+  --border:  rgba(68,25,152,0.13);
+  --border2: rgba(68,25,152,0.27);
 
-  --v1: #5c52f5;
-  --v2: #7b72ff;
-  --v3: #9d97ff;
-  --v4: #cac7ff;
-  --v5: rgba(92,82,245,0.1);
+  --v1: #441998;
+  --v2: #5c22c5;
+  --v3: #7c3aed;
+  --v4: #b09de8;
+  --v5: rgba(68,25,152,0.09);
 
-  --b1: #4a41e0;
-  --b2: #5c52f5;
-  --b3: #7b72ff;
+  --b1: #2e0f6e;
+  --b2: #441998;
+  --b3: #5c22c5;
 
-  --grad:       linear-gradient(135deg, #5c52f5 0%, #4a41e0 100%);
-  --grad2:      linear-gradient(135deg, #7b72ff 0%, #5c52f5 100%);
-  --grad-shine: linear-gradient(105deg, #5c52f5, #7b72ff, #9d97ff, #5c52f5);
+  --grad:       linear-gradient(135deg, #441998 0%, #2e0f6e 100%);
+  --grad2:      linear-gradient(135deg, #5c22c5 0%, #441998 100%);
+  --grad-shine: linear-gradient(105deg, #441998, #5c22c5, #7c3aed, #441998);
 
   --grad-hero:
-    radial-gradient(ellipse 70% 60% at 0% 30%,   rgba(92,82,245,0.12)  0%, transparent 65%),
-    radial-gradient(ellipse 55% 50% at 100% 70%,  rgba(123,114,255,0.1) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 50% 100%,  rgba(92,82,245,0.07)  0%, transparent 55%);
+    radial-gradient(ellipse 72% 62% at 0% 28%,   rgba(68,25,152,0.11)  0%, transparent 65%),
+    radial-gradient(ellipse 56% 52% at 100% 72%,  rgba(92,34,197,0.09)  0%, transparent 60%),
+    radial-gradient(ellipse 42% 42% at 52% 100%,  rgba(68,25,152,0.06)  0%, transparent 55%);
 
-  --shadow-card: 0 4px 20px rgba(92,82,245,0.08), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-glow: 0 0 28px rgba(92,82,245,0.15);
-  --shadow-btn:  0 4px 16px rgba(92,82,245,0.28);
+  --shadow-card: 0 4px 22px rgba(68,25,152,0.09), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-glow: 0 0 30px rgba(68,25,152,0.17);
+  --shadow-btn:  0 4px 18px rgba(68,25,152,0.32);
 
   --r1: 14px;
   --r2: 20px;
