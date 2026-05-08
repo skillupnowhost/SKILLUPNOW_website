@@ -1394,11 +1394,7 @@ async function loadMentors() {
 
   const { data, error } = await db.client
     .from('mentor_profiles')
-    .select(`
-      user_id, expertise_areas, qualifications, designation,
-      photo_url, total_students_managed, total_classes_assigned,
-      user_profiles(full_name, profile_picture_url)
-    `)
+    .select('user_id, expertise_areas, qualifications, designation, photo_url, total_students_managed, total_classes_assigned')
     .not('status', 'eq', 'rejected')
     .order('total_students_managed', { ascending: false });
 
@@ -1412,8 +1408,16 @@ async function loadMentors() {
     return;
   }
 
-  // Fetch active batches separately to avoid reverse-FK join issues
-  const mentorIds = data.map(m => m.user_id);
+  // Fetch user profiles for mentor names
+  const mentorIds = data.map(m => m.user_id).filter(Boolean);
+  const { data: profiles } = await db.client
+    .from('user_profiles')
+    .select('user_id, full_name, profile_picture_url')
+    .in('user_id', mentorIds);
+  const profileMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p]));
+  data.forEach(m => { m.user_profiles = profileMap[m.user_id] || null; });
+
+  // Fetch active batches
   const { data: batches } = await db.client
     .from('course_batches')
     .select('id, batch_name, is_active, primary_mentor_user_id, courses(title)')
