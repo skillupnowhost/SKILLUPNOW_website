@@ -258,8 +258,8 @@
       pointer-events: all;
       cursor: default;
     }
-    .tech-badge span { display: block; transition: transform .35s ease; }
-    .tech-badge:hover span { transform: scale(1.35) rotate(-8deg); }
+    .tech-badge span, .tech-badge svg { display: block; transition: transform .35s ease; flex-shrink: 0; }
+    .tech-badge:hover span, .tech-badge:hover svg { transform: scale(1.25) rotate(-6deg); }
     /* Counter-rotate badges so they stay upright while ring spins */
     .icon-ring-a .tech-badge { animation: badge-ccw-a 16s linear infinite; }
     .icon-ring-b .tech-badge { animation: badge-cw-b  24s linear infinite; }
@@ -269,6 +269,11 @@
     .tech-badge:hover, .icon-ring:has(.tech-badge:hover) {
       animation-play-state: paused;
     }
+    /* Coloured badge variants */
+    .tb-cyan   { background: linear-gradient(135deg, rgba(6,182,212,.18), rgba(8,145,178,.08));   border-color: rgba(6,182,212,.4);   box-shadow: 0 6px 20px rgba(0,0,0,.4), 0 0 0 1px rgba(6,182,212,.2),   0 0 18px rgba(6,182,212,.18); }
+    .tb-amber  { background: linear-gradient(135deg, rgba(245,158,11,.18), rgba(217,119,6,.08));  border-color: rgba(245,158,11,.4);  box-shadow: 0 6px 20px rgba(0,0,0,.4), 0 0 0 1px rgba(245,158,11,.2),  0 0 18px rgba(245,158,11,.18); }
+    .tb-rose   { background: linear-gradient(135deg, rgba(244,63,94,.18),  rgba(225,29,72,.08));  border-color: rgba(244,63,94,.4);   box-shadow: 0 6px 20px rgba(0,0,0,.4), 0 0 0 1px rgba(244,63,94,.2),   0 0 18px rgba(244,63,94,.18); }
+    .tb-violet { background: linear-gradient(135deg, rgba(124,92,252,.18), rgba(61,107,255,.08)); border-color: rgba(124,92,252,.4);  box-shadow: 0 6px 20px rgba(0,0,0,.4), 0 0 0 1px rgba(124,92,252,.2),  0 0 18px rgba(124,92,252,.18); }
 
     /* ── HERO VISUAL: 3D Scene ── */
     .scene {
@@ -371,7 +376,7 @@
     .fc-lbl { color: var(--txt3); font-weight: 600; font-size: .68rem; display: block; margin-top: 2px; letter-spacing: .03em; }
 
     /* ── HERO VISUAL: AI Brain Badge ── */
-    .ai-badge { position: absolute; top: 16px; right: 16px; font-size: 2.4rem; animation: brain-glow 2.5s ease-in-out infinite; z-index: 2; }
+    .ai-badge { position: absolute; top: 16px; right: 16px; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; background: rgba(124,92,252,.12); border: 1.5px solid rgba(124,92,252,.3); border-radius: 14px; animation: brain-glow 2.5s ease-in-out infinite; z-index: 2; backdrop-filter: blur(8px); }
     @keyframes brain-glow {
       0%, 100% { filter: drop-shadow(0 0 8px rgba(124,92,252,.8)); }
       50%       { filter: drop-shadow(0 0 22px rgba(124,92,252,1)) drop-shadow(0 0 38px rgba(0,207,238,.4)); }
@@ -607,7 +612,12 @@
           <a href="pages/courses" class="btn-grad" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 0 28px rgba(124,92,252,0.45), 0 8px 28px rgba(124,92,252,0.28); transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
             onmouseover="this.style.boxShadow='0 0 48px rgba(124,92,252,0.7), 0 12px 40px rgba(124,92,252,0.45)';this.style.transform='translateY(-3px)'"
             onmouseout="this.style.boxShadow='0 0 28px rgba(124,92,252,0.45), 0 8px 28px rgba(124,92,252,0.28)';this.style.transform=''">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              <line class="si-slide" x1="5" y1="8" x2="9" y2="8"/>
+              <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
+            </svg>
             Explore Courses
           </a>
           <a href="pages/contact-enquiry" class="btn-outline" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
@@ -655,8 +665,13 @@
         <!-- Floating stat cards — value propositions -->
         <div class="f-card">
           <span class="fc-icon">
-            <!-- 1-on-1 Mentoring: person + speech bubble -->
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+            <!-- 1-on-1 Mentoring: chat bubble + 3 blinking dots -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path class="si-bob" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <circle class="si-blink"      cx="9"  cy="10" r="1" fill="currentColor" stroke="none"/>
+              <circle class="si-blink ad-2" cx="12" cy="10" r="1" fill="currentColor" stroke="none"/>
+              <circle class="si-blink ad-4" cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
+            </svg>
           </span>
           <div>
             <span class="fc-val">1-on-1</span>
@@ -665,8 +680,13 @@
         </div>
         <div class="f-card">
           <span class="fc-icon">
-            <!-- Goal Achievement: target/bullseye -->
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke-width="1.5"/></svg>
+            <!-- Goal Achievement: target/bullseye with pulsing center -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle class="si-pulse" cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>
+              <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke-width="1.5"/>
+            </svg>
           </span>
           <div>
             <span class="fc-val">Goals</span>
@@ -675,8 +695,10 @@
         </div>
         <div class="f-card">
           <span class="fc-icon">
-            <!-- Master Skills: lightning bolt -->
-            <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <!-- Master Skills: lightning bolt floating -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path class="si-float" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
           </span>
           <div>
             <span class="fc-val">Master</span>
@@ -685,7 +707,12 @@
         </div>
         <div class="f-card">
           <span class="fc-icon">
-            <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <!-- Live Sessions: video camera with blinking record dot -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon class="si-bob" points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+              <circle class="si-blink" cx="7" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
           </span>
           <div>
             <span class="fc-val" style="display:flex;align-items:center;gap:4px;"><span class="scr-status-dot" style="width:6px;height:6px;flex-shrink:0;"></span>Live</span>
@@ -734,18 +761,61 @@
           <div class="lp-foot"></div>
         </div>
 
-        <!-- AI brain badge -->
-        <div class="ai-badge">🧠</div>
+        <!-- AI brain badge: neural network nodes -->
+        <div class="ai-badge">
+          <svg width="38" height="38" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <!-- nodes -->
+            <circle class="si-pulse"      cx="20" cy="8"  r="3.5" fill="#7c5cfc" opacity=".9"/>
+            <circle class="si-pulse ad-2" cx="8"  cy="20" r="3.5" fill="#7c5cfc" opacity=".9"/>
+            <circle class="si-pulse ad-4" cx="32" cy="20" r="3.5" fill="#7c5cfc" opacity=".9"/>
+            <circle class="si-pulse ad-1" cx="12" cy="32" r="3.5" fill="#3d6bff" opacity=".9"/>
+            <circle class="si-pulse ad-3" cx="28" cy="32" r="3.5" fill="#3d6bff" opacity=".9"/>
+            <circle class="si-pulse ad-5" cx="20" cy="20" r="4"   fill="#a78bfa"/>
+            <!-- connections -->
+            <line x1="20" y1="8"  x2="20" y2="20" stroke="#7c5cfc" stroke-width="1.5" opacity=".55"/>
+            <line x1="8"  y1="20" x2="20" y2="20" stroke="#7c5cfc" stroke-width="1.5" opacity=".55"/>
+            <line x1="32" y1="20" x2="20" y2="20" stroke="#7c5cfc" stroke-width="1.5" opacity=".55"/>
+            <line x1="12" y1="32" x2="20" y2="20" stroke="#3d6bff" stroke-width="1.5" opacity=".55"/>
+            <line x1="28" y1="32" x2="20" y2="20" stroke="#3d6bff" stroke-width="1.5" opacity=".55"/>
+            <line x1="8"  y1="20" x2="12" y2="32" stroke="#3d6bff" stroke-width="1"   opacity=".35"/>
+            <line x1="32" y1="20" x2="28" y2="32" stroke="#3d6bff" stroke-width="1"   opacity=".35"/>
+          </svg>
+        </div>
 
         <!-- Orbiting tech icon badges -->
         <div class="icon-orbit-wrap">
           <div class="icon-ring icon-ring-a">
-            <div class="ib-top"><div class="tech-badge" title="Cloud Computing"><span>☁️</span></div></div>
-            <div class="ib-bottom"><div class="tech-badge" title="DevOps"><span>⚙️</span></div></div>
+            <div class="ib-top"><div class="tech-badge tb-cyan" title="Cloud Computing">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path class="si-float" d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+              </svg>
+            </div></div>
+            <div class="ib-bottom"><div class="tech-badge tb-amber" title="DevOps">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" fill="#f59e0b" opacity=".2"/>
+                <path class="si-spin" d="M12 2a10 10 0 0 1 6.32 2.27M21.73 7.68A10 10 0 0 1 22 12a10 10 0 0 1-.27 2.32M19.73 17.68A10 10 0 0 1 12 22a10 10 0 0 1-6.32-2.27M2.27 16.32A10 10 0 0 1 2 12a10 10 0 0 1 .27-2.32M4.27 6.32A10 10 0 0 1 12 2"/>
+              </svg>
+            </div></div>
           </div>
           <div class="icon-ring icon-ring-b">
-            <div class="ib-right"><div class="tech-badge" title="Cybersecurity"><span>🔒</span></div></div>
-            <div class="ib-left"><div class="tech-badge" title="AI / ML"><span>🤖</span></div></div>
+            <div class="ib-right"><div class="tech-badge tb-rose" title="Cybersecurity">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(244,63,94,.1)"/>
+                <polyline class="si-blink" points="9 12 11 14 15 10" stroke="#f43f5e" stroke-width="2.5"/>
+              </svg>
+            </div></div>
+            <div class="ib-left"><div class="tech-badge tb-violet" title="AI / ML">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c5cfc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="4" width="16" height="16" rx="3" fill="rgba(124,92,252,.08)"/>
+                <rect class="si-pulse" x="9" y="9" width="6" height="6" rx="1" fill="rgba(124,92,252,.35)" stroke="#7c5cfc"/>
+                <line class="si-blink"      x1="4"  y1="9"  x2="2"  y2="9"/>
+                <line class="si-blink ad-2" x1="4"  y1="15" x2="2"  y2="15"/>
+                <line class="si-blink ad-1" x1="20" y1="9"  x2="22" y2="9"/>
+                <line class="si-blink ad-3" x1="20" y1="15" x2="22" y2="15"/>
+                <line class="si-blink ad-2" x1="9"  y1="4"  x2="9"  y2="2"/>
+                <line class="si-blink ad-4" x1="15" y1="4"  x2="15" y2="2"/>
+              </svg>
+            </div></div>
           </div>
         </div>
 
@@ -916,7 +986,14 @@
         <a href="pages/courses" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(124,92,252,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
-            <div class="platform-icon" style="background: linear-gradient(135deg, var(--v1) 0%, var(--v2) 100%); animation-delay: 0s;">📚</div>
+            <div class="platform-icon" style="background: linear-gradient(135deg, var(--v1) 0%, var(--v2) 100%); animation-delay: 0s;">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                <line class="si-slide" x1="5" y1="8" x2="9" y2="8"/>
+                <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter', 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--txt); margin-bottom: 0.7rem;">Browse All Courses</h3>
             <p style="font-size: 0.95rem; color: var(--txt3); line-height: 1.6; margin-bottom: 1.5rem;">Explore 48+ expertly-designed courses in cloud, DevOps, AI, security, and data engineering with live mentorship.</p>
             <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: var(--v1); font-size: 0.9rem;">
@@ -929,7 +1006,13 @@
         <a href="pages/contact-enquiry" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(61,107,255,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
-            <div class="platform-icon" style="background: linear-gradient(135deg, var(--b1) 0%, var(--b2) 100%); animation-delay: 0.5s;">💳</div>
+            <div class="platform-icon" style="background: linear-gradient(135deg, var(--b1) 0%, var(--b2) 100%); animation-delay: 0.5s;">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect class="si-float" x="1" y="4" width="22" height="16" rx="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+                <rect class="si-blink" x="3" y="14" width="5" height="2" rx="1"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter', 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--txt); margin-bottom: 0.7rem;">Fee Enquiry & Pricing</h3>
             <p style="font-size: 0.95rem; color: var(--txt3); line-height: 1.6; margin-bottom: 1.5rem;">Get detailed pricing information, flexible EMI options, and personalized consultation from our financial advisors.</p>
             <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: var(--b1); font-size: 0.9rem;">
@@ -942,7 +1025,12 @@
         <a href="pages/quick-registration" style="text-decoration: none; display: flex; flex-direction: column; background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r2); padding: 2rem; transition: all 0.35s cubic-bezier(0.4,0,0.2,1); position: relative; overflow: hidden;">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(124,92,252,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
-            <div class="platform-icon" style="background: linear-gradient(135deg, #ff8c5a 0%, #ff6b35 100%); animation-delay: 1s;">✍️</div>
+            <div class="platform-icon" style="background: linear-gradient(135deg, #ff8c5a 0%, #ff6b35 100%); animation-delay: 1s;">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path class="si-swing" d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                <line class="si-slide ad-1" x1="15" y1="5" x2="19" y2="9"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter', 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--txt); margin-bottom: 0.7rem;">Quick Registration</h3>
             <p style="font-size: 0.95rem; color: var(--txt3); line-height: 1.6; margin-bottom: 1.5rem;">Register quickly for your chosen course, select batch timing, and get instant enrollment confirmation.</p>
             <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: #ff8c5a; font-size: 0.9rem;">
@@ -955,7 +1043,14 @@
         <a href="pages/emi-application" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(16,185,129,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
-            <div class="platform-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); animation-delay: 1.5s;">💰</div>
+            <div class="platform-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); animation-delay: 1.5s;">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect class="si-float" x="1" y="6" width="22" height="14" rx="2"/>
+                <circle class="si-pulse" cx="12" cy="13" r="3"/>
+                <line x1="5" y1="13" x2="5" y2="13.01"/>
+                <line x1="19" y1="13" x2="19" y2="13.01"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter', 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--txt); margin-bottom: 0.7rem;">EMI Application</h3>
             <p style="font-size: 0.95rem; color: var(--txt3); line-height: 1.6; margin-bottom: 1.5rem;">Apply for zero-cost EMI with quick approval process. Flexible 3, 6, or 12-month payment plans available.</p>
             <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: #10b981; font-size: 0.9rem;">
@@ -968,7 +1063,11 @@
         <a href="pages/feedback" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(59,130,246,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
-            <div class="platform-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); animation-delay: 2.5s;">⭐</div>
+            <div class="platform-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); animation-delay: 2.5s;">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon class="si-pulse" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter', 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--txt); margin-bottom: 0.7rem;">Share Your Feedback</h3>
             <p style="font-size: 0.95rem; color: var(--txt3); line-height: 1.6; margin-bottom: 1.5rem;">Help us improve by sharing your learning experience. Your feedback shapes our future courses and content.</p>
             <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: #3b82f6; font-size: 0.9rem;">
@@ -998,7 +1097,14 @@
         <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2.5rem; position: relative; overflow: hidden; transition: border-color 0.3s, transform 0.3s;">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(124,92,252,0.07), transparent); pointer-events: none;"></div>
           <div style="position: relative; z-index: 1;">
-            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #7c5cfc, #3d6bff); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.4rem; box-shadow: 0 8px 24px rgba(124,92,252,0.35);">🎯</div>
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #7c5cfc, #3d6bff); display: flex; align-items: center; justify-content: center; margin-bottom: 1.4rem; box-shadow: 0 8px 24px rgba(124,92,252,0.35);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle class="si-pulse" cx="12" cy="12" r="2.5" fill="rgba(255,255,255,.9)" stroke="none"/>
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-width="1.5" opacity=".6"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter','Outfit',sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--txt); margin-bottom: 0.9rem;">Our Mission</h3>
             <p style="font-size: 0.96rem; color: var(--txt3); line-height: 1.75;">To democratise world-class soft-skill education by delivering personalised, live, mentor-driven training that unlocks every individual's professional potential — regardless of background or experience level.</p>
           </div>
@@ -1008,7 +1114,16 @@
         <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2.5rem; position: relative; overflow: hidden; transition: border-color 0.3s, transform 0.3s;">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,207,238,0.06), transparent); pointer-events: none;"></div>
           <div style="position: relative; z-index: 1;">
-            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #00cfee, #0090b8); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.4rem; box-shadow: 0 8px 24px rgba(0,207,238,0.3);">🔭</div>
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #00cfee, #0090b8); display: flex; align-items: center; justify-content: center; margin-bottom: 1.4rem; box-shadow: 0 8px 24px rgba(0,207,238,0.3);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <!-- telescope: lens tube swings, eyepiece static -->
+                <line x1="2" y1="17" x2="10" y2="9"/>
+                <path class="si-swing" d="M10 9 L20 4 L22 8 L12 13 Z" fill="rgba(255,255,255,.15)" stroke-width="1.8"/>
+                <circle cx="10" cy="9" r="1.5" fill="rgba(255,255,255,.5)" stroke="none"/>
+                <line x1="10" y1="17" x2="14" y2="21"/>
+                <line x1="14" y1="17" x2="14" y2="21"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter','Outfit',sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--txt); margin-bottom: 0.9rem;">Our Vision</h3>
             <p style="font-size: 0.96rem; color: var(--txt3); line-height: 1.75;">A world where every professional communicates with clarity, leads with empathy, and collaborates with confidence — making organisations more human, resilient, and successful.</p>
           </div>
@@ -1018,7 +1133,12 @@
         <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2.5rem; position: relative; overflow: hidden; transition: border-color 0.3s, transform 0.3s;">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(74,222,128,0.06), transparent); pointer-events: none;"></div>
           <div style="position: relative; z-index: 1;">
-            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #4ade80, #16a34a); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.4rem; box-shadow: 0 8px 24px rgba(74,222,128,0.3);">💎</div>
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #4ade80, #16a34a); display: flex; align-items: center; justify-content: center; margin-bottom: 1.4rem; box-shadow: 0 8px 24px rgba(74,222,128,0.3);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path class="si-float" d="M6 3h12l4 6-10 13L2 9z"/>
+                <path d="M2 9h20M6 3l4 6M18 3l-4 6" opacity=".6"/>
+              </svg>
+            </div>
             <h3 style="font-family: 'Inter','Outfit',sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--txt); margin-bottom: 0.9rem;">Our Values</h3>
             <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.65rem; padding: 0; margin: 0;">
               <li style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.94rem; color: var(--txt3);"><span style="color: #4ade80; font-size: 1rem; flex-shrink: 0; margin-top: 1px;">✔</span><span><strong style="color: var(--txt2);">Integrity</strong> — we mean what we teach</span></li>
@@ -1102,7 +1222,15 @@
             <!-- "Achieved" badge -->
             <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#4ade80;letter-spacing:.05em;">✓ Done</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #7c5cfc, #3d6bff); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow:0 6px 18px rgba(124,92,252,.4);">🚀</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #7c5cfc, #3d6bff); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow:0 6px 18px rgba(124,92,252,.4);">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path class="si-bob" d="M12 2s4 2 4 8c0 3-1 5-4 8-3-3-4-5-4-8 0-6 4-8 4-8z"/>
+                  <circle class="si-blink" cx="12" cy="8" r="1.5" fill="rgba(255,255,255,.7)" stroke="none"/>
+                  <path d="M8 17s-2 2-2 4h12c0-2-2-4-2-4" opacity=".6"/>
+                  <line x1="9" y1="21" x2="7" y2="23" opacity=".5"/>
+                  <line x1="15" y1="21" x2="17" y2="23" opacity=".5"/>
+                </svg>
+              </div>
               <div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q1</div>
                 <div style="font-size: 0.85rem; color: var(--txt3);">The Journey Begins</div>
@@ -1116,7 +1244,14 @@
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #00cfee, #0090b8);"></div>
             <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#4ade80;letter-spacing:.05em;">✓ Done</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #00cfee, #0090b8); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow:0 6px 18px rgba(0,207,238,.35);">👥</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #00cfee, #0090b8); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow:0 6px 18px rgba(0,207,238,.35);">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle class="si-bob"      cx="9"  cy="7"  r="3"/>
+                  <circle class="si-bob ad-3" cx="17" cy="8"  r="2.5"/>
+                  <path class="si-bob"      d="M2 21c0-4 3-7 7-7s7 3 7 7"/>
+                  <path class="si-bob ad-3" d="M17 11c2.2 0 4 2 4 5" opacity=".7"/>
+                </svg>
+              </div>
               <div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q1</div>
                 <div style="font-size: 0.85rem; color: var(--txt3);">First Cohort Secured</div>
@@ -1130,7 +1265,14 @@
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #4ade80, #16a34a);"></div>
             <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#4ade80;letter-spacing:.05em;">✓ Live</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4ade80, #16a34a); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow:0 6px 18px rgba(74,222,128,.35);">🌐</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4ade80, #16a34a); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow:0 6px 18px rgba(74,222,128,.35);">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path class="si-spin" d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                  <path d="M2 12h20" opacity=".6"/>
+                  <path d="M4.5 7.5C7 8.5 9.5 9 12 9s5-.5 7.5-1.5" opacity=".5"/>
+                </svg>
+              </div>
               <div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q2</div>
                 <div style="font-size: 0.85rem; color: var(--txt3);">Live Website Launched</div>
@@ -1144,7 +1286,14 @@
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #f59e0b, #d97706);"></div>
             <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#f59e0b;letter-spacing:.05em;">Upcoming</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">🌱</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22V12"/>
+                  <path class="si-bob"      d="M12 12C12 12 8 10 7 6c3 0 5 2 5 6z"/>
+                  <path class="si-bob ad-3" d="M12 12C12 12 16 9 17 5c-3 .5-5 3-5 7z"/>
+                  <path d="M7 22c0-3 2-6 5-8" opacity=".55"/>
+                </svg>
+              </div>
               <div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2026 — Q3 &amp; Q4</div>
                 <div style="font-size: 0.85rem; color: var(--txt3);">Growing the Community</div>
@@ -1158,7 +1307,13 @@
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #ec4899, #be185d);"></div>
             <div style="position:absolute;top:.8rem;right:.8rem;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.22);border-radius:50px;padding:.18rem .6rem;font-size:.62rem;font-weight:800;color:#ec4899;letter-spacing:.05em;">Planned</div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #ec4899, #be185d); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">📈</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #ec4899, #be185d); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline class="si-float" points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                  <polyline points="16 7 22 7 22 13" opacity=".7"/>
+                  <line x1="2" y1="20" x2="22" y2="20" opacity=".4"/>
+                </svg>
+              </div>
               <div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2027</div>
                 <div style="font-size: 0.85rem; color: var(--txt3);">Scaling Up</div>
@@ -1171,7 +1326,14 @@
           <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r3); padding: 2rem; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;" onmouseover="this.style.transform='translateY(-5px)';this.style.borderColor='var(--v1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
             <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--v1), var(--v2));"></div>
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--v1), var(--v2)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">🌏</div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--v1), var(--v2)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path class="si-spin" d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                  <path d="M2 12h20" opacity=".5"/>
+                  <path d="M4.5 16.5C7 15.5 9.5 15 12 15s5 .5 7.5 1.5" opacity=".5"/>
+                </svg>
+              </div>
               <div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--txt);">2028+</div>
                 <div style="font-size: 0.85rem; color: var(--txt3);">Going Global</div>
@@ -1484,11 +1646,56 @@
       </div>
 
       <div class="rv-filters" id="rv-filters">
-        <button class="rv-filter active" data-cat="all">All</button>
-        <button class="rv-filter" data-cat="course">📚 Courses</button>
-        <button class="rv-filter" data-cat="mentor">👨‍🏫 Mentors</button>
-        <button class="rv-filter" data-cat="admin">🏛 Admin</button>
-        <button class="rv-filter" data-cat="website">🌐 Website</button>
+        <button type="button" class="rv-filter active" data-cat="all">
+          <span class="rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rv-ico-violet">
+              <rect class="si-bob"      x="3"  y="3"  width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-2" x="14" y="3"  width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-4" x="3"  y="14" width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-6" x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </span> All
+        </button>
+        <button type="button" class="rv-filter" data-cat="course">
+          <span class="rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rv-ico-violet">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              <line class="si-slide"      x1="5" y1="8"  x2="9" y2="8"/>
+              <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
+            </svg>
+          </span> Courses
+        </button>
+        <button type="button" class="rv-filter" data-cat="mentor">
+          <span class="rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rv-ico-amber">
+              <polygon class="si-bob" points="12,2 22,7 12,12 2,7"/>
+              <path d="M6 10.5v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5"/>
+              <line x1="22" y1="7" x2="22" y2="13"/>
+              <circle class="si-drop" cx="22" cy="14.5" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </span> Mentors
+        </button>
+        <button type="button" class="rv-filter" data-cat="admin">
+          <span class="rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rv-ico-cyan">
+              <path class="si-bob" d="M3 10L12 3l9 7"/>
+              <rect x="3" y="10" width="18" height="11" rx="1"/>
+              <line x1="12" y1="10" x2="12" y2="21"/>
+              <rect class="si-blink"      x="5"  y="13" width="3" height="2.5" rx=".5"/>
+              <rect class="si-blink ad-3" x="16" y="13" width="3" height="2.5" rx=".5"/>
+            </svg>
+          </span> Admin
+        </button>
+        <button type="button" class="rv-filter" data-cat="website">
+          <span class="rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rv-ico-emerald">
+              <circle cx="12" cy="12" r="10"/>
+              <path class="si-spin" d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              <path d="M2 12h20"/>
+            </svg>
+          </span> Website
+        </button>
       </div>
 
       <div class="rv-empty" id="rv-empty">
@@ -1576,6 +1783,7 @@
     /* Category filters */
     .rv-filters { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.75rem; }
     .rv-filter {
+      display:inline-flex; align-items:center; gap:.4rem;
       padding:.38rem .95rem; border-radius:999px;
       border:1.5px solid var(--border); background:transparent;
       font-size:.78rem; font-weight:700; color:var(--txt3);
@@ -1588,6 +1796,11 @@
       border-color:transparent; color:#fff;
       box-shadow:0 4px 14px rgba(124,92,252,.35);
     }
+    .rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; }
+    .rv-filt-ico svg { width:14px; height:14px; flex-shrink:0; overflow:visible; }
+    .rv-ico-violet  { stroke:#7c5cfc; } .rv-ico-amber   { stroke:#f59e0b; }
+    .rv-ico-cyan    { stroke:#06b6d4; } .rv-ico-emerald { stroke:#10b981; }
+    .rv-filter.active .rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; }
 
     /* Empty state */
     .rv-empty {
@@ -1759,6 +1972,7 @@
       font-size:.75rem; color:var(--txt3); padding:.2rem 0;
     }
     .rv-reveal-row span { font-size:.88rem; }
+    .rv-rr-ico { display:inline-flex; align-items:center; flex-shrink:0; }
     .rv-readmore {
       background:none; border:1px solid rgba(124,92,252,.3);
       border-radius:999px; padding:.2rem .8rem;
@@ -2636,7 +2850,13 @@
       'linear-gradient(135deg,#ef4444,#dc2626)',
     ];
     const _rvTypeColors = { course:'#7c5cfc', mentor:'#3d6bff', website:'#06b6d4', admin:'#f59e0b', general:'#10b981' };
-    const _rvTypeIcons  = { course:'📚', mentor:'👨‍🏫', website:'🌐', admin:'🏛', general:'💬' };
+    const _rvTypeIcons = {
+      course:  `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>`,
+      mentor:  `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>`,
+      website: `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='10'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/><path d='M2 12h20'/></svg>`,
+      admin:   `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>`,
+      general: `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>`,
+    };
     const _rvTypeLabels = { course:'Course', mentor:'Mentor', website:'Website', admin:'Admin', general:'General' };
 
     let _rvAllData   = [];
@@ -2693,8 +2913,8 @@
       const storeKey = 'rv_' + idx;
       _rvModalStore[storeKey] = { comment, rating, name, typeLabel, grad };
       const revealRows = [
-        course  ? `<div class="rv-reveal-row"><span>📚</span>${_rvEsc(course.substring(0,40)+(course.length>40?'…':''))}</div>` : '',
-        dateStr ? `<div class="rv-reveal-row"><span>📅</span>${dateStr}</div>` : '',
+        course  ? `<div class="rv-reveal-row"><span class="rv-rr-ico"><svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='#7c5cfc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path class='si-bob' d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/><line class='si-slide' x1='5' y1='8' x2='9' y2='8'/></svg></span>${_rvEsc(course.substring(0,40)+(course.length>40?'…':''))}</div>` : '',
+        dateStr ? `<div class="rv-reveal-row"><span class="rv-rr-ico"><svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='#06b6d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/><circle class='si-pulse' cx='12' cy='16' r='1.5' fill='#06b6d4' stroke='none'/></svg></span>${dateStr}</div>` : '',
         isLong  ? `<button class="rv-readmore" onclick="rvOpenModal('${storeKey}')">Read full review →</button>` : '',
       ].filter(Boolean).join('');
       return `<div class="rv-card" data-cat="${type}" style="animation-delay:${(idx*.06).toFixed(2)}s">

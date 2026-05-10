@@ -1323,7 +1323,10 @@ a[href*="pages/"]:hover {
   margin-bottom: 1.5rem;
   transition: transform 0.35s ease;
   animation: iconFloat 3s ease-in-out infinite;
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  flex-shrink: 0;
 }
+.platform-icon svg { flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
 @keyframes iconFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   25% { transform: translateY(-4px) rotate(-3deg); }
@@ -2103,4 +2106,75 @@ nav {
   section [style*="clamp(1.8rem"] {
     font-size: clamp(1.8rem, 8vw, 2.4rem) !important;
   }
+}
+
+/* ── Global Liquid Glass Select Styling ─────────────────────── */
+/* Applies to all native <select> elements site-wide */
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--panel, rgba(255,255,255,.08));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid var(--border, rgba(124,92,252,.2));
+  border-radius: 999px;
+  padding: .42rem 2.1rem .42rem .9rem;
+  color: var(--txt, #fff);
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%237c5cfc' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .72rem center;
+  transition: border-color .2s, box-shadow .2s, background-color .2s;
+  box-shadow: 0 2px 8px rgba(124,92,252,.07);
+}
+select:hover {
+  border-color: rgba(124,92,252,.45);
+  box-shadow: 0 4px 14px rgba(124,92,252,.14);
+}
+select:focus {
+  outline: none;
+  border-color: var(--v1, #7c5cfc);
+  box-shadow: 0 0 0 3px rgba(124,92,252,.14), 0 4px 14px rgba(124,92,252,.1);
+}
+/* Dark theme — solid bg so options are readable */
+:root[data-theme="dark"] select {
+  background-color: rgba(255,255,255,.06);
+}
+:root[data-theme="dark"] select option {
+  background-color: #120f24;
+  color: #f0eeff;
+}
+/* Light theme */
+:root[data-theme="light"] select {
+  background-color: rgba(255,255,255,.9);
+  border-color: rgba(124,92,252,.18);
+  color: var(--txt, #1a0a3d);
+}
+:root[data-theme="light"] select option {
+  background-color: #ffffff;
+  color: #0d1117;
+}
+/* Ocean dark */
+:root[data-theme="dark"][data-theme-variant="ocean"] select {
+  background-color: #0b1d2d;
+}
+:root[data-theme="dark"][data-theme-variant="ocean"] select option {
+  background-color: #0b1d2d; color: #eef8ff;
+}
+/* Sunset dark */
+:root[data-theme="dark"][data-theme-variant="sunset"] select {
+  background-color: #1a0f14;
+}
+:root[data-theme="dark"][data-theme-variant="sunset"] select option {
+  background-color: #1a0f14; color: #fff4ef;
+}
+/* Emerald dark */
+:root[data-theme="dark"][data-theme-variant="emerald"] select {
+  background-color: #081711;
+}
+:root[data-theme="dark"][data-theme-variant="emerald"] select option {
+  background-color: #081711; color: #effdf6;
 }

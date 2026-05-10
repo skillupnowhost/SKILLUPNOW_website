@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Course Brochure — SkillUpNow</title>
   <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/responsive.css">
   <style>
@@ -51,6 +52,7 @@
     }
     .pamphlet-hero .badge-row { display:flex; justify-content:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.25rem; position:relative; }
     .pamphlet-hero .badge {
+      display:inline-flex; align-items:center; gap:.3rem;
       background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3);
       border-radius:999px; padding:0.3rem 0.85rem; font-size:0.78rem; font-weight:700;
       color:#fff; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
@@ -212,7 +214,7 @@
     .mentors-wrap { max-width:1140px; margin:0 auto 4.5rem; padding:0 1.5rem; }
     .mentors-header { text-align:center; margin-bottom:2.5rem; }
     .mentors-kicker {
-      display:inline-block; font-size:.74rem; font-weight:800; letter-spacing:.18em;
+      display:inline-flex; align-items:center; gap:.35rem; font-size:.74rem; font-weight:800; letter-spacing:.18em;
       text-transform:uppercase; color:var(--v1);
       background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.25);
       border-radius:999px; padding:.28rem .9rem; margin-bottom:.8rem;
@@ -410,7 +412,7 @@
     .about-left p { font-size:.86rem; color:var(--txt3); line-height:1.75; margin-bottom:1rem; }
     .about-highlights { display:flex; flex-direction:column; gap:.55rem; margin-top:.5rem; }
     .about-hl { display:flex; align-items:flex-start; gap:.65rem; font-size:.82rem; color:var(--txt2); }
-    .about-hl-icon { font-size:1.1rem; flex-shrink:0; margin-top:.05rem; }
+    .about-hl-icon { flex-shrink:0; margin-top:.1rem; display:inline-flex; align-items:center; color:var(--v1); }
     .about-right { padding: 2.5rem 2rem; }
     .about-right h4 { font-size:1rem; font-weight:800; margin-bottom:1.1rem; }
     .coaching-grid { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
@@ -423,7 +425,7 @@
       transition: border-color .2s, transform .2s;
     }
     .coaching-card:hover { border-color: var(--v2); transform: translateY(-3px); }
-    .coaching-icon { font-size:1.8rem; margin-bottom:.45rem; display:block; }
+    .coaching-icon { margin-bottom:.45rem; display:flex; align-items:center; justify-content:center; color:var(--v1); }
     .coaching-card h5 { font-size:.8rem; font-weight:800; margin-bottom:.25rem; }
     .coaching-card p  { font-size:.72rem; color:var(--txt3); line-height:1.5; }
     .mission-strip { margin-top:1.1rem; padding:.85rem 1rem; background:linear-gradient(135deg,rgba(124,92,252,.1),rgba(61,107,255,.08)); border:1px solid rgba(124,92,252,.2); border-radius:var(--r2); font-size:.8rem; color:var(--txt2); line-height:1.6; text-align:center; font-style:italic; }
@@ -432,7 +434,7 @@
     .why-wrap { max-width:1100px; margin:0 auto 4rem; padding:0 1.5rem; }
     .why-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:1rem; }
     .why-card { background:var(--panel); border:1.5px solid var(--border); border-radius:var(--r3); padding:1.5rem; text-align:center; }
-    .why-icon { font-size:2.2rem; margin-bottom:0.75rem; }
+    .why-icon { margin-bottom:0.75rem; display:flex; align-items:center; justify-content:center; color:var(--v1); }
     .why-card h4 { font-size:0.92rem; font-weight:800; margin-bottom:0.3rem; }
     .why-card p  { font-size:0.78rem; color:var(--txt3); line-height:1.6; }
 
@@ -744,7 +746,7 @@
       gap:1.25rem; flex-wrap:wrap; margin-bottom:1.5rem;
     }
     .pam-rv-kicker {
-      display:inline-block; font-size:.68rem; font-weight:800;
+      display:inline-flex; align-items:center; gap:.35rem; font-size:.68rem; font-weight:800;
       letter-spacing:.14em; text-transform:uppercase; color:var(--v1);
       background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
       border-radius:999px; padding:.25rem .85rem; margin-bottom:.75rem;
@@ -766,6 +768,7 @@
     .pam-rv-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,92,252,.48); }
     .pam-rv-filters { display:flex; gap:.45rem; flex-wrap:wrap; margin-bottom:1.5rem; }
     .pam-rv-filter {
+      display:inline-flex; align-items:center; gap:.38rem;
       padding:.32rem .88rem; border-radius:999px;
       border:1.5px solid var(--border); background:transparent;
       font-size:.74rem; font-weight:700; color:var(--txt3);
@@ -777,6 +780,11 @@
       border-color:transparent; color:#fff;
       box-shadow:0 4px 12px rgba(124,92,252,.32);
     }
+    .pam-rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; }
+    .pam-rv-filt-ico svg { width:13px; height:13px; flex-shrink:0; overflow:visible; }
+    .pam-ico-violet  { stroke:#7c5cfc; } .pam-ico-amber   { stroke:#f59e0b; }
+    .pam-ico-cyan    { stroke:#06b6d4; } .pam-ico-emerald { stroke:#10b981; }
+    .pam-rv-filter.active .pam-rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; }
     .pam-rv-empty {
       text-align:center; padding:2.5rem 1rem;
       border:1.5px dashed rgba(124,92,252,.2); border-radius:18px;
@@ -842,67 +850,133 @@
       85% { filter:drop-shadow(0 0 5px rgba(251,191,36,.85)); transform:scale(1.2); }
     }
     .pam-rv-card {
-      flex:0 0 280px; background:var(--panel); border:1.5px solid var(--border);
-      border-radius:20px; padding:1.4rem 1.3rem 1.2rem;
+      flex:0 0 300px; background:var(--panel); border:1.5px solid var(--border);
+      border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
       display:flex; flex-direction:column; position:relative; overflow:hidden;
       animation:pamRvCardIn .4s both;
       transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+      cursor:default;
     }
     .pam-rv-card::before {
       content:''; position:absolute; top:0; left:0; right:0; height:3px;
       background:linear-gradient(90deg,#7c5cfc,#3d6bff,#67e8f9);
-      border-radius:20px 20px 0 0;
+      border-radius:22px 22px 0 0;
     }
     .pam-rv-card:hover {
-      transform:translateY(-7px) scale(1.012);
-      border-color:rgba(124,92,252,.42);
-      box-shadow:0 18px 50px rgba(124,92,252,.18);
+      transform:translateY(-8px) scale(1.015);
+      border-color:rgba(124,92,252,.45);
+      box-shadow:0 22px 60px rgba(124,92,252,.2), 0 4px 12px rgba(0,0,0,.1);
     }
-    .pam-rv-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; margin-bottom:.9rem; }
-    .pam-rv-stars { display:flex; gap:.06rem; }
-    .pam-rv-star { font-size:1.15rem; display:inline-block; color:rgba(255,255,255,.12); }
+    .pam-rv-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; margin-bottom:1rem; }
+    .pam-rv-stars { display:flex; gap:.08rem; }
+    .pam-rv-star { font-size:1.25rem; display:inline-block; color:rgba(255,255,255,.12); }
     :root[data-theme="light"] .pam-rv-star:not(.on) { color:rgba(0,0,0,.1); }
     .pam-rv-star.on { color:#fbbf24; animation:pamRvStarPulse 3.5s ease-in-out infinite; }
     .pam-rv-badge {
-      display:inline-flex; align-items:center; gap:.25rem; flex-shrink:0;
-      padding:.15rem .55rem; border-radius:999px;
-      font-size:.62rem; font-weight:800; text-transform:capitalize; letter-spacing:.04em;
+      display:inline-flex; align-items:center; gap:.28rem; flex-shrink:0;
+      padding:.17rem .6rem; border-radius:999px;
+      font-size:.64rem; font-weight:800; text-transform:capitalize; letter-spacing:.04em;
       color:var(--rv-dot,#7c5cfc);
-      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.25);
+      background:color-mix(in srgb,var(--rv-dot,#7c5cfc) 12%,transparent);
+      border:1px solid color-mix(in srgb,var(--rv-dot,#7c5cfc) 28%,transparent);
       white-space:nowrap;
     }
-    .pam-rv-badge::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--rv-dot,#7c5cfc); flex-shrink:0; }
-    .pam-rv-quote-wrap { position:relative; flex:1; margin-bottom:.7rem; }
-    .pam-rv-quote-icon { position:absolute; top:-10px; left:-4px; font-size:2.8rem; line-height:1; font-family:Georgia,serif; color:rgba(124,92,252,.13); font-weight:900; pointer-events:none; -webkit-user-select:none; user-select:none; }
+    @supports not (color:color-mix(in srgb,red,blue)) {
+      .pam-rv-badge { background:rgba(124,92,252,.1); border-color:rgba(124,92,252,.25); }
+    }
+    .pam-rv-badge::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--rv-dot,#7c5cfc); flex-shrink:0; }
+    .pam-rv-quote-wrap { position:relative; flex:1; margin-bottom:.75rem; }
+    .pam-rv-quote-icon { position:absolute; top:-10px; left:-5px; font-size:3rem; line-height:1; font-family:Georgia,serif; color:rgba(124,92,252,.14); font-weight:900; pointer-events:none; -webkit-user-select:none; user-select:none; }
+    :root[data-theme="light"] .pam-rv-quote-icon { color:rgba(124,92,252,.1); }
     .pam-rv-text {
-      font-size:.84rem; line-height:1.75; color:var(--txt2); padding-left:1.3rem; margin:0;
+      font-size:.875rem; line-height:1.78; color:var(--txt2); padding-left:1.4rem; margin:0;
       display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden;
     }
+    /* Reveal panel — shows on hover */
+    .pam-rv-card-reveal {
+      overflow:hidden; max-height:0; opacity:0; margin-bottom:0;
+      transition:max-height .38s cubic-bezier(.4,0,.2,1), opacity .3s, margin .3s;
+    }
+    .pam-rv-card:hover .pam-rv-card-reveal { max-height:110px; opacity:1; margin-bottom:.6rem; }
+    .pam-rv-reveal-row {
+      display:flex; align-items:center; gap:.4rem;
+      font-size:.75rem; color:var(--txt3); padding:.2rem 0;
+    }
+    .pam-rv-reveal-row span { font-size:.88rem; }
+    .pam-rr-ico { display:inline-flex; align-items:center; flex-shrink:0; }
+    .pam-rv-readmore {
+      display:inline-flex; align-items:center; gap:.25rem;
+      font-size:.74rem; font-weight:700; color:var(--v1);
+      background:none; border:none; padding:.18rem 0; cursor:pointer;
+      font-family:inherit; transition:gap .2s, opacity .2s;
+    }
+    .pam-rv-readmore:hover { gap:.45rem; opacity:.8; }
     .pam-rv-footer {
-      display:flex; align-items:center; gap:.6rem; padding-top:.8rem; margin-top:auto;
-      border-top:1px solid rgba(255,255,255,.07);
+      display:flex; align-items:center; gap:.65rem; padding-top:.85rem; margin-top:auto;
+      border-top:1px solid rgba(255,255,255,.08);
     }
     :root[data-theme="light"] .pam-rv-footer { border-top-color:var(--border); }
     .pam-rv-avatar {
-      width:36px; height:36px; border-radius:50%; flex-shrink:0;
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
       display:flex; align-items:center; justify-content:center;
-      font-size:.78rem; font-weight:800; color:#fff;
-      box-shadow:0 3px 8px rgba(0,0,0,.22);
+      font-size:.82rem; font-weight:800; color:#fff;
+      box-shadow:0 3px 10px rgba(0,0,0,.25);
     }
-    .pam-rv-name { font-weight:700; font-size:.82rem; color:var(--txt); }
-    .pam-rv-sub  { font-size:.68rem; color:var(--txt4); margin-top:.04rem; }
+    .pam-rv-name { font-weight:700; font-size:.84rem; color:var(--txt); }
+    .pam-rv-sub  { font-size:.7rem;  color:var(--txt4); margin-top:.05rem; }
+    /* Modal */
+    @keyframes pamRvModalIn {
+      from { opacity:0; transform:translateY(32px) scale(.95); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    #pam-rv-modal {
+      position:fixed; inset:0; z-index:99995;
+      background:rgba(6,3,18,.72);
+      backdrop-filter:blur(22px) saturate(1.6); -webkit-backdrop-filter:blur(22px) saturate(1.6);
+      display:flex; align-items:center; justify-content:center; padding:1.2rem;
+      opacity:0; visibility:hidden; transition:opacity .28s, visibility .28s;
+    }
+    #pam-rv-modal.open { opacity:1; visibility:visible; }
+    #pam-rv-modal-box {
+      background:var(--panel); border:1.5px solid rgba(124,92,252,.28);
+      border-radius:28px; padding:2.4rem 2rem 2rem;
+      max-width:520px; width:94vw; position:relative;
+      box-shadow:0 40px 80px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06) inset;
+    }
+    #pam-rv-modal.open #pam-rv-modal-box { animation:pamRvModalIn .32s cubic-bezier(.22,1,.36,1) both; }
+    :root[data-theme="light"] #pam-rv-modal-box { background:rgba(255,255,255,.96); }
+    .pam-rv-modal-close {
+      position:absolute; top:1rem; right:1rem;
+      width:32px; height:32px; border-radius:50%;
+      border:1.5px solid rgba(124,92,252,.3); background:rgba(124,92,252,.1);
+      color:var(--v1); font-size:.85rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-family:inherit; transition:background .2s, transform .2s;
+    }
+    .pam-rv-modal-close:hover { background:var(--v1); color:#fff; transform:rotate(90deg); }
+    #pam-rv-modal-stars { display:flex; gap:.25rem; margin-bottom:1.2rem; }
+    #pam-rv-modal-stars .pam-rv-star { font-size:1.35rem; }
+    #pam-rv-modal-body {
+      font-size:.92rem; color:var(--txt2); line-height:1.85;
+      margin:0 0 1.6rem; max-height:55vh; overflow-y:auto; padding-right:.3rem;
+    }
+    #pam-rv-modal-body::-webkit-scrollbar { width:4px; }
+    #pam-rv-modal-body::-webkit-scrollbar-thumb { background:rgba(124,92,252,.3); border-radius:4px; }
+    .pam-rv-modal-author { display:flex; align-items:center; gap:.75rem; padding-top:1rem; border-top:1px solid var(--border); }
     @media(max-width:640px) {
       .pam-rv-section { padding: 2rem 4vw 2.5rem; }
       .pam-rv-title { font-size:1.4rem; }
       .pam-rv-header { flex-direction:column; align-items:flex-start; gap:.9rem; }
-      .pam-rv-card { flex:0 0 min(250px, calc(100vw - 84px)); }
-      .pam-rv-clip { margin:0 32px; }
-      .pam-rv-nav { width:32px; height:32px; }
+      .pam-rv-card { flex:0 0 min(260px, calc(100vw - 88px)); }
+      .pam-rv-clip { margin:0 36px; }
+      .pam-rv-nav { width:34px; height:34px; }
+      .pam-rv-nav svg { width:14px; height:14px; }
+      #pam-rv-modal-box { padding:1.8rem 1.2rem 1.5rem; }
     }
     @media(max-width:380px) {
-      .pam-rv-card { flex:0 0 calc(100vw - 60px); }
-      .pam-rv-clip { margin:0 22px; }
-      .pam-rv-nav { width:26px; height:26px; }
+      .pam-rv-card { flex:0 0 calc(100vw - 64px); }
+      .pam-rv-clip { margin:0 26px; }
+      .pam-rv-nav { width:28px; height:28px; }
     }
   </style>
 </head>
@@ -916,16 +990,16 @@
   <!-- Hero -->
   <section class="pamphlet-hero">
     <div class="badge-row">
-      <span class="badge">🎓 Industry-Aligned</span>
-      <span class="badge">💳 EMI Available</span>
-      <span class="badge">🏆 Certified</span>
-      <span class="badge">📹 Live + Recorded</span>
+      <span class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Industry-Aligned</span>
+      <span class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg> EMI Available</span>
+      <span class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg> Certified</span>
+      <span class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><rect x="2" y="7" width="15" height="10" rx="2"/><path d="M17 10l5-3v10l-5-3V10z"/></svg> Live + Recorded</span>
     </div>
     <h1>Unlock Your Potential<br><span>with SkillUpNow</span></h1>
     <p>Practical, mentor-led courses designed to get you job-ready. Start today with flexible payment options.</p>
     <div class="hero-actions">
       <button class="btn-white" onclick="document.getElementById('courses-section').scrollIntoView({behavior:'smooth'})">Browse Courses</button>
-      <button class="btn-outline-white" onclick="window.print()">🖨️ Print Brochure</button>
+      <button class="btn-outline-white" onclick="window.print()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Brochure</button>
     </div>
   </section>
 
@@ -944,7 +1018,7 @@
     <h2>Our Courses</h2>
     <div class="toolbar-right">
       <div id="cat-pills" style="display:flex;gap:0.6rem;flex-wrap:wrap;"></div>
-      <button class="btn-print" onclick="window.print()">🖨️ Print</button>
+      <button class="btn-print" onclick="window.print()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print</button>
       <button class="btn-print" id="btn-qr-dl" onclick="downloadPageQR()" style="background:linear-gradient(135deg,#22c55e,#16a34a);" title="Download QR code for this page as PNG">⬇ QR Code</button>
     </div>
   </div>
@@ -968,32 +1042,32 @@
         <p>SkillUpNow is a mentor-led online learning platform founded with a single purpose — bridge the gap between academic knowledge and what the industry actually needs.</p>
         <p>We believe every learner deserves a career mentor, not just a course. That's why every programme includes live sessions, hands-on projects, and 1-on-1 mentor guidance.</p>
         <div class="about-highlights">
-          <div class="about-hl"><span class="about-hl-icon">📍</span><span>Based in India, serving learners across 15+ states</span></div>
-          <div class="about-hl"><span class="about-hl-icon">🏅</span><span>Industry-certified curriculum reviewed by senior practitioners</span></div>
-          <div class="about-hl"><span class="about-hl-icon">🤝</span><span>Dedicated placement cell with 50+ hiring partners</span></div>
-          <div class="about-hl"><span class="about-hl-icon">📈</span><span>92% of graduates report a salary hike within 6 months</span></div>
+          <div class="about-hl"><span class="about-hl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle class="si-pulse" cx="12" cy="9" r="2" fill="currentColor" fill-opacity=".4"/></svg></span><span>Based in India, serving learners across 15+ states</span></div>
+          <div class="about-hl"><span class="about-hl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="6"/><path class="si-bob" d="M9 10h6M12 7v6"/><path d="M8.21 15.89L7 23l5-3 5 3-1.21-7.11"/></svg></span><span>Industry-certified curriculum reviewed by senior practitioners</span></div>
+          <div class="about-hl"><span class="about-hl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path class="si-bob" d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Dedicated placement cell with 50+ hiring partners</span></div>
+          <div class="about-hl"><span class="about-hl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline class="si-float" points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span>92% of graduates report a salary hike within 6 months</span></div>
         </div>
       </div>
       <div class="about-right">
         <h4>Our Coaching Philosophy</h4>
         <div class="coaching-grid">
           <div class="coaching-card">
-            <span class="coaching-icon">🎯</span>
+            <span class="coaching-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle class="si-pulse" cx="12" cy="12" r="2" fill="currentColor"/></svg></span>
             <h5>Outcome First</h5>
             <p>Every module ties back to a real job skill or project deliverable.</p>
           </div>
           <div class="coaching-card">
-            <span class="coaching-icon">🧑‍🏫</span>
+            <span class="coaching-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path class="si-bob" d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
             <h5>Mentor-Led</h5>
             <p>Small batches. Personal attention. Real practitioner knowledge.</p>
           </div>
           <div class="coaching-card">
-            <span class="coaching-icon">🔄</span>
+            <span class="coaching-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline class="si-spin" points="1 4 1 10 7 10" style="transform-origin:4px 7px"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg></span>
             <h5>Learn by Doing</h5>
             <p>70% of time is hands-on labs, case studies, and live projects.</p>
           </div>
           <div class="coaching-card">
-            <span class="coaching-icon">🚀</span>
+            <span class="coaching-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="si-float" d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg></span>
             <h5>Career Acceleration</h5>
             <p>Mock interviews, resume reviews, and direct referrals to recruiters.</p>
           </div>
@@ -1007,19 +1081,19 @@
   <div class="why-wrap">
     <div class="section-title">Why SkillUpNow?</div>
     <div class="why-grid">
-      <div class="why-card"><div class="why-icon">🎯</div><h4>Goal-Oriented Learning</h4><p>Courses are structured around industry job roles and real project outcomes.</p></div>
-      <div class="why-card"><div class="why-icon">👨‍🏫</div><h4>Expert Mentors</h4><p>Learn from practitioners with 5+ years of industry experience, not just academics.</p></div>
-      <div class="why-card"><div class="why-icon">📹</div><h4>Live + Recorded</h4><p>Attend live sessions and revisit recordings anytime. Learn at your own pace.</p></div>
-      <div class="why-card"><div class="why-icon">💳</div><h4>Flexible EMI</h4><p>0% interest EMI over 2–12 months. No hidden charges, instant approval.</p></div>
-      <div class="why-card"><div class="why-icon">🏆</div><h4>Industry Certificate</h4><p>Earn a verifiable certificate upon course completion to boost your resume.</p></div>
-      <div class="why-card"><div class="why-icon">🤝</div><h4>Placement Support</h4><p>Resume review, mock interviews, and job referrals through our alumni network.</p></div>
+      <div class="why-card"><div class="why-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle class="si-pulse" cx="12" cy="12" r="2" fill="currentColor"/></svg></div><h4>Goal-Oriented Learning</h4><p>Courses are structured around industry job roles and real project outcomes.</p></div>
+      <div class="why-card"><div class="why-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path class="si-bob" d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div><h4>Expert Mentors</h4><p>Learn from practitioners with 5+ years of industry experience, not just academics.</p></div>
+      <div class="why-card"><div class="why-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="15" height="10" rx="2"/><path class="si-slide" d="M17 10l5-3v10l-5-3V10z"/><circle class="si-blink" cx="9" cy="12" r="2" fill="currentColor" fill-opacity=".35" stroke="none"/></svg></div><h4>Live + Recorded</h4><p>Attend live sessions and revisit recordings anytime. Learn at your own pace.</p></div>
+      <div class="why-card"><div class="why-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line class="si-blink" x1="5" y1="15" x2="9" y2="15"/></svg></div><h4>Flexible EMI</h4><p>0% interest EMI over 2–12 months. No hidden charges, instant approval.</p></div>
+      <div class="why-card"><div class="why-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle class="si-bob" cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div><h4>Industry Certificate</h4><p>Earn a verifiable certificate upon course completion to boost your resume.</p></div>
+      <div class="why-card"><div class="why-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path class="si-bob" d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h4>Placement Support</h4><p>Resume review, mock interviews, and job referrals through our alumni network.</p></div>
     </div>
   </div>
 
   <!-- Mentor spotlight -->
   <div class="mentors-wrap">
     <div class="mentors-header">
-      <div class="mentors-kicker">👨‍🏫 Expert Faculty</div>
+      <div class="mentors-kicker"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path class="si-bob" d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Expert Faculty</div>
       <div class="section-title">Meet Our Mentors</div>
       <p class="mentors-sub">Learn directly from industry professionals actively working in their fields.</p>
     </div>
@@ -1043,7 +1117,7 @@
     <div class="pam-rv-inner">
       <div class="pam-rv-header">
         <div>
-          <div class="pam-rv-kicker">⭐ Student Reviews</div>
+          <div class="pam-rv-kicker"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon class="si-pulse" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fill-opacity=".25"/></svg> Student Reviews</div>
           <h2 class="pam-rv-title">Real feedback from our learners.</h2>
           <p class="pam-rv-sub">Verified reviews from students who have completed our programmes.</p>
         </div>
@@ -1054,11 +1128,56 @@
       </div>
 
       <div class="pam-rv-filters" id="pam-rv-filters">
-        <button type="button" class="pam-rv-filter active" data-cat="all">All</button>
-        <button type="button" class="pam-rv-filter" data-cat="course">📚 Courses</button>
-        <button type="button" class="pam-rv-filter" data-cat="mentor">👨‍🏫 Mentors</button>
-        <button type="button" class="pam-rv-filter" data-cat="admin">🏛 Admin</button>
-        <button type="button" class="pam-rv-filter" data-cat="website">🌐 Website</button>
+        <button type="button" class="pam-rv-filter active" data-cat="all">
+          <span class="pam-rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pam-ico-violet">
+              <rect class="si-bob"      x="3"  y="3"  width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-2" x="14" y="3"  width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-4" x="3"  y="14" width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-6" x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </span> All
+        </button>
+        <button type="button" class="pam-rv-filter" data-cat="course">
+          <span class="pam-rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pam-ico-violet">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              <line class="si-slide"      x1="5" y1="8"  x2="9" y2="8"/>
+              <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
+            </svg>
+          </span> Courses
+        </button>
+        <button type="button" class="pam-rv-filter" data-cat="mentor">
+          <span class="pam-rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pam-ico-amber">
+              <polygon class="si-bob" points="12,2 22,7 12,12 2,7"/>
+              <path d="M6 10.5v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5"/>
+              <line x1="22" y1="7" x2="22" y2="13"/>
+              <circle class="si-drop" cx="22" cy="14.5" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </span> Mentors
+        </button>
+        <button type="button" class="pam-rv-filter" data-cat="admin">
+          <span class="pam-rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pam-ico-cyan">
+              <path class="si-bob" d="M3 10L12 3l9 7"/>
+              <rect x="3" y="10" width="18" height="11" rx="1"/>
+              <line x1="12" y1="10" x2="12" y2="21"/>
+              <rect class="si-blink"      x="5"  y="13" width="3" height="2.5" rx=".5"/>
+              <rect class="si-blink ad-3" x="16" y="13" width="3" height="2.5" rx=".5"/>
+            </svg>
+          </span> Admin
+        </button>
+        <button type="button" class="pam-rv-filter" data-cat="website">
+          <span class="pam-rv-filt-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pam-ico-emerald">
+              <circle cx="12" cy="12" r="10"/>
+              <path class="si-spin" d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              <path d="M2 12h20"/>
+            </svg>
+          </span> Website
+        </button>
       </div>
 
       <div class="pam-rv-empty" id="pam-rv-empty">
@@ -1079,6 +1198,22 @@
       <div class="pam-rv-dots" id="pam-rv-dots"></div>
     </div>
   </section>
+
+  <!-- Review read-more modal -->
+  <div id="pam-rv-modal" onclick="if(event.target===this)pamRvCloseModal()">
+    <div id="pam-rv-modal-box">
+      <button type="button" class="pam-rv-modal-close" onclick="pamRvCloseModal()">✕</button>
+      <div id="pam-rv-modal-stars"></div>
+      <p id="pam-rv-modal-body"></p>
+      <div class="pam-rv-modal-author">
+        <div class="pam-rv-avatar" id="pam-rv-modal-avatar"></div>
+        <div>
+          <div class="pam-rv-name" id="pam-rv-modal-name"></div>
+          <div class="pam-rv-sub"  id="pam-rv-modal-type"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- CTA -->
   <section class="cta-banner">
@@ -1342,10 +1477,10 @@ function renderCourses(courses) {
       <div class="pam-card-body" style="background:linear-gradient(180deg,${thumb.accent}10 0%,transparent 55%);">
         <p class="pam-desc">${desc}${desc.length >= 140 ? '…' : ''}</p>
         <div class="pam-meta">
-          ${durationMo ? `<span class="pam-tag">📅 ${durationMo} mo</span>` : ''}
-          ${c.total_live_classes ? `<span class="pam-tag">🎬 ${c.total_live_classes} sessions</span>` : ''}
-          ${c.level ? `<span class="pam-tag">📶 ${c.level}</span>` : ''}
-          ${emiMonths > 0 ? `<span class="pam-tag" style="border-color:var(--v3);color:var(--v1)">💳 EMI</span>` : ''}
+          ${durationMo ? `<span class="pam-tag"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg> ${durationMo} mo</span>` : ''}
+          ${c.total_live_classes ? `<span class="pam-tag"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><polygon points='5 3 19 12 5 21 5 3'/></svg> ${c.total_live_classes} sessions</span>` : ''}
+          ${c.level ? `<span class="pam-tag"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg> ${c.level}</span>` : ''}
+          ${emiMonths > 0 ? `<span class="pam-tag" style="border-color:var(--v3);color:var(--v1)"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><rect x='1' y='4' width='22' height='16' rx='2'/><line x1='1' y1='10' x2='23' y2='10'/></svg> EMI</span>` : ''}
         </div>
       </div>
       <div class="pam-card-footer" style="flex-direction:column;align-items:stretch;gap:.65rem">
@@ -1484,14 +1619,14 @@ async function loadMentors() {
       ${courseNames.length ? `
       <div class="mentor-section-lbl">Courses</div>
       <div class="mentor-course-list">
-        ${courseNames.map(cn => `<div class="mentor-course-item"><span class="mentor-course-icon">📚</span>${cn}</div>`).join('')}
+        ${courseNames.map(cn => `<div class="mentor-course-item"><span class="mentor-course-icon"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg></span>${cn}</div>`).join('')}
       </div>` : ''}
 
       ${(students > 0 || classes > 0 || myBatches.length > 0) ? `
       <div class="mentor-stats">
-        ${students > 0 ? `<span class="mentor-stat-pill">👨‍🎓 ${students} students</span>` : ''}
-        ${classes  > 0 ? `<span class="mentor-stat-pill">🎬 ${classes} classes</span>` : ''}
-        ${myBatches.length > 0 ? `<span class="mentor-stat-pill">📦 ${myBatches.length} batch${myBatches.length > 1 ? 'es' : ''}</span>` : ''}
+        ${students > 0 ? `<span class="mentor-stat-pill"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg> ${students} students</span>` : ''}
+        ${classes  > 0 ? `<span class="mentor-stat-pill"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><polygon points='5 3 19 12 5 21 5 3'/></svg> ${classes} classes</span>` : ''}
+        ${myBatches.length > 0 ? `<span class="mentor-stat-pill"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg> ${myBatches.length} batch${myBatches.length > 1 ? 'es' : ''}</span>` : ''}
       </div>` : ''}
 
       <button class="mentor-connect" onclick="window.location.href='contact-enquiry.html'">Connect →</button>
@@ -1736,7 +1871,25 @@ async function loadPopupStudents(courseId, mentorUserId) {
 // ══ STUDENT REVIEWS CAROUSEL ══════════════════════════════════════════════════
 (function() {
   let _all = [], _filtered = [], _idx = 0, _cat = 'all';
-  const CARD_W = 280, GAP = 18;
+  const CARD_W = 300, GAP = 20;
+  const _pamGrads = [
+    'linear-gradient(135deg,#7c5cfc,#3d6bff)',
+    'linear-gradient(135deg,#06b6d4,#0284c7)',
+    'linear-gradient(135deg,#a855f7,#7c3aed)',
+    'linear-gradient(135deg,#10b981,#059669)',
+    'linear-gradient(135deg,#f59e0b,#d97706)',
+    'linear-gradient(135deg,#ef4444,#dc2626)',
+  ];
+  const _pamTypeColors  = { course:'#7c5cfc', mentor:'#3d6bff', website:'#06b6d4', admin:'#f59e0b', general:'#10b981' };
+  const _pamTypeIcons = {
+    course:  `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>`,
+    mentor:  `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>`,
+    website: `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='10'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/><path d='M2 12h20'/></svg>`,
+    admin:   `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>`,
+    general: `<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>`,
+  };
+  const _pamTypeLabels  = { course:'Course', mentor:'Mentor', website:'Website', admin:'Admin', general:'General' };
+  const _pamModalStore  = {};
 
   function _getPerPage() {
     const clip = document.querySelector('.pam-rv-clip');
@@ -1748,40 +1901,82 @@ async function loadPopupStudents(courseId, mentorUserId) {
     return (card && card.offsetWidth > 0 ? card.offsetWidth : CARD_W) + GAP;
   }
   function _esc(s) {
-    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function _pamCleanText(text) {
+    if (!text) return '';
+    const posM = text.match(/\[Positives\]:\s*([\s\S]*?)(?=\[Improvements\]:|$)/i);
+    const impM = text.match(/\[Improvements\]:\s*([\s\S]*?)(?=\[Aspect Ratings\]:|$)/i);
+    if (posM || impM) {
+      const p = [];
+      if (posM && posM[1].trim()) p.push(posM[1].trim());
+      if (impM && impM[1].trim()) p.push(impM[1].trim());
+      if (p.length) return p.join(' ');
+    }
+    return text.replace(/\[(?:Mentor|Course\/Batch|Topic|Priority|Category|Device\/Browser|Site Rating|Aspect Ratings)[^\]]*\]:[^\n]*/gi,'').replace(/\n{3,}/g,'\n\n').trim() || text.trim();
   }
   function _buildCard(d, i) {
-    const rating = Math.min(5, Math.max(0, Math.round(d.rating || 0)));
-    const starsHtml = Array.from({length:5}, (_,j) =>
-      `<span class="pam-rv-star${j < rating ? ' on' : ''}"${j < rating ? ` style="animation-delay:${(j*.1).toFixed(1)}s"` : ''} aria-hidden="true">★</span>`
+    const type    = d.feedback_type || (d.source === 'review' ? 'course' : 'general');
+    const rawText = d.comment || d.message || '';
+    const comment = _pamCleanText(rawText);
+    const isLong  = comment.length > 220;
+    const preview = isLong ? comment.slice(0,220).trimEnd() + '…' : comment;
+    const name    = d._name || d.full_name || 'Student';
+    const initials = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const course  = d.course_title || d._courseName || '';
+    const dotColor = _pamTypeColors[type] || '#7c5cfc';
+    const grad    = _pamGrads[i % _pamGrads.length];
+    const rating  = Math.min(5, Math.max(0, parseInt(d.rating)||0));
+    const typeLabel = _pamTypeLabels[type] || type;
+    const typeIcon  = _pamTypeIcons[type]  || '💬';
+    const dateStr   = d.created_at ? new Date(d.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+    const starsHtml = Array.from({length:5},(_,j)=>
+      `<span class="pam-rv-star${j<rating?' on':''}"${j<rating?` style="animation-delay:${(j*.12).toFixed(2)}s"`:''}  aria-hidden="true">★</span>`
     ).join('');
-    const type = d.feedback_type || (d.source === 'review' ? 'course' : 'general');
-    const typeMap = { course:{l:'Course',i:'📚',c:'#7c5cfc'}, mentor:{l:'Mentor',i:'👨‍🏫',c:'#3d6bff'}, admin:{l:'Admin',i:'🏛',c:'#06b6d4'}, website:{l:'Website',i:'🌐',c:'#10b981'} };
-    const tm = typeMap[type] || {l:'General',i:'💬',c:'#9b8fff'};
-    const name = _esc(d._name || d.full_name || 'Student');
-    const initials = name.replace(/&amp;/g,'&').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-    const grads = ['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#06b6d4,#3d6bff)','linear-gradient(135deg,#10b981,#06b6d4)','linear-gradient(135deg,#f59e0b,#ef4444)','linear-gradient(135deg,#ec4899,#7c5cfc)'];
-    const grad = grads[(name.charCodeAt(0)||0) % grads.length];
-    const comment = d.comment || d.message || '';
-    const course = _esc(d.course_title || d._courseName || '');
-    return `<div class="pam-rv-card" data-cat="${type}" style="animation-delay:${(i*.055).toFixed(2)}s">
+    const storeKey = 'pam_rv_' + i;
+    _pamModalStore[storeKey] = { comment, rating, name, typeLabel, grad };
+    const revealRows = [
+      course  ? `<div class="pam-rv-reveal-row"><span class="pam-rr-ico"><svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='#7c5cfc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path class='si-bob' d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/><line class='si-slide' x1='5' y1='8' x2='9' y2='8'/></svg></span>${_esc(course.substring(0,40)+(course.length>40?'…':''))}</div>` : '',
+      dateStr ? `<div class="pam-rv-reveal-row"><span class="pam-rr-ico"><svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='#06b6d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/><circle class='si-pulse' cx='12' cy='16' r='1.5' fill='#06b6d4' stroke='none'/></svg></span>${dateStr}</div>` : '',
+      isLong  ? `<button type="button" class="pam-rv-readmore" onclick="pamRvOpenModal('${storeKey}')">Read full review →</button>` : '',
+    ].filter(Boolean).join('');
+    return `<div class="pam-rv-card" data-cat="${type}" style="animation-delay:${(i*.06).toFixed(2)}s">
       <div class="pam-rv-card-top">
         <div class="pam-rv-stars" aria-label="${rating} out of 5">${starsHtml}</div>
-        <span class="pam-rv-badge" style="--rv-dot:${tm.c}">${tm.i} ${tm.l}</span>
+        <span class="pam-rv-badge" style="--rv-dot:${dotColor}">${typeIcon} ${typeLabel}</span>
       </div>
       <div class="pam-rv-quote-wrap">
         <div class="pam-rv-quote-icon">❝</div>
-        <p class="pam-rv-text">${_esc(comment)}</p>
+        <p class="pam-rv-text">${_esc(preview)}</p>
       </div>
+      <div class="pam-rv-card-reveal">${revealRows}</div>
       <div class="pam-rv-footer">
         <div class="pam-rv-avatar" style="background:${grad}">${initials}</div>
         <div>
-          <div class="pam-rv-name">${name}</div>
-          <div class="pam-rv-sub">${course || tm.l + ' Review'}</div>
+          <div class="pam-rv-name">${_esc(name)}</div>
+          <div class="pam-rv-sub">${course ? _esc(course.substring(0,32)+(course.length>32?'…':'')) : typeLabel+' Review'}</div>
         </div>
       </div>
     </div>`;
   }
+  window.pamRvOpenModal = function(key) {
+    const m = _pamModalStore[key]; if (!m) return;
+    const overlay = document.getElementById('pam-rv-modal');
+    document.getElementById('pam-rv-modal-stars').innerHTML =
+      Array.from({length:5},(_,i)=>`<span class="pam-rv-star${i<m.rating?' on':''}" aria-hidden="true">★</span>`).join('');
+    document.getElementById('pam-rv-modal-body').textContent = m.comment;
+    document.getElementById('pam-rv-modal-avatar').style.background = m.grad;
+    document.getElementById('pam-rv-modal-avatar').textContent = m.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    document.getElementById('pam-rv-modal-name').textContent = m.name;
+    document.getElementById('pam-rv-modal-type').textContent = m.typeLabel + ' Review';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.pamRvCloseModal = function() {
+    document.getElementById('pam-rv-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  document.addEventListener('keydown', e => { if (e.key==='Escape') pamRvCloseModal(); });
   function _render() {
     const t = document.getElementById('pam-rv-track');
     if (t) t.innerHTML = _filtered.map((d,i) => _buildCard(d,i)).join('');

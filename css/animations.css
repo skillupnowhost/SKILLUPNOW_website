@@ -1,3 +1,25 @@
+/* ── SVG Icon Micro-animations (project-page style, global) ── */
+@keyframes siBob   { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-2.5px)} }
+@keyframes siFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-3px) scale(1.04)} }
+@keyframes siBlink { 0%,44%,56%,100%{opacity:1} 50%{opacity:.08} }
+@keyframes siSpin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes siSlide { 0%,100%{transform:translateX(0)} 55%{transform:translateX(2.5px)} }
+@keyframes siDrop  { 0%,100%{transform:translateY(-3px);opacity:0} 40%,80%{transform:translateY(3px);opacity:1} 99%{opacity:0} }
+@keyframes siPulse { 0%,100%{opacity:.6;transform:scale(.88)} 50%{opacity:1;transform:scale(1.08)} }
+@keyframes siSwing { 0%,100%{transform:rotate(-7deg)} 50%{transform:rotate(7deg)} }
+
+.si-bob   { animation:siBob   2.8s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+.si-bob2  { animation:siBob   2.8s ease-in-out infinite .55s; transform-box:fill-box; transform-origin:center; }
+.si-float { animation:siFloat 3.2s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+.si-blink { animation:siBlink 1.6s ease-in-out infinite; }
+.si-spin  { animation:siSpin  9s linear infinite;             transform-box:fill-box; transform-origin:center; }
+.si-slide { animation:siSlide 2s ease-in-out infinite;        transform-box:fill-box; transform-origin:left center; }
+.si-drop  { animation:siDrop  2.4s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+.si-pulse { animation:siPulse 2.2s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+.si-swing { animation:siSwing 2.4s ease-in-out infinite;      transform-box:fill-box; transform-origin:50% 0%; }
+.ad-1 { animation-delay:.14s; } .ad-2 { animation-delay:.28s; } .ad-3 { animation-delay:.42s; }
+.ad-4 { animation-delay:.56s; } .ad-5 { animation-delay:.8s;  } .ad-6 { animation-delay:.9s;  }
+
 /* Floating Animations */
 @keyframes floatOrb {
   0%, 100% {

@@ -99,16 +99,6 @@
     .pd-type-dot { width:6px; height:6px; border-radius:50%; background:currentColor; animation:pdPulse 2s ease-in-out infinite; flex-shrink:0; }
 
     .pd-hero-row { display:flex; align-items:flex-start; gap:1.6rem; flex-wrap:wrap; }
-    .pd-hero-icon {
-      flex-shrink:0; width:72px; height:72px;
-      display:flex; align-items:center; justify-content:center;
-      border-radius:20px;
-      background:color-mix(in srgb, var(--pd-c1, var(--prj-v)) 16%, rgba(0,0,0,.2));
-      border:1px solid color-mix(in srgb, var(--pd-c1, var(--prj-v)) 35%, transparent);
-      box-shadow:0 8px 32px color-mix(in srgb, var(--pd-c1, var(--prj-v)) 30%, transparent);
-    }
-    .pd-hero-icon svg { width:40px; height:40px; }
-
     .pd-hero-text { flex:1; min-width:0; }
     .pd-hero-title {
       font-size:clamp(1.7rem,4vw,2.8rem); font-weight:900; line-height:1.12;
@@ -134,40 +124,42 @@
 
     /* Glass card wrapper */
     .pd-glass-card {
-      position:relative; border-radius:var(--pd-r); overflow:visible;
-      animation:pdCardIn .45s cubic-bezier(.22,1,.36,1) both;
-      margin-bottom:2rem;
+      position:relative; border-radius:var(--pd-r); overflow:hidden;
+      animation:none !important; margin-bottom:2rem;
+      background: color-mix(in srgb, var(--panel) 82%, rgba(255,255,255,.24) 18%);
+      border:1px solid var(--border2);
+      box-shadow:0 30px 70px rgba(0,0,0,.18);
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
     }
-    /* Spinning gradient border */
     .pd-glass-card::before {
-      content:''; position:absolute; inset:-1.5px;
-      border-radius:calc(var(--pd-r) + 1.5px); z-index:0;
-      background:conic-gradient(
-        from var(--pd-angle),
-        transparent 0%,
-        var(--pd-c1, var(--prj-v)) 14%,
-        var(--pd-c2, #06b6d4) 34%,
-        transparent 52%,
-        var(--pd-c1, var(--prj-v)) 82%,
-        transparent 100%
-      );
-      opacity:.5;
-      animation:pdBorderSpin 6s linear infinite;
+      content:''; display:none !important;
     }
     .pd-glass-card::after {
-      content:''; position:absolute; inset:1.5px;
-      border-radius:calc(var(--pd-r) - 1.5px); z-index:0;
-      background:var(--bg2);
+      content:''; position:absolute; inset:0;
+      border-radius:inherit; z-index:0;
+      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      pointer-events:none;
     }
-    :root[data-theme="light"] .pd-glass-card::after { background:rgba(255,255,255,.98); }
+    :root[data-theme="light"] .pd-glass-card {
+      background:rgba(255,255,255,.94);
+      border-color:rgba(255,255,255,.85);
+      box-shadow:0 22px 42px rgba(44,37,89,.08);
+    }
+    :root[data-theme="light"] .pd-glass-card::after {
+      background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.26));
+    }
+    :root[data-theme="dark"] .pd-glass-card::after {
+      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+    }
     .pd-glass-card > * { position:relative; z-index:1; }
 
     /* Shimmer */
     .pd-shimmer {
       position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:var(--pd-r);
       background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.05) 48%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.05) 52%,transparent 70%);
-      background-size:220% 100%; background-position:220%;
-      animation:pdShimSweep .9s ease .4s forwards;
+      background-size:220% 100%; background-position:0 0;
+      animation:none !important;
     }
 
     /* Card inner padding */
@@ -207,16 +199,40 @@
     .pd-fact-value { font-size:.95rem; font-weight:800; color:var(--txt); word-break:break-word; }
 
     /* Tech tags */
-    .pd-tags { display:flex; flex-wrap:wrap; gap:.4rem; }
-    .pd-tag {
-      padding:.22rem .68rem; border-radius:999px; font-size:.68rem; font-weight:700;
-      display:inline-flex; align-items:center;
-      background:color-mix(in srgb, var(--prj-cyan) 11%, transparent);
-      color:var(--prj-cyan); border:1px solid color-mix(in srgb, var(--prj-cyan) 26%, transparent);
+    .pd-tags {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:.75rem;
+      align-items:start;
     }
-    .pd-tag-v { background:color-mix(in srgb, var(--prj-v) 12%, transparent); color:var(--prj-v); border-color:color-mix(in srgb, var(--prj-v) 28%, transparent); }
-    .pd-tag-g { background:color-mix(in srgb, var(--prj-em) 11%, transparent); color:var(--prj-em); border-color:color-mix(in srgb, var(--prj-em) 26%, transparent); }
-    .pd-tag-o { background:color-mix(in srgb, var(--prj-gold) 11%, transparent); color:var(--prj-gold); border-color:color-mix(in srgb, var(--prj-gold) 26%, transparent); }
+    .pd-tag {
+      display:flex; align-items:center; justify-content:center;
+      min-height:44px; padding:.85rem 1rem;
+      border-radius:18px; font-size:.88rem; font-weight:800;
+      background: color-mix(in srgb, var(--panel) 90%, rgba(255,255,255,.68) 10%);
+      border:1px solid var(--border);
+      color:var(--txt);
+      box-shadow:0 12px 24px rgba(0,0,0,.08);
+      text-align:center;
+      white-space:nowrap;
+      transition:transform .2s ease;
+    }
+    .pd-tag:hover { transform:translateY(-1px); }
+    .pd-tag-v,
+    .pd-tag-g,
+    .pd-tag-o {
+      color:var(--txt);
+      border-color:var(--border2);
+    }
+    :root[data-theme="light"] .pd-tag {
+      background:rgba(255,255,255,.94);
+      border-color:rgba(68,25,152,.14);
+      color:var(--txt);
+    }
+    :root[data-theme="light"] .pd-tag-v,
+    :root[data-theme="light"] .pd-tag-g,
+    :root[data-theme="light"] .pd-tag-o {
+      border-color:rgba(68,25,152,.2);
+    }
 
     /* Outcomes */
     .pd-outcomes { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem; }
@@ -298,11 +314,85 @@
     .pd-not-found h2 { font-size:1.2rem; font-weight:800; color:var(--txt); margin-bottom:.5rem; }
     .pd-not-found p { font-size:.88rem; color:var(--txt2); margin-bottom:1.5rem; }
 
+    /* ── 3D Icon system (mirrors project.html) ── */
+    @keyframes iconOrbitCW  { to { transform:rotate(360deg); } }
+    @keyframes iconOrbitCCW { to { transform:rotateX(55deg) rotate(-360deg); } }
+    @keyframes iconFadeIn   { to { opacity:1; } }
+    @keyframes iconPulseOut { 0%{transform:scale(1);opacity:.55} 100%{transform:scale(2);opacity:0} }
+    @keyframes iconPart1    { 0%,100%{transform:translate(-17px,-13px);opacity:.7} 50%{transform:translate(-24px,-21px);opacity:.15} }
+    @keyframes iconPart2    { 0%,100%{transform:translate(19px,-11px);opacity:.65} 50%{transform:translate(26px,-19px);opacity:.1} }
+    @keyframes iconSvgIn    { 0%{opacity:0;transform:scale(.25) rotate(-20deg)} 65%{opacity:1;transform:scale(1.1) rotate(4deg)} 100%{opacity:1;transform:scale(1) rotate(0deg)} }
+    @keyframes iconSvgFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-5px) scale(1.04)} }
+    @keyframes icBlink { 0%,44%,56%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes icPulse { 0%,100%{opacity:.25;transform:scale(.85)} 50%{opacity:.9;transform:scale(1)} }
+    @keyframes icSpin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes icBeat  { 0%,40%,100%{transform:scale(1)} 18%{transform:scale(1.35)} 30%{transform:scale(.93)} }
+    @keyframes icFlash { 0%,78%,100%{opacity:.3} 85%{opacity:1} }
+    @keyframes icBob   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2.5px)} }
+    .ic-blink{animation:icBlink 1.3s ease-in-out infinite}
+    .ic-pulse{animation:icPulse 2.4s ease-in-out infinite}
+    .ic-spin{animation:icSpin 3.8s linear infinite;transform-box:fill-box;transform-origin:center}
+    .ic-beat{animation:icBeat 1.6s cubic-bezier(.36,.07,.19,.97) infinite;transform-box:fill-box;transform-origin:center}
+    .ic-flash{animation:icFlash 3s ease-in-out infinite}
+    .ic-bob{animation:icBob 2.2s ease-in-out infinite}
+    .ic-d1{animation-delay:0s} .ic-d2{animation-delay:.45s} .ic-d3{animation-delay:.9s}
+
+    .icon-3d-wrap { position:relative; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:50%; }
+    .icon-orbit-ring {
+      position:absolute; inset:-9px; border-radius:50%;
+      border:1px dashed color-mix(in srgb,var(--oc,var(--prj-v)) 42%,transparent);
+      pointer-events:none; z-index:-1; opacity:0;
+      animation-name:iconOrbitCW,iconFadeIn;
+      animation-duration:var(--orbit-dur,5s),.5s;
+      animation-timing-function:linear,ease;
+      animation-iteration-count:infinite,1;
+      animation-fill-mode:none,forwards;
+      animation-delay:0s,.4s;
+    }
+    .icon-orbit-ring::after {
+      content:''; position:absolute; top:-4.5px; left:calc(50% - 4.5px);
+      width:8px; height:8px; border-radius:50%;
+      background:radial-gradient(circle,rgba(255,255,255,.95) 10%,var(--oc,var(--prj-v)) 60%,transparent);
+      box-shadow:0 0 10px 3px var(--oc,var(--prj-v));
+    }
+    .icon-orbit-ring2 {
+      position:absolute; inset:-5px; border-radius:50%;
+      border:1px solid color-mix(in srgb,var(--oc2,#06b6d4) 25%,transparent);
+      animation:iconOrbitCCW 4.5s linear infinite; transform:rotateX(55deg);
+      pointer-events:none; z-index:-1; opacity:.55;
+    }
+    .icon-pulse-a {
+      position:absolute; inset:0; border-radius:inherit;
+      border:1.5px solid color-mix(in srgb,var(--oc,var(--prj-v)) 38%,transparent);
+      animation:iconPulseOut 3.2s ease-out infinite; pointer-events:none; z-index:-1;
+    }
+    .icon-particle { position:absolute; border-radius:50%; background:var(--oc,var(--prj-v)); pointer-events:none; z-index:-1; }
+    .icon-particle.p1 { width:4px;height:4px;box-shadow:0 0 6px 2px var(--oc,var(--prj-v));animation:iconPart1 3.8s ease-in-out infinite; }
+    .icon-particle.p2 { width:3px;height:3px;background:var(--oc2,#06b6d4);box-shadow:0 0 5px 1px var(--oc2,#06b6d4);animation:iconPart2 3.2s ease-in-out infinite .9s; }
+    .pd-icon-orb { overflow:visible; position:relative; display:flex; align-items:center; justify-content:center; }
+    .icon-svg-wrap {
+      width:44px; height:44px; position:relative; z-index:3; flex-shrink:0;
+      animation:iconSvgIn .55s cubic-bezier(.22,1,.36,1) both var(--appear-delay,0ms),
+                iconSvgFloat var(--float-dur,4s) ease-in-out infinite var(--float-start,0ms);
+      will-change:transform; user-select:none;
+    }
+    .icon-svg-wrap svg { width:100%; height:100%; overflow:visible; display:block; color:var(--oc,var(--prj-v)); }
+    .pd-icon-orb .icon-svg-wrap { width:56px; height:56px; }
+    .icon-type-badge {
+      position:absolute; bottom:-6px; right:-6px; z-index:5;
+      width:18px; height:18px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px; line-height:1;
+      box-shadow:0 2px 8px rgba(0,0,0,.28),0 0 0 1.5px rgba(255,255,255,.18);
+    }
+    .icon-badge-internship { background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+    .icon-badge-upcoming   { background:linear-gradient(135deg,#6366f1,#8b5cf6); }
+    .icon-badge-completed  { background:linear-gradient(135deg,#10b981,#4ade80); font-size:.65rem; font-weight:900; }
+
     /* Responsive */
     @media(max-width:680px) {
       .pd-hero-row { flex-direction:column; gap:1rem; }
-      .pd-hero-icon { width:56px; height:56px; border-radius:16px; }
-      .pd-hero-icon svg { width:30px; height:30px; }
+      .pd-icon-orb .icon-svg-wrap { width:44px; height:44px; }
       .pd-facts { grid-template-columns:1fr 1fr; }
     }
     @media(max-width:400px) {
@@ -348,39 +438,85 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  const _svgPin   = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>`;
-  const _svgTeam  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
-  const _svgClock = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const _svgPin   = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle class="si-pulse" cx="12" cy="9" r="2" fill="currentColor" fill-opacity=".4" stroke="currentColor"/></svg>`;
+  const _svgTeam  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path class="si-bob" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+  const _svgClock = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline class="si-swing" points="12 6 12 12 16 14"/></svg>`;
 
-  /* ── Domain icons & colors (matching project.html) ── */
-  const _domainColors = {
-    web:      { c1:'#6366f1', c2:'#06b6d4', icon:'🌐' },
-    ai:       { c1:'#8b5cf6', c2:'#c084fc', icon:'🤖' },
-    mobile:   { c1:'#f59e0b', c2:'#fb923c', icon:'📱' },
-    data:     { c1:'#10b981', c2:'#06b6d4', icon:'📊' },
-    security: { c1:'#ef4444', c2:'#f97316', icon:'🔒' },
-    cloud:    { c1:'#38bdf8', c2:'#818cf8', icon:'☁️' },
-    design:   { c1:'#ec4899', c2:'#a78bfa', icon:'🎨' },
-    finance:  { c1:'#f59e0b', c2:'#10b981', icon:'💰' },
-    health:   { c1:'#10b981', c2:'#34d399', icon:'🏥' },
-    iot:      { c1:'#06b6d4', c2:'#3b82f6', icon:'🔧' },
-    default:  { c1:'#441998', c2:'#06b6d4', icon:'💼' },
+  /* ── Domain SVGs (28×28 viewbox paths) ── */
+  const _domainSVGs = {
+    web: `<rect x="1" y="2" width="26" height="17" rx="2" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-opacity=".72" stroke-width="1.4"/><line x1="4" y1="8" x2="10" y2="8" stroke="currentColor" stroke-opacity=".9" stroke-width="1.4" stroke-linecap="round"/><line x1="4" y1="11" x2="16" y2="11" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round"/><line x1="4" y1="14" x2="8" y2="14" stroke="#67e8f9" stroke-width="1.4" stroke-linecap="round"/><rect class="ic-blink" x="14" y="12" width="1.5" height="4" rx=".75" fill="#67e8f9"/><path d="M19 7 L22.5 10.5 L19 14" stroke="currentColor" stroke-opacity=".55" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M12 19 L11 23 H17 L16 19" fill="currentColor" fill-opacity=".18"/><rect x="8" y="23" width="12" height="1.5" rx=".75" fill="currentColor" fill-opacity=".22"/>`,
+    ai: `<line x1="7" y1="9" x2="14" y2="5" stroke="currentColor" stroke-opacity=".35" stroke-width=".9"/><line x1="14" y1="5" x2="21" y2="9" stroke="currentColor" stroke-opacity=".35" stroke-width=".9"/><line x1="7" y1="9" x2="11" y2="17" stroke="currentColor" stroke-opacity=".35" stroke-width=".9"/><line x1="21" y1="9" x2="17" y2="17" stroke="currentColor" stroke-opacity=".35" stroke-width=".9"/><line x1="11" y1="17" x2="14" y2="22" stroke="currentColor" stroke-opacity=".35" stroke-width=".9"/><line x1="17" y1="17" x2="14" y2="22" stroke="currentColor" stroke-opacity=".35" stroke-width=".9"/><circle cx="7" cy="9" r="2" fill="currentColor" fill-opacity=".72"/><circle cx="14" cy="5" r="2.4" fill="currentColor"/><circle cx="21" cy="9" r="2" fill="currentColor" fill-opacity=".72"/><circle cx="11" cy="17" r="1.8" fill="currentColor" fill-opacity=".55"/><circle cx="17" cy="17" r="1.8" fill="currentColor" fill-opacity=".55"/><circle class="ic-pulse ic-d1" cx="14" cy="13" r="4.2" fill="rgba(240,171,252,.35)"/><circle cx="14" cy="13" r="2.1" fill="#e879f9"/><circle cx="14" cy="22" r="2" fill="#a5f3fc" class="ic-bob"/>`,
+    data: `<ellipse cx="14" cy="6.5" rx="8" ry="3" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-opacity=".7" stroke-width="1.3"/><path d="M6 6.5v7a8 3 0 0 0 16 0v-7" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-opacity=".62" stroke-width="1.3"/><rect x="4" y="18" width="3" height="8" rx="1" fill="currentColor" fill-opacity=".7"/><rect x="9" y="15" width="3" height="11" rx="1" fill="#6ee7b7" class="ic-bob ic-d2"/><rect x="14" y="20" width="3" height="6" rx="1" fill="currentColor" fill-opacity=".55"/><rect x="19" y="17" width="3" height="9" rx="1" fill="currentColor" fill-opacity=".7"/>`,
+    mobile: `<rect x="6" y="1" width="16" height="26" rx="3.5" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-opacity=".78" stroke-width="1.5"/><rect x="8" y="4.5" width="12" height="17.5" rx="1.5" fill="currentColor" fill-opacity=".1"/><circle cx="11.5" cy="9" r="1.6" fill="currentColor" fill-opacity=".82"/><circle cx="16.5" cy="9" r="1.6" fill="#fbbf24"/><circle cx="11.5" cy="13.5" r="1.6" fill="#86efac"/><circle cx="16.5" cy="13.5" r="1.6" fill="#93c5fd"/><circle class="ic-pulse ic-d1" cx="18" cy="6" r="3" fill="rgba(248,113,113,.35)"/><circle cx="18" cy="6" r="1.4" fill="#f87171"/><circle cx="14" cy="25.5" r="1.4" fill="currentColor" fill-opacity=".4" stroke="currentColor" stroke-opacity=".55" stroke-width="1"/>`,
+    cloud: `<path d="M6 18 a4 4 0 0 1 0-8 a5 5 0 0 1 9.5-2 a4 4 0 1 1 .5 10Z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".72" stroke-width="1.4"/><path class="ic-flash ic-d2" d="M16 7 L13 14 h3 L12 22 L20 13 h-3 L20 7Z" fill="#fbbf24"/><g class="ic-spin" style="transform-origin:22px 23px"><circle cx="22" cy="23" r="3" fill="none" stroke="#67e8f9" stroke-width="1.3"/><path d="M22 19.5v1.5M22 24.5v1.5M18.5 23h1.5M24.5 23h1.5" stroke="#67e8f9" stroke-width="1.1" stroke-linecap="round"/></g>`,
+    security: `<path d="M14 2 L4 6.5 V13.5 C4 18.8 14 24 14 24 S24 18.8 24 13.5 V6.5 Z" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-opacity=".78" stroke-width="1.5"/><rect x="10.5" y="14" width="7" height="5.5" rx="1.5" fill="currentColor" fill-opacity=".75"/><path d="M12 14 v-1.5 a2 2 0 0 1 4 0 V14" stroke="currentColor" stroke-opacity=".9" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="14" cy="16.8" r="1.1" fill="rgba(0,0,0,.32)"/><circle class="ic-pulse ic-d1" cx="14" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-opacity=".18" stroke-width=".8"/>`,
+    design: `<path d="M17 2 L24.5 9.5 L11.5 22.5 L3.5 24.5 L5.5 16.5 Z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".75" stroke-width="1.4" stroke-linejoin="round"/><circle cx="21.5" cy="20" r="2.5" fill="#f0abfc" class="ic-bob ic-d1"/><circle cx="25" cy="16.5" r="2" fill="#6ee7b7" class="ic-bob ic-d2"/><circle cx="23.5" cy="24" r="2" fill="#93c5fd" class="ic-bob ic-d3"/>`,
+    finance: `<polyline points="3,24 8,17 13,20 19,10 25,4" stroke="currentColor" stroke-opacity=".9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M3,24 8,17 13,20 19,10 25,4 V27 H3Z" fill="currentColor" fill-opacity=".07"/><path d="M22 4 L26 4 L26 8" stroke="#4ade80" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="8" cy="24" r="3.5" fill="#fbbf24" fill-opacity=".85" class="ic-bob"/><circle cx="19" cy="10" r="1.8" fill="#4ade80" class="ic-pulse ic-d2"/>`,
+    health: `<path d="M14 22 C14 22 4 16 4 9.5 A5 5 0 0 1 14 8 A5 5 0 0 1 24 9.5 C24 16 14 22 14 22Z" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-opacity=".72" stroke-width="1.5" class="ic-beat"/><path d="M5 13 H8.5 L10 10 L12 16 L14 8 L16 13 H18 L19.5 11 L20.5 13 H24" stroke="#f87171" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="ic-pulse ic-d1" cx="14" cy="14" r="4.5" fill="rgba(248,113,113,.28)"/>`,
+    iot: `<rect x="8" y="8" width="12" height="12" rx="2" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".75" stroke-width="1.5"/><line x1="3.5" y1="11" x2="8" y2="11" stroke="currentColor" stroke-opacity=".65" stroke-width="1.3" stroke-linecap="round"/><line x1="3.5" y1="14" x2="8" y2="14" stroke="currentColor" stroke-opacity=".65" stroke-width="1.3" stroke-linecap="round"/><line x1="3.5" y1="17" x2="8" y2="17" stroke="currentColor" stroke-opacity=".65" stroke-width="1.3" stroke-linecap="round"/><line x1="20" y1="11" x2="24.5" y2="11" stroke="currentColor" stroke-opacity=".65" stroke-width="1.3" stroke-linecap="round"/><line x1="20" y1="14" x2="24.5" y2="14" stroke="#67e8f9" stroke-width="1.3" stroke-linecap="round" class="ic-pulse ic-d1"/><line x1="20" y1="17" x2="24.5" y2="17" stroke="currentColor" stroke-opacity=".65" stroke-width="1.3" stroke-linecap="round"/><rect x="11" y="11" width="6" height="6" rx="1.2" fill="currentColor" fill-opacity=".3"/><circle cx="14" cy="14" r="1.8" fill="#67e8f9" class="ic-pulse ic-d2"/>`,
+    education: `<path d="M14 4 C14 4 7 6.5 5 7.5 V21 C7 20 14 19 14 19Z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".7" stroke-width="1.3" stroke-linejoin="round"/><path d="M14 4 C14 4 21 6.5 23 7.5 V21 C21 20 14 19 14 19Z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".7" stroke-width="1.3" stroke-linejoin="round"/><path d="M14 22 L7.5 19 L14 16 L20.5 19 Z" fill="currentColor" fill-opacity=".8"/><path d="M7 3 L7.8 5.5 L10 6.3 L7.8 7.1 L7 9.5 L6.2 7.1 L4 6.3 L6.2 5.5Z" fill="#fbbf24" class="ic-flash"/>`,
+    game: `<path d="M5 14 Q4 8 8 7 L10.5 10 H17.5 L20 7 Q24 8 23 14 Q22 20 19 20 L17.5 17 H10.5 L9 20 Q6 20 5 14Z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".7" stroke-width="1.3"/><rect x="7.5" y="12.5" width="1.8" height="5" rx=".7" fill="currentColor" fill-opacity=".85"/><rect x="6" y="14" width="5" height="1.8" rx=".7" fill="currentColor" fill-opacity=".85"/><circle cx="18.5" cy="11.5" r="1.4" fill="#f87171" class="ic-pulse ic-d1"/><circle cx="21" cy="13.5" r="1.4" fill="#86efac" class="ic-pulse ic-d2"/>`,
+    backend: `<rect x="3" y="3" width="22" height="5" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".65" stroke-width="1.2"/><rect x="3" y="10" width="22" height="5" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".65" stroke-width="1.2"/><rect x="3" y="17" width="22" height="5" rx="1.5" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-opacity=".65" stroke-width="1.2"/><circle class="ic-blink ic-d1" cx="21" cy="5.5" r="1.2" fill="#4ade80"/><circle class="ic-blink ic-d2" cx="21" cy="12.5" r="1.2" fill="#4ade80"/><circle class="ic-flash ic-d3" cx="21" cy="19.5" r="1.2" fill="#fbbf24"/>`,
+    default: `<path d="M14 2 C14 2 20 7.5 20 16 L17.5 20 H10.5 L8 16 C8 7.5 14 2 14 2Z" fill="currentColor" fill-opacity=".22" stroke="currentColor" stroke-opacity=".78" stroke-width="1.5"/><circle cx="14" cy="12.5" r="3" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-opacity=".62" stroke-width="1.2"/><circle cx="14" cy="12.5" r="1.5" fill="#87ceef"/><path class="ic-beat" d="M12 20 Q11 24.5 14 26.5 Q17 24.5 16 20Z" fill="#fbbf24"/>`,
   };
 
+  /* ── Domain → colors + key (matches project.html getProjectIcon) ── */
   function _getDomainColors(domain) {
-    if (!domain) return _domainColors.default;
-    const d = domain.toLowerCase();
-    if (d.includes('web') || d.includes('full')) return _domainColors.web;
-    if (d.includes('ai') || d.includes('ml') || d.includes('machine')) return _domainColors.ai;
-    if (d.includes('mobile') || d.includes('android') || d.includes('ios') || d.includes('flutter')) return _domainColors.mobile;
-    if (d.includes('data') || d.includes('analytics')) return _domainColors.data;
-    if (d.includes('security') || d.includes('cyber')) return _domainColors.security;
-    if (d.includes('cloud') || d.includes('devops') || d.includes('aws') || d.includes('azure')) return _domainColors.cloud;
-    if (d.includes('design') || d.includes('ui') || d.includes('ux')) return _domainColors.design;
-    if (d.includes('finance') || d.includes('fintech')) return _domainColors.finance;
-    if (d.includes('health') || d.includes('medical') || d.includes('bio')) return _domainColors.health;
-    if (d.includes('iot') || d.includes('embedded') || d.includes('robotics')) return _domainColors.iot;
-    return _domainColors.default;
+    const d = (domain || '').toLowerCase();
+    if (/web|front|react|vue|angular|html|css|full/.test(d))
+      return { c1:'#6366f1', c2:'#06b6d4', key:'web',       orbitDur:'4.5s', floatDur:'3.8s', floatStart:'0ms'   };
+    if (/machine|ml|ai|deep|neural|gpt|llm/.test(d))
+      return { c1:'#8b5cf6', c2:'#ec4899', key:'ai',        orbitDur:'3.2s', floatDur:'3.5s', floatStart:'200ms' };
+    if (/data|analytics|sql|database|bi|tableau/.test(d))
+      return { c1:'#f59e0b', c2:'#10b981', key:'data',      orbitDur:'5s',   floatDur:'4.2s', floatStart:'100ms' };
+    if (/mobile|android|ios|flutter|swift/.test(d))
+      return { c1:'#06b6d4', c2:'#3b82f6', key:'mobile',    orbitDur:'4.5s', floatDur:'3.9s', floatStart:'300ms' };
+    if (/cloud|aws|azure|gcp|devops|docker|kubernetes/.test(d))
+      return { c1:'#38bdf8', c2:'#6366f1', key:'cloud',     orbitDur:'6s',   floatDur:'5s',   floatStart:'500ms' };
+    if (/security|cyber|pentest|ethical|hack/.test(d))
+      return { c1:'#f43f5e', c2:'#7c5cfc', key:'security',  orbitDur:'3.5s', floatDur:'3.4s', floatStart:'0ms'   };
+    if (/game|unity|unreal|3d|ar|vr/.test(d))
+      return { c1:'#10b981', c2:'#f59e0b', key:'game',      orbitDur:'2.8s', floatDur:'3s',   floatStart:'150ms' };
+    if (/design|figma|adobe|graphic|brand|product/.test(d))
+      return { c1:'#ec4899', c2:'#f59e0b', key:'design',    orbitDur:'4.2s', floatDur:'4s',   floatStart:'400ms' };
+    if (/backend|api|node|express|django|laravel|spring/.test(d))
+      return { c1:'#10b981', c2:'#06b6d4', key:'backend',   orbitDur:'5.5s', floatDur:'4.5s', floatStart:'0ms'   };
+    if (/finance|fintech|payment|bank|invest|crypto/.test(d))
+      return { c1:'#f59e0b', c2:'#10b981', key:'finance',   orbitDur:'4s',   floatDur:'3.8s', floatStart:'250ms' };
+    if (/health|medical|bio|hospital|pharma/.test(d))
+      return { c1:'#ef4444', c2:'#10b981', key:'health',    orbitDur:'4.8s', floatDur:'4.2s', floatStart:'100ms' };
+    if (/education|learn|teach|school|train|course/.test(d))
+      return { c1:'#8b5cf6', c2:'#06b6d4', key:'education', orbitDur:'5.2s', floatDur:'4.5s', floatStart:'0ms'   };
+    if (/iot|hardware|embedded|robot|sensor/.test(d))
+      return { c1:'#06b6d4', c2:'#10b981', key:'iot',       orbitDur:'3s',   floatDur:'3.2s', floatStart:'200ms' };
+    return { c1:'#6366f1', c2:'#06b6d4', key:'default',   orbitDur:'4.5s', floatDur:'4s',   floatStart:'0ms'   };
+  }
+
+  /* ── Build 3D icon HTML ── */
+  let _pdIconUid = 0;
+  function _buildIcon3d(iconData, projectType) {
+    const { c1, c2, key, orbitDur, floatDur, floatStart } = iconData;
+    const svg = _domainSVGs[key] || _domainSVGs.default;
+    const typeBadge = projectType === 'internship'
+      ? `<div class="icon-type-badge icon-badge-internship">🎓</div>`
+      : projectType === 'upcoming'
+        ? `<div class="icon-type-badge icon-badge-upcoming">⏳</div>`
+        : projectType === 'completed'
+          ? `<div class="icon-type-badge icon-badge-completed">✓</div>`
+          : '';
+    return `<div class="icon-3d-wrap" style="--oc:${c1};--oc2:${c2};--orbit-dur:${orbitDur}">
+      <div class="icon-orbit-ring"></div>
+      <div class="icon-orbit-ring2"></div>
+      <div class="icon-pulse-a"></div>
+      <div class="icon-particle p1"></div>
+      <div class="icon-particle p2"></div>
+      <div class="pd-icon-orb">
+        <div class="icon-svg-wrap" style="--appear-delay:0ms;--float-dur:${floatDur};--float-start:${floatStart}">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">${svg}</svg>
+        </div>
+      </div>
+      ${typeBadge}
+    </div>`;
   }
 
   const _typeLabels = {
@@ -443,9 +579,7 @@
         ${_esc(typeLabel)}
       </div>
       <div class="pd-hero-row">
-        <div class="pd-hero-icon" style="--pd-c1:${dc.c1}">
-          <span style="font-size:2.2rem">${dc.icon}</span>
-        </div>
+        ${_buildIcon3d(dc, p.project_type)}
         <div class="pd-hero-text">
           <div class="pd-hero-title">${_esc(p.project_name)}</div>
           <div class="pd-hero-meta">

@@ -85,6 +85,7 @@
     }
     .rv-filter-group { display:flex; gap:.45rem; flex-wrap:wrap; }
     .rv-filter-btn {
+      display:inline-flex; align-items:center; gap:.35rem;
       padding:.38rem .95rem; border-radius:999px;
       border:1.5px solid var(--border); background:transparent;
       font-size:.78rem; font-weight:700; color:var(--txt3);
@@ -98,16 +99,6 @@
       box-shadow:0 4px 14px rgba(124,92,252,.35);
     }
     .rv-filter-sep { width:1px; height:28px; background:var(--border); flex-shrink:0; }
-    .rv-sort-select {
-      padding:.38rem .85rem; border-radius:999px;
-      border:1.5px solid var(--border); background:var(--panel); color:var(--txt);
-      font-size:.78rem; font-weight:700; font-family:inherit; cursor:pointer;
-      outline:none; appearance:none;
-      padding-right:1.6rem;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat:no-repeat; background-position:right .65rem center;
-    }
-    .rv-result-count { font-size:.82rem; color:var(--txt3); margin-left:auto; white-space:nowrap; }
 
     /* ══ CATEGORY SECTION ══ */
     .rv-cat-section { margin-bottom:3rem; }
@@ -232,7 +223,7 @@
     .rv-full-author-sub  { font-size:.7rem; color:var(--txt4); margin-top:.05rem; }
 
     /* ══ LOAD MORE ══ */
-    .rv-load-more-wrap { text-align:center; margin-top:2rem; }
+    .rv-load-more-wrap { text-align:center; margin-top:2rem; display:none; }
     .rv-load-more-btn {
       display:inline-flex; align-items:center; gap:.55rem;
       padding:.7rem 1.8rem; border-radius:14px;
@@ -251,7 +242,8 @@
       display:none; grid-column:1/-1;
     }
     .rv-full-empty.show { display:block; }
-    .rv-full-empty-icon { font-size:2.5rem; margin-bottom:.6rem; opacity:.5; }
+    .rv-full-empty-icon { font-size:2.5rem; margin-bottom:.6rem; opacity:.5; display:flex; justify-content:center; }
+    .rv-full-empty-icon svg { width:40px; height:40px; color:#f43f5e; overflow:visible; }
 
     /* ══ LOADING SKELETON ══ */
     @keyframes rvSkelShimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
@@ -292,24 +284,205 @@
     .rvp-modal-author { display:flex; align-items:center; gap:.75rem; padding-top:1rem; border-top:1px solid var(--border); }
     :root[data-theme="light"] #rvp-modal-box { background:rgba(255,255,255,.97); }
 
-    /* ══ RESPONSIVE ══ */
+    /* ══ LIQUID GLASS SORT DROPDOWN ══ */
+    .rv-sort-wrap { position:relative; }
+    .rv-sort-trigger {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.38rem .9rem;
+      border-radius:999px;
+      border:1px solid rgba(124,92,252,.28);
+      background:rgba(124,92,252,.08);
+      -webkit-backdrop-filter:blur(16px) saturate(180%);
+      backdrop-filter:blur(16px) saturate(180%);
+      color:var(--txt); font-size:.78rem; font-weight:700;
+      font-family:inherit; cursor:pointer; white-space:nowrap;
+      box-shadow:0 1px 0 rgba(255,255,255,.08) inset;
+      transition:background .2s, border-color .2s, box-shadow .2s;
+    }
+    .rv-sort-trigger:hover {
+      background:rgba(124,92,252,.15); border-color:rgba(124,92,252,.5);
+      box-shadow:0 4px 16px rgba(124,92,252,.18), 0 1px 0 rgba(255,255,255,.1) inset;
+    }
+    .rv-sort-trigger .rv-sort-chevron { transition:transform .25s cubic-bezier(.34,1.56,.64,1); flex-shrink:0; }
+    .rv-sort-wrap.open .rv-sort-chevron { transform:rotate(180deg); }
+    .rv-sort-wrap.open .rv-sort-trigger {
+      background:rgba(124,92,252,.18); border-color:rgba(124,92,252,.55);
+      box-shadow:0 6px 24px rgba(124,92,252,.24), 0 1px 0 rgba(255,255,255,.12) inset;
+    }
+    :root[data-theme="light"] .rv-sort-trigger {
+      background:rgba(255,255,255,.82); border-color:rgba(124,92,252,.22);
+      box-shadow:0 2px 8px rgba(124,92,252,.09), 0 1px 0 rgba(255,255,255,.95) inset;
+      color:var(--txt);
+    }
+    :root[data-theme="light"] .rv-sort-trigger:hover {
+      background:rgba(124,92,252,.07); border-color:rgba(124,92,252,.42);
+    }
+    :root[data-theme="light"] .rv-sort-wrap.open .rv-sort-trigger {
+      background:rgba(124,92,252,.09); border-color:rgba(124,92,252,.48);
+    }
+
+    /* Dropdown panel */
+    .rv-sort-panel {
+      position:absolute; top:calc(100% + .5rem); right:0; z-index:400;
+      min-width:178px; border-radius:18px; padding:.4rem;
+      background:rgba(12,6,32,.93);
+      -webkit-backdrop-filter:blur(32px) saturate(200%);
+      backdrop-filter:blur(32px) saturate(200%);
+      border:1px solid rgba(124,92,252,.34);
+      box-shadow:0 24px 64px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.07) inset;
+      opacity:0; visibility:hidden;
+      transform:translateY(-8px) scale(.96);
+      transition:opacity .22s, visibility .22s, transform .22s cubic-bezier(.22,1,.36,1);
+      pointer-events:none;
+    }
+    :root[data-theme="light"] .rv-sort-panel {
+      background:rgba(255,255,255,.97);
+      border-color:rgba(124,92,252,.18);
+      box-shadow:0 16px 48px rgba(124,92,252,.15), 0 2px 8px rgba(0,0,0,.06),
+                 0 2px 0 rgba(255,255,255,.95) inset;
+    }
+    .rv-sort-wrap.open .rv-sort-panel {
+      opacity:1; visibility:visible;
+      transform:translateY(0) scale(1); pointer-events:auto;
+    }
+    .rv-sort-opt {
+      display:flex; align-items:center; width:100%; text-align:left;
+      padding:.54rem .88rem; border-radius:11px; border:none;
+      background:transparent; color:var(--txt2);
+      font-size:.8rem; font-weight:600; font-family:inherit; cursor:pointer;
+      transition:background .15s, color .15s; position:relative;
+    }
+    .rv-sort-opt:hover { background:rgba(124,92,252,.12); color:var(--txt); }
+    .rv-sort-opt.active {
+      background:linear-gradient(135deg,rgba(124,92,252,.22),rgba(61,107,255,.16));
+      color:var(--v1); font-weight:800;
+    }
+    .rv-sort-opt.active::after {
+      content:'✓'; position:absolute; right:.88rem;
+      font-size:.72rem; color:var(--v1); font-weight:900;
+    }
+    :root[data-theme="light"] .rv-sort-opt { color:var(--txt2); }
+    :root[data-theme="light"] .rv-sort-opt:hover { background:rgba(124,92,252,.08); color:var(--txt); }
+    :root[data-theme="light"] .rv-sort-opt.active {
+      background:rgba(124,92,252,.1); color:var(--v1);
+    }
+
+    /* Sort + count meta row */
+    .rv-filter-meta-row {
+      display:flex; align-items:center; gap:.75rem;
+      flex-shrink:0; margin-left:auto;
+    }
+    .rv-result-count { font-size:.82rem; color:var(--txt3); white-space:nowrap; }
+
+    /* ══ RESPONSIVE — FULL MOBILE REDESIGN ══ */
     @media(max-width:700px){
-      .rv-filter-bar { flex-direction:column; align-items:flex-start; gap:.75rem; }
-      .rv-result-count { margin-left:0; }
-      .rv-grid { grid-template-columns:1fr; }
-      .rv-stat { padding:.85rem 1.5rem; }
       .rv-hero { padding:2rem 1.25rem 1.5rem; }
       .rv-main { padding:1.5rem 1rem 2.5rem; }
+
+      /* Stats: 2×2 grid */
+      .rv-stats {
+        display:grid; grid-template-columns:1fr 1fr;
+      }
+      .rv-stat {
+        padding:.85rem 1.1rem; border-right:none;
+        border-bottom:1px solid var(--border);
+      }
+      .rv-stat:nth-child(odd)  { border-right:1px solid var(--border); }
+      .rv-stat:nth-last-child(-n+2) { border-bottom:none; }
+
+      /* Filter bar: stacked */
+      .rv-filter-bar {
+        flex-direction:column; align-items:stretch;
+        gap:.65rem; padding-bottom:1.25rem;
+      }
+      .rv-filter-group {
+        width:100%; min-width:0;
+        flex-wrap:nowrap; overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none; padding-bottom:.2rem;
+      }
+      .rv-filter-group::-webkit-scrollbar { display:none; }
+      .rv-filter-btn { flex-shrink:0; white-space:nowrap; }
+      .rv-filter-sep { display:none; }
+
+      /* Sort + count: own row, right-aligned */
+      .rv-filter-meta-row { margin-left:0; justify-content:space-between; width:100%; }
+
+      /* Grid: single column */
+      .rv-grid { grid-template-columns:1fr; }
+
+      /* Sort panel: left-aligned on mobile */
+      .rv-sort-panel { right:auto; left:0; }
     }
     @media(max-width:480px){
-      .rv-stat { min-width:50%; border-right:none; border-bottom:1px solid var(--border); }
-      .rv-filter-group { flex-wrap:nowrap; overflow-x:auto; padding-bottom:.35rem; width:100%; scrollbar-width:none; }
-      .rv-filter-group::-webkit-scrollbar { display:none; }
       .rv-full-card { padding:1.2rem 1rem 1rem; }
+      .rv-stat { padding:.75rem .9rem; }
+      .rv-stat-icon svg { width:26px; height:26px; }
+      .rv-stat-num { font-size:1.05rem; }
+      .rv-stat-lbl { font-size:.66rem; }
+      .rv-hero h1 { font-size:clamp(1.55rem,5vw,2.1rem); }
     }
     @media(max-width:380px){
-      .rv-filter-btn { padding:.32rem .75rem; font-size:.73rem; }
+      .rv-filter-btn { padding:.3rem .68rem; font-size:.71rem; gap:.26rem; }
+      .rv-filt-ico svg { width:12px; height:12px; }
     }
+
+    /* ===== ANIMATED SVG ICONS — PROJECT-PAGE STYLE ===== */
+    @keyframes siBob   { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-2.5px)} }
+    @keyframes siFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-3px) scale(1.04)} }
+    @keyframes siBlink { 0%,44%,56%,100%{opacity:1} 50%{opacity:.08} }
+    @keyframes siSpin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes siSlide { 0%,100%{transform:translateX(0)} 55%{transform:translateX(2.5px)} }
+    @keyframes siDrop  { 0%,100%{transform:translateY(-3px);opacity:0} 40%,80%{transform:translateY(3px);opacity:1} 99%{opacity:0} }
+    @keyframes siPulse { 0%,100%{opacity:.6;transform:scale(.88)} 50%{opacity:1;transform:scale(1.08)} }
+
+    .si-bob   { animation:siBob   2.8s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+    .si-bob2  { animation:siBob   2.8s ease-in-out infinite .55s; transform-box:fill-box; transform-origin:center; }
+    .si-float { animation:siFloat 3.2s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+    .si-blink { animation:siBlink 1.6s ease-in-out infinite; }
+    .si-spin  { animation:siSpin  9s linear infinite;             transform-box:fill-box; transform-origin:center; }
+    .si-slide { animation:siSlide 2s ease-in-out infinite;        transform-box:fill-box; transform-origin:left center; }
+    .si-drop  { animation:siDrop  2.4s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+    .si-pulse { animation:siPulse 2.2s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
+
+    /* Delay helpers */
+    .ad-1 { animation-delay:.14s; }
+    .ad-2 { animation-delay:.28s; }
+    .ad-3 { animation-delay:.42s; }
+    .ad-4 { animation-delay:.56s; }
+    .ad-5 { animation-delay:.8s;  }
+    .ad-6 { animation-delay:.9s;  }
+
+    /* Icon colour classes */
+    .rv-ico-violet  { color:#7c5cfc; }
+    .rv-ico-amber   { color:#f59e0b; }
+    .rv-ico-cyan    { color:#06b6d4; }
+    .rv-ico-emerald { color:#10b981; }
+    .rv-ico-rose    { color:#f43f5e; }
+    .rv-ico-star    { color:#fbbf24; }
+
+    /* Stats bar animated icons */
+    .rv-stat-icon { font-size:1.4rem; display:flex; align-items:center; justify-content:center; }
+    .rv-stat-icon svg {
+      width:30px; height:30px; overflow:visible;
+      filter:drop-shadow(0 0 7px color-mix(in srgb, currentColor 55%, transparent));
+      transition:filter .3s, transform .32s cubic-bezier(.22,1,.36,1);
+    }
+    .rv-stat:hover .rv-stat-icon svg {
+      filter:drop-shadow(0 0 15px color-mix(in srgb, currentColor 85%, transparent));
+      transform:scale(1.14) translateY(-2px);
+    }
+
+    /* Filter button animated icons */
+    .rv-filt-ico { display:inline-flex; align-items:center; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+    .rv-filt-ico svg { width:14px; height:14px; overflow:visible; transition:filter .25s; }
+    .rv-filter-btn:hover .rv-filt-ico { transform:scale(1.22) translateY(-1px); }
+    .rv-filter-btn:hover .rv-filt-ico svg { filter:drop-shadow(0 0 5px color-mix(in srgb, currentColor 85%, transparent)); }
+    .rv-filter-btn.active .rv-filt-ico svg { filter:drop-shadow(0 0 4px rgba(255,255,255,.55)); }
+
+    /* Hero kicker icon */
+    .rv-kicker-ico { display:inline-flex; align-items:center; }
+    .rv-kicker-ico svg { width:13px; height:13px; overflow:visible; }
   </style>
 </head>
 <body>
@@ -322,7 +495,14 @@
   <!-- Hero -->
   <section class="rv-hero">
     <div class="rv-hero-inner">
-      <div class="rv-hero-kicker">⭐ Verified Reviews</div>
+      <div class="rv-hero-kicker">
+        <span class="rv-kicker-ico" aria-hidden="true">
+          <svg class="rv-ico-star" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path class="si-pulse" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </span>
+        Verified Reviews
+      </div>
       <h1>What Our Students <span class="rv-hero-accent">Really Think</span></h1>
       <p>All reviews are verified and approved by our team. Explore feedback across courses, mentors, admin, and platform.</p>
     </div>
@@ -330,10 +510,47 @@
 
   <!-- Stats bar -->
   <div class="rv-stats" id="rv-stats">
-    <div class="rv-stat"><span class="rv-stat-icon">⭐</span><div><div class="rv-stat-num" id="stat-total">—</div><div class="rv-stat-lbl">Total Reviews</div></div></div>
-    <div class="rv-stat"><span class="rv-stat-icon">📚</span><div><div class="rv-stat-num" id="stat-courses">—</div><div class="rv-stat-lbl">Course Reviews</div></div></div>
-    <div class="rv-stat"><span class="rv-stat-icon">👨‍🏫</span><div><div class="rv-stat-num" id="stat-mentors">—</div><div class="rv-stat-lbl">Mentor Reviews</div></div></div>
-    <div class="rv-stat"><span class="rv-stat-icon">💎</span><div><div class="rv-stat-num" id="stat-avg">—</div><div class="rv-stat-lbl">Avg Rating</div></div></div>
+    <div class="rv-stat">
+      <span class="rv-stat-icon" aria-hidden="true">
+        <svg class="rv-ico-star" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path class="si-pulse" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </span>
+      <div><div class="rv-stat-num" id="stat-total">—</div><div class="rv-stat-lbl">Total Reviews</div></div>
+    </div>
+    <div class="rv-stat">
+      <span class="rv-stat-icon" aria-hidden="true">
+        <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          <line class="si-slide" x1="5" y1="8" x2="9" y2="8"/>
+          <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
+          <line class="si-slide ad-1" x1="15" y1="8" x2="19" y2="8"/>
+          <line class="si-slide ad-3" x1="15" y1="12" x2="19" y2="12"/>
+        </svg>
+      </span>
+      <div><div class="rv-stat-num" id="stat-courses">—</div><div class="rv-stat-lbl">Course Reviews</div></div>
+    </div>
+    <div class="rv-stat">
+      <span class="rv-stat-icon" aria-hidden="true">
+        <svg class="rv-ico-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path class="si-bob" d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          <line class="si-drop" x1="22" y1="10" x2="22" y2="16"/>
+        </svg>
+      </span>
+      <div><div class="rv-stat-num" id="stat-mentors">—</div><div class="rv-stat-lbl">Mentor Reviews</div></div>
+    </div>
+    <div class="rv-stat">
+      <span class="rv-stat-icon" aria-hidden="true">
+        <svg class="rv-ico-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path class="si-float" d="M2.7 10.3l9.3 9.4 9.3-9.4L12 2.7z"/>
+          <path d="M2.7 10.3h18.6"/>
+          <path d="M6.8 2.7l5.2 7.6 5.2-7.6"/>
+        </svg>
+      </span>
+      <div><div class="rv-stat-num" id="stat-avg">—</div><div class="rv-stat-lbl">Avg Rating</div></div>
+    </div>
   </div>
 
   <!-- Main -->
@@ -342,20 +559,106 @@
     <!-- Filter bar -->
     <div class="rv-filter-bar">
       <div class="rv-filter-group" id="rvp-filters">
-        <button class="rv-filter-btn active" data-cat="all">All</button>
-        <button class="rv-filter-btn" data-cat="course">📚 Courses</button>
-        <button class="rv-filter-btn" data-cat="mentor">👨‍🏫 Mentors</button>
-        <button class="rv-filter-btn" data-cat="admin">🏛 Admin</button>
-        <button class="rv-filter-btn" data-cat="website">🌐 Website</button>
-        <button class="rv-filter-btn" data-cat="general">💬 General</button>
+
+        <!-- All — 4-app grid, each square bobs at staggered delay -->
+        <button type="button" class="rv-filter-btn active" data-cat="all">
+          <span class="rv-filt-ico" aria-hidden="true">
+            <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect class="si-bob"     x="3"  y="3"  width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-2" x="14" y="3"  width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-4" x="3"  y="14" width="7" height="7" rx="1.5"/>
+              <rect class="si-bob ad-6" x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </span> All
+        </button>
+
+        <!-- Courses — open book: left page static, right page bobs, 3 text lines slide -->
+        <button type="button" class="rv-filter-btn" data-cat="course">
+          <span class="rv-filt-ico" aria-hidden="true">
+            <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              <line class="si-slide"     x1="5" y1="8"  x2="9" y2="8"/>
+              <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
+              <line class="si-slide ad-4" x1="5" y1="16" x2="8" y2="16"/>
+            </svg>
+          </span> Courses
+        </button>
+
+        <!-- Mentors — mortarboard cap bobs, tassel cord static, tassel end drops -->
+        <button type="button" class="rv-filter-btn" data-cat="mentor">
+          <span class="rv-filt-ico" aria-hidden="true">
+            <svg class="rv-ico-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon class="si-bob" points="12,2 22,7 12,12 2,7"/>
+              <path d="M6 10.5v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5"/>
+              <line x1="22" y1="7" x2="22" y2="13"/>
+              <circle class="si-drop" cx="22" cy="14.5" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </span> Mentors
+        </button>
+
+        <!-- Admin — building: roofline bobs, 3 windows blink at different delays -->
+        <button type="button" class="rv-filter-btn" data-cat="admin">
+          <span class="rv-filt-ico" aria-hidden="true">
+            <svg class="rv-ico-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path class="si-bob" d="M3 10L12 3l9 7"/>
+              <rect x="3" y="10" width="18" height="11" rx="1"/>
+              <line x1="12" y1="10" x2="12" y2="21"/>
+              <rect class="si-blink"     x="5"   y="13" width="3"   height="2.5" rx=".5"/>
+              <rect class="si-blink ad-3" x="9.5" y="13" width="2"   height="2.5" rx=".5"/>
+              <rect class="si-blink ad-6" x="16"  y="13" width="3"   height="2.5" rx=".5"/>
+            </svg>
+          </span> Admin
+        </button>
+
+        <!-- Website — globe: oval meridian spins, 2 latitude arcs frame it, equator static -->
+        <button type="button" class="rv-filter-btn" data-cat="website">
+          <span class="rv-filt-ico" aria-hidden="true">
+            <svg class="rv-ico-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path class="si-spin" d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              <path d="M2 12h20"/>
+              <path d="M4.5 7.5C7 8.7 9.5 9 12 9s5-.3 7.5-1.5"/>
+              <path d="M4.5 16.5C7 15.3 9.5 15 12 15s5 .3 7.5 1.5"/>
+            </svg>
+          </span> Website
+        </button>
+
+        <!-- General — chat bubble bobs, 3 typing dots blink sequentially -->
+        <button type="button" class="rv-filter-btn" data-cat="general">
+          <span class="rv-filt-ico" aria-hidden="true">
+            <svg class="rv-ico-rose" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path class="si-bob" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <circle class="si-blink"     cx="8"  cy="10" r="1.3" fill="currentColor" stroke="none"/>
+              <circle class="si-blink ad-2" cx="12" cy="10" r="1.3" fill="currentColor" stroke="none"/>
+              <circle class="si-blink ad-4" cx="16" cy="10" r="1.3" fill="currentColor" stroke="none"/>
+            </svg>
+          </span> General
+        </button>
+
       </div>
-      <div class="rv-filter-sep"></div>
-      <select class="rv-sort-select" id="rvp-sort" onchange="rvpSort(this.value)">
-        <option value="newest">Newest First</option>
-        <option value="highest">Highest Rated</option>
-        <option value="lowest">Lowest Rated</option>
-      </select>
-      <span class="rv-result-count" id="rvp-count"></span>
+      <div class="rv-filter-meta-row">
+        <!-- Liquid glass sort dropdown -->
+        <div class="rv-sort-wrap" id="rvp-sort-wrap">
+          <button type="button" class="rv-sort-trigger" id="rvp-sort-trigger"
+                  onclick="rvpToggleSort(event)"
+                  aria-haspopup="listbox" aria-expanded="false">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18M7 12h10M11 18h2"/>
+            </svg>
+            <span id="rvp-sort-label">Newest First</span>
+            <svg class="rv-sort-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+          <div class="rv-sort-panel" id="rvp-sort-panel" role="listbox" aria-label="Sort reviews">
+            <button type="button" class="rv-sort-opt active" data-val="newest" onclick="rvpSelectSort('newest','Newest First',this)" role="option">Newest First</button>
+            <button type="button" class="rv-sort-opt" data-val="highest" onclick="rvpSelectSort('highest','Highest Rated',this)" role="option">Highest Rated</button>
+            <button type="button" class="rv-sort-opt" data-val="lowest" onclick="rvpSelectSort('lowest','Lowest Rated',this)" role="option">Lowest Rated</button>
+          </div>
+        </div>
+        <span class="rv-result-count" id="rvp-count"></span>
+      </div>
     </div>
 
     <!-- Grid -->
@@ -366,8 +669,8 @@
       <div class="rv-skel"></div><div class="rv-skel"></div>
     </div>
 
-    <div class="rv-load-more-wrap" id="rvp-load-more-wrap" style="display:none">
-      <button class="rv-load-more-btn" id="rvp-load-more" onclick="rvpLoadMore()">
+    <div class="rv-load-more-wrap" id="rvp-load-more-wrap">
+      <button type="button" class="rv-load-more-btn" id="rvp-load-more" onclick="rvpLoadMore()">
         Load More Reviews
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
       </button>
@@ -379,7 +682,7 @@
 <!-- Review modal -->
 <div id="rvp-modal" onclick="if(event.target===this)rvpCloseModal()">
   <div id="rvp-modal-box">
-    <button class="rvp-modal-close" onclick="rvpCloseModal()">✕</button>
+    <button type="button" class="rvp-modal-close" onclick="rvpCloseModal()">✕</button>
     <div id="rvp-modal-stars"></div>
     <p id="rvp-modal-body"></p>
     <div class="rvp-modal-author">
@@ -402,7 +705,13 @@
 /* ── Constants ── */
 const RVP_GRADS = ['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#06b6d4,#0284c7)','linear-gradient(135deg,#a855f7,#7c3aed)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
 const RVP_TYPE_COLORS = { course:'#7c5cfc', mentor:'#3d6bff', website:'#06b6d4', admin:'#f59e0b', general:'#10b981' };
-const RVP_TYPE_ICONS  = { course:'📚', mentor:'👨‍🏫', website:'🌐', admin:'🏛', general:'💬' };
+const RVP_TYPE_ICONS  = {
+  course:  `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+  mentor:  `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+  website: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>`,
+  admin:   `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M3 10L12 3l9 7"/><line x1="12" y1="10" x2="12" y2="21"/></svg>`,
+  general: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+};
 const RVP_TYPE_LABELS = { course:'Course', mentor:'Mentor', website:'Website', admin:'Admin', general:'General' };
 const RVP_PAGE_SIZE   = 12;
 
@@ -459,8 +768,8 @@ function _rvpBuildCard(f, idx) {
     </div>
     ${isLong ? `<button class="rv-full-readmore" onclick="rvpOpenModal('${rvpKey}')">Read full review →</button>` : ''}
     <div class="rv-full-meta">
-      ${course ? `<div class="rv-full-meta-item"><span>📚</span>${_rvpEsc(course.substring(0,36)+(course.length>36?'…':''))}</div>` : ''}
-      ${dateStr ? `<div class="rv-full-meta-item"><span>📅</span>${dateStr}</div>` : ''}
+      ${course ? `<div class="rv-full-meta-item"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>${_rvpEsc(course.substring(0,36)+(course.length>36?'…':''))}</div>` : ''}
+      ${dateStr ? `<div class="rv-full-meta-item"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>${dateStr}</div>` : ''}
     </div>
     <div class="rv-full-footer">
       <div class="rv-full-avatar" style="background:${grad}">${initials}</div>
@@ -480,7 +789,7 @@ function rvpRender(append) {
   const hasMore = totalShown < _rvpSorted.length;
   if (!append) grid.innerHTML = '';
   if (!_rvpSorted.length) {
-    grid.innerHTML = '<div class="rv-full-empty show"><div class="rv-full-empty-icon">💬</div><p>No reviews found for this filter.</p></div>';
+    grid.innerHTML = '<div class="rv-full-empty show"><div class="rv-full-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><p>No reviews found for this filter.</p></div>';
   } else {
     grid.insertAdjacentHTML('beforeend', slice.map((f, i) => _rvpBuildCard(f, start + i)).join(''));
   }
@@ -516,6 +825,32 @@ function rvpSort(val) {
   _rvpSortVal = val;
   rvpApplyFilters();
 }
+
+/* ── Liquid glass sort dropdown ── */
+function rvpToggleSort(e) {
+  e.stopPropagation();
+  const wrap = document.getElementById('rvp-sort-wrap');
+  const open = wrap.classList.toggle('open');
+  document.getElementById('rvp-sort-trigger').setAttribute('aria-expanded', open);
+}
+function rvpSelectSort(val, label, el) {
+  _rvpSortVal = val;
+  document.getElementById('rvp-sort-label').textContent = label;
+  document.querySelectorAll('.rv-sort-opt').forEach(o =>
+    o.classList.toggle('active', o.dataset.val === val)
+  );
+  const wrap = document.getElementById('rvp-sort-wrap');
+  wrap.classList.remove('open');
+  document.getElementById('rvp-sort-trigger').setAttribute('aria-expanded', 'false');
+  rvpApplyFilters();
+}
+document.addEventListener('click', function() {
+  const wrap = document.getElementById('rvp-sort-wrap');
+  if (!wrap) return;
+  wrap.classList.remove('open');
+  const trigger = document.getElementById('rvp-sort-trigger');
+  if (trigger) trigger.setAttribute('aria-expanded', 'false');
+});
 
 function rvpLoadMore() {
   _rvpPage++;

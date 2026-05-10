@@ -225,6 +225,8 @@
       background: linear-gradient(to bottom, var(--bg), var(--bg2,var(--bg)));
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
+      position: relative;
+      z-index: 50;
     }
     .filter-bar {
       background: transparent;
@@ -265,6 +267,7 @@
     .filter-bar select:hover { border-color: rgba(124,92,252,.45); box-shadow: 0 4px 14px rgba(124,92,252,.14); }
     .filter-bar select:focus { border-color: var(--v1); box-shadow: 0 0 0 3px rgba(124,92,252,.12); }
     .filter-tags { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    .filter-tag { display:inline-flex; align-items:center; gap:.28rem; }
     .filter-tag {
       padding: 0.38rem 0.9rem; border-radius: 999px;
       border: 1.5px solid var(--border); background: transparent;
@@ -279,7 +282,7 @@
     .filter-divider { width:1px; height:22px; background:var(--border); flex-shrink:0; }
 
     /* ===== COURSES GRID ===== */
-    .courses-section { padding: 2rem 2rem 3rem; max-width: 1400px; margin: 0 auto; }
+    .courses-section { padding: 1rem 2rem 3rem; max-width: 1400px; margin: 0 auto; }
     .courses-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
     .courses-meta span { color: var(--txt3); font-size: 0.9rem; }
     .sort-select {
@@ -1376,6 +1379,120 @@
       .upcoming-section-sub { display: none; }
     }
 
+    /* ===== LIQUID GLASS CUSTOM DROPDOWNS ===== */
+    #category-filter, #level-filter, #sort-select { display: none !important; }
+
+    .cs-drop-wrap { position: relative; flex-shrink: 0; }
+
+    .cs-drop-trigger {
+      display: inline-flex; align-items: center; gap: .45rem;
+      background: var(--panel);
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      border: 1.5px solid var(--border); border-radius: 999px;
+      padding: .4rem 1rem .4rem .85rem;
+      color: var(--txt); font-size: .8rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    .cs-drop-trigger:hover {
+      border-color: rgba(124,92,252,.45);
+      box-shadow: 0 4px 14px rgba(124,92,252,.14);
+      background: rgba(124,92,252,.06);
+    }
+    .cs-drop-trigger.open {
+      border-color: var(--v1);
+      box-shadow: 0 0 0 3px rgba(124,92,252,.12), 0 4px 14px rgba(124,92,252,.12);
+      background: rgba(124,92,252,.08);
+    }
+    .cs-drop-chevron {
+      width: 14px; height: 14px; flex-shrink: 0; color: var(--v1);
+      transition: transform .2s;
+    }
+    .cs-drop-trigger.open .cs-drop-chevron { transform: rotate(180deg); }
+
+    .cs-drop-panel {
+      position: absolute; top: calc(100% + 6px); left: 0; z-index: 300;
+      min-width: 170px;
+      -webkit-backdrop-filter: blur(32px) saturate(200%);
+      backdrop-filter: blur(32px) saturate(200%);
+      background: rgba(255,255,255,.88);
+      border: 1.5px solid rgba(124,92,252,.2);
+      border-radius: 16px; padding: .4rem;
+      box-shadow: 0 8px 32px rgba(124,92,252,.16), 0 2px 8px rgba(0,0,0,.06);
+      opacity: 0; visibility: hidden;
+      transform: translateY(-8px) scale(.96);
+      transition: opacity .18s, visibility .18s, transform .18s;
+    }
+    .cs-drop-panel-right { left: auto; right: 0; }
+    .cs-drop-wrap.open .cs-drop-panel {
+      opacity: 1; visibility: visible; transform: none;
+    }
+    :root[data-theme="light"] .cs-drop-panel {
+      background: rgba(255,255,255,.94);
+      border-color: rgba(124,92,252,.22);
+    }
+    :root[data-theme="dark"] .cs-drop-panel {
+      background: rgba(18,10,40,.84);
+      border-color: rgba(124,92,252,.28);
+      box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(124,92,252,.1);
+    }
+
+    .cs-drop-opt {
+      display: block; width: 100%;
+      padding: .46rem .78rem; border: none; border-radius: 10px;
+      background: none; color: var(--txt);
+      font-size: .82rem; font-weight: 500;
+      text-align: left; cursor: pointer; font-family: inherit; white-space: nowrap;
+      transition: background .14s, color .14s;
+    }
+    .cs-drop-opt:hover { background: rgba(124,92,252,.1); color: var(--v1); }
+    .cs-drop-opt.active {
+      background: linear-gradient(135deg,rgba(124,92,252,.18),rgba(61,107,255,.1));
+      color: var(--v1); font-weight: 700;
+    }
+
+    /* Sort trigger: has a filter-lines icon on the left */
+    .cs-sort-icon { width: 15px; height: 15px; flex-shrink: 0; color: var(--v1); }
+
+    /* ===== MOBILE FILTER BAR LAYOUT ===== */
+    @media (max-width: 700px) {
+      .filter-bar-wrap { padding: 0 .85rem; }
+      .filter-bar {
+        flex-wrap: wrap; padding: .7rem 0; gap: .45rem;
+        max-width: 100%;
+      }
+      .filter-label {
+        width: 100%; border-right: none; margin-right: 0; padding-right: 0;
+        padding-bottom: .35rem; border-bottom: 1px solid var(--border);
+      }
+      .filter-divider { display: none; }
+      /* Dropdown wrappers: limit width so 2 fit per row */
+      .cs-drop-wrap { min-width: 0; max-width: calc(50% - .25rem); flex: 1; }
+      .cs-drop-trigger {
+        width: 100%; max-width: 100%;
+        padding-left: .7rem; padding-right: .6rem;
+      }
+      #cat-drop-label, #lvl-drop-label {
+        overflow: hidden; text-overflow: ellipsis;
+        max-width: calc(100% - 28px); display: block;
+      }
+      .filter-tags {
+        flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+        -webkit-overflow-scrolling: touch; width: 100%; min-width: 0;
+        padding-bottom: 2px;
+      }
+      .filter-tags::-webkit-scrollbar { display: none; }
+      .filter-tag { flex-shrink: 0; }
+      .courses-section { padding: 1rem .85rem 2rem; }
+      .courses-meta {
+        flex-direction: column; align-items: flex-start; gap: .55rem;
+        margin-bottom: 1rem;
+      }
+      .cs-drop-panel-right { left: 0; right: auto; }
+      /* Sort wrap in courses-meta: don't limit width */
+      #sort-drop-wrap { max-width: none; flex: none; }
+    }
+
   </style>
 </head>
 <body>
@@ -1502,6 +1619,8 @@
   <div class="filter-bar-wrap">
     <div class="filter-bar">
       <span class="filter-label">Filter</span>
+
+      <!-- Hidden selects (JS reads .value + listens to change) -->
       <select id="category-filter" aria-label="Filter by category" title="Filter by category">
         <option value="">All Categories</option>
       </select>
@@ -1511,11 +1630,39 @@
         <option value="intermediate">Intermediate</option>
         <option value="advanced">Advanced</option>
       </select>
+
+      <!-- Custom category dropdown -->
+      <div class="cs-drop-wrap" id="cat-drop-wrap">
+        <button type="button" class="cs-drop-trigger" id="cat-drop-trigger"
+          onclick="csDrop('cat-drop-wrap')" aria-haspopup="listbox" aria-expanded="false">
+          <span id="cat-drop-label">All Categories</span>
+          <svg class="cs-drop-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="cs-drop-panel" id="cat-drop-panel" role="listbox">
+          <button type="button" class="cs-drop-opt active" data-val="" onclick="csSelect('cat','','All Categories',this)">All Categories</button>
+        </div>
+      </div>
+
+      <!-- Custom level dropdown -->
+      <div class="cs-drop-wrap" id="lvl-drop-wrap">
+        <button type="button" class="cs-drop-trigger" id="lvl-drop-trigger"
+          onclick="csDrop('lvl-drop-wrap')" aria-haspopup="listbox" aria-expanded="false">
+          <span id="lvl-drop-label">All Levels</span>
+          <svg class="cs-drop-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="cs-drop-panel" id="lvl-drop-panel" role="listbox">
+          <button type="button" class="cs-drop-opt active" data-val="" onclick="csSelect('lvl','','All Levels',this)">All Levels</button>
+          <button type="button" class="cs-drop-opt" data-val="beginner" onclick="csSelect('lvl','beginner','Beginner',this)">Beginner</button>
+          <button type="button" class="cs-drop-opt" data-val="intermediate" onclick="csSelect('lvl','intermediate','Intermediate',this)">Intermediate</button>
+          <button type="button" class="cs-drop-opt" data-val="advanced" onclick="csSelect('lvl','advanced','Advanced',this)">Advanced</button>
+        </div>
+      </div>
+
       <span class="filter-divider"></span>
       <div class="filter-tags" id="filter-tags">
         <span class="filter-tag active" data-filter="all">All</span>
-        <span class="filter-tag" data-filter="featured">⭐ Featured</span>
-        <span class="filter-tag" data-filter="emi">💳 EMI Available</span>
+        <span class="filter-tag" data-filter="featured"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fill-opacity=".35"/></svg> Featured</span>
+        <span class="filter-tag" data-filter="emi"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> EMI Available</span>
       </div>
     </div>
   </div>
@@ -1524,6 +1671,8 @@
   <section class="courses-section">
     <div class="courses-meta">
       <span id="courses-count">Loading courses…</span>
+
+      <!-- Hidden sort select (JS reads .value + listens to change) -->
       <select class="sort-select" id="sort-select">
         <option value="trending" selected>Trending First</option>
         <option value="newest">Newest First</option>
@@ -1532,6 +1681,24 @@
         <option value="price-asc">Price: Low to High</option>
         <option value="price-desc">Price: High to Low</option>
       </select>
+
+      <!-- Custom sort dropdown -->
+      <div class="cs-drop-wrap" id="sort-drop-wrap">
+        <button type="button" class="cs-drop-trigger" id="sort-drop-trigger"
+          onclick="csDrop('sort-drop-wrap')" aria-haspopup="listbox" aria-expanded="false">
+          <svg class="cs-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
+          <span id="sort-drop-label">Trending First</span>
+          <svg class="cs-drop-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="cs-drop-panel cs-drop-panel-right" id="sort-drop-panel" role="listbox">
+          <button type="button" class="cs-drop-opt active" data-val="trending" onclick="csSelect('sort','trending','Trending First',this)">Trending First</button>
+          <button type="button" class="cs-drop-opt" data-val="newest" onclick="csSelect('sort','newest','Newest First',this)">Newest First</button>
+          <button type="button" class="cs-drop-opt" data-val="popular" onclick="csSelect('sort','popular','Most Popular',this)">Most Popular</button>
+          <button type="button" class="cs-drop-opt" data-val="rating" onclick="csSelect('sort','rating','Top Rated',this)">Top Rated</button>
+          <button type="button" class="cs-drop-opt" data-val="price-asc" onclick="csSelect('sort','price-asc','Price: Low → High',this)">Price: Low → High</button>
+          <button type="button" class="cs-drop-opt" data-val="price-desc" onclick="csSelect('sort','price-desc','Price: High → Low',this)">Price: High → Low</button>
+        </div>
+      </div>
     </div>
     <div class="courses-grid" id="courses-grid">
       <!-- Skeleton placeholders -->
@@ -2107,10 +2274,16 @@
     try {
       const { data } = await _db().from('course_categories').select('name,slug').order('sort_order');
       const sel = document.getElementById('category-filter');
+      const panel = document.getElementById('cat-drop-panel');
       (data || []).forEach(c => {
         const o = document.createElement('option');
         o.value = c.slug; o.textContent = c.name || c.slug;
         sel.appendChild(o);
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'cs-drop-opt'; btn.dataset.val = c.slug;
+        btn.textContent = c.name || c.slug;
+        btn.onclick = () => csSelect('cat', c.slug, c.name || c.slug, btn);
+        panel.appendChild(btn);
       });
     } catch(_) { /* categories failed — filter still works without them */ }
   }
@@ -2720,6 +2893,45 @@
       alert(errMsg);
     }
   }
+
+  // ===== CUSTOM DROPDOWN LOGIC =====
+  function csDrop(wrapId) {
+    const wrap = document.getElementById(wrapId);
+    const isOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.cs-drop-wrap.open').forEach(w => {
+      w.classList.remove('open');
+      const t = w.querySelector('.cs-drop-trigger');
+      if (t) { t.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
+    });
+    if (!isOpen) {
+      wrap.classList.add('open');
+      const trigger = wrap.querySelector('.cs-drop-trigger');
+      if (trigger) { trigger.classList.add('open'); trigger.setAttribute('aria-expanded','true'); }
+    }
+  }
+
+  function csSelect(prefix, val, label, el) {
+    document.getElementById(prefix + '-drop-label').textContent = label;
+    el.closest('.cs-drop-panel').querySelectorAll('.cs-drop-opt').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    const wrap = el.closest('.cs-drop-wrap');
+    wrap.classList.remove('open');
+    const trigger = wrap.querySelector('.cs-drop-trigger');
+    if (trigger) { trigger.classList.remove('open'); trigger.setAttribute('aria-expanded','false'); }
+    const selectId = prefix === 'cat' ? 'category-filter' : prefix === 'lvl' ? 'level-filter' : 'sort-select';
+    const sel = document.getElementById(selectId);
+    if (sel) { sel.value = val; sel.dispatchEvent(new Event('change')); }
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.cs-drop-wrap')) {
+      document.querySelectorAll('.cs-drop-wrap.open').forEach(w => {
+        w.classList.remove('open');
+        const t = w.querySelector('.cs-drop-trigger');
+        if (t) { t.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
+      });
+    }
+  });
 
   // ===== EVENT LISTENERS =====
   document.getElementById('search-input').addEventListener('input', debounce(applyFilters, 300));
