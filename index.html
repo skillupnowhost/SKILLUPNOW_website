@@ -187,6 +187,58 @@
       animation-delay: 0.2s;
     }
 
+    /* ── FEE QUOTE BUTTON — Animated Icon ── */
+    @keyframes fqSparkFlash {
+      0%,60%,100% { opacity:.9; transform:scale(1) rotate(0deg); }
+      30%          { opacity:.15; transform:scale(.45) rotate(-20deg); }
+      80%          { opacity:1;  transform:scale(1.35) rotate(10deg); }
+    }
+    @keyframes fqLinePulse {
+      0%,100% { stroke-dashoffset:0; }
+      50%     { stroke-dashoffset:7; }
+    }
+    @keyframes fqShine {
+      0%   { left:-80%; opacity:0; }
+      15%  { opacity:.38; }
+      100% { left:130%; opacity:0; }
+    }
+    .fq-ico {
+      flex-shrink: 0;
+      display: inline-flex;
+      transition: transform .32s cubic-bezier(.22,1,.36,1);
+    }
+    .fq-spark {
+      animation: fqSparkFlash 2.6s ease-in-out infinite;
+      transform-origin: center;
+    }
+    .fq-line {
+      stroke-dasharray: 7;
+      animation: fqLinePulse 2s ease-in-out infinite;
+    }
+    .fq-line.fq-l2 { animation-delay: .4s; }
+    .fee-quote-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .fee-quote-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -80%; width: 50%; height: 100%;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.22) 50%, transparent 80%);
+      transform: skewX(-18deg);
+      pointer-events: none;
+      opacity: 0;
+    }
+    .fee-quote-btn:hover::after {
+      animation: fqShine .65s ease forwards;
+    }
+    .fee-quote-btn:hover .fq-ico {
+      transform: scale(1.18) rotate(-9deg);
+    }
+    :root[data-theme="light"] .fee-quote-btn::after {
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.42) 50%, transparent 80%);
+    }
+
     /* ── HERO VISUAL: Orbit Rings ── */
     .hero-visual {
       position: relative;
@@ -620,10 +672,20 @@
             </svg>
             Explore Courses
           </a>
-          <a href="pages/contact-enquiry" class="btn-outline" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
+          <a href="pages/contact-enquiry" class="btn-outline fee-quote-btn" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
             onmouseover="this.style.boxShadow='0 0 32px rgba(61,107,255,0.4), 0 8px 28px rgba(61,107,255,0.22)';this.style.transform='translateY(-3px)'"
             onmouseout="this.style.boxShadow='';this.style.transform=''">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            <span class="fq-ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <!-- receipt body -->
+                <path d="M4 2h16v17l-2-1.5L16 19l-2-1.5L12 19l-2-1.5L8 19l-2-1.5L4 19Z"/>
+                <!-- lines -->
+                <line class="fq-line"    x1="8" y1="9"  x2="16" y2="9"/>
+                <line class="fq-line fq-l2" x1="8" y1="13" x2="13" y2="13"/>
+                <!-- sparkle star -->
+                <path class="fq-spark" d="M19 2l.6 1.4L21 4l-1.4.6L19 6l-.6-1.4L17 4l1.4-.6Z"/>
+              </svg>
+            </span>
             Get Fee Quote
           </a>
         </div>
@@ -1398,7 +1460,17 @@
             Enroll Now
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-          <a href="pages/contact-enquiry" class="btn-outline" style="flex:1;text-align:center;justify-content:center;padding:.9rem 1.5rem;font-size:.95rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;min-width:140px;">Get Fee Quote</a>
+          <a href="pages/contact-enquiry" class="btn-outline fee-quote-btn" style="flex:1;text-align:center;justify-content:center;padding:.9rem 1.5rem;font-size:.95rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;min-width:140px;">
+            <span class="fq-ico">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 2h16v17l-2-1.5L16 19l-2-1.5L12 19l-2-1.5L8 19l-2-1.5L4 19Z"/>
+                <line class="fq-line"       x1="8" y1="9"  x2="16" y2="9"/>
+                <line class="fq-line fq-l2" x1="8" y1="13" x2="13" y2="13"/>
+                <path class="fq-spark" d="M19 2l.6 1.4L21 4l-1.4.6L19 6l-.6-1.4L17 4l1.4-.6Z"/>
+              </svg>
+            </span>
+            Get Fee Quote
+          </a>
         </div>
       </div>
     </div>
