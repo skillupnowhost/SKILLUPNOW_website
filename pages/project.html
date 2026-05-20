@@ -2098,6 +2098,191 @@
     .prj-explore-btn svg { transition:transform .3s cubic-bezier(.22,1,.36,1); position:relative; z-index:1; }
     .prj-explore-btn:hover svg { transform:translateX(5px); }
     .prj-explore-btn span { position:relative; z-index:1; }
+
+    /* ═══════════════════════════════════════════════════════
+       COMPREHENSIVE MOBILE RESPONSIVE — ALL SCREEN SIZES
+    ═══════════════════════════════════════════════════════ */
+
+    /* Prevent horizontal overflow on all screens */
+    html { overflow-x:hidden; }
+    .prj-page { overflow-x:hidden; }
+    .prj-hero { overflow:hidden; }
+
+    /* ── 560px: medium phones (iPhone SE, Galaxy A-series) ── */
+    @media(max-width:560px) {
+      .prj-container { padding:0 1rem; }
+
+      /* Hero */
+      .prj-hero-badge { font-size:.62rem; padding:.32rem .9rem; margin-bottom:1.2rem; }
+      .prj-hero-left p { font-size:.87rem; line-height:1.75; }
+
+      /* Section headers */
+      .prj-section-hdr {
+        padding:.95rem 1rem .95rem .9rem;
+        gap:.55rem; margin-bottom:1.4rem;
+      }
+      .prj-section-title { font-size:1.1rem; }
+      .prj-section-sub { font-size:.71rem; margin-top:.14rem; }
+      .prj-section-count { font-size:.7rem; padding:.24rem .75rem; }
+      .prj-section-title-wrap { gap:.7rem; }
+
+      /* Student area header */
+      .prj-student-hdr { padding:1.3rem 1.15rem; border-radius:16px; }
+      .prj-student-hdr-title { font-size:1.05rem; }
+      .prj-student-hdr-sub { font-size:.79rem; }
+
+      /* Timer bar */
+      .prj-timer-bar { padding:.95rem 1.1rem; border-radius:14px; gap:.75rem; }
+      .prj-timer-display { font-size:1.8rem; letter-spacing:.03em; }
+      .prj-timer-status { font-size:.68rem; }
+      .prj-timer-btns { width:100%; }
+      .prj-timer-btns .prj-btn { flex:1; justify-content:center; }
+
+      /* Cards body */
+      .lg-icon-wrap { padding:1.2rem 1.2rem .5rem; }
+      .lg-body { padding:.65rem 1.2rem 1.1rem; }
+      .intern-card-inner { padding:1.1rem 1.15rem; }
+      .upcoming-icon-row, .completed-icon-row { padding:1.1rem 1.15rem .5rem; }
+      .upcoming-body, .completed-body { padding:.35rem 1.15rem 1.15rem; }
+      .lg-meta { gap:.38rem; }
+      .lg-meta-item { font-size:.69rem; padding:.22rem .55rem; }
+
+      /* Module cards */
+      .prj-module-grid { gap:.9rem; }
+      .prj-module-card { padding:1.15rem; }
+      .prj-module-card-name { font-size:1rem; }
+      .prj-module-card-footer { gap:.4rem; }
+    }
+
+    /* ── 480px: smaller phones ── */
+    @media(max-width:480px) {
+      .prj-hero-stat-icon { width:36px; height:36px; }
+
+      /* Section headers: tighter */
+      .prj-section-hdr { padding:.85rem .95rem .85rem .85rem; }
+      .prj-section-icon { width:44px; height:44px; border-radius:12px; }
+      .prj-sec-ico { width:25px; height:25px; }
+
+      /* Action bar buttons full-width */
+      .prj-timer-btns { flex-direction:column; }
+      .prj-timer-btns .prj-btn { width:100%; justify-content:center; }
+
+      /* Module cards */
+      .prj-module-card { padding:1.05rem 1rem; }
+    }
+
+    /* ── 420px: compact phones (iPhone 6/7/8, small Androids) ── */
+    @media(max-width:420px) {
+      .prj-container { padding:0 .85rem; }
+
+      /* Hero */
+      .prj-hero { padding:2.8rem .85rem 2.6rem; }
+      .prj-hero-badge { font-size:.59rem; padding:.28rem .75rem; gap:.35rem; }
+      .prj-hero-left h1 { margin-bottom:.35rem; }
+      .prj-hero-left p { font-size:.84rem; }
+
+      /* Section headers */
+      .prj-section-hdr {
+        padding:.8rem .9rem .8rem .8rem;
+        gap:.45rem; flex-wrap:nowrap; margin-bottom:1.2rem;
+      }
+      .prj-section-title-wrap { flex:1; min-width:0; gap:.55rem; }
+      .prj-section-icon { width:40px; height:40px; border-radius:11px; flex-shrink:0; }
+      .prj-sec-ico { width:23px; height:23px; }
+      .prj-section-title { font-size:1rem; letter-spacing:-.02em; }
+      .prj-section-sub { display:none; }
+      .prj-section-count { flex-shrink:0; font-size:.68rem; padding:.22rem .65rem; }
+
+      /* Student header */
+      .prj-student-hdr { padding:1.1rem 1rem; border-radius:14px; margin-bottom:1.4rem; }
+      .prj-student-hdr-title { font-size:.98rem; }
+      .prj-student-hdr-sub { font-size:.76rem; }
+
+      /* Timer bar */
+      .prj-timer-bar { padding:.85rem .95rem; border-radius:13px; gap:.6rem; }
+      .prj-timer-display { font-size:1.6rem; letter-spacing:.02em; }
+      .prj-timer-btns { flex-direction:column; gap:.45rem; }
+      .prj-timer-btns .prj-btn { width:100%; justify-content:center; font-size:.82rem; }
+
+      /* Cards */
+      .lg-icon-wrap { padding:1.1rem 1.1rem .45rem; }
+      .lg-body { padding:.6rem 1.1rem 1rem; }
+      .lg-title { font-size:1rem; }
+      .lg-meta { gap:.35rem; padding-top:.75rem; }
+      .lg-meta-item { font-size:.67rem; padding:.2rem .5rem; border-radius:999px; }
+      .intern-card-inner { padding:1rem 1rem; }
+      .intern-card-title { font-size:.95rem; }
+      .upcoming-icon-row, .completed-icon-row { padding:1rem 1rem .45rem; }
+      .upcoming-body, .completed-body { padding:.3rem 1rem 1rem; }
+      .upcoming-title, .completed-title { font-size:.95rem; }
+      .upcoming-meta, .completed-meta { gap:.35rem; padding-top:.7rem; }
+
+      /* Module cards */
+      .prj-module-card { padding:1rem .95rem; border-radius:16px; }
+      .prj-module-card-name { font-size:.95rem; }
+      .prj-module-card-desc { font-size:.78rem; }
+      .prj-module-card-footer { flex-direction:column; align-items:flex-start; gap:.35rem; margin-top:.75rem; }
+
+      /* Session table: horizontal scroll, smaller text */
+      .prj-session-tbl th, .prj-session-tbl td { padding:.55rem .75rem; font-size:.76rem; }
+
+      /* Buttons */
+      .prj-btn { padding:.6rem 1rem; font-size:.81rem; }
+
+      /* Modal */
+      .prj-modal-overlay { padding:.5rem; }
+      .prj-modal { max-height:90vh; }
+
+      /* Public sections gap */
+      #prj-public-sections { gap:2rem; padding:2rem 0 3.5rem; }
+    }
+
+    /* ── 360px: smallest phones (Galaxy A01, older budget phones) ── */
+    @media(max-width:360px) {
+      .prj-container { padding:0 .7rem; }
+
+      .prj-hero { padding:2.4rem .7rem 2.2rem; }
+
+      /* Section headers: ultra-compact */
+      .prj-section-hdr { padding:.72rem .75rem .72rem .72rem; gap:.4rem; }
+      .prj-section-icon { width:36px; height:36px; border-radius:10px; }
+      .prj-sec-ico { width:20px; height:20px; }
+      .prj-section-title { font-size:.92rem; }
+      .prj-section-count { font-size:.64rem; padding:.18rem .55rem; }
+
+      /* Timer */
+      .prj-timer-display { font-size:1.42rem; }
+      .prj-timer-bar { padding:.75rem .85rem; }
+
+      /* Student header */
+      .prj-student-hdr { padding:.95rem .9rem; }
+      .prj-student-hdr-title { font-size:.92rem; }
+
+      /* Cards: tightest */
+      .lg-icon-wrap { padding:.95rem .95rem .4rem; }
+      .lg-body { padding:.55rem .95rem .9rem; }
+      .intern-card-inner { padding:.9rem .9rem; }
+      .upcoming-icon-row, .completed-icon-row { padding:.9rem .9rem .4rem; }
+      .upcoming-body, .completed-body { padding:.3rem .9rem .9rem; }
+
+      /* Module card */
+      .prj-module-card { padding:.9rem .85rem; }
+
+      /* Hero stats — tightest fit */
+      .prj-hero-stat { padding:.85rem .5rem .8rem; border-radius:14px; }
+      .prj-hero-stat-icon { width:30px; height:30px; }
+      .prj-hero-stat-v { font-size:1.35rem; }
+      .prj-hero-stat-l { font-size:.5rem; letter-spacing:.1em; }
+
+      /* Session table */
+      .prj-session-tbl th, .prj-session-tbl td { padding:.5rem .6rem; font-size:.72rem; }
+
+      /* Buttons */
+      .prj-btn { padding:.55rem .85rem; font-size:.78rem; }
+
+      /* Public sections gap */
+      #prj-public-sections { gap:1.6rem; padding:1.6rem 0 3rem; }
+    }
   </style>
 </head>
 <body class="prj-page">

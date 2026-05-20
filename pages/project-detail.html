@@ -511,6 +511,56 @@
       .pd-hero-title { font-size:1.3rem; }
       .pd-meta-pill { font-size:.68rem; padding:.2rem .5rem; }
     }
+
+    /* ── Comprehensive mobile — all phone sizes ── */
+    html { overflow-x:hidden; }
+    .pd-page { overflow-x:hidden; }
+    .pd-hero { overflow:hidden; }
+
+    /* 560px: medium phones */
+    @media(max-width:560px) {
+      .pd-container { padding:0 .95rem; }
+      .pd-hero { padding:2.2rem .95rem 1.8rem; }
+      .pd-action-bar { flex-direction:column; align-items:stretch; }
+      .pd-btn-back, .pd-btn-apply { width:100%; justify-content:center; }
+      .pd-alert.info { width:100%; box-sizing:border-box; }
+    }
+
+    /* 420px: compact phones */
+    @media(max-width:420px) {
+      .pd-container { padding:0 .8rem; }
+      .pd-hero { padding:1.9rem .8rem 1.55rem; }
+      .pd-card-inner { padding:1.1rem .9rem; }
+      .pd-back { font-size:.72rem; padding:.32rem .7rem; margin-bottom:1.4rem; }
+      .pd-type-badge { font-size:.6rem; padding:.24rem .8rem; margin-bottom:.85rem; }
+      .pd-hero-row { gap:.75rem; }
+      .pd-icon-orb .icon-svg-wrap { width:38px; height:38px; }
+      .pd-fact { padding:.65rem .75rem; }
+      .pd-fact-label { font-size:.58rem; }
+      .pd-fact-value { font-size:.84rem; }
+      .pd-desc { font-size:.86rem; padding:1rem 1.1rem; }
+      .pd-task { padding:.6rem .8rem; gap:.55rem; font-size:.83rem; }
+      .pd-task-num { width:22px; height:22px; font-size:.64rem; }
+      .pd-outcomes li { font-size:.84rem; padding:.5rem .8rem; }
+      .pd-tag { font-size:.74rem; padding:.4rem .65rem; }
+      .pd-tags { gap:.4rem; }
+      .pd-action-bar { gap:.5rem; margin-top:1.5rem; }
+      .pd-section-label { font-size:.58rem; margin-bottom:.7rem; }
+      .pd-glass-card { border-radius:15px; margin-bottom:1rem; }
+    }
+
+    /* 360px: smallest phones */
+    @media(max-width:360px) {
+      .pd-container { padding:0 .65rem; }
+      .pd-hero { padding:1.7rem .65rem 1.4rem; }
+      .pd-card-inner { padding:.95rem .8rem; }
+      .pd-hero-title { font-size:1.2rem; }
+      .pd-meta-pill { font-size:.64rem; padding:.18rem .45rem; }
+      .pd-hero-meta { gap:.28rem; }
+      .pd-fact-value { font-size:.8rem; }
+      .pd-desc { font-size:.82rem; padding:.85rem .9rem; }
+      .pd-btn-back, .pd-btn-apply { font-size:.78rem; padding:.6rem 1rem; }
+    }
   </style>
 </head>
 <body class="pd-page">
