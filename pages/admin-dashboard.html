@@ -374,8 +374,11 @@
         <span class="nav-icon">👨‍👩‍👧‍👦</span> Batches
       </div>
       <div class="nav-item" data-section="internships">
-        <span class="nav-icon">🗂️</span> Projects
-        <span class="badge" id="intern-badge" style="display:none">0</span>
+        <span class="nav-icon">📁</span> Projects
+      </div>
+      <div class="nav-item" data-section="internships-mgmt">
+        <span class="nav-icon">🎓</span> Internships
+        <span class="badge" id="intern-badge" style="display:none;background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;">0</span>
       </div>
     </div>
     <div class="nav-section">
@@ -1541,14 +1544,14 @@
       <div class="it-itab-pane active" id="itab-projects">
         <div class="table-card">
           <div class="table-header">
-            <h3>Internship Projects</h3>
+            <h3>Projects</h3>
             <div class="table-actions">
               <input class="tbl-search" placeholder="Search projects…" oninput="filterTable('intern-proj-tbody',this.value,[0,1,2])">
-              <button class="btn-primary" onclick="openInternProjModal()">+ New Project</button>
+              <button class="btn-primary" onclick="openInternProjModal('project')">+ New Project</button>
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Project Name</th><th>Client</th><th>Country</th><th>Domain</th><th>Type</th><th>Duration</th><th>Students</th><th>Active</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Project Name</th><th>Client</th><th>Country</th><th>Domain</th><th>Status</th><th>Duration</th><th>Students</th><th>Active</th><th>Actions</th></tr></thead>
             <tbody id="intern-proj-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
@@ -1754,7 +1757,258 @@
         </div>
       </div>
 
+      <!-- ── Applications (internship_applications table) ── -->
+      <div class="it-itab-pane" id="itab-applications">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Internship Applications</h3>
+            <div class="table-actions">
+              <select id="iapp-type-filter" onchange="loadInternApplications()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Types</option>
+                <option value="free">Free</option>
+                <option value="paid">Paid</option>
+              </select>
+              <select id="iapp-status-filter" onchange="loadInternApplications()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="reviewing">Reviewing</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <input class="tbl-search" id="iapp-search" placeholder="Search name / email…"
+                oninput="filterTable('iapp-tbody',this.value,[0,1,2])"
+                style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);min-width:160px;outline:none">
+              <button class="btn-secondary" onclick="exportIappCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin-bottom:1rem" id="iapp-stats-row">
+            <div class="int-stat"><div id="iapp-s-total" style="font-size:1.5rem;font-weight:800;color:var(--v1)">—</div><div style="font-size:.72rem;color:var(--txt3);font-weight:600">Total</div></div>
+            <div class="int-stat"><div id="iapp-s-pending" style="font-size:1.5rem;font-weight:800;color:#fbbf24">—</div><div style="font-size:.72rem;color:var(--txt3);font-weight:600">Pending</div></div>
+            <div class="int-stat"><div id="iapp-s-accepted" style="font-size:1.5rem;font-weight:800;color:#34d399">—</div><div style="font-size:.72rem;color:var(--txt3);font-weight:600">Accepted</div></div>
+            <div class="int-stat"><div id="iapp-s-paid" style="font-size:1.5rem;font-weight:800;color:#f59e0b">—</div><div style="font-size:.72rem;color:var(--txt3);font-weight:600">Paid Apps</div></div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Phone</th><th>College</th>
+              <th>Programme</th><th>Type</th><th>Payment</th><th>Status</th><th>Applied</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="iapp-tbody"><tr><td colspan="10" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ── Paid Settings ── -->
+      <div class="it-itab-pane" id="itab-paid-settings">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>💳 Paid Internship Settings</h3>
+            <div class="table-actions">
+              <button class="btn-secondary" onclick="loadPaidSettings()">↻ Refresh</button>
+            </div>
+          </div>
+          <p style="font-size:.82rem;color:var(--txt3);margin:0 0 1rem;padding:0 .25rem">
+            Toggle <strong>is_paid</strong> and set a <strong>payment amount</strong> per internship project. Changes take effect immediately on the public Internships page.
+          </p>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr>
+              <th>Project Name</th><th>Domain</th><th>Duration</th>
+              <th>Is Paid</th><th>Amount (₹)</th><th>Active</th><th>Save</th>
+            </tr></thead>
+            <tbody id="paid-settings-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+
+        <!-- Quick toggle tips -->
+        <div style="margin-top:1rem;padding:1.1rem 1.4rem;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:14px;font-size:.8rem;color:var(--txt3);line-height:1.7">
+          <strong style="color:var(--txt2)">How it works:</strong><br>
+          • Toggle <em>Is Paid</em> to ON → the internship card shows a "Pay &amp; Apply" button on the public page.<br>
+          • Set <em>Amount</em> → that ₹ value is loaded by Razorpay when a student clicks pay.<br>
+          • Leave amount blank or 0 for free internships (the toggle must also be OFF).<br>
+          • Changes are saved per-row when you click <strong>Save</strong>.
+        </div>
+      </div>
+
     </div><!-- /section-internships -->
+
+    <!-- ===== INTERNSHIPS MANAGEMENT ===== -->
+    <div class="section" id="section-internships-mgmt">
+      <style>
+        .itnm-sub-tabs { display:flex; gap:.25rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); overflow-x:auto; }
+        .itnm-sub-tab  { padding:.55rem 1.1rem; border-radius:9px 9px 0 0; font-size:.82rem; font-weight:600; cursor:pointer;
+                         color:var(--txt3); background:transparent; border:none; border-bottom:2px solid transparent;
+                         transition:all .18s; white-space:nowrap; font-family:inherit; }
+        .itnm-sub-tab:hover  { color:var(--txt2); background:rgba(245,158,11,.08); }
+        .itnm-sub-tab.active { color:#f59e0b; border-bottom-color:#f59e0b; background:rgba(245,158,11,.1); }
+        .itnm-itab-pane { display:none; }
+        .itnm-itab-pane.active { display:block; }
+      </style>
+
+      <div class="itnm-sub-tabs">
+        <button class="itnm-sub-tab active" data-itnmtab="internships"  onclick="switchInternMgmtTab('internships')">🎓 Internships</button>
+        <button class="itnm-sub-tab"        data-itnmtab="enrollments"  onclick="switchInternMgmtTab('enrollments')">👤 Enrollments</button>
+        <button class="itnm-sub-tab"        data-itnmtab="applications" onclick="switchInternMgmtTab('applications')">📩 Applications</button>
+        <button class="itnm-sub-tab"        data-itnmtab="paid-settings" onclick="switchInternMgmtTab('paid-settings')">💳 Paid Settings</button>
+        <button class="itnm-sub-tab"        data-itnmtab="reports"      onclick="switchInternMgmtTab('reports')">📝 Reports</button>
+        <button class="itnm-sub-tab"        data-itnmtab="attendance"   onclick="switchInternMgmtTab('attendance')">📅 Attendance</button>
+      </div>
+
+      <!-- Internships List -->
+      <div class="itnm-itab-pane active" id="itnm-itab-internships">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Internships</h3>
+            <div class="table-actions">
+              <select id="itnm-status-filter" onchange="loadAdminInternships()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="completed">Completed</option>
+              </select>
+              <select id="itnm-paid-filter" onchange="loadAdminInternships()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">Free &amp; Paid</option>
+                <option value="false">Free Only</option>
+                <option value="true">Paid Only</option>
+              </select>
+              <input class="tbl-search" placeholder="Search…" oninput="filterTable('itnm-tbody',this.value,[0,1,2])">
+              <button class="btn-primary" style="background:linear-gradient(135deg,#f59e0b,#d97706)" onclick="openInternProjModal('internship')">+ New Internship</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Name</th><th>Client</th><th>Country</th><th>Domain</th><th>Status</th><th>Free/Paid</th><th>Amount</th><th>Duration</th><th>Students</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-tbody"><tr><td colspan="11" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Enrollments -->
+      <div class="itnm-itab-pane" id="itnm-itab-enrollments">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Internship Enrollments</h3>
+            <div class="table-actions">
+              <select id="itnm-enrol-filter" onchange="loadInternStudents()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button class="btn-secondary" onclick="exportInternStudentsCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Internship</th><th>Applied</th><th>Status</th><th>Reports</th><th>Attendance %</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-enrol-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Applications (internship_applications table) -->
+      <div class="itnm-itab-pane" id="itnm-itab-applications">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Internship Applications</h3>
+            <div class="table-actions">
+              <select id="itnm-iapp-type-filter" onchange="loadInternApplications()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Types</option>
+                <option value="free">Free</option>
+                <option value="paid">Paid</option>
+              </select>
+              <select id="itnm-iapp-status-filter" onchange="loadInternApplications()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="reviewing">Reviewing</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button class="btn-secondary" onclick="exportIappCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Phone</th><th>College</th>
+              <th>Programme</th><th>Type</th><th>Payment</th><th>Status</th><th>Applied</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="itnm-iapp-tbody"><tr><td colspan="10" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Paid Settings -->
+      <div class="itnm-itab-pane" id="itnm-itab-paid-settings">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>💳 Paid Internship Settings</h3>
+            <div class="table-actions">
+              <button class="btn-secondary" onclick="loadPaidSettings()">↻ Refresh</button>
+            </div>
+          </div>
+          <p style="font-size:.82rem;color:var(--txt3);margin:0 0 1rem;padding:0 .25rem">
+            Toggle <strong>is_paid</strong> and set a <strong>payment amount</strong> per internship. Changes take effect immediately on the public Internships page.
+          </p>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr>
+              <th>Internship Name</th><th>Status</th><th>Duration</th>
+              <th>Is Paid</th><th>Amount (₹)</th><th>Active</th><th>Save</th>
+            </tr></thead>
+            <tbody id="itnm-paid-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div class="itnm-itab-pane" id="itnm-itab-reports">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Daily Reports</h3>
+            <div class="table-actions">
+              <select id="itnm-rpt-proj-filter" onchange="loadInternReports()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:180px">
+                <option value="">All Internships</option>
+              </select>
+              <select id="itnm-rpt-status-filter" onchange="loadInternReports()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="submitted">Submitted</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="flagged">Flagged</option>
+                <option value="approved">Approved</option>
+              </select>
+              <button class="btn-secondary" onclick="exportInternReportsCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Date</th><th>Student</th><th>Internship</th><th>Hours</th><th>Summary</th><th>Mood</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-rpt-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Attendance -->
+      <div class="itnm-itab-pane" id="itnm-itab-attendance">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Attendance Management</h3>
+            <div class="table-actions">
+              <select id="itnm-atd-proj-filter" onchange="loadInternAttendance()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:180px">
+                <option value="">All Internships</option>
+              </select>
+              <select id="itnm-atd-status-filter" onchange="loadInternAttendance()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+                <option value="late">Late</option>
+                <option value="half_day">Half Day</option>
+                <option value="holiday">Holiday</option>
+              </select>
+              <button class="btn-secondary" onclick="exportAttendanceCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Date</th><th>Student</th><th>Internship</th><th>Check-In</th><th>Check-Out</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-atd-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+    </div><!-- /section-internships-mgmt -->
 
   </div><!-- /content -->
 </main>
@@ -2342,6 +2596,7 @@ function loadSection(sec) {
     feedback: loadFeedback, interests: loadInterested,
     holidays: loadHolidays,
     internships: loadInternships,
+    'internships-mgmt': loadInternshipsMgmt,
   };
   loaders[sec]?.();
 }
@@ -7422,19 +7677,131 @@ function switchInternTab(tab) {
   if (tab === 'sessions')    { _populateInternProjFilter('sess-proj-filter'); loadWorkSessions(); }
   if (tab === 'git')         { _populateInternProjFilter('git-access-proj-filter'); loadGitRepos(); loadGitAccess(); }
   if (tab === 'students')    { loadProjStudents(); loadInternStudents(); loadSecurityAlerts(); }
-  if (tab === 'reports')     { _populateInternProjFilter('intern-rpt-proj-filter'); loadInternReports(); }
-  if (tab === 'attendance')  { _populateInternProjFilter('intern-atd-proj-filter'); loadInternAttendance(); }
+  if (tab === 'reports')       { _populateInternProjFilter('intern-rpt-proj-filter'); loadInternReports(); }
+  if (tab === 'attendance')    { _populateInternProjFilter('intern-atd-proj-filter'); loadInternAttendance(); }
+  if (tab === 'applications')  loadInternApplications();
+  if (tab === 'paid-settings') loadPaidSettings();
 }
 
 function loadInternships() {
   loadInternProjects();
+}
+
+/* ── Internships Management section ── */
+function loadInternshipsMgmt() {
+  loadAdminInternships();
   _updateInternBadge();
 }
 
+function switchInternMgmtTab(tab) {
+  document.querySelectorAll('#section-internships-mgmt .itnm-sub-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.itnmtab === tab);
+  });
+  document.querySelectorAll('#section-internships-mgmt .itnm-itab-pane').forEach(p => {
+    p.classList.toggle('active', p.id === `itnm-itab-${tab}`);
+  });
+  if (tab === 'internships')   loadAdminInternships();
+  if (tab === 'enrollments')   loadInternStudents();
+  if (tab === 'applications')  loadInternApplications();
+  if (tab === 'paid-settings') loadAdminPaidSettings();
+  if (tab === 'reports')       { _populateInternProjFilter('itnm-rpt-proj-filter', 'All Internships'); loadInternReports(); }
+  if (tab === 'attendance')    { _populateInternProjFilter('itnm-atd-proj-filter', 'All Internships'); loadInternAttendance(); }
+}
+
+async function loadAdminInternships() {
+  const tbody = document.getElementById('itnm-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="11" class="table-empty">Loading…</td></tr>';
+
+  let q = db.client.from('internship_projects').select('*').eq('project_type', 'internship');
+  const statusF = document.getElementById('itnm-status-filter')?.value;
+  const paidF   = document.getElementById('itnm-paid-filter')?.value;
+  if (statusF) q = q.eq('internship_status', statusF);
+  if (paidF !== '' && paidF !== undefined && paidF !== null) q = q.eq('is_paid', paidF === 'true');
+  q = q.order('created_at', { ascending: false });
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="11" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No internships yet. Click "+ New Internship" to add one.</td></tr>'; return; }
+
+  const { data: counts } = await db.client.from('internship_enrollments').select('project_id').eq('approval_status','approved');
+  const cmap = {};
+  (counts||[]).forEach(c => { cmap[c.project_id] = (cmap[c.project_id]||0)+1; });
+
+  const _statusStyle = {
+    ongoing:   { bg:'rgba(16,185,129,.12)',  color:'#34d399', label:'Ongoing'   },
+    upcoming:  { bg:'rgba(34,211,238,.12)',  color:'#22d3ee', label:'Upcoming'  },
+    completed: { bg:'rgba(99,102,241,.12)',  color:'#a5b4fc', label:'Completed' },
+  };
+
+  tbody.innerHTML = data.map(p => {
+    const ss = _statusStyle[p.internship_status] || _statusStyle.ongoing;
+    const paidBadge = p.is_paid
+      ? `<span class="badge" style="background:rgba(245,158,11,.12);color:#fbbf24">Paid</span>`
+      : `<span class="badge" style="background:rgba(16,185,129,.12);color:#34d399">Free</span>`;
+    const amt = p.is_paid && p.payment_amount ? `₹${Number(p.payment_amount).toLocaleString('en-IN')}` : '—';
+    return `<tr>
+      <td><strong>${_adm_esc(p.project_name)}</strong></td>
+      <td>${_adm_esc(p.client_name)}</td>
+      <td>${_adm_esc(p.country)}</td>
+      <td><span class="badge" style="background:rgba(99,102,241,.15);color:#a5b4fc">${_adm_esc(p.domain||'General')}</span></td>
+      <td><span class="badge" style="background:${ss.bg};color:${ss.color}">${ss.label}</span></td>
+      <td>${paidBadge}</td>
+      <td style="font-weight:700;color:#fbbf24">${amt}</td>
+      <td>${p.duration_weeks}w</td>
+      <td>${cmap[p.id]||0} / ${p.max_students}</td>
+      <td><span class="badge" style="background:${p.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${p.is_active?'#4ade80':'#f87171'}">${p.is_active?'Active':'Inactive'}</span></td>
+      <td>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editInternProj('${p.id}')">Edit</button>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteInternProj('${p.id}','${_adm_esc(p.project_name)}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadAdminPaidSettings() {
+  const tbody = document.getElementById('itnm-paid-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  const { data, error } = await db.client.from('internship_projects')
+    .select('id,project_name,internship_status,duration_weeks,is_paid,payment_amount,is_active')
+    .eq('project_type', 'internship')
+    .order('created_at', { ascending: false });
+  if (error || !data?.length) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty">No internships found.</td></tr>`; return; }
+  const _ss = { ongoing:'Ongoing', upcoming:'Upcoming', completed:'Completed' };
+  tbody.innerHTML = data.map(p => `<tr>
+    <td><strong>${_adm_esc(p.project_name)}</strong></td>
+    <td>${_ss[p.internship_status]||'—'}</td>
+    <td>${p.duration_weeks}w</td>
+    <td><select onchange="this.closest('tr').dataset.dirty='1'" id="ps2-paid-${p.id}" style="font-size:.78rem;padding:.2rem .4rem;border-radius:6px;background:var(--bg2);color:var(--txt);border:1px solid var(--border)">
+      <option value="false"${!p.is_paid?' selected':''}>Free</option>
+      <option value="true"${p.is_paid?' selected':''}>Paid</option>
+    </select></td>
+    <td><input type="number" id="ps2-amt-${p.id}" value="${p.payment_amount||''}" placeholder="e.g. 4999" min="0"
+      style="width:90px;font-size:.78rem;padding:.22rem .5rem;border-radius:6px;background:var(--bg2);color:var(--txt);border:1px solid var(--border)"></td>
+    <td><span class="badge" style="background:${p.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${p.is_active?'#4ade80':'#f87171'}">${p.is_active?'Active':'Inactive'}</span></td>
+    <td><button class="btn-primary" style="font-size:.75rem;padding:.25rem .65rem" onclick="savePaidSetting2('${p.id}')">Save</button></td>
+  </tr>`).join('');
+}
+
+async function savePaidSetting2(id) {
+  const isPaid = document.getElementById(`ps2-paid-${id}`).value === 'true';
+  const amt    = parseFloat(document.getElementById(`ps2-amt-${id}`).value) || null;
+  const { error } = await db.client.from('internship_projects')
+    .update({ is_paid: isPaid, payment_amount: amt }).eq('id', id);
+  _showAdminToast(error ? 'Save failed: ' + error.message : 'Saved!', error ? 'error' : 'success');
+}
+
+function _toggleInternshipStatusField() {
+  const type = document.getElementById('ipj-type')?.value;
+  const row  = document.getElementById('ipj-internship-status-row');
+  if (row) row.style.display = type === 'internship' ? '' : 'none';
+}
+
 async function _updateInternBadge() {
-  const { count } = await db.client.from('internship_enrollments')
+  const { count } = await db.client.from('internship_applications')
     .select('id', { count:'exact', head:true })
-    .eq('approval_status','pending');
+    .eq('status','pending');
   const badge = document.getElementById('intern-badge');
   if (badge) {
     badge.textContent = count || 0;
@@ -7466,11 +7833,12 @@ async function _populateProjModalSelects() {
    ============================================================ */
 async function loadInternProjects() {
   const tbody = document.getElementById('intern-proj-tbody');
-  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading…</td></tr>';
 
   const { data: projects, error } = await db.client
     .from('internship_projects')
     .select('*')
+    .in('project_type', ['available', 'upcoming', 'completed'])
     .order('created_at', { ascending: false });
 
   if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
@@ -7510,19 +7878,26 @@ async function loadInternProjects() {
   }).join('');
 }
 
-function openInternProjModal(existingId) {
-  document.getElementById('ipj-id').value = existingId || '';
-  document.getElementById('intern-proj-modal-title').textContent = existingId ? 'Edit Project' : 'New Project';
-  if (!existingId) {
+function openInternProjModal(modeOrId) {
+  // modeOrId is either 'project', 'internship', or an existing record UUID
+  const isNewMode = modeOrId === 'project' || modeOrId === 'internship';
+  const defaultType = modeOrId === 'internship' ? 'internship' : (modeOrId === 'project' ? 'available' : null);
+  document.getElementById('ipj-id').value = isNewMode ? '' : (modeOrId || '');
+  document.getElementById('intern-proj-modal-title').textContent = isNewMode
+    ? (modeOrId === 'internship' ? 'New Internship' : 'New Project')
+    : 'Edit';
+  if (isNewMode) {
     ['ipj-name','ipj-client','ipj-country','ipj-domain','ipj-desc','ipj-detail','ipj-tech','ipj-outcomes','ipj-tasks'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
-    document.getElementById('ipj-type').value      = 'internship';
-    document.getElementById('ipj-weeks').value     = '4';
-    document.getElementById('ipj-max').value       = '10';
-    document.getElementById('ipj-team-size').value = '5';
-    document.getElementById('ipj-active').value    = 'true';
+    document.getElementById('ipj-type').value            = defaultType || 'available';
+    document.getElementById('ipj-internship-status').value = 'ongoing';
+    document.getElementById('ipj-weeks').value           = '4';
+    document.getElementById('ipj-max').value             = '10';
+    document.getElementById('ipj-team-size').value       = '5';
+    document.getElementById('ipj-active').value          = 'true';
+    _toggleInternshipStatusField();
   }
   openModal('intern-proj-modal');
 }
@@ -7530,22 +7905,24 @@ function openInternProjModal(existingId) {
 async function editInternProj(id) {
   const { data: p } = await db.client.from('internship_projects').select('*').eq('id',id).single();
   if (!p) return;
-  document.getElementById('ipj-id').value        = p.id;
-  document.getElementById('ipj-name').value      = p.project_name;
-  document.getElementById('ipj-type').value      = p.project_type || 'internship';
-  document.getElementById('ipj-client').value    = p.client_name;
-  document.getElementById('ipj-country').value   = p.country;
-  document.getElementById('ipj-domain').value    = p.domain||'';
-  document.getElementById('ipj-desc').value      = p.description||'';
-  document.getElementById('ipj-detail').value    = p.detailed_description||'';
-  document.getElementById('ipj-tech').value      = (p.tech_stack||[]).join(', ');
-  document.getElementById('ipj-outcomes').value  = (p.learning_outcomes||[]).join('\n');
-  document.getElementById('ipj-tasks').value     = JSON.stringify(p.tasks||[], null, 2);
-  document.getElementById('ipj-weeks').value     = p.duration_weeks;
-  document.getElementById('ipj-max').value       = p.max_students;
-  document.getElementById('ipj-team-size').value = p.team_size || 5;
-  document.getElementById('ipj-active').value    = String(p.is_active);
-  document.getElementById('intern-proj-modal-title').textContent = 'Edit Project';
+  document.getElementById('ipj-id').value                    = p.id;
+  document.getElementById('ipj-name').value                  = p.project_name;
+  document.getElementById('ipj-type').value                  = p.project_type || 'available';
+  document.getElementById('ipj-internship-status').value     = p.internship_status || 'ongoing';
+  document.getElementById('ipj-client').value                = p.client_name;
+  document.getElementById('ipj-country').value               = p.country;
+  document.getElementById('ipj-domain').value                = p.domain||'';
+  document.getElementById('ipj-desc').value                  = p.description||'';
+  document.getElementById('ipj-detail').value                = p.detailed_description||'';
+  document.getElementById('ipj-tech').value                  = (p.tech_stack||[]).join(', ');
+  document.getElementById('ipj-outcomes').value              = (p.learning_outcomes||[]).join('\n');
+  document.getElementById('ipj-tasks').value                 = JSON.stringify(p.tasks||[], null, 2);
+  document.getElementById('ipj-weeks').value                 = p.duration_weeks;
+  document.getElementById('ipj-max').value                   = p.max_students;
+  document.getElementById('ipj-team-size').value             = p.team_size || 5;
+  document.getElementById('ipj-active').value                = String(p.is_active);
+  document.getElementById('intern-proj-modal-title').textContent = p.project_type === 'internship' ? 'Edit Internship' : 'Edit Project';
+  _toggleInternshipStatusField();
   openModal('intern-proj-modal');
 }
 
@@ -7578,11 +7955,13 @@ async function saveInternProj() {
   const outcomes = outRaw  ? outRaw.split('\n').map(s=>s.trim()).filter(Boolean) : [];
 
   const { data: adminData } = await db.client.auth.getUser();
+  const itnStatus = document.getElementById('ipj-internship-status')?.value || null;
   const payload = {
     project_name: name, project_type: projType, client_name: client, country, domain,
     description: desc, detailed_description: detail, tech_stack: tech,
     learning_outcomes: outcomes, tasks, duration_weeks: weeks,
     max_students: maxS, team_size: teamSz, is_active: active,
+    internship_status: projType === 'internship' ? (itnStatus || 'ongoing') : null,
     created_by: adminData?.user?.id || null,
   };
 
@@ -8339,9 +8718,10 @@ async function saveNewStudent() {
    STUDENT ENROLLMENTS
    ============================================================ */
 async function loadInternStudents() {
-  const tbody  = document.getElementById('intern-students-tbody');
+  const tbody = document.getElementById('itnm-enrol-tbody') || document.getElementById('intern-students-tbody');
+  if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
-  const statusF = document.getElementById('intern-enrol-filter')?.value;
+  const statusF = (document.getElementById('itnm-enrol-filter') || document.getElementById('intern-enrol-filter'))?.value;
 
   let q = db.client
     .from('internship_enrollments')
@@ -8454,10 +8834,11 @@ async function saveInternDates() {
    DAILY REPORTS
    ============================================================ */
 async function loadInternReports() {
-  const tbody   = document.getElementById('intern-rpt-tbody');
+  const tbody = document.getElementById('itnm-rpt-tbody') || document.getElementById('intern-rpt-tbody');
+  if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
-  const projF   = document.getElementById('intern-rpt-proj-filter')?.value;
-  const statusF = document.getElementById('intern-rpt-status-filter')?.value;
+  const projF   = (document.getElementById('itnm-rpt-proj-filter') || document.getElementById('intern-rpt-proj-filter'))?.value;
+  const statusF = (document.getElementById('itnm-rpt-status-filter') || document.getElementById('intern-rpt-status-filter'))?.value;
 
   let q = db.client
     .from('internship_daily_reports')
@@ -8558,10 +8939,11 @@ async function saveReportReview() {
    ATTENDANCE
    ============================================================ */
 async function loadInternAttendance() {
-  const tbody   = document.getElementById('intern-atd-tbody');
+  const tbody = document.getElementById('itnm-atd-tbody') || document.getElementById('intern-atd-tbody');
+  if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
-  const projF   = document.getElementById('intern-atd-proj-filter')?.value;
-  const dateF   = document.getElementById('intern-atd-date-filter')?.value;
+  const projF = (document.getElementById('itnm-atd-proj-filter') || document.getElementById('intern-atd-proj-filter'))?.value;
+  const dateF = document.getElementById('intern-atd-date-filter')?.value;
 
   let q = db.client
     .from('internship_attendance')
@@ -8788,6 +9170,193 @@ function _adm_esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+/* ============================================================
+   INTERNSHIP APPLICATIONS (internship_applications table)
+   ============================================================ */
+async function loadInternApplications() {
+  const tbody  = document.getElementById('itnm-iapp-tbody') || document.getElementById('iapp-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="10" class="table-empty">Loading…</td></tr>';
+
+  const typeF   = (document.getElementById('itnm-iapp-type-filter') || document.getElementById('iapp-type-filter'))?.value;
+  const statusF = (document.getElementById('itnm-iapp-status-filter') || document.getElementById('iapp-status-filter'))?.value;
+
+  let q = db.client
+    .from('internship_applications')
+    .select('*, internship_projects(project_name,is_paid)')
+    .order('applied_at', { ascending: false });
+
+  if (statusF) q = q.eq('status', statusF);
+  if (typeF === 'paid')  q = q.eq('internship_projects.is_paid', true);
+  if (typeF === 'free')  q = q.eq('internship_projects.is_paid', false);
+
+  const { data: apps, error } = await q;
+
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="10" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;
+    return;
+  }
+  if (!apps?.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="table-empty">No applications yet.</td></tr>';
+    _updateIappStats([]);
+    return;
+  }
+
+  _updateIappStats(apps);
+
+  const statusColors = { pending:'#fbbf24', reviewing:'#60a5fa', accepted:'#4ade80', rejected:'#f87171' };
+
+  tbody.innerHTML = apps.map(a => {
+    const proj   = a.internship_projects;
+    const isPaid = proj?.is_paid ?? (a.payment_status !== 'none');
+    const typePill = isPaid
+      ? `<span style="background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.28);border-radius:999px;padding:.15rem .55rem;font-size:.68rem;font-weight:800">Paid</span>`
+      : `<span style="background:rgba(16,185,129,.1);color:#4ade80;border:1px solid rgba(16,185,129,.25);border-radius:999px;padding:.15rem .55rem;font-size:.68rem;font-weight:800">Free</span>`;
+    const payCell = isPaid
+      ? (a.payment_status === 'paid'
+          ? `<span style="color:#4ade80;font-weight:700;font-size:.8rem">✓ ₹${(a.payment_amount||0).toLocaleString('en-IN')}</span>`
+          : `<span style="color:#f87171;font-size:.8rem">${a.payment_status || 'none'}</span>`)
+      : '<span style="color:var(--txt3);font-size:.8rem">—</span>';
+    const sc = statusColors[a.status] || 'var(--txt3)';
+    const applied = a.applied_at ? new Date(a.applied_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+    return `<tr>
+      <td>${_adm_esc(a.name)}</td>
+      <td style="font-size:.78rem">${_adm_esc(a.email)}</td>
+      <td>${_adm_esc(a.phone||'—')}</td>
+      <td style="font-size:.78rem">${_adm_esc(a.college_name||'—')}</td>
+      <td style="font-size:.78rem">${_adm_esc(proj?.project_name || a.programme || '—')}</td>
+      <td>${typePill}</td>
+      <td>${payCell}</td>
+      <td><span style="color:${sc};font-weight:700;font-size:.8rem;text-transform:capitalize">${a.status}</span></td>
+      <td style="font-size:.78rem">${applied}</td>
+      <td>
+        <div style="display:flex;gap:.35rem;flex-wrap:wrap">
+          <button onclick="setIappStatus('${a.id}','accepted')"  style="padding:.22rem .62rem;border-radius:7px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;background:rgba(74,222,128,.14);color:#4ade80">Accept</button>
+          <button onclick="setIappStatus('${a.id}','reviewing')" style="padding:.22rem .62rem;border-radius:7px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;background:rgba(96,165,250,.12);color:#60a5fa">Review</button>
+          <button onclick="setIappStatus('${a.id}','rejected')"  style="padding:.22rem .62rem;border-radius:7px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;background:rgba(248,113,113,.12);color:#f87171">Reject</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function _updateIappStats(apps) {
+  const total    = apps.length;
+  const pending  = apps.filter(a => a.status === 'pending').length;
+  const accepted = apps.filter(a => a.status === 'accepted').length;
+  const paid     = apps.filter(a => a.payment_status === 'paid').length;
+  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  s('iapp-s-total', total); s('iapp-s-pending', pending);
+  s('iapp-s-accepted', accepted); s('iapp-s-paid', paid);
+}
+
+async function setIappStatus(appId, status) {
+  const { error } = await db.client
+    .from('internship_applications')
+    .update({ status })
+    .eq('id', appId);
+  if (error) { showToast('Failed to update status: ' + error.message, 'error'); return; }
+  showToast('Status updated to ' + status, 'success');
+  loadInternApplications();
+}
+
+function exportIappCSV() {
+  const rows = [...document.querySelectorAll('#iapp-tbody tr')].map(r =>
+    [...r.querySelectorAll('td')].slice(0,-1).map(td => `"${td.textContent.replace(/"/g,'""')}"`).join(',')
+  );
+  const headers = '"Name","Email","Phone","College","Programme","Type","Payment","Status","Applied"';
+  const csv  = [headers, ...rows].join('\n');
+  const a    = document.createElement('a');
+  a.href     = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
+  a.download = 'internship-applications-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+/* ============================================================
+   PAID INTERNSHIP SETTINGS
+   ============================================================ */
+async function loadPaidSettings() {
+  const tbody = document.getElementById('paid-settings-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+
+  const { data: projects, error } = await db.client
+    .from('internship_projects')
+    .select('id,project_name,domain,duration_weeks,is_paid,payment_amount,is_active')
+    .eq('project_type', 'internship')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;
+    return;
+  }
+  if (!projects?.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No internship projects found. Create one in the Projects tab first.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = projects.map(p => {
+    const checked  = p.is_paid   ? 'checked' : '';
+    const active   = p.is_active ? '<span style="color:#4ade80;font-weight:700">Active</span>' : '<span style="color:var(--txt3)">Inactive</span>';
+    return `<tr>
+      <td style="font-weight:700">${_adm_esc(p.project_name)}</td>
+      <td style="font-size:.8rem;color:var(--txt3)">${_adm_esc(p.domain||'—')}</td>
+      <td style="font-size:.8rem">${p.duration_weeks ? p.duration_weeks + ' wks' : '—'}</td>
+      <td>
+        <label style="display:inline-flex;align-items:center;gap:.45rem;cursor:pointer;font-size:.82rem;font-weight:700">
+          <input type="checkbox" id="ps-paid-${p.id}" ${checked}
+            style="width:16px;height:16px;accent-color:#f59e0b;cursor:pointer"
+            onchange="togglePaidLabel('${p.id}',this.checked)">
+          <span id="ps-paid-label-${p.id}" style="color:${p.is_paid?'#fbbf24':'var(--txt3)'}">
+            ${p.is_paid ? 'Paid' : 'Free'}
+          </span>
+        </label>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <span style="font-size:.85rem;color:var(--txt3);font-weight:700">₹</span>
+          <input type="number" id="ps-amt-${p.id}" value="${p.payment_amount||''}"
+            placeholder="e.g. 4999" min="0" step="1"
+            style="width:90px;padding:.32rem .55rem;border-radius:8px;border:1.5px solid rgba(124,92,252,.25);background:var(--bg);color:var(--txt);font-size:.82rem;outline:none"
+            onfocus="this.style.borderColor='rgba(245,158,11,.55)'"
+            onblur="this.style.borderColor='rgba(124,92,252,.25)'">
+        </div>
+      </td>
+      <td>${active}</td>
+      <td>
+        <button onclick="savePaidSetting('${p.id}')"
+          style="padding:.32rem .9rem;border-radius:8px;background:rgba(245,158,11,.16);color:#fbbf24;border:1px solid rgba(245,158,11,.32);font-size:.78rem;font-weight:700;cursor:pointer;transition:background .18s"
+          onmouseover="this.style.background='rgba(245,158,11,.3)'"
+          onmouseout="this.style.background='rgba(245,158,11,.16)'">
+          Save
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function togglePaidLabel(id, isPaid) {
+  const label = document.getElementById('ps-paid-label-' + id);
+  if (label) {
+    label.textContent = isPaid ? 'Paid' : 'Free';
+    label.style.color = isPaid ? '#fbbf24' : 'var(--txt3)';
+  }
+}
+
+async function savePaidSetting(projId) {
+  const isPaid  = document.getElementById('ps-paid-' + projId)?.checked ?? false;
+  const amtEl   = document.getElementById('ps-amt-'  + projId);
+  const amount  = amtEl ? (parseFloat(amtEl.value) || null) : null;
+
+  const { error } = await db.client
+    .from('internship_projects')
+    .update({ is_paid: isPaid, payment_amount: isPaid ? amount : null })
+    .eq('id', projId);
+
+  if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+  showToast(isPaid ? `Saved — ₹${amount?.toLocaleString('en-IN')||0} paid internship` : 'Saved — marked as free', 'success');
+}
+
 // ===== SIDEBAR TOGGLE =====
 (function setupSidebar() {
   const sidebar = document.getElementById('sidebar');
@@ -8882,11 +9451,19 @@ function _adm_esc(s) {
       </div>
       <div class="f-group">
         <label>Project Type *</label>
-        <select id="ipj-type">
-          <option value="available">Available</option>
-          <option value="internship" selected>Internship</option>
-          <option value="upcoming">Upcoming</option>
-          <option value="completed">Completed</option>
+        <select id="ipj-type" onchange="_toggleInternshipStatusField()">
+          <option value="available">Available (Project)</option>
+          <option value="upcoming">Upcoming (Project)</option>
+          <option value="completed">Completed (Project)</option>
+          <option value="internship">Internship</option>
+        </select>
+      </div>
+      <div class="f-group" id="ipj-internship-status-row" style="display:none">
+        <label>Internship Status *</label>
+        <select id="ipj-internship-status">
+          <option value="ongoing">Ongoing — accepting applications now</option>
+          <option value="upcoming">Upcoming — opening soon</option>
+          <option value="completed">Completed — closed</option>
         </select>
       </div>
       <div class="f-group">

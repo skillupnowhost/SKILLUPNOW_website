@@ -73,10 +73,12 @@ class ProfileNavigationManager {
         const pageSuffix = window.location.protocol === 'file:' ? '.html' : '';
         const nav = {
           h: r || '/',
-          c: p + 'courses' + pageSuffix,
-          f: p + 'forms' + pageSuffix,
+          c: p + 'courses'         + pageSuffix,
+          j: p + 'project'         + pageSuffix,
+          i: p + 'internship'      + pageSuffix,
+          f: p + 'pamphlet'        + pageSuffix,
           e: p + 'contact-enquiry' + pageSuffix,
-          p: p + 'profile' + pageSuffix,
+          p: p + 'profile'         + pageSuffix,
         };
         const dest = nav[e.key?.toLowerCase()];
         if (dest) { e.preventDefault(); window.location.href = dest; return; }
@@ -375,9 +377,10 @@ class ProfileNavigationManager {
     const path = window.location.pathname.replace(/\\/g, '/');
     const isHome       = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index');
     const isCourses    = path.includes('courses');
-    const isPamphlet   = path.includes('pamphlet');
+    const isProject    = path.includes('/project') && !path.includes('internship');
+    const isInternship = path.includes('internship');
     const isContact    = path.includes('contact-enquiry') || path.includes('forms');
-    const isInternship = path.includes('project') || path.includes('internship');
+    const isPamphlet   = path.includes('pamphlet');
 
     return `
       <a href="${homeHref}" class="nav-logo" aria-label="SkillUpNow Home" style="padding:0;background:none;gap:0;">
@@ -388,9 +391,10 @@ class ProfileNavigationManager {
       <ul class="nav-links" id="nav-links-list" role="navigation" aria-label="Main navigation">
         <li><a href="${homeHref}"                        class="nav-link-item ${isHome       ? 'active' : ''}">Home</a></li>
         <li><a href="${p}courses${pageSuffix}"           class="nav-link-item ${isCourses    ? 'active' : ''}">Courses</a></li>
-        <li><a href="${p}project${pageSuffix}"            class="nav-link-item ${isInternship ? 'active' : ''}">Projects</a></li>
+        <li><a href="${p}project${pageSuffix}"           class="nav-link-item ${isProject    ? 'active' : ''}">Projects</a></li>
+        <li><a href="${p}internship${pageSuffix}"        class="nav-link-item ${isInternship ? 'active' : ''}">Internships</a></li>
         <li><a href="${p}pamphlet${pageSuffix}"          class="nav-link-item ${isPamphlet   ? 'active' : ''}">Pamphlet</a></li>
-        <li><a href="${p}contact-enquiry${pageSuffix}"   class="nav-link-item ${isContact    ? 'active' : ''}">Contact & Forms</a></li>
+        <li><a href="${p}contact-enquiry${pageSuffix}"   class="nav-link-item ${isContact    ? 'active' : ''}">Contact</a></li>
       </ul>
 
       <div class="nav-actions" id="nav-actions">

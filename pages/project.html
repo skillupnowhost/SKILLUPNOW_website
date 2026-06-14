@@ -572,8 +572,10 @@
     }
 
     /* ═══════════════════════════════════════════════════════
-       CARDS — v3 Aurora Glass
+       CARDS — Unified grid (matches internship page style)
     ═══════════════════════════════════════════════════════ */
+    .prj-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1.5rem; }
+    @media(max-width:600px) { .prj-cards-grid { grid-template-columns:1fr; } }
     .lg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1.6rem; }
 
     @keyframes cardIn {
@@ -584,8 +586,79 @@
     @keyframes pulseDot  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.6)} }
     @keyframes metaPulse { 0%,100%{opacity:1} 50%{opacity:.6} }
 
-    /* ── AVAILABLE CARD ── */
-    .lg-card {
+    /* ── UNIFIED PROJECT CARD (same layout as internship cards) ── */
+    .prj-card {
+      position:relative; border-radius:var(--prj-r); cursor:pointer; overflow:hidden;
+      background:var(--bg2); border:1px solid var(--border);
+      box-shadow:0 2px 0 rgba(255,255,255,.05) inset, 0 6px 28px rgba(0,0,0,.1);
+      display:flex; flex-direction:column; min-height:320px;
+      transition:transform .36s cubic-bezier(.22,1,.36,1), box-shadow .36s, border-color .3s;
+      opacity:0; transform:translateY(28px);
+    }
+    .prj-card.prj-card-in { opacity:1; transform:none; animation:cardIn .55s cubic-bezier(.22,1,.36,1) both; }
+    .prj-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px; z-index:2;
+      background:var(--prj-card-grad, linear-gradient(90deg, var(--prj-v), var(--prj-cyan)));
+      border-radius:var(--prj-r) var(--prj-r) 0 0; opacity:.85; transition:opacity .3s;
+    }
+    .prj-card:hover::before { opacity:1; }
+    .prj-card-shim {
+      position:absolute; inset:0; z-index:1; pointer-events:none;
+      background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.06) 47%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.06) 53%,transparent 70%);
+      background-size:240% 100%; background-position:240%; opacity:0; transition:opacity .3s;
+    }
+    .prj-card:hover { transform:perspective(1200px) translateY(-10px) scale(1.018) rotateX(-2deg); box-shadow:0 24px 60px rgba(0,0,0,.2), 0 0 0 1.5px color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 44%, transparent); border-color:color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 36%, var(--border)); }
+    .prj-card:hover .prj-card-shim { opacity:1; animation:shimSweep .7s ease forwards; }
+    .prj-card > * { position:relative; z-index:2; }
+
+    /* Card top row — icon + pill */
+    .prj-card-top { padding:1.4rem 1.5rem .55rem; display:flex; align-items:flex-start; justify-content:space-between; }
+    .prj-card-icon-wrap { display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:filter .35s; }
+    .prj-card-icon-wrap svg { width:42px; height:42px; }
+    .prj-card:hover .prj-card-icon-wrap { filter:drop-shadow(0 0 18px color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 80%, transparent)); }
+
+    /* Status pill */
+    .prj-upill {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.22rem .7rem; border-radius:999px; font-size:.67rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    }
+    .prj-upill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; animation:pulseDot 1.8s ease-in-out infinite; }
+    .prj-upill-live     { background:rgba(74,222,128,.1);  color:#4ade80;         border:1px solid rgba(74,222,128,.26); }
+    .prj-upill-soon     { background:rgba(6,182,212,.1);   color:var(--prj-cyan); border:1px solid rgba(6,182,212,.26); }
+    .prj-upill-done     { background:rgba(16,185,129,.1);  color:var(--prj-em);   border:1px solid rgba(16,185,129,.26); }
+    .prj-upill-intern   { background:color-mix(in srgb, var(--prj-v) 12%, transparent); color:var(--prj-v); border:1px solid color-mix(in srgb, var(--prj-v) 26%, transparent); }
+
+    /* Card body */
+    .prj-card-body { padding:.65rem 1.5rem 1.3rem; display:flex; flex-direction:column; flex:1; min-height:0; }
+    .prj-card-tags { display:flex; flex-wrap:nowrap; gap:.28rem; margin-bottom:.65rem; overflow-x:auto; scrollbar-width:none; }
+    .prj-card-tags::-webkit-scrollbar { display:none; }
+    .prj-card-title { font-size:1.06rem; font-weight:900; color:var(--txt); line-height:1.28; margin-bottom:.45rem; letter-spacing:-.018em; }
+    .prj-card-desc  { font-size:.81rem; color:var(--txt2); line-height:1.7; flex:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .prj-card-meta  { display:flex; flex-wrap:wrap; gap:.5rem; padding-top:.85rem; border-top:1px solid var(--border); margin-top:auto; }
+    .prj-card-meta-item { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .65rem; border-radius:999px; }
+    .prj-cmeta-loc  { color:#fb923c; background:rgba(251,146,60,.08);  border:1px solid rgba(251,146,60,.18); }
+    .prj-cmeta-team { color:#38bdf8; background:rgba(56,189,248,.08);  border:1px solid rgba(56,189,248,.18); }
+    .prj-cmeta-dur  { color:#a78bfa; background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.18); }
+    .prj-card-meta-item svg { flex-shrink:0; animation:metaPulse 2.4s ease-in-out infinite; }
+
+    /* Explore button */
+    .prj-explore-btn {
+      display:inline-flex; align-items:center; gap:.38rem;
+      margin-top:.85rem; padding:.58rem 1.1rem; border-radius:10px; font-size:.82rem; font-weight:700;
+      color:var(--prj-card-accent,var(--prj-v)); text-decoration:none; width:fit-content;
+      background:color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 10%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 26%, transparent);
+      transition:background .2s, transform .2s, box-shadow .2s;
+    }
+    .prj-explore-btn:hover { background:color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 22%, transparent); transform:translateY(-2px); box-shadow:0 6px 18px color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 22%, transparent); }
+    .prj-explore-btn svg { transition:transform .22s; }
+    .prj-explore-btn:hover svg { transform:translateX(4px); }
+
+    /* ── Legacy card names used by slider anim class (kept for JS compat) ── */
+    .lg-card { }
+
+    /* ── AVAILABLE CARD (original - kept for backward compat only) ── */
+    .lg-card-orig {
       position:relative; border-radius:var(--prj-r); cursor:pointer;
       background:linear-gradient(160deg,
         color-mix(in srgb, var(--lg-c1,var(--prj-v)) 8%, var(--glass-bg)) 0%,
@@ -2062,42 +2135,26 @@
     @keyframes slideInLeft  { from{opacity:0;transform:translateX(-42px)} to{opacity:1;transform:none} }
     .slide-in-right { animation:slideInRight .32s cubic-bezier(.22,1,.36,1) both; }
     .slide-in-left  { animation:slideInLeft  .32s cubic-bezier(.22,1,.36,1) both; }
+    /* prj-explore-btn overriding earlier def — unified internship-style link */
     .prj-explore-btn {
-      display:flex; align-items:center; justify-content:center; gap:.55rem;
-      width:100%; padding:.8rem 1.4rem; margin-top:1rem;
-      border-radius:13px;
-      background:linear-gradient(135deg, var(--prj-v) 0%, #4f46e5 60%, #06b6d4 100%);
-      background-size:200% 100%; background-position:0% 50%;
-      color:#fff; font-size:.84rem; font-weight:800;
-      border:none; cursor:pointer; font-family:inherit;
-      box-shadow:
-        0 4px 18px color-mix(in srgb, var(--v1) 36%, transparent),
-        0 1px 0 rgba(255,255,255,.22) inset;
-      transition:
-        transform .32s cubic-bezier(.22,1,.36,1),
-        box-shadow .32s,
-        filter .25s,
-        background-position .5s;
-      text-decoration:none; position:relative; overflow:hidden;
+      display:inline-flex; align-items:center; gap:.38rem;
+      padding:.58rem 1.1rem; border-radius:10px; font-size:.82rem; font-weight:700;
+      color:var(--prj-card-accent, var(--prj-v)); text-decoration:none; width:fit-content;
+      background:color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 10%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 26%, transparent);
+      transition:background .2s, transform .2s, box-shadow .2s; position:relative; overflow:visible;
     }
-    .prj-explore-btn::before {
-      content:''; position:absolute; top:0; left:-90%; width:55%; height:100%;
-      background:linear-gradient(120deg, transparent 15%, rgba(255,255,255,.25) 48%, rgba(255,255,255,.12) 52%, transparent 85%);
-      transform:skewX(-14deg); pointer-events:none; opacity:0;
-    }
-    .prj-explore-btn:hover::before { animation:prjBtnShine .58s ease forwards; }
+    .prj-explore-btn::before { display:none; }
     .prj-explore-btn:hover {
-      transform:translateY(-4px) scale(1.025);
-      background-position:100% 50%;
-      box-shadow:
-        0 12px 36px color-mix(in srgb, var(--v1) 50%, transparent),
-        0 1px 0 rgba(255,255,255,.26) inset;
-      filter:brightness(1.08);
+      background:color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 22%, transparent);
+      transform:translateY(-2px);
+      box-shadow:0 6px 18px color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 22%, transparent);
+      filter:none;
     }
-    .prj-explore-btn:active { transform:translateY(-1px) scale(1.01); }
-    .prj-explore-btn svg { transition:transform .3s cubic-bezier(.22,1,.36,1); position:relative; z-index:1; }
-    .prj-explore-btn:hover svg { transform:translateX(5px); }
-    .prj-explore-btn span { position:relative; z-index:1; }
+    .prj-explore-btn:active { transform:translateY(-1px); }
+    .prj-explore-btn svg { transition:transform .22s; }
+    .prj-explore-btn:hover svg { transform:translateX(4px); }
+    .prj-explore-btn span { position:relative; }
 
     /* ═══════════════════════════════════════════════════════
        COMPREHENSIVE MOBILE RESPONSIVE — ALL SCREEN SIZES
@@ -2331,21 +2388,6 @@
             <span class="prj-hero-stat-v" id="stat-available">—</span>
             <span class="prj-hero-stat-l">Available</span>
           </div>
-          <!-- Internships -->
-          <div class="prj-hero-stat" style="animation-delay:.12s" onclick="document.getElementById('prj-intern-list').closest('.prj-section').scrollIntoView({behavior:'smooth',block:'start'})">
-            <div class="prj-hero-stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <!-- cap brim swings -->
-                <path class="si-swing" d="M2 10l10-5 10 5-10 5z" stroke="rgba(192,132,252,.95)" stroke-width="1.8" fill="rgba(192,132,252,.1)" style="animation-duration:2.4s"/>
-                <!-- body/gown bobs -->
-                <path class="si-bob2" d="M6 12v5c3 3 9 3 12 0v-5" stroke="rgba(192,132,252,.85)" stroke-width="1.8" style="animation-duration:2.8s;animation-delay:.3s"/>
-                <!-- tassel swings opposite -->
-                <path class="si-swing" d="M22 10v6" stroke="rgba(192,132,252,.75)" stroke-width="2" style="animation-duration:1.9s;animation-delay:.5s;transform-origin:top"/>
-              </svg>
-            </div>
-            <span class="prj-hero-stat-v" id="stat-internship">—</span>
-            <span class="prj-hero-stat-l">Internships</span>
-          </div>
           <!-- Completed -->
           <div class="prj-hero-stat" style="animation-delay:.19s" onclick="document.getElementById('prj-completed-grid').closest('.prj-section').scrollIntoView({behavior:'smooth',block:'start'})">
             <div class="prj-hero-stat-icon" style="filter:drop-shadow(0 0 8px rgba(52,211,153,.3))">
@@ -2505,107 +2547,7 @@
             </div>
             <span class="prj-section-count" id="count-available">0</span>
           </div>
-          <div class="prj-slider-wrap">
-            <div class="prj-slider-card-area" id="prj-available-grid"><div class="prj-spin"></div></div>
-            <div class="prj-slider-controls" id="slider-controls-available" style="display:none">
-              <button class="prj-slider-btn" id="slider-prev-available" onclick="sliderGo('available',-1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-              </button>
-              <div class="prj-slider-dots" id="slider-dots-available"></div>
-              <span class="prj-slider-counter" id="slider-counter-available"></span>
-              <button class="prj-slider-btn" id="slider-next-available" onclick="sliderGo('available',1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Internships -->
-        <section class="prj-section">
-          <div class="prj-section-hdr">
-            <div class="prj-section-title-wrap">
-              <div class="prj-section-icon prj-sec-amber">
-                <svg class="prj-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Mortarboard cap top (diamond perspective) -->
-                  <path d="M16 4 L29 11 L16 18 L3 11 Z" fill="currentColor" fill-opacity=".7" stroke="currentColor" stroke-opacity=".9" stroke-width="1.5" stroke-linejoin="round"/>
-                  <!-- Depth shadow on cap -->
-                  <path d="M3 11 L16 18 L29 11" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width=".9"/>
-                  <!-- Cap base / rim -->
-                  <path d="M10 18 L10 23 Q16 26.5 22 23 L22 18" stroke="currentColor" stroke-opacity=".65" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".12"/>
-                  <!-- Tassel cord from right corner -->
-                  <line x1="29" y1="11" x2="29" y2="19" stroke="currentColor" stroke-opacity=".7" stroke-width="1.4" stroke-linecap="round"/>
-                  <!-- Tassel end swings -->
-                  <line class="si-swing" x1="29" y1="19" x2="26.5" y2="26" stroke="currentColor" stroke-opacity=".65" stroke-width="1.3" stroke-linecap="round"/>
-                  <circle class="si-swing" cx="26.5" cy="27.5" r="2" fill="#f59e0b"/>
-                  <!-- Top knob -->
-                  <circle cx="16" cy="4" r="1.5" fill="currentColor"/>
-                </svg>
-              </div>
-              <div>
-                <div class="prj-section-title">Internships</div>
-                <div class="prj-section-sub">Structured internship programmes</div>
-              </div>
-            </div>
-            <span class="prj-section-count" id="count-internship">0</span>
-          </div>
-          <div class="prj-slider-wrap">
-            <div class="prj-slider-card-area" id="prj-intern-list"><div class="prj-spin"></div></div>
-            <div class="prj-slider-controls" id="slider-controls-internship" style="display:none">
-              <button class="prj-slider-btn" id="slider-prev-internship" onclick="sliderGo('internship',-1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-              </button>
-              <div class="prj-slider-dots" id="slider-dots-internship"></div>
-              <span class="prj-slider-counter" id="slider-counter-internship"></span>
-              <button class="prj-slider-btn" id="slider-next-internship" onclick="sliderGo('internship',1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Completed Projects -->
-        <section class="prj-section">
-          <div class="prj-section-hdr">
-            <div class="prj-section-title-wrap">
-              <div class="prj-section-icon prj-sec-emerald">
-                <svg class="prj-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Trophy cup body -->
-                  <path d="M10 4 H22 L20 16 Q16 20 12 16 Z" fill="currentColor" fill-opacity=".6" stroke="currentColor" stroke-opacity=".88" stroke-width="1.5" stroke-linejoin="round"/>
-                  <!-- Trophy handles -->
-                  <path d="M10 6 Q5 6 5 11 Q5 15 10 14" stroke="currentColor" stroke-opacity=".65" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-                  <path d="M22 6 Q27 6 27 11 Q27 15 22 14" stroke="currentColor" stroke-opacity=".65" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-                  <!-- Trophy stem -->
-                  <line x1="16" y1="20" x2="16" y2="25" stroke="currentColor" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>
-                  <!-- Trophy base -->
-                  <rect x="10" y="25" width="12" height="3" rx="1.5" fill="currentColor" fill-opacity=".55" stroke="currentColor" stroke-opacity=".75" stroke-width="1.2"/>
-                  <!-- Checkmark inside cup -->
-                  <path class="si-pulse" d="M12.5 11 L15 13.5 L20 8" stroke="#4ade80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                  <!-- Sparkle stars -->
-                  <circle class="si-blink"       cx="5"  cy="4"  r="1.1" fill="currentColor" fill-opacity=".6"/>
-                  <circle class="si-blink si-bob" cx="27" cy="6"  r="1.4" fill="currentColor" fill-opacity=".5"/>
-                  <circle class="si-blink si-bob2" cx="26" cy="24" r=".9" fill="currentColor" fill-opacity=".4"/>
-                </svg>
-              </div>
-              <div>
-                <div class="prj-section-title">Completed Projects</div>
-                <div class="prj-section-sub">Successfully delivered — proven track record</div>
-              </div>
-            </div>
-            <span class="prj-section-count" id="count-completed">0</span>
-          </div>
-          <div class="prj-slider-wrap">
-            <div class="prj-slider-card-area" id="prj-completed-grid"><div class="prj-spin"></div></div>
-            <div class="prj-slider-controls" id="slider-controls-completed" style="display:none">
-              <button class="prj-slider-btn" id="slider-prev-completed" onclick="sliderGo('completed',-1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-              </button>
-              <div class="prj-slider-dots" id="slider-dots-completed"></div>
-              <span class="prj-slider-counter" id="slider-counter-completed"></span>
-              <button class="prj-slider-btn" id="slider-next-completed" onclick="sliderGo('completed',1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-              </button>
-            </div>
-          </div>
+          <div class="prj-cards-grid" id="prj-available-grid"><div class="prj-spin"></div></div>
         </section>
 
         <!-- Upcoming Projects -->
@@ -2638,18 +2580,66 @@
             </div>
             <span class="prj-section-count" id="count-upcoming">0</span>
           </div>
-          <div class="prj-slider-wrap">
-            <div class="prj-slider-card-area" id="prj-upcoming-grid"><div class="prj-spin"></div></div>
-            <div class="prj-slider-controls" id="slider-controls-upcoming" style="display:none">
-              <button class="prj-slider-btn" id="slider-prev-upcoming" onclick="sliderGo('upcoming',-1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-              </button>
-              <div class="prj-slider-dots" id="slider-dots-upcoming"></div>
-              <span class="prj-slider-counter" id="slider-counter-upcoming"></span>
-              <button class="prj-slider-btn" id="slider-next-upcoming" onclick="sliderGo('upcoming',1)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-              </button>
+          <div class="prj-cards-grid" id="prj-upcoming-grid"><div class="prj-spin"></div></div>
+        </section>
+
+        <!-- Completed Projects -->
+        <section class="prj-section">
+          <div class="prj-section-hdr">
+            <div class="prj-section-title-wrap">
+              <div class="prj-section-icon prj-sec-emerald">
+                <svg class="prj-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Trophy cup body -->
+                  <path d="M10 4 H22 L20 16 Q16 20 12 16 Z" fill="currentColor" fill-opacity=".6" stroke="currentColor" stroke-opacity=".88" stroke-width="1.5" stroke-linejoin="round"/>
+                  <!-- Trophy handles -->
+                  <path d="M10 6 Q5 6 5 11 Q5 15 10 14" stroke="currentColor" stroke-opacity=".65" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+                  <path d="M22 6 Q27 6 27 11 Q27 15 22 14" stroke="currentColor" stroke-opacity=".65" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+                  <!-- Trophy stem -->
+                  <line x1="16" y1="20" x2="16" y2="25" stroke="currentColor" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>
+                  <!-- Trophy base -->
+                  <rect x="10" y="25" width="12" height="3" rx="1.5" fill="currentColor" fill-opacity=".55" stroke="currentColor" stroke-opacity=".75" stroke-width="1.2"/>
+                  <!-- Checkmark inside cup -->
+                  <path class="si-pulse" d="M12.5 11 L15 13.5 L20 8" stroke="#4ade80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <!-- Sparkle stars -->
+                  <circle class="si-blink"       cx="5"  cy="4"  r="1.1" fill="currentColor" fill-opacity=".6"/>
+                  <circle class="si-blink si-bob" cx="27" cy="6"  r="1.4" fill="currentColor" fill-opacity=".5"/>
+                  <circle class="si-blink si-bob2" cx="26" cy="24" r=".9" fill="currentColor" fill-opacity=".4"/>
+                </svg>
+              </div>
+              <div>
+                <div class="prj-section-title">Completed Projects</div>
+                <div class="prj-section-sub">Successfully delivered — proven track record</div>
+              </div>
             </div>
+            <span class="prj-section-count" id="count-completed">0</span>
+          </div>
+          <div class="prj-cards-grid" id="prj-completed-grid"><div class="prj-spin"></div></div>
+        </section>
+
+        <!-- Internships CTA Banner — directs to dedicated page -->
+        <section class="prj-section">
+          <div style="background:linear-gradient(135deg,rgba(245,158,11,.09) 0%,rgba(16,185,129,.07) 100%);border:1.5px solid rgba(245,158,11,.28);border-radius:24px;padding:2.4rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 80% at 90% 50%,rgba(16,185,129,.08),transparent);"></div>
+            <div style="position:relative;z-index:1;display:flex;align-items:center;gap:1.4rem;flex:1;min-width:0;">
+              <div style="width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(16,185,129,.15));border:1.5px solid rgba(245,158,11,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect class="si-bob" x="2" y="7" width="20" height="14" rx="2"/>
+                  <path class="si-slide" d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                  <line class="si-blink" x1="12" y1="12" x2="12" y2="16"/>
+                  <line x1="10" y1="14" x2="14" y2="14"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-size:1.2rem;font-weight:900;color:var(--txt);margin-bottom:.3rem;">Looking for Internships?</div>
+                <div style="font-size:.88rem;color:var(--txt2);line-height:1.6;">Explore structured free &amp; paid internship programmes, apply with a simple form, and earn an industry-recognised certificate.</div>
+              </div>
+            </div>
+            <a href="internship" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.8rem;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#10b981);color:#fff;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 18px rgba(245,158,11,.35);"
+              onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 30px rgba(245,158,11,.45)'"
+              onmouseout="this.style.transform='';this.style.boxShadow='0 4px 18px rgba(245,158,11,.35)'">
+              View Internships
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
           </div>
         </section>
 
@@ -2823,35 +2813,51 @@
   /* ============================================================
      LOAD PROJECTS (public)
   ============================================================ */
+  /* ── Render a full grid of unified cards ── */
+  function _renderGrid(gridId, projects, type, emptyState) {
+    const el = document.getElementById(gridId);
+    if (!el) return;
+    if (!projects.length) {
+      const [icon, title, msg] = emptyState;
+      el.innerHTML = `<div class="prj-empty" style="grid-column:1/-1"><div class="prj-empty-icon">${icon}</div><h3>${title}</h3><p>${msg}</p></div>`;
+      return;
+    }
+    el.innerHTML = projects.map(p => _buildUnifiedCard(p, type)).join('');
+    const cards = el.querySelectorAll('.prj-card');
+    // Animate cards in — trigger immediately (staggered) so they're always visible
+    cards.forEach((c, i) => setTimeout(() => c.classList.add('prj-card-in'), 60 + i * 80));
+  }
+
   async function loadProjects() {
     const { data, error } = await _prjSb
       .from('internship_projects')
       .select('id,project_name,country,domain,description,tech_stack,duration_weeks,max_students,team_size,project_type,is_active')
       .eq('is_active', true)
+      .in('project_type', ['available', 'upcoming', 'completed'])
       .order('created_at', { ascending: false });
 
     if (error) { console.error(error); return; }
     const projects = data || [];
 
     const available  = projects.filter(p => p.project_type === 'available');
-    const internship = projects.filter(p => p.project_type === 'internship');
     const upcoming   = projects.filter(p => p.project_type === 'upcoming');
     const completed  = projects.filter(p => p.project_type === 'completed');
 
     // Update hero stats
     document.getElementById('stat-available').textContent  = available.length;
-    document.getElementById('stat-internship').textContent = internship.length;
     document.getElementById('stat-upcoming').textContent   = upcoming.length;
     document.getElementById('stat-completed').textContent  = completed.length;
     document.getElementById('count-available').textContent  = available.length;
-    document.getElementById('count-internship').textContent = internship.length;
     document.getElementById('count-upcoming').textContent   = upcoming.length;
     document.getElementById('count-completed').textContent  = completed.length;
 
-    initSlider('available',  available);
-    initSlider('internship', internship);
-    initSlider('upcoming',   upcoming);
-    initSlider('completed',  completed);
+    try {
+      _renderGrid('prj-available-grid', available,  'available',  ['🚀','No available projects','Check back soon — new projects are added regularly.']);
+      _renderGrid('prj-upcoming-grid',  upcoming,   'upcoming',   ['⏳','No upcoming projects','New projects coming soon. Stay tuned!']);
+      _renderGrid('prj-completed-grid', completed,  'completed',  ['🏆','No completed projects yet','Successfully delivered projects will appear here.']);
+    } catch (renderErr) {
+      console.error('[project] render error:', renderErr);
+    }
   }
 
   /* ── Domain → emoji + brand colors + orbit speed ── */
@@ -3106,13 +3112,11 @@
   const _sliders = {};
   const _sliderContainerId = {
     available:  'prj-available-grid',
-    internship: 'prj-intern-list',
     completed:  'prj-completed-grid',
     upcoming:   'prj-upcoming-grid',
   };
   const _sliderEmpty = {
     available:  ['🚀','No available projects','Check back soon — new projects are added regularly.'],
-    internship: ['🎓','No internships listed','Internship opportunities will appear here soon.'],
     completed:  ['🏆','No completed projects yet','Successfully delivered projects will appear here.'],
     upcoming:   ['⏳','No upcoming projects','New projects coming soon. Stay tuned!'],
   };
@@ -3187,150 +3191,74 @@
 
   /* ── Explore button ── */
   function _exploreBtn(id) {
-    return `<a class="prj-explore-btn" href="project-detail.html?id=${id}" onclick="event.stopPropagation()">
+    return `<a class="prj-explore-btn" style="--prj-card-accent:var(--prj-card-acc)" href="project-detail.html?id=${id}" onclick="event.stopPropagation()">
       Explore Project
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>`;
   }
 
-  /* ── Available card (lg-card style) ── */
-  function _cardAvailable(p) {
+  /* ── Unified project card ── */
+  function _buildUnifiedCard(p, type) {
     const icon = getProjectIcon(p.domain, p.project_name);
     const { c1, c2 } = icon;
     const teamSz = p.team_size || p.max_students || 5;
-    return `<div class="lg-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
-      <div class="lg-shimmer"></div>
-      <div class="lg-icon-wrap">
-        ${_buildIcon3d(icon, 'lg-icon-orb', '0ms', 'available')}
-        <span class="lg-status-pill lg-pill-live"><span class="lg-pill-dot"></span>Live</span>
+    const dur    = p.duration_weeks ? `${p.duration_weeks}w` : '—';
+
+    const pillMap = {
+      available:  `<span class="prj-upill prj-upill-live"><span class="prj-upill-dot"></span>Live</span>`,
+      upcoming:   `<span class="prj-upill prj-upill-soon"><span class="prj-upill-dot"></span>Soon</span>`,
+      completed:  `<span class="prj-upill prj-upill-done"><span class="prj-upill-dot"></span>Done</span>`,
+      internship: `<span class="prj-upill prj-upill-intern"><span class="prj-upill-dot"></span>Internship</span>`,
+    };
+    const gradMap = {
+      available:  `linear-gradient(90deg,${c1},${c2})`,
+      upcoming:   `linear-gradient(90deg,var(--prj-cyan),#6366f1)`,
+      completed:  `linear-gradient(90deg,var(--prj-em),#4ade80)`,
+      internship: `linear-gradient(90deg,var(--prj-gold),var(--prj-v))`,
+    };
+    const accMap = {
+      available:  c1,
+      upcoming:   'var(--prj-cyan)',
+      completed:  'var(--prj-em)',
+      internship: 'var(--prj-gold)',
+    };
+
+    const iconSvg = _buildIcon3d(icon, 'prj-card-icon-wrap', '0ms', type);
+
+    return `<div class="prj-card" style="--prj-card-grad:${gradMap[type]||gradMap.available};--prj-card-accent:${accMap[type]||c1};--prj-card-acc:${accMap[type]||c1}" onclick="openProjectModal('${p.id}')">
+      <div class="prj-card-shim"></div>
+      <div class="prj-card-top">
+        ${iconSvg}
+        ${pillMap[type] || pillMap.available}
       </div>
-      <div class="lg-body">
-        <div class="lg-title">${_esc(p.project_name)}</div>
-        <div class="lg-tags" style="margin-bottom:.65rem">${renderTags(p)}</div>
-        <div class="lg-desc">${_esc(p.description || 'Real-world project experience awaits.')}</div>
-        <div class="lg-meta">
-          <div class="lg-meta-item loc">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle class="si-pulse" cx="12" cy="9" r="2" fill="currentColor" fill-opacity=".4" stroke="currentColor"/></svg>
+      <div class="prj-card-body">
+        <div class="prj-card-tags">${renderTags(p)}</div>
+        <div class="prj-card-title">${_esc(p.project_name)}</div>
+        <p class="prj-card-desc">${_esc(p.description || 'Real-world project experience awaits.')}</p>
+        <div class="prj-card-meta">
+          <span class="prj-card-meta-item prj-cmeta-loc">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle class="si-pulse" cx="12" cy="9" r="2" fill="currentColor" fill-opacity=".35" stroke="none"/></svg>
             ${_esc(p.country || '—')}
-          </div>
-          <div class="lg-meta-item team">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path class="si-bob" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span class="prj-card-meta-item prj-cmeta-team">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path class="si-bob" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             ${teamSz} members
-          </div>
-          <div class="lg-meta-item dur">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline class="si-swing" points="12 6 12 12 16 14"/></svg>
-            ${p.duration_weeks}w
-          </div>
+          </span>
+          <span class="prj-card-meta-item prj-cmeta-dur">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline class="si-swing" points="12 6 12 12 16 14"/></svg>
+            ${dur}
+          </span>
         </div>
         ${_exploreBtn(p.id)}
       </div>
     </div>`;
   }
 
-  /* ── Internship card (intern-card style) ── */
-  function _cardIntern(p) {
-    const icon = getProjectIcon(p.domain, p.project_name);
-    const { c1, c2 } = icon;
-    return `<div class="intern-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
-      <div class="intern-card-inner">
-        <div class="intern-card-header">
-          ${_buildIcon3d(icon, 'intern-card-icon', '0ms', 'internship')}
-          <div class="intern-card-arrow">${_svgChev}</div>
-        </div>
-        <div class="intern-card-body">
-          <div class="intern-card-title">${_esc(p.project_name)}</div>
-          <div class="intern-card-tags" style="margin-bottom:.45rem">${renderTags(p)}</div>
-          <div class="intern-card-desc">${_esc(p.description || 'Structured internship programme with guided mentorship.')}</div>
-          <div class="intern-card-meta" style="margin-top:.5rem;padding-top:.7rem;border-top:1px solid var(--border)">
-            <div class="lg-meta-item loc" style="font-size:.72rem">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle class="si-pulse" cx="12" cy="9" r="2" fill="currentColor" fill-opacity=".4" stroke="currentColor"/></svg>
-              ${_esc(p.country || '—')}
-            </div>
-            <div class="lg-meta-item team" style="font-size:.72rem">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path class="si-bob" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              ${p.team_size || p.max_students} members
-            </div>
-            <div class="lg-meta-item dur" style="font-size:.72rem">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline class="si-swing" points="12 6 12 12 16 14"/></svg>
-              ${p.duration_weeks}w
-            </div>
-          </div>
-          ${_exploreBtn(p.id)}
-        </div>
-      </div>
-    </div>`;
-  }
-
-  /* ── Completed card ── */
-  function _cardCompleted(p) {
-    const icon = getProjectIcon(p.domain, p.project_name);
-    const { c1, c2 } = icon;
-    return `<div class="completed-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
-      <div class="completed-icon-row">
-        ${_buildIcon3d(icon, 'completed-orb', '0ms', 'completed')}
-        <span class="completed-done-badge">
-          <svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 4 L3.5 6 L6.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          Done
-        </span>
-      </div>
-      <div class="completed-body">
-        <div class="completed-title">${_esc(p.project_name)}</div>
-        <div class="lg-tags" style="margin-bottom:.55rem;display:flex;flex-wrap:nowrap;gap:.3rem;overflow-x:auto;scrollbar-width:none">${renderTags(p)}</div>
-        <div class="completed-desc">${_esc(p.description || 'Project successfully completed.')}</div>
-        <div class="completed-meta">
-          <div class="lg-meta-item loc" style="font-size:.72rem">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle class="si-pulse" cx="12" cy="9" r="2" fill="currentColor" fill-opacity=".4" stroke="currentColor"/></svg>
-            ${_esc(p.country || '—')}
-          </div>
-          <div class="lg-meta-item team" style="font-size:.72rem">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path class="si-bob" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            ${p.team_size || p.max_students} members
-          </div>
-          <div class="lg-meta-item dur" style="font-size:.72rem">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline class="si-swing" points="12 6 12 12 16 14"/></svg>
-            ${p.duration_weeks}w
-          </div>
-        </div>
-        ${_exploreBtn(p.id)}
-      </div>
-    </div>`;
-  }
-
-  /* ── Upcoming card ── */
-  function _cardUpcoming(p) {
-    const icon = getProjectIcon(p.domain, p.project_name);
-    const { c1, c2 } = icon;
-    return `<div class="upcoming-card" style="--lg-c1:${c1};--lg-c2:${c2}" onclick="openProjectModal('${p.id}')">
-      <div class="upcoming-noise"></div>
-      <div class="upcoming-icon-row">
-        ${_buildIcon3d(icon, 'upcoming-orb', '0ms', 'upcoming')}
-        <span class="upcoming-soon-badge">
-          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>
-          Soon
-        </span>
-      </div>
-      <div class="upcoming-body">
-        <div class="upcoming-title">${_esc(p.project_name)}</div>
-        <div class="upcoming-desc">${_esc(p.description || 'Details coming soon.')}</div>
-        <div class="lg-tags" style="margin:.6rem 0;display:flex;flex-wrap:nowrap;gap:.3rem;overflow-x:auto;scrollbar-width:none">${renderTags(p)}</div>
-        <div class="upcoming-meta">
-          <div class="lg-meta-item loc" style="font-size:.72rem">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle class="si-pulse" cx="12" cy="9" r="2" fill="currentColor" fill-opacity=".4" stroke="currentColor"/></svg>
-            ${_esc(p.country || '—')}
-          </div>
-          <div class="lg-meta-item team" style="font-size:.72rem">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path class="si-bob" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            ${p.team_size || p.max_students} members
-          </div>
-          <div class="lg-meta-item dur" style="font-size:.72rem">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline class="si-swing" points="12 6 12 12 16 14"/></svg>
-            ${p.duration_weeks}w
-          </div>
-        </div>
-        ${_exploreBtn(p.id)}
-      </div>
-    </div>`;
-  }
+  /* Kept for backward compat with slider anim selector */
+  function _cardAvailable(p)  { return _buildUnifiedCard(p, 'available'); }
+  function _cardIntern(p)     { return _buildUnifiedCard(p, 'internship'); }
+  function _cardCompleted(p)  { return _buildUnifiedCard(p, 'completed'); }
+  function _cardUpcoming(p)   { return _buildUnifiedCard(p, 'upcoming'); }
 
   /* ============================================================
      PROJECT DETAIL MODAL
@@ -3922,7 +3850,7 @@
       if (++tries > 50) {
         clearInterval(poll);
         const errHtml = `<div class="prj-empty"><div class="prj-empty-icon">⚠️</div><h3>Connection error</h3><p>Could not reach the database. Please refresh the page.</p></div>`;
-        ['prj-available-grid','prj-intern-list','prj-upcoming-grid'].forEach(id => {
+        ['prj-available-grid','prj-upcoming-grid','prj-completed-grid'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.innerHTML = errHtml;
         });

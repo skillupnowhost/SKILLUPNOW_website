@@ -3,1095 +3,1227 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0;url=project.html">
-  <title>Redirecting… — SkillUpNow</title>
-  <script>window.location.replace('project.html');</script>
+  <title>Internships — SkillUpNow</title>
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/responsive.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
-    /* ─── Internship-only tokens (no site-variable conflicts) ─ */
+    /* ═══════════════════════════════════════════════════════
+       INTERNSHIP PAGE — Standalone Design v1
+    ═══════════════════════════════════════════════════════ */
     :root {
-      --itp-gold:    #f59e0b;
-      --itp-emerald: #10b981;
-      --itp-rose:    #f43f5e;
-      --itp-cyan:    #06b6d4;
-      --itp-sky:     #38bdf8;
-      --itp-r:       14px;
-      --itp-rsm:     10px;
-      --itp-glow:    0 0 24px rgba(124,108,255,0.15);
-      --itp-shadow-p:0 8px 32px rgba(124,108,255,0.22);
+      --itn-gold:    #f59e0b;
+      --itn-emerald: #10b981;
+      --itn-rose:    #f43f5e;
+      --itn-cyan:    #06b6d4;
+      --itn-violet:  #7c3aed;
+      --itn-r:       18px;
+      --itn-rsm:     12px;
     }
 
-    img { -webkit-user-drag: none; user-drag: none; }
+    img { -webkit-user-drag:none; user-drag:none; }
+    .itn-page { padding-bottom: 6rem; }
 
-    /* ─── Page wrapper ──────────────────────────────── */
-    .itp-page { padding-bottom: 6rem; }
+    /* ── Micro-animations for icons only ── */
+    @keyframes itnBob     { 0%,100%{transform:translateY(0)}         50%{transform:translateY(-4px)} }
+    @keyframes itnFloat   { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-5px) scale(1.04)} }
+    @keyframes itnBlink   { 0%,45%,55%,100%{opacity:1} 50%{opacity:.05} }
+    @keyframes itnSpin    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes itnPulse   { 0%,100%{opacity:.22;transform:scale(.8)} 50%{opacity:1;transform:scale(1.08)} }
+    @keyframes itnSwing   { 0%,100%{transform:rotate(-7deg)} 50%{transform:rotate(7deg)} }
+    @keyframes itnSlide   { 0%,100%{transform:translateX(0)} 60%{transform:translateX(3px)} }
+    @keyframes itnDrop    { 0%,100%{transform:translateY(-4px);opacity:0} 40%,80%{transform:translateY(4px);opacity:1} 99%{opacity:0} }
+    @keyframes itnPing    { 0%,100%{transform:scale(1);opacity:1} 65%{transform:scale(2.6);opacity:0} }
+    @keyframes itnShimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
+    @keyframes itnCardIn  { from{opacity:0;transform:translateY(28px) scale(.96)} to{opacity:1;transform:none} }
+    @keyframes itnHdrIn   { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:none} }
+    @keyframes itnOrbFloat{ 0%,100%{transform:translateY(0) scale(1) rotate(0deg)} 40%{transform:translateY(-18px) scale(1.04) rotate(1.5deg)} 70%{transform:translateY(-9px) scale(1.02) rotate(-.8deg)} }
+    @keyframes itnGridScroll { 0%{background-position:0 0} 100%{background-position:0 60px} }
+    @keyframes itnGridPulse  { 0%,100%{opacity:.03} 50%{opacity:.06} }
+    @keyframes itnBadgePop   { from{opacity:0;transform:scale(.6) translateY(6px)} to{opacity:1;transform:none} }
+    @keyframes itnSlideUp    { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
 
-    /* ─── Hero ──────────────────────────────────────── */
-    .itp-hero {
-      position: relative; overflow: hidden;
-      padding: 3.5rem 0 3rem;
-      border-bottom: 1px solid var(--border);
+    .si-bob   { animation:itnBob   2.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    .si-float { animation:itnFloat 3.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    .si-blink { animation:itnBlink 1.6s ease-in-out infinite; }
+    .si-spin  { animation:itnSpin  9s  linear    infinite; transform-box:fill-box; transform-origin:center; }
+    .si-pulse { animation:itnPulse 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    .si-swing { animation:itnSwing 2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 0; }
+    .si-slide { animation:itnSlide 2s  ease-in-out infinite; transform-box:fill-box; transform-origin:left center; }
+    .si-drop  { animation:itnDrop  2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+
+    /* ═══════════════════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════════════════ */
+    .itn-hero {
+      position:relative; overflow:hidden;
+      padding:5.5rem 2rem 5rem;
+      background:linear-gradient(160deg,#050210 0%,#0b0420 28%,#060118 60%,#040114 100%);
+      border-bottom:1px solid rgba(245,158,11,.14);
     }
-    .itp-hero-mesh {
-      position: absolute; inset: 0; pointer-events: none;
+    :root[data-theme="light"] .itn-hero {
+      background:linear-gradient(155deg,#fffef5 0%,#fffde8 22%,#fef6d0 48%,#fdf8e0 72%,#fffff8 100%);
+      border-bottom-color:rgba(245,158,11,.18);
+    }
+    .itn-hero::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
       background:
-        radial-gradient(ellipse 80% 60% at 15% 50%, rgba(124,108,255,0.16) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 85% 20%, rgba(6,182,212,0.09) 0%, transparent 55%),
-        radial-gradient(ellipse 40% 60% at 60% 90%, rgba(245,158,11,0.06) 0%, transparent 55%);
+        radial-gradient(ellipse 75% 65% at 5%  35%, rgba(245,158,11,.42) 0%, transparent 50%),
+        radial-gradient(ellipse 55% 50% at 92% 65%, rgba(16,185,129,.28)  0%, transparent 46%),
+        radial-gradient(ellipse 45% 40% at 50% 2%,  rgba(124,92,252,.12)  0%, transparent 44%),
+        radial-gradient(ellipse 38% 32% at 70% 90%, rgba(245,158,11,.10)  0%, transparent 50%);
     }
-    .itp-hero-grid {
-      position: absolute; inset: 0;
-      background-image: linear-gradient(var(--border) 1px, transparent 1px),
-                        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
-      opacity: 0.4;
+    :root[data-theme="light"] .itn-hero::before {
+      background:
+        radial-gradient(ellipse 75% 65% at 5%  35%, rgba(245,158,11,.12) 0%, transparent 52%),
+        radial-gradient(ellipse 55% 50% at 92% 65%, rgba(16,185,129,.09)  0%, transparent 48%);
     }
-    .itp-container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; position: relative; }
-    .itp-hero-inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
-    .itp-hero-badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.28rem 0.9rem; border-radius: 999px; margin-bottom: 0.75rem;
-      background: rgba(124,108,255,0.12); border: 1px solid var(--border2);
-      font-size: 0.72rem; font-weight: 700; color: var(--v2);
-      letter-spacing: 0.07em; text-transform: uppercase;
-    }
-    .itp-hero-left h1 {
-      font-size: clamp(1.5rem, 3.5vw, 2.2rem);
-      font-weight: 900; letter-spacing: -0.03em; line-height: 1.15;
-      background: linear-gradient(135deg, var(--txt) 30%, var(--v2) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .itp-hero-left p { font-size: 0.92rem; color: var(--txt2); margin-top: 0.45rem; }
-
-    /* ─── Status badges ─────────────────────────────── */
-    .itp-status-badge {
-      display: inline-flex; align-items: center; gap: 0.45rem;
-      padding: 0.45rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
-    }
-    .itp-status-badge.pending  { background: rgba(245,158,11,.1);  color: var(--itp-gold);    border: 1px solid rgba(245,158,11,.28); }
-    .itp-status-badge.approved { background: rgba(16,185,129,.09); color: var(--itp-emerald); border: 1px solid rgba(16,185,129,.26); }
-    .itp-status-badge.rejected { background: rgba(244,63,94,.09);  color: var(--itp-rose);    border: 1px solid rgba(244,63,94,.26); }
-    .itp-status-badge.info     { background: rgba(124,108,255,.1); color: var(--v2);           border: 1px solid var(--border); }
-
-    /* ─── Tabs ──────────────────────────────────────── */
-    .itp-tabs {
-      display: flex; gap: 0.3rem; padding: 0.28rem;
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: 12px; margin-bottom: 2rem;
-      overflow-x: auto; scrollbar-width: none;
-      width: fit-content; max-width: 100%;
-    }
-    .itp-tabs::-webkit-scrollbar { display: none; }
-    .itp-tab {
-      padding: 0.5rem 1.1rem; border-radius: 9px;
-      font-size: 0.83rem; font-weight: 600; cursor: pointer;
-      color: var(--txt3); background: transparent; border: none;
-      transition: all 0.2s; white-space: nowrap; font-family: inherit;
-    }
-    .itp-tab:hover { color: var(--txt); background: var(--panel2); }
-    .itp-tab.active { color: #fff; background: linear-gradient(135deg, var(--v1), #4f46e5); box-shadow: 0 4px 12px rgba(124,108,255,0.3); }
-    .itp-pane { display: none; }
-    .itp-pane.active { display: block; }
-
-    /* ─── Cards ─────────────────────────────────────── */
-    .itp-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--itp-r); padding: 1.6rem;
-      transition: border-color 0.25s, box-shadow 0.25s;
-    }
-    .itp-card:hover { border-color: var(--border2); box-shadow: var(--itp-glow); }
-    .itp-card + .itp-card { margin-top: 1.25rem; }
-    .itp-card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
-    .itp-card-title { font-size: 1rem; font-weight: 800; color: var(--txt); }
-
-    /* ─── Project cards ─────────────────────────────── */
-    .itp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); gap: 1.25rem; }
-    .itp-proj-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--itp-r); padding: 1.4rem;
-      transition: all 0.25s; display: flex; flex-direction: column;
-      position: relative; overflow: hidden;
-    }
-    .itp-proj-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--v1), var(--itp-cyan)); opacity: 0; transition: opacity 0.25s;
-    }
-    .itp-proj-card:hover { border-color: var(--border2); transform: translateY(-3px); box-shadow: var(--itp-shadow-p); }
-    .itp-proj-card:hover::before { opacity: 1; }
-    .itp-proj-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--txt); }
-    .itp-proj-desc { font-size: 0.82rem; color: var(--txt2); line-height: 1.6; margin-bottom: 0.85rem; flex: 1; }
-
-    /* ─── Tags ──────────────────────────────────────── */
-    .itp-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.8rem; }
-    .itp-tag { padding: 0.18rem 0.6rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; background: rgba(124,108,255,0.1); color: var(--v2); border: 1px solid rgba(124,108,255,0.2); }
-    .itp-tag.gold { background: rgba(245,158,11,0.1); color: var(--itp-gold); border-color: rgba(245,158,11,0.25); }
-    .itp-tag.cyan { background: rgba(6,182,212,0.1);  color: var(--itp-cyan); border-color: rgba(6,182,212,0.25); }
-
-    /* ─── Meta row ──────────────────────────────────── */
-    .itp-meta { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.75rem; }
-    .itp-meta-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.83rem; color: var(--txt2); }
-
-    /* ─── Task list ─────────────────────────────────── */
-    .itp-task {
-      display: flex; align-items: flex-start; gap: 1rem;
-      padding: 1rem 1.1rem; border-radius: 12px; margin-bottom: 0.65rem;
-      background: var(--panel); border: 1px solid var(--border); transition: border-color 0.2s, background 0.2s;
-    }
-    .itp-task:hover { border-color: var(--border2); background: var(--panel2); }
-    .itp-task-num {
-      width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--v1), #4f46e5);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 900; color: #fff;
-      box-shadow: 0 4px 10px rgba(124,108,255,0.28);
-    }
-    .itp-task h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; color: var(--txt); }
-    .itp-task p  { font-size: 0.81rem; color: var(--txt2); line-height: 1.55; }
-    .itp-task-dl { margin-top: 0.3rem; font-size: 0.72rem; color: var(--itp-gold); font-weight: 600; }
-
-    /* ─── Stats ─────────────────────────────────────── */
-    .itp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-    .itp-stat {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--itp-r); padding: 1.1rem 1.2rem;
-      position: relative; overflow: hidden; transition: border-color 0.2s;
-    }
-    .itp-stat::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--v1), transparent); }
-    .itp-stat:hover { border-color: var(--border2); }
-    .itp-stat-v { font-size: 1.65rem; font-weight: 900; color: var(--v2); letter-spacing: -0.03em; }
-    .itp-stat-l { font-size: 0.7rem; color: var(--txt3); margin-top: 0.15rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-
-    /* ─── Form ──────────────────────────────────────── */
-    .itp-fg { margin-bottom: 1.15rem; }
-    .itp-fg label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--txt2); }
-    .itp-fg input, .itp-fg textarea, .itp-fg select {
-      width: 100%; padding: 0.7rem 0.95rem;
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: var(--itp-rsm); color: var(--txt);
-      font-family: inherit; font-size: 0.87rem; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .itp-fg input:focus, .itp-fg textarea:focus, .itp-fg select:focus {
-      outline: none; border-color: var(--v1); box-shadow: 0 0 0 3px rgba(124,108,255,0.1);
-    }
-    .itp-fg textarea { min-height: 92px; resize: vertical; }
-    .itp-fr { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
-
-    /* ─── Mood ──────────────────────────────────────── */
-    .itp-mood { display: flex; gap: 0.5rem; margin-top: 0.45rem; }
-    .itp-mood-star {
-      width: 40px; height: 40px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 1.2rem; background: var(--panel);
-      border: 1px solid var(--border); transition: all 0.18s;
-    }
-    .itp-mood-star:hover { background: var(--panel2); border-color: var(--border2); transform: scale(1.1); }
-    .itp-mood-star.sel { background: rgba(124,108,255,0.18); border-color: var(--v1); transform: scale(1.1); box-shadow: 0 0 12px rgba(124,108,255,0.2); }
-
-    /* ─── Tasklist ──────────────────────────────────── */
-    .itp-tasklist { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--itp-rsm); padding: 0.5rem; background: var(--panel); }
-    .itp-tasklist::-webkit-scrollbar { width: 4px; }
-    .itp-tasklist::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-    .itp-tasklist label { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.55rem; border-radius: 8px; cursor: pointer; font-size: 0.83rem; transition: background 0.15s; }
-    .itp-tasklist label:hover { background: var(--panel2); }
-    .itp-tasklist input[type="checkbox"] { accent-color: var(--v1); width: 15px; height: 15px; flex-shrink: 0; }
-
-    /* ─── Buttons ───────────────────────────────────── */
-    .itp-btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.65rem 1.35rem; border-radius: var(--itp-rsm);
-      font-size: 0.85rem; font-weight: 700; cursor: pointer;
-      border: none; transition: all 0.2s; font-family: inherit;
-      text-decoration: none; white-space: nowrap;
-    }
-    .itp-btn-pr { background: linear-gradient(135deg, var(--v1) 0%, #4f46e5 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,108,255,0.32); }
-    .itp-btn-pr:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,108,255,0.42); opacity: 0.95; }
-    .itp-btn-gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.3); }
-    .itp-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.4); }
-    .itp-btn-sec { background: var(--panel); color: var(--v2); border: 1px solid var(--border); }
-    .itp-btn-sec:hover { background: var(--panel2); border-color: var(--border2); }
-    .itp-btn-ol  { background: transparent; color: var(--txt2); border: 1px solid var(--border); }
-    .itp-btn-ol:hover  { color: var(--txt); border-color: var(--border2); }
-    .itp-btn:disabled  { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
-    /* ─── Tables ────────────────────────────────────── */
-    .itp-tbl-wrap { overflow-x: auto; border-radius: var(--itp-r); border: 1px solid var(--border); }
-    .itp-tbl { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
-    .itp-tbl th { background: var(--panel); padding: 0.75rem 1rem; text-align: left; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--txt3); border-bottom: 1px solid var(--border); }
-    .itp-tbl td { padding: 0.78rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--txt); }
-    .itp-tbl tr:last-child td { border-bottom: none; }
-    .itp-tbl tr:hover td { background: var(--panel); }
-
-    /* ─── Attendance dots ───────────────────────────── */
-    .atd { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-    .atd.present  { background: var(--itp-emerald); }
-    .atd.absent   { background: var(--itp-rose); }
-    .atd.late     { background: var(--itp-gold); }
-    .atd.half_day { background: var(--itp-sky); }
-    .atd.holiday  { background: var(--v2); opacity: 0.7; }
-    .atd.excused  { background: var(--txt3); }
-
-    /* ─── Alerts ────────────────────────────────────── */
-    .itp-alert { padding: 1.1rem 1.3rem; border-radius: var(--itp-r); margin-bottom: 1.5rem; font-size: 0.87rem; display: flex; gap: 0.75rem; align-items: flex-start; line-height: 1.6; }
-    .itp-alert.warn  { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.28); color: var(--itp-gold); }
-    .itp-alert.ok    { background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.26); color: var(--itp-emerald); }
-    .itp-alert.info  { background: rgba(124,108,255,.08); border: 1px solid rgba(124,108,255,.26); color: var(--v2); }
-    .itp-alert.err   { background: rgba(244,63,94,.08);  border: 1px solid rgba(244,63,94,.26);  color: var(--itp-rose); }
-    .itp-alert-icon { font-size: 1.25rem; flex-shrink: 0; }
-    .itp-alert strong { display: block; font-weight: 800; margin-bottom: 0.2rem; }
-
-    /* ─── Certificate ───────────────────────────────── */
-    .itp-cert {
-      position: relative; overflow: hidden;
-      background: linear-gradient(135deg, rgba(124,108,255,.1) 0%, rgba(79,70,229,.06) 100%);
-      border: 1px solid var(--border2); border-radius: 18px;
-      padding: 2.5rem; text-align: center; margin-top: 1.5rem;
-    }
-    .itp-cert::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,.1), transparent 70%); pointer-events: none; }
-    .itp-cert-icon  { font-size: 3.5rem; margin-bottom: 0.85rem; filter: drop-shadow(0 4px 12px rgba(245,158,11,0.35)); }
-    .itp-cert-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.4rem; color: var(--txt); }
-    .itp-cert-sub   { font-size: 0.85rem; color: var(--txt2); }
-
-    /* ─── Pending block ─────────────────────────────── */
-    .itp-pending-block { background: rgba(245,158,11,.06); border: 1px solid rgba(245,158,11,.2); border-radius: var(--itp-rsm); padding: 1.1rem; margin-top: 1rem; }
-
-    /* ─── Toast ─────────────────────────────────────── */
-    #itp-toast {
-      position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 9998;
-      background: var(--bg2); color: var(--txt);
-      padding: 0.85rem 1.25rem; border-radius: var(--itp-rsm);
-      font-size: 0.84rem; font-weight: 600;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.3); border: 1px solid var(--border2);
-      max-width: 320px; opacity: 0; pointer-events: none;
-      transition: opacity 0.25s, transform 0.25s; transform: translateY(10px);
-    }
-    #itp-toast.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-
-    /* ─── Spinner ───────────────────────────────────── */
-    .itp-spin {
-      width: 44px; height: 44px; margin: 3rem auto;
-      border: 3px solid var(--border);
-      border-top-color: var(--v1); border-radius: 50%;
-      animation: itpSpin 0.8s linear infinite;
-    }
-    @keyframes itpSpin { to { transform: rotate(360deg); } }
-
-    /* ─── Auth / empty states ───────────────────────── */
-    .itp-empty-state { text-align: center; padding: 5rem 2rem; }
-    .itp-empty-icon { font-size: 3.5rem; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 16px rgba(124,108,255,0.28)); }
-    .itp-empty-state h2 { font-size: 1.3rem; font-weight: 900; margin-bottom: 0.6rem; color: var(--txt); }
-    .itp-empty-state p  { color: var(--txt2); font-size: 0.9rem; margin-bottom: 1.75rem; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.65; }
-
-    /* ─── Tech grid ─────────────────────────────────── */
-    .itp-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-top: 0.75rem; }
-    .itp-sub-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--txt3); margin-bottom: 0.65rem; }
-    .itp-lo-item { display: flex; gap: 0.45rem; align-items: flex-start; font-size: 0.83rem; color: var(--txt2); padding: 0.22rem 0; line-height: 1.5; }
-    .itp-lo-icon { color: var(--itp-emerald); flex-shrink: 0; font-weight: 900; }
-
-    /* ─── Responsive ────────────────────────────────── */
-    @media (max-width: 768px) {
-      .itp-fr { grid-template-columns: 1fr; }
-      .itp-two-col { grid-template-columns: 1fr; }
-      .itp-stats { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .itp-hero { padding: 2.25rem 0 2rem; }
-      .itp-hero-inner { flex-direction: column; align-items: flex-start; }
-      .itp-stats { grid-template-columns: 1fr 1fr; }
-      .itp-card { padding: 1.1rem; }
-      .itp-tabs { width: 100%; }
+    .itn-hero::after {
+      content:''; position:absolute; inset:0; pointer-events:none; opacity:.03;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:200px;
     }
 
-    /* ─── Print block ───────────────────────────────── */
-    @media print {
-      body > * { display: none !important; }
-      body::after {
-        display: block !important;
-        content: "SkillUpNow — Content printing is disabled.";
-        font-size: 1.2rem; text-align: center; padding: 4rem;
-      }
+    .itn-hero-orb {
+      position:absolute; border-radius:50%; pointer-events:none;
+      animation:itnOrbFloat 12s ease-in-out infinite;
+    }
+    .itn-hero-orb1 { width:600px; height:600px; left:-180px; top:-140px; background:radial-gradient(circle,rgba(245,158,11,.28) 0%,rgba(217,119,6,.12) 40%,transparent 68%); }
+    .itn-hero-orb2 { width:420px; height:420px; right:-100px; bottom:-80px; background:radial-gradient(circle,rgba(16,185,129,.22) 0%,rgba(5,150,105,.08) 42%,transparent 68%); animation-delay:-6s; }
+    .itn-hero-orb3 { width:280px; height:280px; left:42%; top:0%; background:radial-gradient(circle,rgba(124,92,252,.14) 0%,transparent 70%); animation-delay:-9s; }
+    :root[data-theme="light"] .itn-hero-orb1 { background:radial-gradient(circle,rgba(245,158,11,.1) 0%,transparent 68%); }
+    :root[data-theme="light"] .itn-hero-orb2 { background:radial-gradient(circle,rgba(16,185,129,.08) 0%,transparent 68%); }
+    :root[data-theme="light"] .itn-hero-orb3 { opacity:.4; }
+
+    .itn-hero-grid {
+      position:absolute; inset:0; pointer-events:none;
+      background-image:linear-gradient(rgba(245,158,11,.32) 1px,transparent 1px),linear-gradient(90deg,rgba(245,158,11,.32) 1px,transparent 1px);
+      background-size:60px 60px;
+      -webkit-mask-image:radial-gradient(ellipse 90% 85% at 50% 50%,black 12%,transparent 100%);
+      mask-image:radial-gradient(ellipse 90% 85% at 50% 50%,black 12%,transparent 100%);
+      animation:itnGridPulse 7s ease-in-out infinite, itnGridScroll 18s linear infinite;
+    }
+    :root[data-theme="light"] .itn-hero-grid { opacity:.025; animation:none; }
+
+    .itn-container { max-width:1140px; margin:0 auto; padding:0 1.5rem; position:relative; }
+
+    .itn-hero-inner {
+      position:relative; z-index:2;
+      display:flex; flex-direction:row; align-items:center;
+      gap:4rem; max-width:1100px; margin:0 auto;
+    }
+    .itn-hero-left { flex:1; min-width:0; }
+
+    @media(max-width:860px) {
+      .itn-hero { padding:4rem 1.5rem 3.8rem; }
+      .itn-hero-inner { flex-direction:column; align-items:center; gap:2.2rem; text-align:center; }
+    }
+    @media(max-width:520px) {
+      .itn-hero { padding:3rem 1rem 3rem; }
+    }
+
+    /* Badge */
+    .itn-badge {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.4rem 1.2rem; border-radius:50px;
+      background:rgba(245,158,11,.16); border:1px solid rgba(245,158,11,.42);
+      font-size:.68rem; font-weight:800; color:#fbbf24;
+      letter-spacing:.12em; text-transform:uppercase; margin-bottom:1.5rem;
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      box-shadow:0 0 24px rgba(245,158,11,.22),inset 0 1px 0 rgba(255,255,255,.1);
+      animation:itnBadgePop .5s .1s cubic-bezier(.22,1,.36,1) both;
+    }
+    :root[data-theme="light"] .itn-badge { background:rgba(245,158,11,.1); border-color:rgba(245,158,11,.36); color:#92400e; box-shadow:0 0 18px rgba(245,158,11,.14); }
+    .itn-badge-dot { width:7px; height:7px; border-radius:50%; background:currentColor; position:relative; animation:itnPulse 2s ease-in-out infinite; }
+    .itn-badge-dot::after { content:''; position:absolute; inset:-3px; border-radius:50%; border:1.5px solid currentColor; animation:itnPing 2.2s ease-in-out infinite; opacity:.5; }
+
+    /* H1 */
+    .itn-hero-left h1 {
+      font-size:clamp(2.4rem,5.5vw,4rem);
+      font-weight:900; letter-spacing:-.04em; line-height:1.08; margin-bottom:.5rem;
+      background:linear-gradient(115deg,#ffffff 0%,#fef3c7 14%,#fbbf24 30%,#6ee7b7 50%,#fbbf24 70%,#fef3c7 86%,#ffffff 100%);
+      background-size:240% auto;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      filter:drop-shadow(0 0 50px rgba(245,158,11,.4));
+      animation:itnShimmer 6s linear infinite, itnSlideUp .65s .15s cubic-bezier(.22,1,.36,1) both;
+    }
+    :root[data-theme="light"] .itn-hero-left h1 {
+      background:linear-gradient(115deg,#1c0a00 0%,#78350f 22%,#b45309 42%,#065f46 56%,#b45309 72%,#78350f 88%,#1c0a00 100%);
+      background-size:240% auto;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      filter:drop-shadow(0 0 36px rgba(245,158,11,.32));
+    }
+
+    .itn-hero-underline {
+      display:block; height:3px; width:80px; margin:.8rem 0 1.4rem;
+      background:linear-gradient(90deg,#f59e0b,#fbbf24 38%,#10b981 68%,#fbbf24);
+      border-radius:4px;
+      animation:itnSlideUp .5s .28s cubic-bezier(.22,1,.36,1) both;
+    }
+    @media(max-width:860px) { .itn-hero-underline { margin:.8rem auto 1.4rem; } }
+    :root[data-theme="light"] .itn-hero-underline { background:linear-gradient(90deg,#b45309,#f59e0b 40%,#059669 68%,#f59e0b); }
+
+    .itn-hero-left p {
+      font-size:clamp(.9rem,1.8vw,1.06rem); line-height:1.9;
+      color:rgba(255,245,200,.72); max-width:500px; margin:0;
+      animation:itnSlideUp .65s .32s cubic-bezier(.22,1,.36,1) both;
+    }
+    :root[data-theme="light"] .itn-hero-left p { color:rgba(60,30,0,.62); }
+    @media(max-width:860px) { .itn-hero-left p { margin:0 auto; max-width:560px; } }
+
+    /* Hero stats */
+    .itn-hero-stats {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:.95rem; width:clamp(270px,44vw,460px); flex-shrink:0; align-self:center;
+    }
+    @media(max-width:860px) { .itn-hero-stats { grid-template-columns:repeat(4,1fr); width:100%; gap:.6rem; } }
+    @media(max-width:560px) { .itn-hero-stats { grid-template-columns:repeat(2,1fr); gap:.5rem; } }
+
+    .itn-stat {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:.3rem; padding:1.4rem 1rem 1.2rem;
+      border-radius:20px;
+      background:linear-gradient(145deg,rgba(255,255,255,.07) 0%,rgba(245,158,11,.06) 45%,rgba(16,185,129,.04) 100%);
+      border:1px solid rgba(245,158,11,.24);
+      backdrop-filter:blur(32px) saturate(200%); -webkit-backdrop-filter:blur(32px) saturate(200%);
+      box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 10px 36px rgba(0,0,0,.24);
+      transition:transform .4s cubic-bezier(.22,1,.36,1), box-shadow .36s, border-color .3s;
+      position:relative; overflow:hidden; cursor:default;
+      animation:itnSlideUp .55s cubic-bezier(.22,1,.36,1) both;
+    }
+    .itn-stat::before { content:''; position:absolute; top:0; left:0; right:0; height:48%; background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,transparent 100%); border-radius:20px 20px 0 0; pointer-events:none; }
+    .itn-stat:hover { transform:translateY(-8px) scale(1.05); border-color:rgba(245,158,11,.62); box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 20px 50px rgba(0,0,0,.32),0 0 36px rgba(245,158,11,.18); }
+    :root[data-theme="light"] .itn-stat { background:linear-gradient(145deg,rgba(255,255,255,.98) 0%,rgba(255,251,235,.95) 100%); border-color:rgba(245,158,11,.22); box-shadow:0 1px 0 rgba(255,255,255,.99) inset,0 5px 24px rgba(245,158,11,.1); }
+
+    .itn-stat-icon { width:44px; height:44px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .4s,filter .4s; }
+    .itn-stat:hover .itn-stat-icon { transform:scale(1.28) translateY(-5px) rotate(-6deg); filter:drop-shadow(0 6px 18px rgba(245,158,11,.6)); }
+    .itn-stat-v { font-size:clamp(1.7rem,4vw,2.4rem); font-weight:900; letter-spacing:-.05em; display:block; line-height:1; background:linear-gradient(135deg,#fef3c7 0%,#fbbf24 40%,#f59e0b 70%,#6ee7b7 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    :root[data-theme="light"] .itn-stat-v { background:linear-gradient(135deg,#78350f 0%,#b45309 45%,#f59e0b 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .itn-stat-l { font-size:.58rem; font-weight:800; display:block; margin-top:.08rem; color:rgba(255,245,200,.58); text-transform:uppercase; letter-spacing:.12em; }
+    :root[data-theme="light"] .itn-stat-l { color:rgba(92,50,0,.55); }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION LAYOUT
+    ═══════════════════════════════════════════════════════ */
+    .itn-sections { display:flex; flex-direction:column; gap:3.5rem; padding:3.5rem 0 5rem; }
+
+    /* Section header bar */
+    .itn-sec-hdr {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1.3rem 1.8rem 1.3rem 1.5rem; margin-bottom:2rem; gap:1rem; flex-wrap:wrap;
+      border-left:5px solid var(--itn-hdr-c,var(--itn-gold));
+      border-radius:0 18px 18px 0;
+      background:linear-gradient(110deg,color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 10%,var(--bg2)) 0%,var(--bg2) 100%);
+      border:1px solid color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 20%,var(--border));
+      border-left-width:5px; border-left-style:solid;
+      box-shadow:0 8px 32px rgba(0,0,0,.12);
+      animation:itnHdrIn .48s cubic-bezier(.22,1,.36,1) both;
+    }
+    :root[data-theme="light"] .itn-sec-hdr { background:linear-gradient(110deg,color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 7%,#fff) 0%,#fafafa 100%); box-shadow:0 4px 18px rgba(0,0,0,.07); }
+    .itn-sec-hdr-left { display:flex; align-items:center; gap:1rem; }
+    .itn-sec-icon {
+      width:52px; height:52px; border-radius:14px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 14%,var(--bg2));
+      border:1.5px solid color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 30%,transparent);
+      box-shadow:0 4px 18px color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 16%,transparent),inset 0 1px 0 rgba(255,255,255,.1);
+      transition:transform .32s cubic-bezier(.22,1,.36,1),box-shadow .32s;
+    }
+    .itn-sec-hdr:hover .itn-sec-icon { transform:scale(1.09) translateY(-2px) rotate(-4deg); box-shadow:0 8px 28px color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 28%,transparent); }
+    .itn-sec-ico { width:30px; height:30px; flex-shrink:0; color:var(--itn-hdr-c,var(--itn-gold)); overflow:visible; filter:drop-shadow(0 0 7px color-mix(in srgb,currentColor 55%,transparent)); transition:filter .32s; }
+    .itn-sec-hdr:hover .itn-sec-ico { filter:drop-shadow(0 0 16px color-mix(in srgb,currentColor 85%,transparent)); }
+    .itn-sec-title { font-size:1.28rem; font-weight:900; color:var(--txt); letter-spacing:-.025em; }
+    .itn-sec-sub   { font-size:.77rem; color:var(--txt3); margin-top:.18rem; }
+    .itn-sec-count {
+      padding:.3rem .95rem; border-radius:999px;
+      background:color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 12%,transparent);
+      border:1px solid color-mix(in srgb,var(--itn-hdr-c,var(--itn-gold)) 28%,transparent);
+      font-size:.75rem; font-weight:800; color:var(--itn-hdr-c,var(--itn-gold));
+      letter-spacing:.04em;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       INTERNSHIP CARDS — Free Programmes
+    ═══════════════════════════════════════════════════════ */
+    .itn-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1.5rem; }
+
+    @keyframes itnShim { to { background-position:-20%; } }
+    .itn-card {
+      position:relative; border-radius:var(--itn-r); cursor:pointer; overflow:hidden;
+      background:var(--bg2); border:1px solid var(--border);
+      box-shadow:0 2px 0 rgba(255,255,255,.05) inset,0 6px 28px rgba(0,0,0,.1);
+      display:flex; flex-direction:column; min-height:320px; height:auto;
+      transition:transform .36s cubic-bezier(.22,1,.36,1),box-shadow .36s,border-color .3s;
+      opacity:0; transform:translateY(28px);
+    }
+    .itn-card.itn-in { opacity:1; transform:none; animation:itnCardIn .55s cubic-bezier(.22,1,.36,1) both; }
+    .itn-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px; z-index:2;
+      background:var(--itn-card-grad,linear-gradient(90deg,var(--itn-gold),#fbbf24));
+      border-radius:var(--itn-r) var(--itn-r) 0 0; opacity:.85; transition:opacity .3s;
+    }
+    .itn-card:hover::before { opacity:1; }
+    .itn-card-shim {
+      position:absolute; inset:0; z-index:1; pointer-events:none;
+      background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.06) 47%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.06) 53%,transparent 70%);
+      background-size:240% 100%; background-position:240%; opacity:0; transition:opacity .3s;
+    }
+    .itn-card:hover { transform:perspective(1200px) translateY(-10px) scale(1.018) rotateX(-2deg); box-shadow:0 24px 60px rgba(0,0,0,.2),0 0 0 1.5px rgba(245,158,11,.44); border-color:rgba(245,158,11,.36); }
+    .itn-card:hover .itn-card-shim { opacity:1; animation:itnShim .7s ease forwards; }
+    .itn-card > * { position:relative; z-index:2; }
+
+    /* Card top */
+    .itn-card-top { padding:1.5rem 1.5rem .6rem; display:flex; align-items:flex-start; justify-content:space-between; }
+    .itn-card-icon-wrap { display:flex; align-items:center; justify-content:center; flex-shrink:0; background:none; transition:filter .35s; }
+    .itn-card-icon-wrap svg { width:42px; height:42px; color:var(--itn-icon-c,var(--itn-gold)); }
+    .itn-card-icon-wrap:hover { filter:drop-shadow(0 0 12px color-mix(in srgb,var(--itn-icon-c,var(--itn-gold)) 70%,transparent)); }
+    .itn-card:hover .itn-card-icon-wrap { filter:drop-shadow(0 0 18px color-mix(in srgb,var(--itn-icon-c,var(--itn-gold)) 80%,transparent)); }
+
+    /* Pill badges */
+    .itn-pill {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.22rem .72rem; border-radius:999px; font-size:.67rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    }
+    .itn-pill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; animation:itnPulse 1.8s ease-in-out infinite; }
+    .itn-pill-free  { background:rgba(16,185,129,.1);  color:var(--itn-emerald); border:1px solid rgba(16,185,129,.26); }
+    .itn-pill-paid  { background:rgba(245,158,11,.1);  color:var(--itn-gold);    border:1px solid rgba(245,158,11,.28); }
+    .itn-pill-soon  { background:rgba(6,182,212,.1);   color:var(--itn-cyan);    border:1px solid rgba(6,182,212,.26); }
+    .itn-pill-open  { background:rgba(124,92,252,.1);  color:#a78bfa;            border:1px solid rgba(124,92,252,.28); }
+
+    /* Card body */
+    .itn-card-body { padding:.7rem 1.5rem 1.4rem; display:flex; flex-direction:column; flex:1; min-height:0; }
+    .itn-card-tags { display:flex; flex-wrap:nowrap; gap:.28rem; margin-bottom:.7rem; overflow-x:auto; scrollbar-width:none; }
+    .itn-card-tags::-webkit-scrollbar { display:none; }
+    .itn-card-tag { padding:.18rem .6rem; border-radius:999px; font-size:.64rem; font-weight:700; backdrop-filter:blur(10px); background:rgba(245,158,11,.1); color:var(--itn-gold); border:1px solid rgba(245,158,11,.22); }
+    .itn-card-tag-g { background:rgba(16,185,129,.1); color:var(--itn-emerald); border-color:rgba(16,185,129,.22); }
+    .itn-card-tag-c { background:rgba(6,182,212,.1);  color:var(--itn-cyan);    border-color:rgba(6,182,212,.22); }
+    .itn-card-title { font-size:1.06rem; font-weight:900; color:var(--txt); line-height:1.28; margin-bottom:.5rem; letter-spacing:-.018em; }
+    .itn-card-desc  { font-size:.81rem; color:var(--txt2); line-height:1.7; flex:1; margin-bottom:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .itn-card-meta  { display:flex; flex-wrap:wrap; gap:.5rem; padding-top:.9rem; border-top:1px solid var(--border); margin-top:auto; }
+    .itn-card-meta-item { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .65rem; border-radius:999px; }
+    .itn-meta-dur  { color:#a78bfa; background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.18); }
+    .itn-meta-cert { color:#34d399; background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.18); }
+    .itn-meta-stip { color:var(--itn-gold); background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.18); }
+
+    /* ═══════════════════════════════════════════════════════
+       PAID INTERNSHIP CARDS — distinct gold premium look
+    ═══════════════════════════════════════════════════════ */
+    .itn-paid-card {
+      position:relative; border-radius:var(--itn-r); cursor:pointer; overflow:hidden;
+      background:linear-gradient(160deg,rgba(245,158,11,.09) 0%,var(--bg2) 55%,rgba(16,185,129,.05) 100%);
+      border:1.5px solid rgba(245,158,11,.3);
+      box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 8px 32px rgba(0,0,0,.14),0 0 0 1px rgba(245,158,11,.1);
+      display:flex; flex-direction:column; min-height:340px;
+      transition:transform .38s cubic-bezier(.22,1,.36,1),box-shadow .38s,border-color .3s;
+      opacity:0; transform:translateY(28px);
+    }
+    .itn-paid-card.itn-in { opacity:1; transform:none; animation:itnCardIn .58s cubic-bezier(.22,1,.36,1) both; }
+    .itn-paid-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px; z-index:2;
+      background:linear-gradient(90deg,#f59e0b 0%,#fbbf24 40%,#10b981 80%,#fbbf24 100%);
+      border-radius:var(--itn-r) var(--itn-r) 0 0;
+    }
+    .itn-paid-card::after {
+      content:''; position:absolute; inset:0; z-index:0;
+      background:linear-gradient(160deg,rgba(245,158,11,.04) 0%,transparent 50%); pointer-events:none;
+    }
+    .itn-paid-card > * { position:relative; z-index:1; }
+    .itn-paid-card:hover {
+      transform:perspective(1200px) translateY(-12px) scale(1.022) rotateX(-2.5deg);
+      border-color:rgba(245,158,11,.65);
+      box-shadow:0 2px 0 rgba(255,255,255,.1) inset,0 32px 72px rgba(0,0,0,.24),0 0 0 1.5px rgba(245,158,11,.35),0 0 60px rgba(245,158,11,.12);
+    }
+    :root[data-theme="light"] .itn-paid-card:hover { box-shadow:0 24px 56px rgba(245,158,11,.2),0 0 0 1.5px rgba(245,158,11,.4); }
+
+    /* Premium badge corner */
+    .itn-premium-badge {
+      position:absolute; top:14px; right:14px; z-index:3;
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.24rem .75rem; border-radius:999px; font-size:.65rem; font-weight:800; letter-spacing:.06em;
+      background:linear-gradient(135deg,rgba(245,158,11,.25),rgba(251,191,36,.18));
+      border:1px solid rgba(245,158,11,.45); color:#fbbf24;
+      box-shadow:0 0 16px rgba(245,158,11,.25);
+    }
+    :root[data-theme="light"] .itn-premium-badge { color:#92400e; background:rgba(245,158,11,.12); }
+
+    /* Price chip */
+    .itn-price-chip {
+      display:inline-flex; align-items:baseline; gap:.25rem;
+      padding:.45rem 1rem; border-radius:12px;
+      background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(251,191,36,.1));
+      border:1px solid rgba(245,158,11,.32); margin-top:.7rem;
+    }
+    .itn-price-amt { font-size:1.4rem; font-weight:900; color:#fbbf24; }
+    :root[data-theme="light"] .itn-price-amt { color:#92400e; }
+    .itn-price-label { font-size:.72rem; color:var(--txt3); font-weight:600; }
+
+    /* ═══════════════════════════════════════════════════════
+       APPLICATION FORM PANEL
+    ═══════════════════════════════════════════════════════ */
+    .itn-form-panel {
+      background:var(--bg2); border:1.5px solid var(--border);
+      border-radius:24px; overflow:hidden;
+      box-shadow:0 8px 40px rgba(0,0,0,.1);
+    }
+    .itn-form-header {
+      padding:2rem 2.2rem 1.6rem;
+      background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(16,185,129,.05));
+      border-bottom:1px solid var(--border);
+    }
+    .itn-form-body { padding:2rem 2.2rem; }
+    @media(max-width:600px) { .itn-form-header { padding:1.5rem 1.3rem 1.2rem; } .itn-form-body { padding:1.5rem 1.3rem; } }
+
+    .itn-form-title { font-size:1.3rem; font-weight:900; color:var(--txt); margin-bottom:.3rem; letter-spacing:-.02em; }
+    .itn-form-sub   { font-size:.85rem; color:var(--txt3); line-height:1.6; }
+
+    /* Form fields */
+    .itn-field-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem 1.4rem; }
+    @media(max-width:640px) { .itn-field-grid { grid-template-columns:1fr; } }
+    .itn-field-full { grid-column:1/-1; }
+
+    .itn-field { display:flex; flex-direction:column; gap:.4rem; }
+    .itn-label { font-size:.78rem; font-weight:700; color:var(--txt2); letter-spacing:.02em; }
+    .itn-label span { color:var(--itn-rose); margin-left:.15rem; }
+    .itn-input,.itn-select,.itn-textarea {
+      padding:.72rem 1rem; border-radius:12px; font-size:.88rem; font-family:inherit;
+      background:var(--panel); color:var(--txt);
+      border:1.5px solid var(--border);
+      transition:border-color .2s,box-shadow .2s,background .2s;
+      outline:none; width:100%; box-sizing:border-box;
+    }
+    .itn-input:focus,.itn-select:focus,.itn-textarea:focus {
+      border-color:rgba(245,158,11,.55);
+      box-shadow:0 0 0 3px rgba(245,158,11,.12);
+      background:var(--panel2);
+    }
+    .itn-textarea { resize:vertical; min-height:90px; }
+    .itn-select option { background:var(--bg2); color:var(--txt); }
+
+    /* Submit button */
+    .itn-submit-btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:.6rem;
+      padding:.9rem 2rem; border-radius:14px; font-size:.94rem; font-weight:700;
+      cursor:pointer; border:none; font-family:inherit; letter-spacing:.01em;
+      background:linear-gradient(135deg,#f59e0b 0%,#d97706 55%,#b45309 100%);
+      background-size:200% 100%; background-position:0 50%;
+      color:#fff; width:100%; margin-top:1.2rem;
+      box-shadow:0 4px 20px rgba(245,158,11,.38),0 1px 0 rgba(255,255,255,.22) inset;
+      transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s,background-position .4s;
+      position:relative; overflow:hidden;
+    }
+    .itn-submit-btn:hover {
+      transform:translateY(-3px);
+      background-position:100% 50%;
+      box-shadow:0 12px 36px rgba(245,158,11,.52),0 1px 0 rgba(255,255,255,.24) inset;
+    }
+    .itn-submit-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .itn-submit-btn svg { transition:transform .26s; }
+    .itn-submit-btn:hover svg { transform:translateX(4px); }
+
+    /* Success/error states */
+    .itn-form-success {
+      display:none; text-align:center; padding:2.5rem 1.5rem;
+      animation:itnCardIn .55s cubic-bezier(.22,1,.36,1) both;
+    }
+    .itn-form-success svg { margin-bottom:1rem; }
+    .itn-form-success h3 { font-size:1.2rem; font-weight:800; color:var(--txt); margin-bottom:.5rem; }
+    .itn-form-success p  { font-size:.88rem; color:var(--txt3); line-height:1.6; }
+
+    /* ═══════════════════════════════════════════════════════
+       PAID INTERNSHIP AUTH WALL
+    ═══════════════════════════════════════════════════════ */
+    .itn-auth-wall {
+      text-align:center; padding:2.5rem 1.5rem;
+      background:linear-gradient(135deg,rgba(245,158,11,.06),rgba(124,92,252,.05));
+      border:1.5px dashed rgba(245,158,11,.28); border-radius:18px; margin-top:1rem;
+    }
+    .itn-auth-wall h3 { font-size:1.05rem; font-weight:800; color:var(--txt); margin-bottom:.4rem; }
+    .itn-auth-wall p  { font-size:.85rem; color:var(--txt3); margin-bottom:1.2rem; line-height:1.6; }
+    .itn-auth-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.72rem 1.6rem; border-radius:12px; font-size:.88rem; font-weight:700;
+      background:linear-gradient(135deg,var(--v1),var(--v2));
+      color:#fff; border:none; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(124,92,252,.35);
+      transition:transform .25s,box-shadow .25s;
+    }
+    .itn-auth-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(124,92,252,.48); }
+
+    /* ═══════════════════════════════════════════════════════
+       PAYMENT MODAL — Razorpay integration
+    ═══════════════════════════════════════════════════════ */
+    .itn-pay-overlay {
+      position:fixed; inset:0; z-index:10000;
+      background:rgba(3,1,10,.82); backdrop-filter:blur(18px) saturate(160%); -webkit-backdrop-filter:blur(18px) saturate(160%);
+      display:none; align-items:center; justify-content:center; padding:1rem;
+    }
+    .itn-pay-overlay.open { display:flex; animation:itnCardIn .3s ease; }
+    .itn-pay-box {
+      background:var(--bg2); border:1.5px solid rgba(245,158,11,.35); border-radius:26px;
+      max-width:460px; width:100%; padding:2.2rem; position:relative;
+      box-shadow:0 32px 80px rgba(0,0,0,.4),0 0 0 1px rgba(245,158,11,.2);
+      animation:itnCardIn .42s cubic-bezier(.22,1,.36,1) both;
+    }
+    .itn-pay-close {
+      position:absolute; top:1.1rem; right:1.1rem;
+      width:32px; height:32px; border-radius:50%;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      font-size:.8rem; color:rgba(255,255,255,.72);
+      transition:background .2s,transform .28s;
+    }
+    .itn-pay-close:hover { background:rgba(244,63,94,.2); color:#f87171; transform:rotate(90deg) scale(1.1); }
+    :root[data-theme="light"] .itn-pay-close { background:rgba(0,0,0,.07); border-color:rgba(0,0,0,.1); color:var(--txt3); }
+
+    .itn-pay-header { margin-bottom:1.6rem; }
+    .itn-pay-title  { font-size:1.2rem; font-weight:900; color:var(--txt); margin-bottom:.3rem; }
+    .itn-pay-role   { font-size:.82rem; color:var(--txt3); }
+
+    .itn-pay-amount-box {
+      background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(251,191,36,.08));
+      border:1px solid rgba(245,158,11,.32); border-radius:16px;
+      padding:1.2rem 1.5rem; margin-bottom:1.5rem;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .itn-pay-amount-label { font-size:.75rem; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.07em; }
+    .itn-pay-amount-val   { font-size:2rem; font-weight:900; color:#fbbf24; }
+    :root[data-theme="light"] .itn-pay-amount-val { color:#92400e; }
+
+    .itn-razorpay-btn {
+      display:flex; align-items:center; justify-content:center; gap:.7rem;
+      padding:.95rem; border-radius:14px; font-size:.95rem; font-weight:700;
+      background:linear-gradient(135deg,#43a4f1 0%,#0d74d1 100%);
+      color:#fff; border:none; cursor:pointer; font-family:inherit; width:100%;
+      box-shadow:0 4px 20px rgba(13,116,209,.4);
+      transition:transform .28s,box-shadow .28s;
+      position:relative; overflow:hidden;
+    }
+    .itn-razorpay-btn:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(13,116,209,.55); }
+    .itn-razorpay-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .itn-rzp-logo { font-size:1rem; font-weight:900; letter-spacing:.02em; }
+
+    /* ═══════════════════════════════════════════════════════
+       EMPTY STATES
+    ═══════════════════════════════════════════════════════ */
+    .itn-empty { text-align:center; padding:3.5rem 2rem; border:1px dashed var(--border); border-radius:18px; }
+    .itn-empty-icon { font-size:2.6rem; margin-bottom:.75rem; display:block; opacity:.5; }
+    .itn-empty h3   { font-size:.95rem; font-weight:700; color:var(--txt); margin-bottom:.3rem; }
+    .itn-empty p    { font-size:.8rem; color:var(--txt2); }
+
+    /* ═══════════════════════════════════════════════════════
+       SPINNER / TOAST
+    ═══════════════════════════════════════════════════════ */
+    .itn-spin { width:36px; height:36px; margin:3rem auto; display:block; border:3px solid var(--border); border-top-color:var(--itn-gold); border-radius:50%; animation:itnSpin .8s linear infinite; }
+    #itn-toast { position:fixed; bottom:1.75rem; right:1.75rem; z-index:99999; background:var(--bg2); color:var(--txt); padding:.85rem 1.2rem; border-radius:14px; font-size:.84rem; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,.32); border:1px solid var(--border2); max-width:320px; opacity:0; pointer-events:none; transition:opacity .25s,transform .25s; transform:translateY(10px); }
+    #itn-toast.show { opacity:1; pointer-events:auto; transform:translateY(0); }
+    #itn-toast.ok   { border-color:rgba(16,185,129,.4); }
+    #itn-toast.err  { border-color:rgba(244,63,94,.4); }
+
+    /* ═══════════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════════ */
+    @media(max-width:900px) { .itn-sections { gap:2.4rem; padding:2.4rem 0 4rem; } }
+    @media(max-width:600px) {
+      .itn-sections { gap:2rem; padding:2rem 0 3.5rem; }
+      .itn-grid { grid-template-columns:1fr; }
+      .itn-hero-stats { grid-template-columns:1fr 1fr; }
     }
   </style>
 </head>
-<body>
+<body class="itn-page">
+  <nav></nav>
+  <div id="itn-toast" role="alert" aria-live="polite"></div>
 
-<nav></nav>
-
-<!-- ── Toast ── -->
-<div id="itp-toast"></div>
-
-<div class="itp-page">
-
-  <!-- ── Hero ── -->
-  <div class="itp-hero">
-    <div class="itp-hero-mesh"></div>
-    <div class="itp-hero-grid"></div>
-    <div class="itp-container">
-      <div class="itp-hero-inner">
-        <div class="itp-hero-left">
-          <div class="itp-hero-badge">🎓 SkillUpNow Internship Program</div>
-          <h1 id="itp-h1">Internship Portal</h1>
-          <p id="itp-sub">Track your progress, submit reports, and grow your career</p>
+  <!-- ═══════════════════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════════════════ -->
+  <section class="itn-hero">
+    <div class="itn-hero-orb itn-hero-orb1"></div>
+    <div class="itn-hero-orb itn-hero-orb2"></div>
+    <div class="itn-hero-orb itn-hero-orb3"></div>
+    <div class="itn-hero-grid"></div>
+    <div class="itn-container">
+      <div class="itn-hero-inner">
+        <div class="itn-hero-left">
+          <div class="itn-badge">
+            <span class="itn-badge-dot"></span>
+            Internship Programmes
+          </div>
+          <h1>Launch Your Career</h1>
+          <span class="itn-hero-underline"></span>
+          <p>Gain real industry experience building web &amp; app projects, work alongside expert mentors, and earn a verifiable certificate — free or paid, choose what suits you.</p>
         </div>
-        <div id="itp-status"></div>
+
+        <!-- Stats panel -->
+        <div class="itn-hero-stats">
+          <!-- Ongoing -->
+          <div class="itn-stat" style="animation-delay:.08s" onclick="document.getElementById('itn-ongoing-section').scrollIntoView({behavior:'smooth',block:'start'})">
+            <div class="itn-stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle class="si-pulse" cx="12" cy="12" r="10" stroke="rgba(52,211,153,.9)" stroke-width="1.8" fill="rgba(52,211,153,.06)"/>
+                <polyline class="si-bob" points="12 8 12 12 16 14" stroke="rgba(52,211,153,.95)" stroke-width="2"/>
+                <circle class="si-blink" cx="12" cy="12" r="2" fill="rgba(52,211,153,.8)" stroke="none"/>
+              </svg>
+            </div>
+            <span class="itn-stat-v" id="stat-ongoing" style="color:var(--itn-emerald)">—</span>
+            <span class="itn-stat-l">Ongoing</span>
+          </div>
+          <!-- Upcoming -->
+          <div class="itn-stat" style="animation-delay:.16s" onclick="document.getElementById('itn-upcoming-section').scrollIntoView({behavior:'smooth',block:'start'})">
+            <div class="itn-stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle class="si-bob" cx="12" cy="12" r="10" stroke="rgba(6,182,212,.9)" stroke-width="1.8"/>
+                <line class="si-spin" x1="12" y1="12" x2="12" y2="7" stroke="rgba(6,182,212,.9)" stroke-width="2" style="animation-duration:8s;animation-timing-function:steps(12,end)"/>
+                <line class="si-spin" x1="12" y1="12" x2="16" y2="12" stroke="rgba(6,182,212,.8)" stroke-width="1.5" style="animation-duration:2s"/>
+              </svg>
+            </div>
+            <span class="itn-stat-v" id="stat-upcoming" style="color:var(--itn-cyan)">—</span>
+            <span class="itn-stat-l">Upcoming</span>
+          </div>
+          <!-- Free -->
+          <div class="itn-stat" style="animation-delay:.24s">
+            <div class="itn-stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect class="si-bob" x="2" y="7" width="20" height="14" rx="2" stroke="rgba(251,191,36,.9)" stroke-width="1.8"/>
+                <path class="si-slide" d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="rgba(251,191,36,.85)" stroke-width="1.8"/>
+                <line class="si-blink" x1="12" y1="11" x2="12" y2="15" stroke="rgba(251,191,36,.9)" stroke-width="2"/>
+                <line x1="10" y1="13" x2="14" y2="13" stroke="rgba(251,191,36,.9)" stroke-width="2"/>
+              </svg>
+            </div>
+            <span class="itn-stat-v" id="stat-free">—</span>
+            <span class="itn-stat-l">Free</span>
+          </div>
+          <!-- Paid -->
+          <div class="itn-stat" style="animation-delay:.32s">
+            <div class="itn-stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle class="si-pulse" cx="12" cy="12" r="10" stroke="rgba(251,191,36,.9)" stroke-width="1.8" fill="rgba(251,191,36,.06)"/>
+                <path class="si-bob" d="M12 6v.5M12 17.5V18M9 12a3 3 0 0 0 6 0 3 3 0 0 0-6 0" stroke="rgba(251,191,36,.9)" stroke-width="1.8"/>
+              </svg>
+            </div>
+            <span class="itn-stat-v" id="stat-paid">—</span>
+            <span class="itn-stat-l">Paid</span>
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════ -->
+  <main>
+    <div class="itn-container">
+      <div class="itn-sections">
+
+        <!-- ── ONGOING INTERNSHIPS ── -->
+        <section id="itn-ongoing-section">
+          <div class="itn-sec-hdr" style="--itn-hdr-c:var(--itn-emerald)">
+            <div class="itn-sec-hdr-left">
+              <div class="itn-sec-icon" style="color:var(--itn-emerald)">
+                <svg class="itn-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle class="si-pulse" cx="16" cy="16" r="13" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-opacity=".85" stroke-width="1.6"/>
+                  <polyline class="si-bob" points="16 10 16 16 20 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle class="si-blink" cx="16" cy="16" r="2.2" fill="currentColor"/>
+                </svg>
+              </div>
+              <div>
+                <div class="itn-sec-title">Ongoing Internships</div>
+                <div class="itn-sec-sub">Currently running — applications open now</div>
+              </div>
+            </div>
+            <span class="itn-sec-count" id="itn-count-ongoing" style="--itn-hdr-c:var(--itn-emerald)">0</span>
+          </div>
+          <div class="itn-grid" id="itn-ongoing-grid">
+            <div class="itn-spin"></div>
+          </div>
+        </section>
+
+        <!-- ── UPCOMING INTERNSHIPS ── -->
+        <section id="itn-upcoming-section">
+          <div class="itn-sec-hdr" style="--itn-hdr-c:var(--itn-cyan)">
+            <div class="itn-sec-hdr-left">
+              <div class="itn-sec-icon" style="color:var(--itn-cyan)">
+                <svg class="itn-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 2 H25 L19.5 14 L25 30 H7 L12.5 14 Z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-opacity=".82" stroke-width="1.6" stroke-linejoin="round"/>
+                  <line x1="7" y1="2"  x2="25" y2="2"  stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                  <line x1="7" y1="30" x2="25" y2="30" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                  <path d="M8.5 3.5 H23.5 L19 12 H13 Z" fill="currentColor" fill-opacity=".45"/>
+                  <circle class="si-drop" cx="16" cy="16" r="1.4" fill="currentColor"/>
+                  <path class="si-pulse" d="M12 27 L16 21 L20 27 Z" fill="currentColor" fill-opacity=".55"/>
+                </svg>
+              </div>
+              <div>
+                <div class="itn-sec-title">Upcoming Internships</div>
+                <div class="itn-sec-sub">Opening soon — register your interest now</div>
+              </div>
+            </div>
+            <span class="itn-sec-count" id="itn-count-upcoming" style="--itn-hdr-c:var(--itn-cyan)">0</span>
+          </div>
+          <div class="itn-grid" id="itn-upcoming-grid">
+            <div class="itn-spin"></div>
+          </div>
+        </section>
+
+        <!-- ── APPLY FORM ── -->
+        <section id="itn-apply-section">
+          <div class="itn-sec-hdr" style="--itn-hdr-c:#a78bfa">
+            <div class="itn-sec-hdr-left">
+              <div class="itn-sec-icon" style="color:#a78bfa">
+                <svg class="itn-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path class="si-bob" d="M16 4 Q27 4 27 10 L27 22 Q27 28 16 28 Q5 28 5 22 L5 10 Q5 4 16 4 Z" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-opacity=".75" stroke-width="1.5"/>
+                  <path class="si-swing" d="M28 4 L16 4 L12 10" stroke="currentColor" stroke-opacity=".55" stroke-width="1.3" stroke-linecap="round"/>
+                  <line class="si-slide" x1="10" y1="14" x2="22" y2="14" stroke="currentColor" stroke-opacity=".8" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="10" y1="18" x2="17" y2="18" stroke="currentColor" stroke-opacity=".5" stroke-width="1.4" stroke-linecap="round"/>
+                  <circle class="si-pulse" cx="23" cy="21" r="3" fill="currentColor" fill-opacity=".35"/>
+                  <path class="si-blink" d="M21.5 21 L22.6 22.2 L25 19.5" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </div>
+              <div>
+                <div class="itn-sec-title">Apply Now</div>
+                <div class="itn-sec-sub">Quick application — we respond within 48 hours</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="itn-form-panel">
+            <div class="itn-form-header">
+              <div class="itn-form-title" id="itn-form-title">Apply for Internship</div>
+              <div class="itn-form-sub">Fill in your details and we'll get back to you shortly.</div>
+            </div>
+
+            <div id="itn-form-success" class="itn-form-success">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 1rem">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="9 12 11.5 14.5 15.5 10"/>
+              </svg>
+              <h3>Application Submitted!</h3>
+              <p>We'll review your application and reach out to you within 1–2 business days. Keep an eye on your email!</p>
+            </div>
+
+            <form id="itn-apply-form" class="itn-form-body" novalidate>
+              <div class="itn-field-grid">
+                <!-- Name -->
+                <div class="itn-field">
+                  <label class="itn-label" for="itn-name">Full Name <span>*</span></label>
+                  <input class="itn-input" id="itn-name" type="text" placeholder="Your full name" required>
+                </div>
+                <!-- College -->
+                <div class="itn-field">
+                  <label class="itn-label" for="itn-college">College / University <span>*</span></label>
+                  <input class="itn-input" id="itn-college" type="text" placeholder="Institution name" required>
+                </div>
+                <!-- Email -->
+                <div class="itn-field">
+                  <label class="itn-label" for="itn-email">Email Address <span>*</span></label>
+                  <input class="itn-input" id="itn-email" type="email" placeholder="you@email.com" required>
+                </div>
+                <!-- Phone -->
+                <div class="itn-field">
+                  <label class="itn-label" for="itn-phone">Mobile Number <span>*</span></label>
+                  <input class="itn-input" id="itn-phone" type="tel" placeholder="+91 XXXXX XXXXX" required>
+                </div>
+                <!-- Year -->
+                <div class="itn-field">
+                  <label class="itn-label" for="itn-year">Current Year of Study <span>*</span></label>
+                  <select class="itn-select" id="itn-year" required>
+                    <option value="">Select year</option>
+                    <option>1st Year</option>
+                    <option>2nd Year</option>
+                    <option>3rd Year</option>
+                    <option>4th Year</option>
+                    <option>Postgraduate</option>
+                  </select>
+                </div>
+                <!-- Programme -->
+                <div class="itn-field">
+                  <label class="itn-label" for="itn-programme">Internship Programme <span>*</span></label>
+                  <select class="itn-select" id="itn-programme" required>
+                    <option value="">Select programme</option>
+                    <option value="web-dev-free">Web Development (Free)</option>
+                    <option value="app-dev-free">App Development (Free)</option>
+                    <option value="fullstack-paid">Full-Stack Premium (Paid)</option>
+                    <option value="mobile-paid">Mobile App Premium (Paid)</option>
+                  </select>
+                </div>
+                <!-- Message -->
+                <div class="itn-field itn-field-full">
+                  <label class="itn-label" for="itn-message">Why do you want to join? (optional)</label>
+                  <textarea class="itn-textarea" id="itn-message" placeholder="Tell us about your goals and what you hope to achieve…"></textarea>
+                </div>
+              </div>
+
+              <!-- Hidden field for programme id set when clicking Apply on a card -->
+              <input type="hidden" id="itn-prog-id" value="">
+              <input type="hidden" id="itn-is-paid" value="false">
+
+              <button type="submit" class="itn-submit-btn" id="itn-submit-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line class="si-slide" x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+                Submit Application
+              </button>
+
+              <p style="text-align:center;font-size:.76rem;color:var(--txt3);margin-top:.85rem;">
+                By submitting you agree to our
+                <a href="#" style="color:var(--itn-gold);text-decoration:none;">Terms &amp; Privacy Policy</a>.
+              </p>
+            </form>
+          </div>
+        </section>
+
+      </div><!-- /itn-sections -->
+    </div><!-- /itn-container -->
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAYMENT MODAL
+  ═══════════════════════════════════════════════════════ -->
+  <div id="itn-pay-overlay" class="itn-pay-overlay" onclick="if(event.target===this)closePayModal()">
+    <div class="itn-pay-box">
+      <button class="itn-pay-close" onclick="closePayModal()">✕</button>
+      <div class="itn-pay-header">
+        <div class="itn-pay-title" id="pay-title">Complete Payment</div>
+        <div class="itn-pay-role"  id="pay-role">You're applying for a paid internship</div>
+      </div>
+      <div class="itn-pay-amount-box">
+        <div>
+          <div class="itn-pay-amount-label">Programme Fee</div>
+          <div class="itn-pay-amount-val" id="pay-amount">₹0</div>
+        </div>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(251,191,36,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path class="si-bob" d="M4 2h16v17l-2-1.5L16 19l-2-1.5L12 19l-2-1.5L8 19l-2-1.5L4 19Z"/>
+          <line x1="8" y1="9" x2="16" y2="9"/>
+          <line x1="8" y1="13" x2="13" y2="13"/>
+        </svg>
+      </div>
+      <div style="font-size:.82rem;color:var(--txt3);line-height:1.6;margin-bottom:1.4rem;">
+        ✓ Secure payment via <strong style="color:var(--txt2);">Razorpay</strong>. Your application is submitted immediately after successful payment.
+      </div>
+      <button class="itn-razorpay-btn" id="itn-razorpay-btn" onclick="initiateRazorpay()">
+        <span class="itn-rzp-logo">₹</span>
+        Pay &amp; Complete Application
+      </button>
+      <p style="text-align:center;font-size:.74rem;color:var(--txt3);margin-top:.9rem;">🔒 256-bit SSL secured • Razorpay Payment Gateway</p>
     </div>
   </div>
 
-  <div class="itp-container" style="margin-top:2.5rem">
+  <!-- ═══════════════════════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config/supabase-config.js"></script>
+  <script src="../js/profile-nav.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    <!-- Loading -->
-    <div id="itp-loading"><div class="itp-spin"></div></div>
+  <script>
+  /* ══════════════════════════════════════════
+     INTERNSHIP PAGE — Main Script
+  ══════════════════════════════════════════ */
 
-    <!-- Not signed in -->
-    <div id="itp-auth" style="display:none">
-      <div class="itp-empty-state">
-        <div class="itp-empty-icon">🔐</div>
-        <h2>Sign In Required</h2>
-        <p>Please sign in to your SkillUpNow account to access the internship portal and manage your progress.</p>
-        <button class="itp-btn itp-btn-pr" onclick="document.getElementById('pn-login-btn')?.click()">Sign In to Continue →</button>
-      </div>
-    </div>
+  // Razorpay key (same as site)
+  const RZP_KEY = 'rzp_live_ILgsSZCZoFMQjO';
 
-    <!-- No enrollment -->
-    <div id="itp-none" style="display:none">
-      <div class="itp-alert info">
-        <span class="itp-alert-icon">✨</span>
-        <div>
-          <strong>Welcome to the Internship Portal!</strong>
-          Browse available projects below and submit your application. Our team will review and approve your placement.
-        </div>
-      </div>
-      <div class="itp-card">
-        <div class="itp-card-hdr">
-          <div class="itp-card-title">Available Internship Projects</div>
-        </div>
-        <div class="itp-grid" id="itp-avail-grid"><div class="itp-spin"></div></div>
-      </div>
-    </div>
+  // State
+  let currentUser   = null;
+  let pendingPaidApp = null; // {programmeId, programmeName, amount, formData}
 
-    <!-- Pending -->
-    <div id="itp-pending" style="display:none">
-      <div class="itp-alert warn">
-        <span class="itp-alert-icon">⏳</span>
-        <div>
-          <strong>Application Under Review</strong>
-          Your application is being reviewed by the admin team. Full project details will unlock once approved.
-        </div>
-      </div>
-      <div id="itp-pending-card"></div>
-    </div>
+  /* ── Toast helper ── */
+  function toast(msg, type = 'ok', duration = 3800) {
+    const t = document.getElementById('itn-toast');
+    t.textContent = msg;
+    t.className   = 'show ' + type;
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => { t.className = ''; }, duration);
+  }
 
-    <!-- Rejected -->
-    <div id="itp-rejected" style="display:none">
-      <div class="itp-alert err">
-        <span class="itp-alert-icon">❌</span>
-        <div>
-          <strong>Application Not Approved</strong>
-          <div id="itp-rej-reason" style="margin-top:0.3rem;font-size:0.83rem;opacity:0.85"></div>
-          <div style="margin-top:0.5rem">You may apply for another project below.</div>
-        </div>
-      </div>
-      <div class="itp-grid" id="itp-rej-grid"><div class="itp-spin"></div></div>
-    </div>
-
-    <!-- Approved: full access -->
-    <div id="itp-approved" style="display:none">
-      <div class="itp-stats" id="itp-stats"></div>
-
-      <div class="itp-tabs">
-        <button class="itp-tab active" data-tab="overview">📋 Overview</button>
-        <button class="itp-tab" data-tab="tasks">✅ Tasks</button>
-        <button class="itp-tab" data-tab="reports">📝 Daily Reports</button>
-        <button class="itp-tab" data-tab="attendance">📅 Attendance</button>
-      </div>
-
-      <!-- Overview -->
-      <div class="itp-pane active" id="itp-pane-overview">
-        <div class="itp-card" id="itp-overview-main"></div>
-        <div class="itp-card" id="itp-overview-tech" style="margin-top:1.25rem"></div>
-      </div>
-
-      <!-- Tasks -->
-      <div class="itp-pane" id="itp-pane-tasks">
-        <div class="itp-card">
-          <div class="itp-card-hdr">
-            <div class="itp-card-title">Project Tasks</div>
-            <span class="itp-status-badge info" id="itp-task-count">0 tasks</span>
-          </div>
-          <div id="itp-tasks-list"></div>
-        </div>
-      </div>
-
-      <!-- Daily Reports -->
-      <div class="itp-pane" id="itp-pane-reports">
-        <div class="itp-card">
-          <div class="itp-card-hdr">
-            <div class="itp-card-title">Submit Daily Report</div>
-            <div id="itp-today-badge"></div>
-          </div>
-          <form id="itp-rpt-form" autocomplete="off">
-            <div class="itp-fr">
-              <div class="itp-fg">
-                <label>Report Date *</label>
-                <input type="date" id="itp-date" required>
-              </div>
-              <div class="itp-fg">
-                <label>Hours Worked *</label>
-                <input type="number" id="itp-hours" min="0.5" max="12" step="0.5" placeholder="e.g. 4.5" required>
-              </div>
-            </div>
-            <div class="itp-fg">
-              <label>Work Summary *</label>
-              <textarea id="itp-summary" placeholder="Describe what you worked on today in detail…" required></textarea>
-            </div>
-            <div class="itp-fg">
-              <label>Tasks Worked On (select all that apply)</label>
-              <div class="itp-tasklist" id="itp-form-tasks">
-                <span style="color:var(--txt3);font-size:0.8rem;padding:0.5rem;display:block">Loading…</span>
-              </div>
-            </div>
-            <div class="itp-fr">
-              <div class="itp-fg">
-                <label>Challenges Faced</label>
-                <textarea id="itp-challenges" placeholder="Any blockers or difficulties…" style="min-height:76px"></textarea>
-              </div>
-              <div class="itp-fg">
-                <label>Plan for Tomorrow</label>
-                <textarea id="itp-nextplan" placeholder="What will you work on next?" style="min-height:76px"></textarea>
-              </div>
-            </div>
-            <div class="itp-fg">
-              <label>Today's Mood</label>
-              <div class="itp-mood" id="itp-mood">
-                <div class="itp-mood-star" data-m="1" title="Frustrated">😤</div>
-                <div class="itp-mood-star" data-m="2" title="Uncertain">😕</div>
-                <div class="itp-mood-star sel" data-m="3" title="Okay">😐</div>
-                <div class="itp-mood-star" data-m="4" title="Good">😊</div>
-                <div class="itp-mood-star" data-m="5" title="Excellent">🤩</div>
-              </div>
-              <input type="hidden" id="itp-mood-val" value="3">
-            </div>
-            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem">
-              <button type="submit" class="itp-btn itp-btn-pr" id="itp-rpt-btn">📤 Submit Report</button>
-              <button type="button" class="itp-btn itp-btn-ol" onclick="itpResetForm()">↺ Clear</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="itp-card" style="margin-top:1.25rem">
-          <div class="itp-card-hdr">
-            <div class="itp-card-title">Report History</div>
-            <button class="itp-btn itp-btn-sec" style="font-size:0.77rem;padding:0.38rem 0.85rem" onclick="itpExportPDF()">⬇ Export PDF</button>
-          </div>
-          <div class="itp-tbl-wrap">
-            <table class="itp-tbl">
-              <thead><tr><th>Date</th><th>Hours</th><th>Summary</th><th>Status</th><th>Admin Notes</th><th>Action</th></tr></thead>
-              <tbody id="itp-rpt-tbody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No reports yet</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Attendance -->
-      <div class="itp-pane" id="itp-pane-attendance">
-        <div class="itp-stats" id="itp-atd-stats"></div>
-        <div class="itp-card">
-          <div class="itp-card-hdr">
-            <div class="itp-card-title">Attendance Record</div>
-            <div style="display:flex;gap:0.6rem;font-size:0.73rem;align-items:center;flex-wrap:wrap;color:var(--txt3)">
-              <span><span class="atd present"></span>Present</span>
-              <span><span class="atd absent"></span>Absent</span>
-              <span><span class="atd late"></span>Late</span>
-              <span><span class="atd half_day"></span>Half Day</span>
-              <span><span class="atd holiday"></span>Holiday</span>
-            </div>
-          </div>
-          <div class="itp-tbl-wrap">
-            <table class="itp-tbl">
-              <thead><tr><th>Date</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Notes</th></tr></thead>
-              <tbody id="itp-atd-tbody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No attendance records yet</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-        <div id="itp-cert-area" style="display:none">
-          <div class="itp-cert">
-            <div class="itp-cert-icon">🏆</div>
-            <div class="itp-cert-title">Attendance Certificate Available!</div>
-            <div class="itp-cert-sub" id="itp-cert-sub">You've completed the internship. Download your certificate below.</div>
-            <button class="itp-btn itp-btn-gold" style="margin-top:1.5rem" onclick="itpDownloadCert()">🎓 Download Certificate</button>
-          </div>
-        </div>
-      </div>
-    </div><!-- /itp-approved -->
-
-  </div><!-- /.itp-container -->
-</div><!-- /.itp-page -->
-
-<footer></footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="../config/supabase-config.js"></script>
-<script src="../js/profile-nav.js"></script>
-
-<script>
-'use strict';
-
-/* ============================================================
-   STATE
-   ============================================================ */
-const _sb = supabase.createClient(
-  'https://kenlnisfhrkgolvxitfc.supabase.co',
-  'sb_publishable_bn3ALAJLmsKePx3V-NsMBw_ADJ-3S3D'
-);
-let _user  = null;
-let _enrol = null;
-let _proj  = null;
-let _mood  = 3;
-
-/* ============================================================
-   INIT
-   ============================================================ */
-async function itpInit() {
-  await new Promise(res => {
-    const { data: { subscription } } = _sb.auth.onAuthStateChange((ev, ses) => {
-      subscription.unsubscribe();
-      _user = ses?.user || null;
-      res();
+  /* ── Auth: watch session ── */
+  async function initAuth() {
+    const client = window.supabaseConfig?.client;
+    if (!client) return;
+    const { data } = await client.auth.getSession();
+    currentUser = data?.session?.user || null;
+    client.auth.onAuthStateChange((_e, s) => {
+      currentUser = s?.user || null;
+      renderPaidSectionState();
     });
-    setTimeout(res, 2200);
-  });
-
-  if (!_user) { _itpShow('itp-auth'); return; }
-  await itpLoadStatus();
-}
-
-function _itpShow(id) {
-  document.getElementById('itp-loading').style.display = 'none';
-  ['itp-auth','itp-none','itp-pending','itp-rejected','itp-approved'].forEach(i => {
-    const el = document.getElementById(i);
-    if (el) el.style.display = 'none';
-  });
-  const el = document.getElementById(id);
-  if (el) el.style.display = '';
-}
-
-/* ============================================================
-   ENROLLMENT STATUS
-   ============================================================ */
-async function itpLoadStatus() {
-  const { data: enrol } = await _sb
-    .from('internship_enrollments')
-    .select('*, internship_projects(*)')
-    .eq('student_user_id', _user.id)
-    .order('enrolled_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (!enrol) {
-    await itpLoadProjects('itp-avail-grid');
-    _itpShow('itp-none');
-    return;
   }
-  _enrol = enrol;
-  _proj  = enrol.internship_projects;
-  _itpUpdateHero();
 
-  if (enrol.approval_status === 'pending') {
-    _itpRenderPendingCard();
-    _itpShow('itp-pending');
-  } else if (enrol.approval_status === 'rejected') {
-    const rr = document.getElementById('itp-rej-reason');
-    if (enrol.rejection_reason) rr.textContent = 'Reason: ' + enrol.rejection_reason;
-    await itpLoadProjects('itp-rej-grid');
-    _itpShow('itp-rejected');
-  } else {
-    await _itpLoadApproved();
-    _itpShow('itp-approved');
+  function renderPaidSectionState() {
+    loadAllInternships();
   }
-}
 
-function _itpUpdateHero() {
-  if (!_proj) return;
-  document.getElementById('itp-h1').textContent = _proj.project_name;
-  document.getElementById('itp-sub').textContent = _proj.client_name + ' · ' + _proj.country;
-  const statusMap = { pending:'pending', approved:'approved', rejected:'rejected' };
-  const labelMap  = { pending:'⏳ Pending Approval', approved:'✅ Approved', rejected:'❌ Rejected' };
-  const s = _enrol.approval_status;
-  document.getElementById('itp-status').innerHTML =
-    `<span class="itp-status-badge ${statusMap[s]}">${labelMap[s]}</span>`;
-}
+  /* ── Scroll to apply form ── */
+  function scrollToApply(name, isPaid, progId, amount) {
+    document.getElementById('itn-prog-id').value  = progId  || '';
+    document.getElementById('itn-is-paid').value  = isPaid ? 'true' : 'false';
+    document.getElementById('itn-form-title').textContent = name
+      ? `Apply — ${name}`
+      : 'Apply for Internship';
 
-/* ============================================================
-   AVAILABLE PROJECTS
-   ============================================================ */
-async function itpLoadProjects(gridId) {
-  const { data: projects } = await _sb
-    .from('internship_projects')
-    .select('id,project_name,client_name,country,domain,description,duration_weeks,tech_stack,max_students')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false });
+    // Pre-select programme in dropdown if possible
+    const sel = document.getElementById('itn-programme');
+    if (progId) {
+      for (const opt of sel.options) {
+        if (opt.value === progId) { opt.selected = true; break; }
+      }
+    }
 
-  const grid = document.getElementById(gridId);
-  if (!projects?.length) {
-    grid.innerHTML = '<p style="color:var(--txt2);font-size:0.87rem;padding:1.5rem;text-align:center">No internship projects available right now. Check back soon.</p>';
-    return;
+    // If paid, store amount for payment flow
+    if (isPaid) {
+      window._pendingPaidAmount = amount;
+      window._pendingPaidName   = name;
+    }
+
+    document.getElementById('itn-apply-section')
+            .scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  grid.innerHTML = projects.map(p => `
-    <div class="itp-proj-card">
-      <h3>${_esc(p.project_name)}</h3>
-      <div class="itp-proj-desc">${_esc(p.description || 'No description provided.')}</div>
-      <div class="itp-meta" style="margin-bottom:0.85rem">
-        <span class="itp-meta-item">🏢 ${_esc(p.client_name)}</span>
-        <span class="itp-meta-item">🌍 ${_esc(p.country)}</span>
-        <span class="itp-meta-item">⏱ ${p.duration_weeks}w</span>
-      </div>
-      <div class="itp-tags">
-        <span class="itp-tag gold">${_esc(p.domain||'General')}</span>
-        ${(p.tech_stack||[]).slice(0,3).map(t=>`<span class="itp-tag">${_esc(t)}</span>`).join('')}
-      </div>
-      <button class="itp-btn itp-btn-pr" style="width:100%;justify-content:center;margin-top:0.75rem"
-        onclick="itpApply('${p.id}','${_esc(p.project_name)}')">Apply Now →</button>
-    </div>
-  `).join('');
-}
 
-async function itpApply(projectId, projectName) {
-  if (!confirm(`Apply for "${projectName}"? Your application will be reviewed by admin.`)) return;
-  const { error } = await _sb.from('internship_enrollments').insert({
-    student_user_id: _user.id,
-    project_id: projectId,
-    approval_status: 'pending'
-  });
-  if (error) { itpToast('❌ ' + error.message, 'err'); return; }
-  itpToast('✅ Application submitted! Awaiting admin approval.');
-  setTimeout(() => location.reload(), 1400);
-}
+  /* ── Render free internship card ── */
+  function renderFreeCard(p, idx) {
+    const icons = [
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline class="si-bob" points="16 18 22 12 16 6"/><polyline class="si-bob" points="8 6 2 12 8 18"/><line class="si-slide" x1="12" y1="2" x2="12" y2="22"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect class="si-float" x="5" y="2" width="14" height="20" rx="2"/><line class="si-blink" x1="12" y1="18" x2="12" y2="18.01"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle class="si-pulse" cx="12" cy="12" r="10"/><line class="si-spin" x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>`,
+    ];
+    const icon = icons[idx % icons.length];
+    const tags = (p.tech_stack || []).slice(0, 3).map(t =>
+      `<span class="itn-card-tag itn-card-tag-g">${t}</span>`).join('');
+    const dur  = p.duration_weeks ? `${p.duration_weeks}W` : '—';
 
-/* ============================================================
-   PENDING VIEW
-   ============================================================ */
-function _itpRenderPendingCard() {
-  if (!_proj) return;
-  document.getElementById('itp-pending-card').innerHTML = `
-    <div class="itp-card">
-      <div class="itp-card-hdr">
-        <div class="itp-card-title">${_esc(_proj.project_name)}</div>
-        <span class="itp-status-badge pending">⏳ Under Review</span>
-      </div>
-      <div class="itp-meta">
-        <span class="itp-meta-item">🏢 ${_esc(_proj.client_name)}</span>
-        <span class="itp-meta-item">🌍 ${_esc(_proj.country)}</span>
-        <span class="itp-meta-item">🗂 ${_esc(_proj.domain||'General')}</span>
-        <span class="itp-meta-item">⏱ ${_proj.duration_weeks} weeks</span>
-      </div>
-      <div class="itp-pending-block">
-        <p style="font-size:0.85rem;color:var(--txt2);line-height:1.65">${_esc(_proj.description||'Project details will be visible after approval.')}</p>
-      </div>
-      <p style="margin-top:0.9rem;font-size:0.79rem;color:var(--txt3)">
-        Applied: ${new Date(_enrol.enrolled_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
-      </p>
-    </div>`;
-}
-
-/* ============================================================
-   APPROVED VIEW
-   ============================================================ */
-async function _itpLoadApproved() {
-  _itpRenderOverview();
-  await _itpRenderTasks();
-  await _itpLoadReports();
-  await _itpLoadAttendance();
-  _itpSetupForm();
-  _itpSetupTabs();
-
-  const [{ data: rpts }, { data: atd }] = await Promise.all([
-    _sb.from('internship_daily_reports').select('hours_worked,report_status').eq('enrollment_id', _enrol.id),
-    _sb.from('internship_attendance').select('status').eq('enrollment_id', _enrol.id),
-  ]);
-  const totalHrs = (rpts||[]).reduce((s,r) => s + Number(r.hours_worked||0), 0);
-  const present  = (atd||[]).filter(a => ['present','late','half_day'].includes(a.status)).length;
-  const tasks    = Array.isArray(_proj.tasks) ? _proj.tasks : [];
-
-  document.getElementById('itp-stats').innerHTML = `
-    <div class="itp-stat"><div class="itp-stat-v">${(rpts||[]).length}</div><div class="itp-stat-l">Reports</div></div>
-    <div class="itp-stat"><div class="itp-stat-v">${totalHrs.toFixed(1)}h</div><div class="itp-stat-l">Hours Logged</div></div>
-    <div class="itp-stat"><div class="itp-stat-v" style="color:#10b981">${present}</div><div class="itp-stat-l">Days Present</div></div>
-    <div class="itp-stat"><div class="itp-stat-v">${tasks.length}</div><div class="itp-stat-l">Tasks</div></div>
-    <div class="itp-stat"><div class="itp-stat-v" style="color:var(--itp-gold)">${_proj.duration_weeks}w</div><div class="itp-stat-l">Duration</div></div>
-  `;
-}
-
-function _itpRenderOverview() {
-  const lo = Array.isArray(_proj.learning_outcomes) ? _proj.learning_outcomes : [];
-  const ts = Array.isArray(_proj.tech_stack) ? _proj.tech_stack : [];
-  document.getElementById('itp-overview-main').innerHTML = `
-    <div class="itp-card-hdr">
-      <div class="itp-card-title">Project Overview</div>
-      <span class="itp-status-badge approved">✅ Approved</span>
-    </div>
-    <div class="itp-meta" style="margin-bottom:1.1rem">
-      <span class="itp-meta-item">🏢 ${_esc(_proj.client_name)}</span>
-      <span class="itp-meta-item">🌍 ${_esc(_proj.country)}</span>
-      <span class="itp-meta-item">🗂 ${_esc(_proj.domain||'General')}</span>
-      <span class="itp-meta-item">⏱ ${_proj.duration_weeks} weeks</span>
-      ${_enrol.start_date ? `<span class="itp-meta-item">📅 Start: ${new Date(_enrol.start_date+'T00:00:00').toLocaleDateString('en-IN')}</span>` : ''}
-    </div>
-    <p style="font-size:0.88rem;line-height:1.75;color:var(--txt2);white-space:pre-wrap">${_esc(_proj.detailed_description||_proj.description||'')}</p>
-    <p style="margin-top:1rem;font-size:0.78rem;color:var(--itp-emerald);font-weight:600">
-      ✓ Approved ${_enrol.approved_at ? new Date(_enrol.approved_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : ''}
-    </p>`;
-
-  document.getElementById('itp-overview-tech').innerHTML = `
-    <div class="itp-card-hdr"><div class="itp-card-title">Tech Stack &amp; Learning Outcomes</div></div>
-    <div class="itp-two-col">
-      <div>
-        <div class="itp-sub-label">🛠 Tech Stack</div>
-        <div class="itp-tags">${ts.length ? ts.map(t=>`<span class="itp-tag cyan">${_esc(t)}</span>`).join('') : '<span style="color:var(--txt3);font-size:0.82rem">Not specified</span>'}</div>
-      </div>
-      <div>
-        <div class="itp-sub-label">🎯 Learning Outcomes</div>
-        <div>${lo.length ? lo.map(o=>`<div class="itp-lo-item"><span class="itp-lo-icon">✓</span>${_esc(o)}</div>`).join('') : '<span style="color:var(--txt3);font-size:0.82rem">Not specified</span>'}</div>
-      </div>
-    </div>`;
-}
-
-async function _itpRenderTasks() {
-  const tasks = Array.isArray(_proj?.tasks) ? _proj.tasks : [];
-  document.getElementById('itp-task-count').textContent = `${tasks.length} task${tasks.length!==1?'s':''}`;
-  document.getElementById('itp-tasks-list').innerHTML = tasks.length
-    ? tasks.map((t,i) => `
-        <div class="itp-task">
-          <div class="itp-task-num">${i+1}</div>
-          <div style="flex:1">
-            <h4>${_esc(t.title||'Task '+(i+1))}</h4>
-            <p>${_esc(t.description||'')}</p>
-            ${t.deadline_days ? `<div class="itp-task-dl">⏱ Deadline: ${t.deadline_days} days from start</div>` : ''}
+    return `
+      <div class="itn-card" style="--itn-card-grad:linear-gradient(90deg,#10b981,#06b6d4);">
+        <div class="itn-card-shim"></div>
+        <div class="itn-card-top">
+          <div class="itn-card-icon-wrap" style="--itn-icon-c:#10b981">${icon}</div>
+          <span class="itn-pill itn-pill-free"><span class="itn-pill-dot"></span>Free</span>
+        </div>
+        <div class="itn-card-body">
+          <div class="itn-card-tags">${tags}</div>
+          <div class="itn-card-title">${p.project_name}</div>
+          <p class="itn-card-desc">${p.description || 'No description provided.'}</p>
+          <div class="itn-card-meta">
+            <span class="itn-card-meta-item itn-meta-dur">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${dur}
+            </span>
+            <span class="itn-card-meta-item itn-meta-cert">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="9 15 11.5 17.5 15.5 13.5"/></svg>
+              Certificate
+            </span>
           </div>
-        </div>`).join('')
-    : '<p style="color:var(--txt2);font-size:0.85rem;padding:1rem;text-align:center">No tasks defined yet.</p>';
-}
+          <button onclick="scrollToApply('${p.project_name.replace(/'/g,"\\'")}',false,'${p.id}',0)"
+            style="margin-top:.9rem;display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:10px;background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.3);font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,transform .2s;"
+            onmouseover="this.style.background='rgba(16,185,129,.22)';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.background='rgba(16,185,129,.12)';this.style.transform=''">
+            Apply Free
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>`;
+  }
 
-/* ============================================================
-   REPORT FORM
-   ============================================================ */
-function _itpSetupForm() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('itp-date').value = today;
-  document.getElementById('itp-date').max   = today;
+  /* ── Render paid internship card ── */
+  function renderPaidCard(p, idx) {
+    const icons = [
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect class="si-float" x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle class="si-pulse" cx="8" cy="15" r="2" fill="rgba(245,158,11,.2)"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle class="si-pulse" cx="12" cy="12" r="10" fill="rgba(245,158,11,.07)"/><path class="si-bob" d="M12 6v.5M12 17.5V18M9 12a3 3 0 0 0 6 0 3 3 0 0 0-6 0"/></svg>`,
+    ];
+    const icon   = icons[idx % icons.length];
+    const tags   = (p.tech_stack || []).slice(0, 3).map(t =>
+      `<span class="itn-card-tag">${t}</span>`).join('');
+    const dur    = p.duration_weeks ? `${p.duration_weeks}W` : '—';
+    const amount = p.payment_amount || 0;
+    const amtFmt = amount > 0 ? `₹${amount.toLocaleString('en-IN')}` : 'Free';
 
-  const tasks = Array.isArray(_proj?.tasks) ? _proj.tasks : [];
-  document.getElementById('itp-form-tasks').innerHTML = tasks.length
-    ? tasks.map((t,i) => `
-        <label>
-          <input type="checkbox" name="itp-tc" value="${i}">
-          ${_esc(t.title||'Task '+(i+1))}
-        </label>`).join('')
-    : '<span style="color:var(--txt3);font-size:0.8rem;padding:0.5rem;display:block">No project tasks defined.</span>';
+    const btnHtml = currentUser
+      ? `<button onclick="openPayModal('${p.id}','${p.project_name.replace(/'/g,"\\'")}',${amount})"
+           style="margin-top:.9rem;display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:10px;background:rgba(245,158,11,.15);color:var(--itn-gold);border:1.5px solid rgba(245,158,11,.35);font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,transform .2s;width:100%;justify-content:center;"
+           onmouseover="this.style.background='rgba(245,158,11,.28)';this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.background='rgba(245,158,11,.15)';this.style.transform=''">
+           💳 Pay &amp; Apply (${amtFmt})
+           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+         </button>`
+      : `<div style="margin-top:.9rem;padding:.85rem 1rem;border:1.5px dashed rgba(245,158,11,.28);border-radius:12px;text-align:center;">
+           <div style="font-size:.78rem;color:var(--txt3);margin-bottom:.5rem;">Login required to apply for paid internship</div>
+           <button onclick="window.profileNav&&window.profileNav.openLoginModal()"
+             style="padding:.5rem 1.2rem;border-radius:9px;background:linear-gradient(135deg,var(--v1),var(--v2));color:#fff;border:none;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;">
+             Login / Sign Up
+           </button>
+         </div>`;
 
-  document.querySelectorAll('.itp-mood-star').forEach(s => {
-    s.addEventListener('click', () => {
-      document.querySelectorAll('.itp-mood-star').forEach(x => x.classList.remove('sel'));
-      s.classList.add('sel');
-      _mood = Number(s.dataset.m);
-      document.getElementById('itp-mood-val').value = _mood;
-    });
+    return `
+      <div class="itn-paid-card">
+        <div class="itn-premium-badge">⭐ Premium</div>
+        <div class="itn-card-top">
+          <div class="itn-card-icon-wrap" style="--itn-icon-c:#f59e0b">${icon}</div>
+          <span class="itn-pill itn-pill-paid"><span class="itn-pill-dot"></span>Paid</span>
+        </div>
+        <div class="itn-card-body">
+          <div class="itn-card-tags">${tags}</div>
+          <div class="itn-card-title">${p.project_name}</div>
+          <p class="itn-card-desc">${p.description || 'No description provided.'}</p>
+          <div class="itn-price-chip">
+            <span class="itn-price-amt">${amtFmt}</span>
+            <span class="itn-price-label">programme fee</span>
+          </div>
+          <div class="itn-card-meta" style="margin-top:.7rem">
+            <span class="itn-card-meta-item itn-meta-dur">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${dur}
+            </span>
+            <span class="itn-card-meta-item itn-meta-stip">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v.5M12 17.5V18M9 12a3 3 0 0 0 6 0 3 3 0 0 0-6 0"/></svg>
+              Stipend
+            </span>
+            <span class="itn-card-meta-item itn-meta-cert">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Certificate
+            </span>
+          </div>
+          ${btnHtml}
+        </div>
+      </div>`;
+  }
+
+  /* ── Render a grid section ── */
+  function _renderInternGrid(gridId, items, countId, statId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    if (countId) document.getElementById(countId).textContent = items.length;
+    if (statId)  document.getElementById(statId).textContent  = items.length;
+    if (!items.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2.5rem 1rem;color:var(--txt3);font-size:.88rem">None at the moment — check back soon.</div>';
+      return;
+    }
+    grid.innerHTML = items.map((p, i) => p.is_paid ? renderPaidCard(p, i) : renderFreeCard(p, i)).join('');
+    animateCards(grid);
+  }
+
+  /* ── Load all internships from Supabase once, split by status ── */
+  async function loadAllInternships() {
+    const client = window.supabaseConfig?.client;
+    let all = [];
+    if (client) {
+      try {
+        const { data, error } = await client
+          .from('internship_projects')
+          .select('*')
+          .eq('is_active', true)
+          .eq('project_type', 'internship')
+          .order('created_at', { ascending: false });
+        if (!error && data?.length) all = data;
+      } catch {}
+    }
+    if (!all.length) all = [...getFallbackFree(), ...getFallbackPaid()];
+
+    const ongoing  = all.filter(p => !p.internship_status || p.internship_status === 'ongoing');
+    const upcoming = all.filter(p => p.internship_status === 'upcoming');
+    const free     = all.filter(p => !p.is_paid);
+    const paid     = all.filter(p =>  p.is_paid);
+
+    document.getElementById('stat-ongoing').textContent  = ongoing.length;
+    document.getElementById('stat-upcoming').textContent = upcoming.length;
+    document.getElementById('stat-free').textContent     = free.length;
+    document.getElementById('stat-paid').textContent     = paid.length;
+
+    _renderInternGrid('itn-ongoing-grid',  ongoing,  'itn-count-ongoing',  null);
+    _renderInternGrid('itn-upcoming-grid', upcoming, 'itn-count-upcoming', null);
+  }
+
+  /* ── Fallback data (shown when DB not seeded) ── */
+  function getFallbackFree() {
+    return [
+      { id:'free-1', project_name:'Web Development Internship', description:'Build full responsive websites using HTML, CSS, JavaScript and React. Work on real client projects with weekly mentor reviews and code feedback.', tech_stack:['HTML','CSS','React'], duration_weeks:8, is_paid:false },
+      { id:'free-2', project_name:'App Development Internship', description:'Create cross-platform mobile apps with React Native and Expo. Includes UI design, API integration, and publishing to app stores.', tech_stack:['React Native','Expo','Firebase'], duration_weeks:10, is_paid:false },
+      { id:'free-3', project_name:'UI/UX Design Internship', description:'Design user interfaces using Figma, conduct usability testing, and collaborate with developers to ship beautiful, functional products.', tech_stack:['Figma','Tailwind','CSS'], duration_weeks:6, is_paid:false },
+    ];
+  }
+  function getFallbackPaid() {
+    return [
+      { id:'paid-1', project_name:'Full-Stack Premium Internship', description:'An intensive paid internship covering both front-end and back-end development. You will work on live projects, attend 1-on-1 mentoring sessions, and receive a stipend upon completion.', tech_stack:['React','Node.js','PostgreSQL'], duration_weeks:12, is_paid:true, payment_amount:4999 },
+      { id:'paid-2', project_name:'Mobile App Premium Internship', description:'Build production-grade mobile applications with dedicated mentor guidance. Includes stipend, exclusive networking events, and a premium certificate of completion.', tech_stack:['React Native','TypeScript','AWS'], duration_weeks:10, is_paid:true, payment_amount:3999 },
+    ];
+  }
+
+  /* ── Animate cards on scroll ── */
+  function animateCards(grid) {
+    const cards = grid.querySelectorAll('.itn-card,.itn-paid-card');
+    // Trigger immediately with stagger so cards are always visible
+    cards.forEach((c, i) => setTimeout(() => c.classList.add('itn-in'), 60 + i * 80));
+  }
+
+  /* ── Payment modal ── */
+  function openPayModal(progId, progName, amount) {
+    if (!currentUser) {
+      window.profileNav && window.profileNav.openLoginModal();
+      return;
+    }
+    window._pendingPaidProg   = progId;
+    window._pendingPaidName   = progName;
+    window._pendingPaidAmount = amount;
+    document.getElementById('pay-title').textContent  = `Pay for — ${progName}`;
+    document.getElementById('pay-role').textContent   = 'Complete payment to confirm your application';
+    document.getElementById('pay-amount').textContent = `₹${amount.toLocaleString('en-IN')}`;
+    document.getElementById('itn-pay-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePayModal() {
+    document.getElementById('itn-pay-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Razorpay checkout ── */
+  async function initiateRazorpay() {
+    const amount = window._pendingPaidAmount || 0;
+    const name   = window._pendingPaidName  || 'Paid Internship';
+    const btn    = document.getElementById('itn-razorpay-btn');
+
+    if (!currentUser) {
+      toast('Please login first', 'err');
+      closePayModal();
+      window.profileNav && window.profileNav.openLoginModal();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Preparing payment…';
+
+    const options = {
+      key:          RZP_KEY,
+      amount:       amount * 100, // paise
+      currency:     'INR',
+      name:         'SkillUpNow',
+      description:  name,
+      prefill: {
+        name:  currentUser.user_metadata?.full_name || '',
+        email: currentUser.email || '',
+      },
+      theme: { color: '#f59e0b' },
+      handler: async function(response) {
+        // Payment successful — save to Supabase and submit application
+        await onPaymentSuccess(response, window._pendingPaidProg, amount);
+      },
+      modal: {
+        ondismiss: function() {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="itn-rzp-logo">₹</span> Pay &amp; Complete Application';
+        }
+      }
+    };
+
+    try {
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      toast('Payment gateway error. Please try again.', 'err');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="itn-rzp-logo">₹</span> Pay &amp; Complete Application';
+    }
+  }
+
+  async function onPaymentSuccess(response, progId, amount) {
+    closePayModal();
+    const client = window.supabaseConfig?.client;
+    try {
+      if (client) {
+        // Record payment
+        await client.from('payments').insert({
+          user_id:         currentUser.id,
+          amount:          amount,
+          currency:        'INR',
+          payment_status:  'paid',
+          razorpay_payment_id: response.razorpay_payment_id,
+          description:     `Internship: ${window._pendingPaidName}`,
+        });
+        // Create internship enrollment
+        await client.from('internship_enrollments').insert({
+          student_user_id: currentUser.id,
+          project_id:      progId,
+          approval_status: 'pending',
+        });
+      }
+      toast('✅ Payment successful! Application submitted.', 'ok', 5000);
+      // Show success state in form
+      document.getElementById('itn-apply-form').style.display    = 'none';
+      document.getElementById('itn-form-success').style.display  = 'block';
+    } catch (err) {
+      toast('Payment recorded but application submission failed. Contact support.', 'err', 7000);
+    }
+  }
+
+  /* ── Form submission ── */
+  document.getElementById('itn-apply-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name       = document.getElementById('itn-name').value.trim();
+    const college    = document.getElementById('itn-college').value.trim();
+    const email      = document.getElementById('itn-email').value.trim();
+    const phone      = document.getElementById('itn-phone').value.trim();
+    const year       = document.getElementById('itn-year').value;
+    const programme  = document.getElementById('itn-programme').value;
+    const message    = document.getElementById('itn-message').value.trim();
+    const isPaid     = document.getElementById('itn-is-paid').value === 'true';
+    const progId     = document.getElementById('itn-prog-id').value;
+
+    if (!name || !college || !email || !phone || !year || !programme) {
+      toast('Please fill all required fields.', 'err');
+      return;
+    }
+
+    // If paid and not logged in, require login
+    if (isPaid && !currentUser) {
+      toast('Please login to apply for paid internships.', 'err');
+      window.profileNav && window.profileNav.openLoginModal();
+      return;
+    }
+
+    // If paid, open payment modal instead
+    if (isPaid) {
+      const amount = window._pendingPaidAmount || 0;
+      openPayModal(progId || programme, window._pendingPaidName || programme, amount);
+      return;
+    }
+
+    // Free application — save to Supabase
+    const btn = document.getElementById('itn-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    try {
+      const client = window.supabaseConfig?.client;
+      if (client) {
+        await client.from('form_submissions').insert({
+          form_type:   'internship_application',
+          name,
+          email,
+          phone,
+          college_name: college,
+          year_of_study: year,
+          programme,
+          message,
+          user_id: currentUser?.id || null,
+        });
+      }
+      // Show success
+      this.style.display = 'none';
+      document.getElementById('itn-form-success').style.display = 'block';
+    } catch (err) {
+      toast('Submission failed. Please try again or email us.', 'err');
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit Application`;
+    }
   });
 
-  document.getElementById('itp-rpt-form').addEventListener('submit', itpSubmitReport);
-}
-
-async function itpSubmitReport(e) {
-  e.preventDefault();
-  const btn = document.getElementById('itp-rpt-btn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-
-  const rDate    = document.getElementById('itp-date').value;
-  const summary  = document.getElementById('itp-summary').value.trim();
-  const hours    = parseFloat(document.getElementById('itp-hours').value);
-  const chal     = document.getElementById('itp-challenges').value.trim();
-  const nextPlan = document.getElementById('itp-nextplan').value.trim();
-
-  if (!rDate || !summary || !hours) {
-    itpToast('❌ Please fill in all required fields.', 'err');
-    btn.disabled = false; btn.textContent = '📤 Submit Report'; return;
-  }
-
-  const tasks   = Array.isArray(_proj?.tasks) ? _proj.tasks : [];
-  const checked = [...document.querySelectorAll('input[name="itp-tc"]:checked')]
-    .map(cb => tasks[Number(cb.value)]?.title || cb.value);
-
-  const { error } = await _sb.from('internship_daily_reports').upsert({
-    enrollment_id: _enrol.id, student_user_id: _user.id,
-    report_date: rDate, work_summary: summary, tasks_completed: checked,
-    hours_worked: hours, challenges: chal, next_day_plan: nextPlan,
-    mood_rating: _mood, report_status: 'submitted',
-  }, { onConflict: 'enrollment_id,report_date' });
-
-  if (error) { itpToast('❌ Submit failed: ' + error.message, 'err'); btn.disabled = false; btn.textContent = '📤 Submit Report'; return; }
-  itpToast('✅ Report submitted!');
-  itpResetForm();
-  await _itpLoadReports();
-  await _itpAutoAttend(rDate);
-  btn.disabled = false; btn.textContent = '📤 Submit Report';
-}
-
-async function _itpAutoAttend(date) {
-  await _sb.from('internship_attendance').upsert({
-    enrollment_id: _enrol.id, student_user_id: _user.id,
-    attendance_date: date, status: 'present',
-    check_in_time: new Date().toTimeString().slice(0,5),
-    notes: 'Auto via daily report',
-  }, { onConflict: 'enrollment_id,attendance_date' });
-}
-
-function itpResetForm() {
-  document.getElementById('itp-rpt-form').reset();
-  document.getElementById('itp-date').value = new Date().toISOString().split('T')[0];
-  document.querySelectorAll('.itp-mood-star').forEach(s => s.classList.remove('sel'));
-  document.querySelector('.itp-mood-star[data-m="3"]')?.classList.add('sel');
-  _mood = 3;
-}
-
-/* ============================================================
-   REPORT HISTORY
-   ============================================================ */
-async function _itpLoadReports() {
-  const { data: rpts } = await _sb
-    .from('internship_daily_reports').select('*')
-    .eq('enrollment_id', _enrol.id).order('report_date', { ascending: false });
-
-  const tbody = document.getElementById('itp-rpt-tbody');
-  if (!rpts?.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No reports yet. Submit your first report above!</td></tr>';
-    return;
-  }
-  const today = new Date().toISOString().split('T')[0];
-  if (rpts.find(r => r.report_date === today)) {
-    document.getElementById('itp-today-badge').innerHTML = '<span class="itp-status-badge approved">✅ Submitted Today</span>';
-  }
-  const sc = { submitted:'#f59e0b', reviewed:'#38bdf8', flagged:'#f43f5e', approved:'#10b981' };
-  tbody.innerHTML = rpts.map(r => {
-    const col = sc[r.report_status] || '#f59e0b';
-    const dt  = new Date(r.report_date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    const sm  = (_esc(r.work_summary||'')).slice(0,55) + (r.work_summary?.length>55?'…':'');
-    return `<tr>
-      <td>${dt}</td>
-      <td>${Number(r.hours_worked).toFixed(1)}h</td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${_esc(r.work_summary)}">${sm}</td>
-      <td><span class="itp-status-badge" style="background:${col}15;color:${col};border:1px solid ${col}40;padding:.28rem .75rem;font-size:.75rem">${(r.report_status||'submitted').charAt(0).toUpperCase()+(r.report_status||'').slice(1)}</span></td>
-      <td style="font-size:0.78rem;color:var(--txt2);max-width:140px">${_esc(r.admin_notes||'—')}</td>
-      <td><button class="itp-btn itp-btn-ol" style="font-size:0.72rem;padding:.28rem .65rem" onclick="itpViewRpt(this,'${r.id}')">View</button></td>
-    </tr>`;
-  }).join('');
-}
-
-function itpViewRpt(btn, id) { itpToast('ℹ️ Detailed view available in future update.', 'info'); }
-
-/* ============================================================
-   ATTENDANCE
-   ============================================================ */
-async function _itpLoadAttendance() {
-  const { data: recs } = await _sb
-    .from('internship_attendance').select('*')
-    .eq('enrollment_id', _enrol.id).order('attendance_date', { ascending: false });
-
-  const tbody = document.getElementById('itp-atd-tbody');
-  if (!recs?.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No records yet. Attendance is marked by admin or auto on report submission.</td></tr>';
-    document.getElementById('itp-atd-stats').innerHTML = `
-      <div class="itp-stat"><div class="itp-stat-v" style="color:#10b981">0</div><div class="itp-stat-l">Days Present</div></div>
-      <div class="itp-stat"><div class="itp-stat-v" style="color:#f43f5e">0</div><div class="itp-stat-l">Days Absent</div></div>
-      <div class="itp-stat"><div class="itp-stat-v">0%</div><div class="itp-stat-l">Attendance</div></div>`;
-    return;
-  }
-  const present = recs.filter(r=>['present','late','half_day'].includes(r.status)).length;
-  const absent  = recs.filter(r=>r.status==='absent').length;
-  const pct     = Math.round(present / recs.length * 100);
-  const pctCol  = pct>=75 ? '#10b981' : pct>=50 ? '#f59e0b' : '#f43f5e';
-
-  document.getElementById('itp-atd-stats').innerHTML = `
-    <div class="itp-stat"><div class="itp-stat-v" style="color:#10b981">${present}</div><div class="itp-stat-l">Days Present</div></div>
-    <div class="itp-stat"><div class="itp-stat-v" style="color:#f43f5e">${absent}</div><div class="itp-stat-l">Days Absent</div></div>
-    <div class="itp-stat"><div class="itp-stat-v" style="color:${pctCol}">${pct}%</div><div class="itp-stat-l">Attendance</div></div>
-    <div class="itp-stat"><div class="itp-stat-v">${recs.length}</div><div class="itp-stat-l">Total Tracked</div></div>`;
-
-  tbody.innerHTML = recs.map(r => {
-    const dt  = new Date(r.attendance_date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    const hrs = (r.check_in_time && r.check_out_time) ? _calcHrs(r.check_in_time, r.check_out_time) : '—';
-    const lbl = r.status.charAt(0).toUpperCase()+r.status.slice(1).replace('_',' ');
-    return `<tr>
-      <td>${dt}</td>
-      <td><span class="atd ${r.status}"></span>${lbl}</td>
-      <td>${r.check_in_time||'—'}</td><td>${r.check_out_time||'—'}</td>
-      <td>${hrs}</td>
-      <td style="font-size:0.78rem;color:var(--txt2)">${_esc(r.notes||'—')}</td>
-    </tr>`;
-  }).join('');
-
-  if (pct >= 75 && _enrol.end_date && new Date(_enrol.end_date) < new Date()) {
-    document.getElementById('itp-cert-area').style.display = '';
-    document.getElementById('itp-cert-sub').textContent =
-      `Attendance: ${pct}% (${present}/${recs.length} days) — Congratulations on completing your internship!`;
-  }
-}
-
-function _calcHrs(tin, tout) {
-  try {
-    const [h1,m1] = tin.split(':').map(Number);
-    const [h2,m2] = tout.split(':').map(Number);
-    const hrs = ((h2*60+m2)-(h1*60+m1))/60;
-    return hrs > 0 ? hrs.toFixed(1)+'h' : '—';
-  } catch { return '—'; }
-}
-
-/* ============================================================
-   PDF EXPORT
-   ============================================================ */
-async function itpExportPDF() {
-  if (!window.jspdf?.jsPDF) { itpToast('❌ PDF library not loaded', 'err'); return; }
-  const { jsPDF } = window.jspdf;
-  const [{ data: rpts }, { data: prof }] = await Promise.all([
-    _sb.from('internship_daily_reports').select('*').eq('enrollment_id', _enrol.id).order('report_date', { ascending: true }),
-    _sb.from('user_profiles').select('full_name').eq('user_id', _user.id).single(),
-  ]);
-  const doc   = new jsPDF({ unit:'mm', format:'a4' });
-  const pw    = doc.internal.pageSize.getWidth();
-  const sName = prof?.full_name || _user.email;
-
-  doc.setFillColor(124, 58, 237);
-  doc.rect(0, 0, pw, 26, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(14); doc.setFont('helvetica','bold');
-  doc.text('SkillUpNow — Internship Daily Report', 14, 11);
-  doc.setFontSize(8); doc.setFont('helvetica','normal');
-  doc.text('For Internal Use Only', 14, 19);
-  doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, pw-14, 19, { align:'right' });
-
-  let y = 36;
-  doc.setTextColor(20,10,50);
-  doc.setFontSize(10); doc.setFont('helvetica','bold');
-  doc.text('Student Information', 14, y); y += 6;
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text(`Name: ${sName}`, 14, y); y += 5;
-  doc.text(`Email: ${_user.email}`, 14, y); y += 5;
-  doc.text(`Project: ${_proj.project_name}`, 14, y); y += 5;
-  doc.text(`Client: ${_proj.client_name}  |  Country: ${_proj.country}  |  Duration: ${_proj.duration_weeks} weeks`, 14, y); y += 5;
-  if (_enrol.approved_at) { doc.text(`Approved: ${new Date(_enrol.approved_at).toLocaleDateString('en-IN')}`, 14, y); y += 5; }
-
-  y += 3; doc.setDrawColor(180,160,230); doc.line(14, y, pw-14, y); y += 7;
-  doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text('Daily Reports', 14, y); y += 6;
-  const cols = [14, 36, 52, 108, 147, 170];
-  doc.setFillColor(220, 210, 255); doc.rect(12, y-4, pw-24, 6, 'F');
-  doc.setFontSize(7.5); doc.setFont('helvetica','bold');
-  ['Date','Hours','Work Summary','Challenges','Status','Mood'].forEach((h,i) => doc.text(h, cols[i], y));
-  y += 5; doc.setFont('helvetica','normal');
-
-  for (const r of (rpts||[])) {
-    if (y > 268) { doc.addPage(); y = 20; }
-    doc.text(r.report_date||'', cols[0], y);
-    doc.text(String(r.hours_worked||0), cols[1], y);
-    doc.text(((r.work_summary||'').slice(0,50)+(r.work_summary?.length>50?'…':'')), cols[2], y);
-    doc.text(((r.challenges||'—').slice(0,32)+((r.challenges?.length||0)>32?'…':'')), cols[3], y);
-    doc.text(r.report_status||'', cols[4], y);
-    doc.text(String(r.mood_rating||''), cols[5], y);
-    y += 5; doc.setDrawColor(220,215,245); doc.line(12, y-1, pw-12, y-1);
-  }
-  y += 6;
-  const totalH = (rpts||[]).reduce((s,r) => s+Number(r.hours_worked||0), 0);
-  doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-  doc.text(`Total Reports: ${(rpts||[]).length}  |  Total Hours: ${totalH.toFixed(1)}h`, 14, y);
-  doc.save(`internship-report-${_proj.project_name.replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`);
-  itpToast('✅ PDF downloaded!');
-}
-
-/* ============================================================
-   CERTIFICATE PDF
-   ============================================================ */
-async function itpDownloadCert() {
-  if (!window.jspdf?.jsPDF) { itpToast('❌ PDF library not loaded', 'err'); return; }
-  const { jsPDF } = window.jspdf;
-  const [{ data: atd }, { data: prof }] = await Promise.all([
-    _sb.from('internship_attendance').select('status').eq('enrollment_id', _enrol.id),
-    _sb.from('user_profiles').select('full_name').eq('user_id', _user.id).single(),
-  ]);
-  const present = (atd||[]).filter(a=>['present','late'].includes(a.status)).length;
-  const total   = (atd||[]).length;
-  const pct     = total ? Math.round(present/total*100) : 0;
-  const sName   = prof?.full_name || _user.email;
-  const doc = new jsPDF({ unit:'mm', format:'a4', orientation:'landscape' });
-  const w   = doc.internal.pageSize.getWidth();
-  const h   = doc.internal.pageSize.getHeight();
-
-  doc.setDrawColor(124,58,237); doc.setLineWidth(3); doc.rect(8,8,w-16,h-16);
-  doc.setLineWidth(0.8); doc.rect(13,13,w-26,h-26);
-  doc.setTextColor(70,40,170); doc.setFontSize(26); doc.setFont('helvetica','bold');
-  doc.text('CERTIFICATE OF INTERNSHIP COMPLETION', w/2, 44, { align:'center' });
-  doc.setFontSize(10); doc.setTextColor(110,90,190); doc.setFont('helvetica','normal');
-  doc.text('This is to certify that', w/2, 60, { align:'center' });
-  doc.setFontSize(22); doc.setTextColor(25,12,75); doc.setFont('helvetica','bolditalic');
-  doc.text(sName, w/2, 77, { align:'center' });
-  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,40,120);
-  doc.text('has successfully completed the internship program', w/2, 92, { align:'center' });
-  doc.setFontSize(15); doc.setFont('helvetica','bold'); doc.setTextColor(80,50,180);
-  doc.text(`"${_proj.project_name}"`, w/2, 107, { align:'center' });
-  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(80,70,140);
-  doc.text(`Client: ${_proj.client_name}  |  Country: ${_proj.country}  |  Duration: ${_proj.duration_weeks} Weeks`, w/2, 120, { align:'center' });
-  doc.text(`Attendance: ${pct}%  (${present} / ${total} days)`, w/2, 130, { align:'center' });
-  if (_enrol.start_date && _enrol.end_date) {
-    doc.text(`Period: ${new Date(_enrol.start_date+'T00:00:00').toLocaleDateString('en-IN')} to ${new Date(_enrol.end_date+'T00:00:00').toLocaleDateString('en-IN')}`, w/2, 140, { align:'center' });
-  }
-  doc.setDrawColor(124,58,237); doc.setLineWidth(0.5); doc.line(40,153,w-40,153);
-  doc.setFontSize(8); doc.setTextColor(110,90,170);
-  doc.text(`Issued by: SkillUpNow  |  Date: ${new Date().toLocaleDateString('en-IN')}`, w/2, 160, { align:'center' });
-  doc.text('This certificate is digitally generated. Verify at: skillupnow.in', w/2, 166, { align:'center' });
-  doc.text(`Certificate ID: SKN-INT-${_enrol.id.slice(0,8).toUpperCase()}`, w/2, 172, { align:'center' });
-  doc.save(`certificate-${sName.replace(/\s+/g,'-')}-${_proj.project_name.replace(/\s+/g,'-')}.pdf`);
-  itpToast('🎓 Certificate downloaded!');
-}
-
-/* ============================================================
-   TABS
-   ============================================================ */
-function _itpSetupTabs() {
-  document.querySelectorAll('.itp-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.itp-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.itp-pane').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      const pane = document.getElementById('itp-pane-' + tab.dataset.tab);
-      if (pane) pane.classList.add('active');
-    });
+  /* ── Init ── */
+  document.addEventListener('DOMContentLoaded', async function() {
+    await initAuth();
+    loadAllInternships();
   });
-}
-
-/* ============================================================
-   UTILITIES
-   ============================================================ */
-function _esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-}
-
-function itpToast(msg, type='ok') {
-  const t = document.getElementById('itp-toast');
-  t.textContent = msg;
-  const bm = { ok:'rgba(16,185,129,.35)', err:'rgba(244,63,94,.35)', warn:'rgba(245,158,11,.35)', info:'rgba(124,58,237,.35)' };
-  t.style.borderColor = bm[type] || bm.ok;
-  t.classList.add('show');
-  clearTimeout(t._tid);
-  t._tid = setTimeout(() => t.classList.remove('show'), 3600);
-}
-
-/* ============================================================
-   START
-   ============================================================ */
-document.addEventListener('DOMContentLoaded', itpInit);
-</script>
+  </script>
 </body>
 </html>

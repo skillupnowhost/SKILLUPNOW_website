@@ -2,6 +2,25 @@
    RESPONSIVE DESIGN - Mobile First Approach
    ========================================== */
 
+/* ── Global Responsive Baseline ── */
+img, video, canvas, picture { max-width: 100%; height: auto; }
+svg { max-width: 100%; }
+table { min-width: 0; }
+.table-responsive { overflow-x: auto; }
+
+/* Prevent any element from forcing horizontal scroll */
+/* Use 100% (not 100vw) — 100vw includes scrollbar width on some browsers */
+html, body { overflow-x: hidden; width: 100%; max-width: 100%; }
+
+/* Flex/grid children: allow shrinking below content size */
+* { min-width: 0; }
+
+/* ── Section & page containers: always at least 100% wide up to their max ── */
+.container-max, .itn-container, .prj-container {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* Extra Large Devices (1400px and up) */
 @media (min-width: 1400px) {
   .container-max {
@@ -35,43 +54,67 @@
   .container-max {
     max-width: 720px;
     margin: 0 auto;
+    padding: 0 1.25rem;
   }
-  
+
   section {
     padding: 4rem 4vw;
   }
-  
+
   h1 {
     font-size: clamp(2rem, 4vw, 3.5rem) !important;
   }
-  
+
   h2 {
     font-size: clamp(1.5rem, 3vw, 2.5rem) !important;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr !important;
   }
-  
+
   .grid-2 {
     grid-template-columns: 1fr !important;
   }
-  
+
   .grid-3 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
-  
+
   .flex-row {
     flex-direction: row !important;
     gap: 1rem !important;
+  }
+
+  /* ── Hero: collapse to 1 column on tablet ── */
+  .hero {
+    grid-template-columns: 1fr !important;
+    padding: 3.5rem 4vw 3rem !important;
+    gap: 2.5rem !important;
+    text-align: left !important;
+    overflow: hidden !important;
+  }
+  .hero-content { max-width: 100% !important; order: 1 !important; }
+  .hero-visual { display: none !important; }
+  .hero-actions { justify-content: flex-start !important; }
+  .hero-stats { justify-content: flex-start !important; }
+
+  /* ── Cards & grids ── */
+  .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .card-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* ── Course cards ── */
+  .courses-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
   }
 }
 
 /* Small Tablets (600px to 767px) */
 @media (min-width: 600px) and (max-width: 767px) {
   .container-max {
-    max-width: 540px;
+    max-width: 100%;
     margin: 0 auto;
+    padding: 0 1rem;
   }
 
   section {
@@ -79,11 +122,15 @@
   }
 
   h1 {
-    font-size: clamp(1.5rem, 3.5vw, 2.5rem) !important;
+    font-size: clamp(1.6rem, 4vw, 2.5rem) !important;
   }
 
   h2 {
-    font-size: clamp(1.2rem, 2.5vw, 2rem) !important;
+    font-size: clamp(1.25rem, 3vw, 2rem) !important;
+  }
+
+  h3 {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem) !important;
   }
 
   .form-row,
@@ -105,6 +152,28 @@
   .mobile-menu-toggle {
     display: flex !important;
   }
+
+  /* ── Hero: collapse to 1 column ── */
+  .hero {
+    grid-template-columns: 1fr !important;
+    padding: 3rem 3vw 2.5rem !important;
+    gap: 1.5rem !important;
+    overflow: hidden !important;
+  }
+  .hero-content { max-width: 100% !important; order: 1 !important; }
+  .hero-visual { display: none !important; }
+  .hero-actions {
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+  }
+
+  /* ── Cards ── */
+  .card-grid, .courses-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Tables: ensure scroll ── */
+  table { display: block; overflow-x: auto; }
 }
 
 /* Show hamburger on tablets too (all pages) */
@@ -143,13 +212,16 @@
   }
   
   section {
-    padding: 2.5rem 3vw;
+    padding: 2.5rem 4vw;
+    overflow-x: hidden;
+    max-width: 100%;
   }
-  
+
   .container-max {
     max-width: 100%;
     margin: 0 auto;
     padding: 0 1rem;
+    overflow-x: hidden;
   }
   
   h1 {
@@ -223,8 +295,11 @@
   .hero {
     grid-template-columns: 1fr !important;
     gap: 1rem !important;
-    padding: 2.5rem 1rem 2rem !important;
+    padding: 2.5rem 1.25rem 2rem !important;
     overflow: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .hero-content {
@@ -836,5 +911,229 @@
 @media (min-width: 1025px) {
   .hide-desktop {
     display: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   PAGE-SPECIFIC RESPONSIVE RULES
+   Covers inline-styled pages that need extra breakpoints
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Internship page hero responsive ── */
+@media (max-width: 860px) {
+  .itn-hero-inner {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2.2rem !important;
+    text-align: center !important;
+  }
+  .itn-hero-underline { margin: .8rem auto 1.4rem !important; }
+  .itn-hero-left p { margin: 0 auto !important; }
+  .itn-hero-stats { grid-template-columns: repeat(3, 1fr) !important; width: 100% !important; }
+}
+@media (max-width: 480px) {
+  .itn-hero-stats { grid-template-columns: repeat(3, 1fr) !important; gap: .4rem !important; }
+  .itn-stat { padding: 1rem .6rem .8rem !important; }
+  .itn-stat-v { font-size: clamp(1.3rem, 5vw, 1.7rem) !important; }
+  .itn-stat-l { font-size: .52rem !important; }
+  .itn-stat-icon { width: 34px !important; height: 34px !important; }
+}
+@media (max-width: 360px) {
+  .itn-hero-stats { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* ── Internship cards ── */
+@media (max-width: 599px) {
+  .itn-grid { grid-template-columns: 1fr !important; }
+  .itn-card-body { padding: .6rem 1.1rem 1.1rem !important; }
+  .itn-card-top  { padding: 1.1rem 1.1rem .5rem !important; }
+}
+
+/* ── Internship application form ── */
+@media (max-width: 640px) {
+  .itn-field-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 480px) {
+  .itn-form-panel { margin: 0 !important; }
+  .itn-form-header { padding: 1.2rem 1rem 1rem !important; }
+  .itn-form-body   { padding: 1.2rem 1rem !important; }
+}
+
+/* ── Section header bar: wrap on narrow screens ── */
+@media (max-width: 599px) {
+  .itn-sec-hdr {
+    padding: 1rem 1.2rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: .6rem !important;
+  }
+}
+
+/* ── Projects page hero ── */
+@media (max-width: 880px) {
+  .prj-hero { text-align: center !important; }
+  .prj-hero-inner {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2rem !important;
+  }
+  .prj-hero-stats {
+    width: 100% !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 480px) {
+  .prj-hero-stats { grid-template-columns: 1fr 1fr !important; gap: .5rem !important; }
+  .prj-hero-stat-v { font-size: clamp(1.4rem, 5.5vw, 1.8rem) !important; }
+}
+
+/* ── Projects cards grid ── */
+@media (max-width: 640px) {
+  .prj-cards-grid  { grid-template-columns: 1fr !important; }
+  .lg-grid         { grid-template-columns: 1fr !important; }
+  .intern-grid     { grid-template-columns: 1fr !important; }
+  .upcoming-grid   { grid-template-columns: 1fr !important; }
+  .completed-grid  { grid-template-columns: 1fr !important; }
+}
+
+/* ── Profile page ── */
+@media (max-width: 899px) {
+  .profile-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .profile-sidebar { position: static !important; }
+}
+@media (max-width: 599px) {
+  .profile-hero { padding: 1.8rem 1rem 2.5rem !important; }
+  .hero-inner { flex-direction: column !important; align-items: flex-start !important; gap: 1rem !important; }
+  .profile-tabs { overflow-x: auto !important; flex-wrap: nowrap !important; }
+  .profile-tab  { white-space: nowrap !important; flex-shrink: 0 !important; }
+}
+
+/* ── Course registration form ── */
+@media (max-width: 767px) {
+  .reg-hero { text-align: center !important; }
+  .reg-form-grid { grid-template-columns: 1fr !important; }
+  .reg-steps { gap: .5rem !important; }
+  .reg-step-line { display: none !important; }
+}
+
+/* ── Courses page filter + grid ── */
+@media (max-width: 480px) {
+  .filter-topbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: .5rem !important;
+  }
+  .filter-search-wrap,
+  .filter-select,
+  .filter-reset { width: 100% !important; }
+}
+
+/* ── Admin dashboard sidebar: 320px screens ── */
+@media (max-width: 360px) {
+  .content { padding: .65rem !important; }
+  .stats-grid { grid-template-columns: 1fr !important; gap: .5rem !important; }
+  .topbar { padding: 0 .55rem !important; gap: .35rem !important; }
+  .topbar-title { font-size: .82rem !important; }
+}
+
+/* ── Payment & EMI pages ── */
+@media (max-width: 599px) {
+  .payment-card     { padding: 1.2rem !important; }
+  .emi-plan-grid    { grid-template-columns: 1fr !important; }
+  .emi-step-row     { flex-direction: column !important; gap: .75rem !important; }
+}
+
+/* ── Forms page ── */
+@media (max-width: 599px) {
+  .forms-hero { padding: 2.5rem 1rem 2rem !important; }
+  .forms-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Reviews page ── */
+@media (max-width: 767px) {
+  .reviews-grid { grid-template-columns: 1fr !important; }
+  .reviews-hero { text-align: center !important; }
+}
+
+/* ── Mentor dashboard ── */
+@media (max-width: 899px) {
+  .mentor-dash-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 599px) {
+  .mentor-dash-hero { padding: 2.5rem 1rem 2rem !important; }
+  .mentor-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ── Quick registration page ── */
+@media (max-width: 599px) {
+  .qreg-card { padding: 1.2rem !important; }
+  .qreg-cols { grid-template-columns: 1fr !important; }
+}
+
+/* ── Recording/Videos page ── */
+@media (max-width: 767px) {
+  .rv-grid { grid-template-columns: 1fr !important; }
+  .rv-hero { padding: 2.5rem 1rem 2rem !important; }
+}
+
+/* ── Feedback page ── */
+@media (max-width: 599px) {
+  .feedback-hero { padding: 2.5rem 1rem 2rem !important; }
+}
+
+/* ── Contact/Enquiry page ── */
+@media (max-width: 767px) {
+  .contact-layout { grid-template-columns: 1fr !important; }
+  .contact-map    { height: 260px !important; }
+}
+
+/* ── Index page: Trust Bar (inline-styled, gap:3rem causes issues on mobile) ── */
+@media (max-width: 767px) {
+  /* Trust bar: reduce gap, use 1rem side padding, allow wrapping */
+  [style*="gap: 3rem"][style*="flex-wrap: wrap"],
+  [style*="gap:3rem"][style*="flex-wrap:wrap"] {
+    gap: 1rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+@media (max-width: 599px) {
+  /* Feat-pills: allow each pill to shrink/wrap properly */
+  .feat-pill {
+    font-size: 0.74rem !important;
+    padding: 0.38rem 0.85rem !important;
+    white-space: nowrap;
+  }
+  /* Inner hero-actions flex container with gap */
+  .hero-actions > div[style*="flex"] {
+    gap: 0.75rem !important;
+  }
+  /* Trust bar: 1 column on very small screens */
+  [style*="gap: 3rem"],
+  [style*="gap:3rem"] {
+    gap: 0.75rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* ── Global: ensure no content clips viewport at any width ── */
+@media (max-width: 399px) {
+  .itn-container,
+  .prj-container,
+  .container-max {
+    padding-left: .75rem !important;
+    padding-right: .75rem !important;
+  }
+  section { padding-left: .75rem !important; padding-right: .75rem !important; }
+  nav { padding: 0 .6rem !important; }
+  .hero { padding-left: .75rem !important; padding-right: .75rem !important; }
+  /* Feat-pills: stack 1 per row on very narrow screens */
+  .feat-pill { white-space: normal !important; }
+  [style*="display: flex"][style*="flex-wrap: wrap"],
+  [style*="display:flex"][style*="flex-wrap:wrap"] {
+    gap: 0.5rem !important;
   }
 }
