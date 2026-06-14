@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Internships — SkillUpNow</title>
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/animations.css">
@@ -249,7 +250,69 @@
     /* ═══════════════════════════════════════════════════════
        INTERNSHIP CARDS — Free Programmes
     ═══════════════════════════════════════════════════════ */
-    .itn-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1.5rem; }
+    .itn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 1024px) { .itn-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .itn-grid { grid-template-columns: 1fr; } }
+
+    /* ── Card action buttons ── */
+    .itn-card-btn {
+      margin-top: .9rem;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      width: 100%; padding: .72rem 1.2rem; border-radius: 12px;
+      font-size: .84rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; letter-spacing: -.01em;
+      position: relative; overflow: hidden;
+      transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
+    }
+    .itn-card-btn::after {
+      content: ''; position: absolute;
+      top: 0; left: -100%; width: 55%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      transition: left .48s ease; pointer-events: none;
+    }
+    .itn-card-btn:hover::after { left: 150%; }
+    .itn-card-btn:hover { transform: translateY(-3px); }
+    .itn-card-btn:active { transform: scale(.97); }
+    .itn-card-btn svg { transition: transform .22s cubic-bezier(.22,1,.36,1); flex-shrink: 0; }
+    .itn-card-btn:hover svg { transform: translateX(4px); }
+
+    .itn-btn-free {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #fff; border: none;
+      box-shadow: 0 4px 18px rgba(16,185,129,.35);
+    }
+    .itn-btn-free:hover { box-shadow: 0 8px 28px rgba(16,185,129,.52); }
+
+    .itn-btn-paid {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff; border: none;
+      box-shadow: 0 4px 18px rgba(245,158,11,.38);
+    }
+    .itn-btn-paid:hover { box-shadow: 0 8px 28px rgba(245,158,11,.55); }
+
+    .itn-btn-login {
+      background: linear-gradient(135deg, var(--v1), var(--v2));
+      color: #fff; border: none;
+      box-shadow: 0 4px 16px rgba(124,92,252,.35);
+    }
+    .itn-btn-login:hover { box-shadow: 0 8px 26px rgba(124,92,252,.5); }
+
+    .itn-btn-enroll {
+      background: transparent;
+      color: #f59e0b; border: 1.5px solid rgba(245,158,11,.45);
+      background: rgba(245,158,11,.08);
+      box-shadow: 0 2px 10px rgba(245,158,11,.12);
+      text-decoration: none;
+    }
+    .itn-btn-enroll:hover { background: rgba(245,158,11,.18); border-color: #f59e0b; box-shadow: 0 6px 22px rgba(245,158,11,.3); }
+    .itn-btn-enroll::after { display: none; }
+
+    /* Enrolled-only pill */
+    .itn-pill-enrolled { background:rgba(124,92,252,.1); color:#a78bfa; border:1px solid rgba(124,92,252,.28); }
 
     @keyframes itnShim { to { background-position:-20%; } }
     .itn-card {
@@ -529,7 +592,6 @@
     @media(max-width:900px) { .itn-sections { gap:2.4rem; padding:2.4rem 0 4rem; } }
     @media(max-width:600px) {
       .itn-sections { gap:2rem; padding:2rem 0 3.5rem; }
-      .itn-grid { grid-template-columns:1fr; }
       .itn-hero-stats { grid-template-columns:1fr 1fr; }
     }
   </style>
@@ -595,7 +657,7 @@
               </svg>
             </div>
             <span class="itn-stat-v" id="stat-free">—</span>
-            <span class="itn-stat-l">Free</span>
+            <span class="itn-stat-l">Learner Perks</span>
           </div>
           <!-- Paid -->
           <div class="itn-stat" style="animation-delay:.32s">
@@ -633,7 +695,7 @@
               </div>
               <div>
                 <div class="itn-sec-title">Ongoing Internships</div>
-                <div class="itn-sec-sub">Currently running — applications open now</div>
+                <div class="itn-sec-sub">Active now — a free perk for SkillUpNow learners · paid options open to all</div>
               </div>
             </div>
             <span class="itn-sec-count" id="itn-count-ongoing" style="--itn-hdr-c:var(--itn-emerald)">0</span>
@@ -830,8 +892,9 @@
   const RZP_KEY = 'rzp_live_ILgsSZCZoFMQjO';
 
   // State
-  let currentUser   = null;
-  let pendingPaidApp = null; // {programmeId, programmeName, amount, formData}
+  let currentUser    = null;
+  let isEnrolled     = false; // true only if user has an active/completed course enrollment
+  let pendingPaidApp = null;
 
   /* ── Toast helper ── */
   function toast(msg, type = 'ok', duration = 3800) {
@@ -842,14 +905,30 @@
     t._tid = setTimeout(() => { t.className = ''; }, duration);
   }
 
+  /* ── Check if user is enrolled in any active course ── */
+  async function checkEnrollment(client) {
+    try {
+      const { data } = await client
+        .from('enrollments')
+        .select('id')
+        .eq('student_user_id', currentUser.id)
+        .in('enrollment_status', ['active', 'completed'])
+        .limit(1);
+      isEnrolled = !!(data && data.length > 0);
+    } catch { isEnrolled = false; }
+  }
+
   /* ── Auth: watch session ── */
   async function initAuth() {
     const client = window.supabaseConfig?.client;
     if (!client) return;
     const { data } = await client.auth.getSession();
     currentUser = data?.session?.user || null;
-    client.auth.onAuthStateChange((_e, s) => {
+    if (currentUser) await checkEnrollment(client);
+    client.auth.onAuthStateChange(async (_e, s) => {
       currentUser = s?.user || null;
+      isEnrolled  = false;
+      if (currentUser) await checkEnrollment(client);
       renderPaidSectionState();
     });
   }
@@ -896,12 +975,33 @@
       `<span class="itn-card-tag itn-card-tag-g">${t}</span>`).join('');
     const dur  = p.duration_weeks ? `${p.duration_weeks}W` : '—';
 
+    // Gate button based on login + enrollment
+    let freeBtn;
+    if (!currentUser) {
+      freeBtn = `<button class="itn-card-btn itn-btn-login"
+        onclick="window.profileNav&&window.profileNav.openLoginModal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Login to Apply
+      </button>`;
+    } else if (!isEnrolled) {
+      freeBtn = `<a class="itn-card-btn itn-btn-enroll" href="../pages/courses.html">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Skill Up → Step In Free
+      </a>`;
+    } else {
+      freeBtn = `<button class="itn-card-btn itn-btn-free"
+        onclick="scrollToApply('${p.project_name.replace(/'/g,"\\'")}',false,'${p.id}',0)">
+        Apply Free
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>`;
+    }
+
     return `
-      <div class="itn-card" style="--itn-card-grad:linear-gradient(90deg,#10b981,#06b6d4);">
+      <div class="itn-card" style="--itn-card-grad:linear-gradient(90deg,#7c3aed,#a78bfa);">
         <div class="itn-card-shim"></div>
         <div class="itn-card-top">
-          <div class="itn-card-icon-wrap" style="--itn-icon-c:#10b981">${icon}</div>
-          <span class="itn-pill itn-pill-free"><span class="itn-pill-dot"></span>Free</span>
+          <div class="itn-card-icon-wrap" style="--itn-icon-c:#a78bfa">${icon.replace(/#10b981/g,'#a78bfa')}</div>
+          <span class="itn-pill itn-pill-enrolled"><span class="itn-pill-dot"></span>Learner Perk</span>
         </div>
         <div class="itn-card-body">
           <div class="itn-card-tags">${tags}</div>
@@ -917,13 +1017,7 @@
               Certificate
             </span>
           </div>
-          <button onclick="scrollToApply('${p.project_name.replace(/'/g,"\\'")}',false,'${p.id}',0)"
-            style="margin-top:.9rem;display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:10px;background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.3);font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,transform .2s;"
-            onmouseover="this.style.background='rgba(16,185,129,.22)';this.style.transform='translateY(-2px)'"
-            onmouseout="this.style.background='rgba(16,185,129,.12)';this.style.transform=''">
-            Apply Free
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
+          ${freeBtn}
         </div>
       </div>`;
   }
@@ -942,17 +1036,17 @@
     const amtFmt = amount > 0 ? `₹${amount.toLocaleString('en-IN')}` : 'Free';
 
     const btnHtml = currentUser
-      ? `<button onclick="openPayModal('${p.id}','${p.project_name.replace(/'/g,"\\'")}',${amount})"
-           style="margin-top:.9rem;display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:10px;background:rgba(245,158,11,.15);color:var(--itn-gold);border:1.5px solid rgba(245,158,11,.35);font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,transform .2s;width:100%;justify-content:center;"
-           onmouseover="this.style.background='rgba(245,158,11,.28)';this.style.transform='translateY(-2px)'"
-           onmouseout="this.style.background='rgba(245,158,11,.15)';this.style.transform=''">
-           💳 Pay &amp; Apply (${amtFmt})
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      ? `<button class="itn-card-btn itn-btn-paid"
+           onclick="openPayModal('${p.id}','${p.project_name.replace(/'/g,"\\'")}',${amount})">
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+           Pay &amp; Apply (${amtFmt})
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
          </button>`
       : `<div style="margin-top:.9rem;padding:.85rem 1rem;border:1.5px dashed rgba(245,158,11,.28);border-radius:12px;text-align:center;">
-           <div style="font-size:.78rem;color:var(--txt3);margin-bottom:.5rem;">Login required to apply for paid internship</div>
-           <button onclick="window.profileNav&&window.profileNav.openLoginModal()"
-             style="padding:.5rem 1.2rem;border-radius:9px;background:linear-gradient(135deg,var(--v1),var(--v2));color:#fff;border:none;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;">
+           <div style="font-size:.78rem;color:var(--txt3);margin-bottom:.6rem;">Login required for paid internship</div>
+           <button class="itn-card-btn itn-btn-login"
+             style="margin-top:0;"
+             onclick="window.profileNav&&window.profileNav.openLoginModal()">
              Login / Sign Up
            </button>
          </div>`;
@@ -1039,9 +1133,9 @@
   /* ── Fallback data (shown when DB not seeded) ── */
   function getFallbackFree() {
     return [
-      { id:'free-1', project_name:'Web Development Internship', description:'Build full responsive websites using HTML, CSS, JavaScript and React. Work on real client projects with weekly mentor reviews and code feedback.', tech_stack:['HTML','CSS','React'], duration_weeks:8, is_paid:false },
-      { id:'free-2', project_name:'App Development Internship', description:'Create cross-platform mobile apps with React Native and Expo. Includes UI design, API integration, and publishing to app stores.', tech_stack:['React Native','Expo','Firebase'], duration_weeks:10, is_paid:false },
-      { id:'free-3', project_name:'UI/UX Design Internship', description:'Design user interfaces using Figma, conduct usability testing, and collaborate with developers to ship beautiful, functional products.', tech_stack:['Figma','Tailwind','CSS'], duration_weeks:6, is_paid:false },
+      { id:'free-1', project_name:'Web Development Internship', description:'Your course, your reward. SkillUpNow learners get exclusive access to build real client websites using React, Node.js and modern CSS — with weekly mentor code reviews.', tech_stack:['HTML','CSS','React'], duration_weeks:8, is_paid:false },
+      { id:'free-2', project_name:'App Development Internship', description:'Level up beyond the classroom. As a SkillUpNow learner, ship a real cross-platform mobile app with React Native and Expo — API integration, UI design and app store publishing included.', tech_stack:['React Native','Expo','Firebase'], duration_weeks:10, is_paid:false },
+      { id:'free-3', project_name:'UI/UX Design Internship', description:'Turn your course skills into a portfolio. SkillUpNow learners work on live Figma design systems, conduct real usability testing and collaborate directly with developers.', tech_stack:['Figma','Tailwind','CSS'], duration_weeks:6, is_paid:false },
     ];
   }
   function getFallbackPaid() {
@@ -1172,6 +1266,20 @@
 
     if (!name || !college || !email || !phone || !year || !programme) {
       toast('Please fill all required fields.', 'err');
+      return;
+    }
+
+    // Free internship — must be logged in
+    if (!isPaid && !currentUser) {
+      toast('Please login to apply for internships.', 'err');
+      window.profileNav && window.profileNav.openLoginModal();
+      return;
+    }
+
+    // Free internship — must be enrolled in a course
+    if (!isPaid && currentUser && !isEnrolled) {
+      toast('🎓 This is a Learner Perk! Join any SkillUpNow course to unlock your free internship.', 'err', 5000);
+      setTimeout(() => { window.location.href = '../pages/courses.html'; }, 2500);
       return;
     }
 

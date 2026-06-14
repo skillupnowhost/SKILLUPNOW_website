@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Payment — SkillUpNow</title>
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/main.css">
@@ -332,7 +333,9 @@ async function init() {
 }
 
 async function loadEnrollment(id) {
-  const { data, error } = await db.client.from('enrollments').select('*, courses(name, category, duration_months, price, discounted_price, is_emi_available, min_emi_months, max_emi_months)').eq('id', id).single();
+  const { data, error } = await db.client.from('enrollments')
+    .select('*, courses(id, title, duration_days, course_categories(name, icon)), pricing:course_pricing!pricing_id(list_price, sale_price, pricing_type, emi_installments, is_active)')
+    .eq('id', id).single();
   if (error || !data) { document.getElementById('order-loading').textContent = 'Enrollment not found.'; return; }
   enrollmentData = data;
   courseData = data.courses;
@@ -340,13 +343,14 @@ async function loadEnrollment(id) {
 }
 
 async function loadEmiPayment(id) {
-  const { data } = await db.client.from('emi_schedules').select('*, enrollments(*, courses(name, category))').eq('id', id).single();
-  if (!data) { document.getElementById('order-loading').textContent = 'EMI record not found.'; return; }
+  const { data } = await db.client.from('payment_schedules')
+    .select('*, enrollments(*, courses(id, title, course_categories(name, icon)))')
+    .eq('id', id).single();
+  if (!data) { document.getElementById('order-loading').textContent = 'Payment schedule not found.'; return; }
   enrollmentData = data.enrollments;
   courseData = enrollmentData.courses;
-  // Override amount for EMI payment
-  enrollmentData._emiAmount = data.amount;
-  enrollmentData._emiScheduleId = id;
+  enrollmentData._emiAmount = data.amount_due;
+  enrollmentData._paymentScheduleId = id;
   selectMethod('razorpay', document.querySelector('.pay-method[data-method="razorpay"]'));
   showOrderSummary();
 }
@@ -354,39 +358,42 @@ async function loadEmiPayment(id) {
 function showOrderSummary() {
   document.getElementById('order-loading').style.display = 'none';
   document.getElementById('order-details').style.display = 'block';
-  const icons = {'IT':'💻','Cloud':'☁️','AI/ML':'🤖','DevOps':'⚙️','Cybersecurity':'🔐','Data Science':'📊'};
-  document.getElementById('order-course').textContent = courseData?.name || '—';
-  document.getElementById('order-category').textContent = courseData?.category || '';
-  document.getElementById('order-icon').textContent = icons[courseData?.category] || '📚';
+  const icons = {'IT':'💻','Cloud':'☁️','AI/ML':'🤖','DevOps':'⚙️','Cybersecurity':'🔐','Data Science':'📊','Gen AI':'🤖','Web Dev':'🌐'};
+  const catName = courseData?.course_categories?.name || '';
+  document.getElementById('order-course').textContent = courseData?.title || '—';
+  document.getElementById('order-category').textContent = catName;
+  document.getElementById('order-icon').textContent = icons[catName] || '📚';
 
-  const price = courseData?.discounted_price || courseData?.price || enrollmentData.total_amount;
-  const emiAmount = enrollmentData._emiAmount;
-  const payNow = emiAmount || price;
+  const netAmount  = enrollmentData.net_amount || 0;
+  const listPrice  = enrollmentData.list_price || netAmount;
+  const discount   = enrollmentData.discount_amount || 0;
+  const emiAmount  = enrollmentData._emiAmount;
+  const payNow     = emiAmount || enrollmentData.due_amount || netAmount;
 
   document.getElementById('summary-rows').innerHTML = `
-    <div class="summary-row"><span class="label">Course Fee</span><span class="value">${fmtCurr(price)}</span></div>
-    ${courseData?.discounted_price ? `<div class="summary-row discount"><span class="label">Discount</span><span class="value">- ${fmtCurr(courseData.price - courseData.discounted_price)}</span></div>` : ''}
-    ${enrollmentData.payment_type === 'emi' && !emiAmount ? `<div class="summary-row"><span class="label">EMI Months</span><span class="value">${enrollmentData.emi_months || '—'}</span></div>` : ''}
+    <div class="summary-row"><span class="label">Course Fee</span><span class="value">${fmtCurr(listPrice)}</span></div>
+    ${discount > 0 ? `<div class="summary-row discount"><span class="label">Discount</span><span class="value">- ${fmtCurr(discount)}</span></div>` : ''}
+    ${emiAmount ? `<div class="summary-row"><span class="label">Installment</span><span class="value">${fmtCurr(emiAmount)}</span></div>` : ''}
     <div class="summary-row total"><span class="label">${emiAmount ? 'Installment Due' : 'Total Due'}</span><span class="value">${fmtCurr(payNow)}</span></div>`;
 
   document.getElementById('pay-btn-label').textContent = `Pay ${fmtCurr(payNow)}`;
 
-  // Build EMI plans if available
-  if (courseData?.is_emi_available) {
-    const min = courseData.min_emi_months || 2;
-    const max = courseData.max_emi_months || 12;
+  // Build EMI plans from pricing if available
+  const pricing = enrollmentData.pricing;
+  if (pricing?.emi_installments && pricing.emi_installments > 1 && !emiAmount) {
+    const installments = pricing.emi_installments;
     let html = '';
-    for (let m = min; m <= max; m += 2) {
-      const monthly = Math.ceil(price / m);
-      html += `<div class="emi-plan${m === min ? ' active' : ''}" data-months="${m}" onclick="selectEmi(${m},${price},this)">
+    for (let m = 2; m <= installments; m++) {
+      const monthly = Math.ceil(netAmount / m);
+      html += `<div class="emi-plan${m === 2 ? ' active' : ''}" data-months="${m}" onclick="selectEmi(${m},${netAmount},this)">
         <div class="ep-months">${m}</div>
         <div class="ep-label">months</div>
         <div class="ep-amount">${fmtCurr(monthly)}/mo</div>
       </div>`;
     }
     document.getElementById('emi-plan-grid').innerHTML = html;
-    selectedEmiMonths = min;
-    updateEmiDisplay(price, min);
+    selectedEmiMonths = 2;
+    updateEmiDisplay(netAmount, 2);
   }
 }
 
@@ -420,61 +427,150 @@ async function initiatePayment() {
   btn.disabled = true;
   label.innerHTML = '<span class="spinner"></span> Processing…';
 
-  const price    = courseData?.discounted_price || courseData?.price || enrollmentData.total_amount;
-  const emiAmt   = enrollmentData._emiAmount;
-  const payAmount = selectedMethod === 'emi' ? Math.ceil(price / selectedEmiMonths) : (emiAmt || price);
+  const netAmount = enrollmentData.net_amount || 0;
+  const emiAmt    = enrollmentData._emiAmount;
+  const payAmount = selectedMethod === 'emi'
+    ? Math.ceil(netAmount / selectedEmiMonths)
+    : (emiAmt || enrollmentData.due_amount || netAmount);
 
   try {
     if (selectedMethod === 'razorpay' || selectedMethod === 'emi') {
+      // Create Razorpay order via Node.js payment API
+      label.innerHTML = '<span class="spinner"></span> Creating order…';
+      let rzpOrderId = null;
+      try {
+        const orderRes = await fetch('/api/payment/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount:  payAmount,
+            currency: 'INR',
+            receipt: `rcpt_${enrollmentData.id}`,
+            notes: { enrollment_id: enrollmentData.id, user_id: currentUser.id },
+          }),
+        });
+        const orderData = await orderRes.json();
+        if (orderData.success && orderData.orderId) rzpOrderId = orderData.orderId;
+        else console.warn('Order creation failed:', orderData.error);
+      } catch (orderErr) {
+        console.warn('Could not create order:', orderErr);
+      }
+      label.innerHTML = '<span class="spinner"></span> Processing…';
+
       const options = {
         key: 'rzp_live_ILgsSZCZoFMQjO',
         amount: Math.round(payAmount * 100),
         currency: 'INR',
         name: 'SkillUpNow',
-        description: courseData?.name || 'Course Enrollment',
+        description: courseData?.title || 'Course Enrollment',
+        image: 'https://skillupnowadmin.org/assets/logo.png',
         prefill: {
           name: document.getElementById('bill-name').value,
           email: document.getElementById('bill-email').value,
           contact: document.getElementById('bill-phone').value,
         },
         theme: { color: '#7c6cff' },
+        modal: {
+          ondismiss: () => {
+            btn.disabled = false;
+            label.textContent = 'Pay ' + fmtCurr(payAmount);
+          }
+        },
         handler: async (response) => {
-          const { data: payment } = await db.client.from('payments').insert({
-            user_id: currentUser.id,
-            enrollment_id: enrollmentData.id,
-            emi_schedule_id: enrollmentData._emiScheduleId || null,
-            amount: payAmount,
-            payment_method: selectedMethod === 'emi' ? 'emi' : 'online',
-            payment_gateway: 'razorpay',
-            razorpay_order_id:   response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature:  response.razorpay_signature,
-            transaction_id: response.razorpay_payment_id,
-            status: 'completed',
-          }).select().single();
-          if (payment) window.location.href = `payment.html?invoice=${payment.data?.id}`;
+          // Verify payment signature server-side before recording
+          if (response.razorpay_order_id && response.razorpay_signature) {
+            try {
+              const verifyRes = await fetch('/api/payment/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id:   response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature:  response.razorpay_signature,
+                }),
+              });
+              const verifyData = await verifyRes.json();
+              if (!verifyData.success) {
+                alert('Payment verification failed. Please contact support with ID: ' + response.razorpay_payment_id);
+                btn.disabled = false;
+                label.textContent = 'Retry Payment';
+                return;
+              }
+            } catch (verifyErr) {
+              console.warn('Verification request failed, proceeding with caution:', verifyErr);
+            }
+          }
+
+          const paymentInsert = {
+            student_user_id:    currentUser.id,
+            course_id:          enrollmentData.course_id,
+            enrollment_id:      enrollmentData.id,
+            payment_schedule_id: enrollmentData._paymentScheduleId || null,
+            amount:             payAmount,
+            payment_method:     'gateway_link',
+            payment_gateway:    'razorpay',
+            payment_status:     'completed',
+            paid_at:            new Date().toISOString(),
+            transaction_reference: response.razorpay_payment_id,
+            gateway_payment_id:  response.razorpay_payment_id,
+          };
+          if (response.razorpay_order_id)  paymentInsert.gateway_order_id  = response.razorpay_order_id;
+          if (response.razorpay_signature) paymentInsert.gateway_signature = response.razorpay_signature;
+
+          const { data: payment } = await db.client.from('payments').insert(paymentInsert).select('id').single();
+
+          // Update enrollment to active
+          const newPaid = (enrollmentData.paid_amount || 0) + payAmount;
+          const newDue  = Math.max(0, (enrollmentData.due_amount || 0) - payAmount);
+          await db.client.from('enrollments').update({
+            enrollment_status: newDue <= 0 ? 'active' : enrollmentData.enrollment_status,
+            access_status:     newDue <= 0 ? 'active' : enrollmentData.access_status,
+            paid_amount:       newPaid,
+            due_amount:        newDue,
+            activated_at:      newDue <= 0 ? new Date().toISOString() : undefined,
+          }).eq('id', enrollmentData.id);
+
+          if (payment?.id) window.location.href = `payment.html?invoice=${payment.id}`;
           else window.location.href = 'profile.html?tab=payments';
         },
       };
-      new window.Razorpay(options).open();
+      if (rzpOrderId) options.order_id = rzpOrderId;
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (response) => {
+        console.error('Payment failed:', response.error);
+        btn.disabled = false;
+        label.textContent = 'Retry Payment';
+        const errMsg = response.error?.description || response.error?.reason || 'Payment was declined. Please try again.';
+        alert(errMsg);
+      });
+      rzp.open();
     } else if (selectedMethod === 'bank') {
       const utr = document.getElementById('utr-ref').value.trim();
       if (!utr) { alert('Please enter the UTR/Transaction reference number.'); return; }
       await db.client.from('payments').insert({
-        user_id: currentUser.id, enrollment_id: enrollmentData.id,
-        amount: payAmount, payment_method: 'bank_transfer', payment_gateway: 'bank',
-        transaction_id: utr, status: 'processing',
+        student_user_id:      currentUser.id,
+        course_id:            enrollmentData.course_id,
+        enrollment_id:        enrollmentData.id,
+        amount:               payAmount,
+        payment_method:       'bank_transfer',
+        payment_gateway:      'manual',
+        transaction_reference: utr,
+        payment_status:       'processing',
       });
       alert('Bank transfer recorded. Admin will verify and activate your access within 24 hours.');
-      window.location.href = 'profile';
+      window.location.href = 'profile.html?tab=payments';
     } else if (selectedMethod === 'cash') {
       await db.client.from('payments').insert({
-        user_id: currentUser.id, enrollment_id: enrollmentData.id,
-        amount: payAmount, payment_method: 'cash', payment_gateway: 'cash',
-        status: 'pending',
+        student_user_id: currentUser.id,
+        course_id:       enrollmentData.course_id,
+        enrollment_id:   enrollmentData.id,
+        amount:          payAmount,
+        payment_method:  'cash',
+        payment_gateway: 'cash',
+        payment_status:  'pending',
       });
       alert('Cash payment recorded. Please visit our office with the exact amount.');
-      window.location.href = 'profile';
+      window.location.href = 'profile.html?tab=payments';
     }
   } catch (err) {
     alert('Payment error: ' + err.message);
@@ -487,21 +583,28 @@ async function loadInvoice(id) {
   document.getElementById('payment-form-wrap').style.display = 'none';
   document.getElementById('invoice-view').style.display = 'block';
 
-  const { data: p } = await db.client.from('payments').select('*, user_profiles(full_name,email,phone), enrollments(courses(name,category))').eq('id', id).single();
+  const { data: p } = await db.client.from('payments')
+    .select('*, enrollments(course_id, courses(title))')
+    .eq('id', id).single();
   if (!p) { document.getElementById('invoice-card').innerHTML = '<p style="text-align:center;padding:2rem;color:var(--txt3)">Invoice not found.</p>'; return; }
 
-  document.getElementById('inv-number').textContent  = p.invoice_number || '—';
-  document.getElementById('inv-date').textContent    = fmtDate(p.payment_date);
-  document.getElementById('inv-status').textContent  = p.status.toUpperCase();
-  document.getElementById('inv-status').style.color  = p.status === 'completed' ? '#16a34a' : '#b45309';
-  document.getElementById('inv-name').textContent    = p.user_profiles?.full_name || '—';
-  document.getElementById('inv-email').textContent   = p.user_profiles?.email || '—';
-  document.getElementById('inv-phone').textContent   = p.user_profiles?.phone || '—';
-  document.getElementById('inv-method').textContent  = p.payment_method;
-  document.getElementById('inv-txn').textContent     = p.razorpay_payment_id || p.transaction_id || '—';
+  const invNum  = p.id?.slice(0,8)?.toUpperCase() || '—';
+  const status  = p.payment_status || 'pending';
+  const courseTitle = p.enrollments?.courses?.title || '—';
+  const methodMap = { gateway_link:'Online (Razorpay)', bank_transfer:'Bank Transfer', cash:'Cash', upi:'UPI', card:'Card' };
+
+  document.getElementById('inv-number').textContent  = invNum;
+  document.getElementById('inv-date').textContent    = fmtDate(p.paid_at);
+  document.getElementById('inv-status').textContent  = status.toUpperCase();
+  document.getElementById('inv-status').style.color  = status === 'completed' ? '#16a34a' : '#b45309';
+  document.getElementById('inv-name').textContent    = document.getElementById('bill-name').value || '—';
+  document.getElementById('inv-email').textContent   = document.getElementById('bill-email').value || currentUser?.email || '—';
+  document.getElementById('inv-phone').textContent   = document.getElementById('bill-phone').value || '—';
+  document.getElementById('inv-method').textContent  = methodMap[p.payment_method] || p.payment_method || '—';
+  document.getElementById('inv-txn').textContent     = p.gateway_payment_id || p.transaction_reference || '—';
   document.getElementById('inv-total').textContent   = fmtCurr(p.amount);
   document.getElementById('inv-items').innerHTML = `
-    <tr><td>1</td><td>Course Enrollment</td><td>${p.enrollments?.courses?.name||'—'}</td><td>${p.payment_method}</td><td><strong>${fmtCurr(p.amount)}</strong></td></tr>`;
+    <tr><td>1</td><td>Course Enrollment</td><td>${courseTitle}</td><td>${methodMap[p.payment_method]||p.payment_method||'—'}</td><td><strong>${fmtCurr(p.amount)}</strong></td></tr>`;
 }
 
 function printInvoice() { window.print(); }

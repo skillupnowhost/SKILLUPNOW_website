@@ -1,10 +1,37 @@
 User-agent: *
 Allow: /
+Allow: /pages/courses.html
+Allow: /pages/course-registration.html
+Allow: /pages/contact-enquiry.html
+Allow: /pages/reviews.html
+Allow: /pages/signup.html
+Allow: /pages/feedback.html
 
-# Block private folders
+# Private / auth pages — no crawling
+Disallow: /pages/admin-dashboard.html
+Disallow: /pages/admin-login.html
+Disallow: /pages/admin-signup.html
+Disallow: /pages/mentor-dashboard.html
+Disallow: /pages/mentor-signup.html
+Disallow: /pages/profile.html
+Disallow: /pages/payment.html
+Disallow: /pages/emi-application.html
+Disallow: /pages/recording-videos.html
+Disallow: /pages/project.html
+Disallow: /pages/project-detail.html
+Disallow: /pages/forms.html
+Disallow: /pages/quick-registration.html
+Disallow: /pages/pamphlet.html
+Disallow: /pages/email-verified.html
+Disallow: /pages/reset-password.html
+Disallow: /pages/signup-success.html
+Disallow: /pages/internship.html
+
+# Backend / config — never crawl
 Disallow: /db/
 Disallow: /config/
+Disallow: /server/
+Disallow: /supabase/
 Disallow: /.env
 
-# Sitemap location
 Sitemap: https://skillupnowadmin.org/sitemap.xml

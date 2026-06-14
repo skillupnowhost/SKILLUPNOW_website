@@ -3,8 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Courses — SkillUpNow</title>
-  <meta name="description" content="Browse all courses at SkillUpNow — IT, Cloud, AI/ML, DevOps, Cybersecurity and more.">
+
+  <title>Courses — IT Training, Web & App Development | SkillUpNow Chennai</title>
+  <meta name="description" content="Explore SkillUpNow's courses: AWS Cloud, DevOps, AI/ML, Cybersecurity, Full-Stack Web Development, Mobile App Development and more. Live classes, real-world projects, no-cost EMI. Enroll today.">
+  <meta name="keywords" content="IT courses Chennai, web development course, app development training, AWS training, DevOps course, AI ML training, Cybersecurity certification, full stack developer course India, mobile app course">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <link rel="canonical" href="https://skillupnowadmin.org/pages/courses.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SkillUpNow">
+  <meta property="og:title" content="Courses — IT Training, Web & App Development | SkillUpNow">
+  <meta property="og:description" content="AWS, DevOps, AI/ML, Cybersecurity, Full-Stack Web Dev, Mobile App courses with live mentorship and no-cost EMI.">
+  <meta property="og:url" content="https://skillupnowadmin.org/pages/courses.html">
+  <meta property="og:image" content="https://skillupnowadmin.org/assets/og-image.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Courses — IT Training & Web/App Development | SkillUpNow">
+  <meta name="twitter:description" content="AWS, DevOps, AI/ML, Full-Stack Web Dev, Mobile App courses — live mentorship, no-cost EMI, Chennai.">
+  <meta name="twitter:image" content="https://skillupnowadmin.org/assets/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "IT Training Courses — SkillUpNow",
+    "url": "https://skillupnowadmin.org/pages/courses.html",
+    "description": "Browse all IT training courses at SkillUpNow — Cloud, DevOps, AI/ML, Cybersecurity and more.",
+    "provider": {
+      "@type": "EducationalOrganization",
+      "name": "SkillUpNow",
+      "url": "https://skillupnowadmin.org/"
+    }
+  }
+  </script>
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/main.css">
@@ -2822,12 +2853,41 @@
         enroll = newEnroll;
       }
 
+      // Create server-side Razorpay order (required for live mode signature verification)
+      btn.textContent = 'Creating order…';
+      let rzpOrderId = null;
+      try {
+        const orderRes = await fetch(
+          'https://kenlnisfhrkgolvxitfc.supabase.co/functions/v1/create-razorpay-order',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': 'sb_publishable_bn3ALAJLmsKePx3V-NsMBw_ADJ-3S3D' },
+            body: JSON.stringify({
+              amount: Math.round(totalAmount * 100),
+              currency: 'INR',
+              receipt: `rcpt_${enroll.id}`,
+              notes: { course_id: selectedCourse.id, enrollment_id: enroll.id, user_id: user.id },
+            }),
+          }
+        );
+        const orderData = await orderRes.json();
+        if (orderRes.ok && orderData.id) {
+          rzpOrderId = orderData.id;
+        } else {
+          console.warn('Order creation failed, proceeding without order_id:', orderData.error);
+        }
+      } catch (orderErr) {
+        console.warn('Could not create order, proceeding without order_id:', orderErr);
+      }
+      btn.textContent = 'Processing…';
+
       const options = {
         key: 'rzp_live_ILgsSZCZoFMQjO',
-        amount: totalAmount * 100,
+        amount: Math.round(totalAmount * 100),
         currency: 'INR',
         name: 'SkillUpNow',
         description: selectedCourse.title,
+        image: 'https://skillupnowadmin.org/assets/logo.png',
         prefill: { name: user.user_metadata?.full_name || '', email: user.email },
         theme: { color: '#7c6cff' },
         modal: {
@@ -2865,6 +2925,7 @@
           window.location.href = 'profile.html?tab=learning&enrolled=' + encodeURIComponent(selectedCourse.title);
         },
       };
+      if (rzpOrderId) options.order_id = rzpOrderId;
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', (response) => {
         console.error('Payment failed:', response.error);
