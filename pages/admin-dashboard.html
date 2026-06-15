@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,17 +10,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    /* ── LIGHT THEME (default) ── */
     :root {
-      --sw: 248px; --hh: 60px;
-      --bg: #0d0b1a; --bg2: #100d22;
-      --panel: rgba(255,255,255,0.03); --panel2: rgba(255,255,255,0.06);
-      --border: rgba(124,92,252,0.15); --border2: rgba(124,92,252,0.28);
+      --sw: 256px; --hh: 62px;
+      --bg:    #f5f4fa;
+      --bg2:   #ffffff;
+      --panel: rgba(68,25,152,0.04);
+      --panel2:rgba(68,25,152,0.07);
+      --border: rgba(68,25,152,0.10);
+      --border2:rgba(68,25,152,0.22);
+      --v1: #441998; --v2: #5c22c5;
+      --txt:  #160840; --txt2: #2e1472;
+      --txt3: rgba(46,20,114,0.52); --txt4: rgba(46,20,114,0.32);
+      --grad: linear-gradient(135deg,#441998,#5c22c5);
+      --r: 14px; --r2: 10px;
+      --sidebar-bg: #ffffff;
+      --topbar-bg:  rgba(255,255,255,0.92);
+      --stat-border-top: #441998;
+      --shadow-card: 0 2px 12px rgba(68,25,152,0.08), 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-sidebar: 2px 0 24px rgba(68,25,152,0.08);
+    }
+
+    /* ── DARK THEME override ── */
+    [data-theme="dark"] {
+      --bg:    #0d0b1a;
+      --bg2:   #100d22;
+      --panel: rgba(255,255,255,0.03);
+      --panel2:rgba(255,255,255,0.06);
+      --border: rgba(124,92,252,0.15);
+      --border2:rgba(124,92,252,0.28);
       --v1: #9b8fff; --v2: #7c6cff;
-      --txt: #f0eeff; --txt2: #c8bfff;
+      --txt:  #f0eeff; --txt2: #c8bfff;
       --txt3: rgba(200,191,255,0.45); --txt4: rgba(200,191,255,0.28);
       --grad: linear-gradient(135deg,#9b8fff,#7c6cff);
-      --r: 14px; --r2: 10px;
+      --sidebar-bg: #100d22;
+      --topbar-bg:  rgba(13,11,26,0.92);
+      --stat-border-top: #9b8fff;
+      --shadow-card: 0 8px 28px rgba(0,0,0,.3);
+      --shadow-sidebar: 4px 0 28px rgba(0,0,0,.5);
     }
+
+    /* ── ICON ANIMATIONS ── */
+    @keyframes adm-bob   { 0%,100%{transform:translateY(0)}     50%{transform:translateY(-3px)} }
+    @keyframes adm-pulse { 0%,100%{opacity:.3;transform:scale(.85)} 50%{opacity:1;transform:scale(1.1)} }
+    @keyframes adm-spin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes adm-spin-rev { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+    @keyframes adm-blink { 0%,45%,55%,100%{opacity:1} 50%{opacity:.05} }
+    @keyframes adm-swing { 0%,100%{transform:rotate(-6deg)} 50%{transform:rotate(6deg)} }
+    @keyframes adm-slide { 0%,100%{transform:translateX(0)} 60%{transform:translateX(3px)} }
+    @keyframes adm-float { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-4px) scale(1.03)} }
+    @keyframes adm-bar-grow { 0%{scaleY:0.2} 100%{scaleY:1} }
+    @keyframes adm-ping { 0%,100%{transform:scale(1);opacity:1} 60%{transform:scale(2.2);opacity:0} }
+    @keyframes adm-drop { 0%,100%{transform:translateY(-3px);opacity:0} 40%,80%{transform:translateY(3px);opacity:1} 99%{opacity:0} }
+    @keyframes adm-wave  { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)} }
+    @keyframes adm-shimmer { 0%{x:-200%} 100%{x:200%} }
+    @keyframes adm-card-in { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    @keyframes adm-stat-in { from{opacity:0;transform:translateY(12px) scale(.96)} to{opacity:1;transform:none} }
+
+    .adm-bob   { animation:adm-bob   2.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    .adm-pulse { animation:adm-pulse 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    .adm-spin  { animation:adm-spin  8s linear infinite; transform-box:fill-box; transform-origin:center; }
+    .adm-spin-rev { animation:adm-spin-rev 12s linear infinite; transform-box:fill-box; transform-origin:center; }
+    .adm-blink { animation:adm-blink 1.8s ease-in-out infinite; }
+    .adm-swing { animation:adm-swing 2.6s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 0; }
+    .adm-slide { animation:adm-slide 2.2s ease-in-out infinite; transform-box:fill-box; }
+    .adm-float { animation:adm-float 3s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    .adm-ping  { animation:adm-ping  2s ease-out infinite; transform-box:fill-box; transform-origin:center; }
+    .adm-drop  { animation:adm-drop  2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    .adm-wave  { animation:adm-wave  2s ease-in-out infinite; transform-box:fill-box; transform-origin:bottom center; }
+
     html { font-size: 14px; }
     body {
       font-family: 'Plus Jakarta Sans','Inter',sans-serif;
@@ -31,44 +90,64 @@
 
     /* ── SIDEBAR ── */
     .sidebar {
-      width: var(--sw); min-height: 100vh; background: var(--bg2);
+      width: var(--sw); min-height: 100vh; background: var(--sidebar-bg);
       border-right: 1px solid var(--border);
       display: flex; flex-direction: column;
       position: fixed; left: 0; top: 0; bottom: 0;
       z-index: 200; overflow: hidden;
       transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+      box-shadow: var(--shadow-sidebar);
     }
     .sidebar-brand {
       padding: 0 1rem; height: var(--hh);
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--v1) 5%, transparent), transparent);
     }
     .brand-logo { height: 32px; width: auto; object-fit: contain; flex-shrink: 0; border-radius: 8px; }
-    /* .brand-text .name { font-size: 0.88rem; font-weight: 800; white-space: nowrap; }
-    .brand-text .sub  { font-size: 0.65rem; color: var(--txt4); white-space: nowrap; } */
     .nav-scroll { flex: 1; overflow-y: auto; padding-bottom: 0.75rem; }
     .nav-scroll::-webkit-scrollbar { width: 3px; }
-    .nav-scroll::-webkit-scrollbar-thumb { background: rgba(124,92,252,.22); border-radius: 99px; }
+    .nav-scroll::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--v1) 22%, transparent); border-radius: 99px; }
     .nav-section { padding: 0.55rem 0.6rem 0; }
     .nav-label {
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
       text-transform: uppercase; color: var(--txt4); padding: 0.45rem 0.65rem 0.18rem;
     }
     .nav-item {
-      display: flex; align-items: center; gap: 0.65rem;
-      padding: 0.58rem 0.75rem; border-radius: var(--r2);
-      cursor: pointer; font-size: 0.82rem; font-weight: 500;
+      display: flex; align-items: center; gap: 0.62rem;
+      padding: 0.55rem 0.72rem; border-radius: var(--r2);
+      cursor: pointer; font-size: 0.815rem; font-weight: 500;
       color: var(--txt3); margin-bottom: 1px;
-      transition: all 0.18s; user-select: none;
+      transition: all 0.18s cubic-bezier(.4,0,.2,1); user-select: none;
       position: relative; white-space: nowrap; overflow: hidden;
     }
-    .nav-item:hover  { background: rgba(124,92,252,0.1); color: var(--txt2); }
-    .nav-item.active { background: rgba(124,92,252,0.18); color: var(--v1); font-weight: 700; }
+    .nav-item:hover  { background: color-mix(in srgb, var(--v1) 8%, transparent); color: var(--txt2); }
+    .nav-item.active { background: color-mix(in srgb, var(--v1) 12%, transparent); color: var(--v1); font-weight: 700; }
     .nav-item.active::before {
-      content: ''; position: absolute; left: 0; top: 25%; bottom: 25%;
+      content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
       width: 3px; background: var(--v1); border-radius: 0 3px 3px 0;
     }
-    .nav-icon { font-size: 0.95rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+    /* ── Animated icon wrapper ── */
+    .nav-icon {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--v1) 8%, transparent);
+      transition: background .18s, transform .18s;
+      color: var(--v1);
+    }
+    .nav-icon svg { width: 15px; height: 15px; }
+    .nav-item:hover .nav-icon { background: color-mix(in srgb, var(--v1) 14%, transparent); transform: scale(1.08); }
+    .nav-item.active .nav-icon { background: color-mix(in srgb, var(--v1) 16%, transparent); }
+    .nav-icon.green { background: rgba(16,185,129,.1); color:#10b981; }
+    .nav-icon.amber { background: rgba(245,158,11,.1); color:#f59e0b; }
+    .nav-icon.rose  { background: rgba(244,63,94,.1);  color:#f43f5e; }
+    .nav-icon.cyan  { background: rgba(6,182,212,.1);  color:#06b6d4; }
+    .nav-icon.sky   { background: rgba(56,189,248,.1); color:#38bdf8; }
+    .nav-icon.emerald { background: rgba(52,211,153,.1); color:#34d399; }
+    .nav-icon.gold  { background: rgba(251,191,36,.1); color:#fbbf24; }
+    .nav-icon.indigo{ background: rgba(99,102,241,.1); color:#6366f1; }
+
     .badge {
       margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center;
       background: rgba(239,68,68,0.85); color: #fff;
@@ -80,10 +159,11 @@
       padding: 0.58rem 0.75rem; border-radius: var(--r2);
       cursor: pointer; transition: background 0.18s;
     }
-    .admin-user:hover { background: rgba(124,92,252,0.1); }
+    .admin-user:hover { background: color-mix(in srgb, var(--v1) 8%, transparent); }
     .admin-avatar {
-      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; background: var(--grad);
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: var(--grad);
       display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700;
+      color: #fff; box-shadow: 0 2px 8px color-mix(in srgb, var(--v1) 35%, transparent);
     }
     .admin-info .aname { font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
     .admin-info .arole { font-size: 0.65rem; color: var(--txt4); }
@@ -91,7 +171,7 @@
     /* ── OVERLAY ── */
     #sidebar-overlay {
       display: none; position: fixed; inset: 0; z-index: 199;
-      background: rgba(6,4,18,0.75);
+      background: rgba(0,0,0,0.4);
       backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); cursor: pointer;
     }
     #sidebar-overlay.show { display: block; }
@@ -99,7 +179,7 @@
     /* ── HAMBURGER ── */
     .hamburger {
       display: none;
-      background: rgba(124,92,252,0.12); border: 1px solid var(--border2);
+      background: color-mix(in srgb, var(--v1) 8%, transparent); border: 1px solid var(--border2);
       border-radius: var(--r2); padding: 0.4rem 0.62rem;
       cursor: pointer; color: var(--v1); font-size: 1.1rem; line-height: 1;
       flex-shrink: 0; align-items: center; justify-content: center;
@@ -114,75 +194,97 @@
 
     /* ── TOPBAR ── */
     .topbar {
-      height: var(--hh); padding: 0 1.25rem;
-      background: rgba(13,11,26,0.88); border-bottom: 1px solid var(--border);
+      height: var(--hh); padding: 0 1.4rem;
+      background: var(--topbar-bg); border-bottom: 1px solid var(--border);
       display: flex; align-items: center; gap: 0.75rem;
       position: sticky; top: 0; z-index: 100;
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 var(--border);
     }
     .topbar-title {
-      font-size: 0.95rem; font-weight: 700; flex: 1;
+      font-size: 0.96rem; font-weight: 800; flex: 1;
       min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      color: var(--txt);
     }
     .topbar-search {
       display: flex; align-items: center; gap: 0.45rem;
       background: var(--panel2); border: 1px solid var(--border);
-      border-radius: var(--r2); padding: 0.38rem 0.7rem;
+      border-radius: var(--r2); padding: 0.38rem 0.75rem;
+      transition: border-color .18s, box-shadow .18s;
     }
+    .topbar-search:focus-within { border-color: var(--border2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--v1) 8%, transparent); }
     .topbar-search input {
       background: transparent; border: none; outline: none;
       color: var(--txt); font-size: 0.82rem; width: 160px; font-family: inherit;
     }
     .topbar-search input::placeholder { color: var(--txt4); }
     .topbar-btn {
-      background: rgba(124,92,252,0.14); border: 1px solid var(--border2);
-      border-radius: var(--r2); padding: 0.4rem 0.82rem;
-      color: var(--txt2); font-size: 0.8rem; cursor: pointer;
+      background: color-mix(in srgb, var(--v1) 10%, transparent); border: 1px solid var(--border2);
+      border-radius: var(--r2); padding: 0.42rem 0.88rem;
+      color: var(--v1); font-size: 0.8rem; font-weight: 600; cursor: pointer;
       transition: all 0.18s; font-family: inherit; white-space: nowrap; flex-shrink: 0;
     }
-    .topbar-btn:hover { background: rgba(124,92,252,0.26); }
+    .topbar-btn:hover { background: color-mix(in srgb, var(--v1) 18%, transparent); transform: translateY(-1px); }
 
     /* ── CONTENT ── */
-    .content { padding: 1.25rem; flex: 1; min-width: 0; }
+    .content { padding: 1.35rem; flex: 1; min-width: 0; }
     .section { display: none; }
-    .section.active { display: block; }
+    .section.active { display: block; animation: adm-card-in .28s cubic-bezier(.22,1,.36,1) both; }
 
     /* ── STAT CARDS ── */
     .stats-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
-      gap: 0.85rem; margin-bottom: 1.25rem;
+      gap: 0.9rem; margin-bottom: 1.35rem;
     }
     .stat-card {
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 1.1rem;
-      position: relative; overflow: hidden; transition: all 0.2s; cursor: pointer;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 1.15rem 1.1rem;
+      position: relative; overflow: hidden; transition: all 0.22s cubic-bezier(.22,1,.36,1); cursor: pointer;
+      box-shadow: var(--shadow-card);
+      animation: adm-stat-in .35s cubic-bezier(.22,1,.36,1) both;
     }
-    .stat-card:hover { border-color: rgba(124,92,252,0.4); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.3); }
+    .stat-card:hover {
+      border-color: color-mix(in srgb, var(--v1) 35%, transparent);
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 12px 32px color-mix(in srgb, var(--v1) 14%, transparent);
+    }
     .stat-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--grad);
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--grad); border-radius: var(--r) var(--r) 0 0;
     }
-    .stat-icon { font-size: 1.5rem; margin-bottom: 0.65rem; }
-    .stat-value { font-size: 1.7rem; font-weight: 800; color: var(--v1); line-height: 1; }
-    .stat-label { font-size: 0.7rem; color: var(--txt3); margin-top: 0.25rem; }
+    /* Animated icon in stat cards */
+    .stat-icon {
+      width: 42px; height: 42px; border-radius: 12px; margin-bottom: 0.85rem;
+      display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--v1) 10%, transparent);
+      color: var(--v1);
+      transition: transform .2s, background .2s;
+    }
+    .stat-card:hover .stat-icon { transform: scale(1.12) rotate(-4deg); background: color-mix(in srgb, var(--v1) 16%, transparent); }
+    .stat-icon svg { width: 22px; height: 22px; }
+    .stat-value { font-size: 1.75rem; font-weight: 800; color: var(--v1); line-height: 1; }
+    .stat-label { font-size: 0.7rem; color: var(--txt3); margin-top: 0.28rem; font-weight: 500; }
 
     /* ── TABLE ── */
     .table-card {
-      background: var(--panel); border: 1px solid var(--border);
+      background: var(--bg2); border: 1px solid var(--border);
       border-radius: var(--r); overflow: hidden; margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-card);
     }
     .table-header {
-      padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap;
+      background: color-mix(in srgb, var(--v1) 3%, transparent);
     }
-    .table-header h3 { font-size: 0.88rem; font-weight: 700; }
+    .table-header h3 { font-size: 0.88rem; font-weight: 800; color: var(--txt); }
     .table-actions { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .table-scroll::-webkit-scrollbar { height: 4px; }
-    .table-scroll::-webkit-scrollbar-thumb { background: rgba(124,92,252,.18); border-radius: 99px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--v1) 18%, transparent); border-radius: 99px; }
     .tbl-search {
-      background: var(--panel2); border: 1px solid var(--border); border-radius: 8px;
-      padding: 0.32rem 0.6rem; color: var(--txt); font-size: 0.77rem; outline: none;
-      font-family: inherit; width: 140px; transition: border-color 0.18s;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.34rem 0.65rem; color: var(--txt); font-size: 0.77rem; outline: none;
+      font-family: inherit; width: 140px; transition: border-color 0.18s, box-shadow .18s;
     }
 
     /* ── SEARCH DROPDOWN (admin) ── */
@@ -193,7 +295,7 @@
       background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px;
       list-style: none; margin: 0; padding: 4px 0;
       max-height: 220px; overflow-y: auto; display: none; min-width: 210px;
-      box-shadow: 0 14px 36px rgba(0,0,0,.5), 0 2px 8px rgba(124,92,252,.18);
+      box-shadow: 0 14px 36px rgba(0,0,0,.12), 0 2px 8px color-mix(in srgb, var(--v1) 10%, transparent);
     }
     .search-suggestions.dd-open { display: block; }
     .search-suggestions li {
@@ -201,85 +303,97 @@
       display: flex; align-items: center; gap: .45rem; transition: background .14s;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .search-suggestions li:hover { background: rgba(124,92,252,.14); color: var(--txt); }
+    .search-suggestions li:hover { background: color-mix(in srgb, var(--v1) 8%, transparent); color: var(--txt); }
     .search-suggestions li .sug-icon { font-size: .76rem; flex-shrink: 0; }
     .search-suggestions li .sug-sub { font-size: .7rem; color: var(--txt4); margin-left: auto; flex-shrink: 0; }
-    .tbl-search:focus { border-color: var(--border2); }
+    .tbl-search:focus { border-color: var(--border2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--v1) 8%, transparent); }
     .tbl-search::placeholder { color: var(--txt4); }
     .btn-primary {
       background: var(--grad); color: #fff; border: none; border-radius: 8px;
-      padding: 0.4rem 0.88rem; font-size: 0.77rem; font-weight: 700; cursor: pointer;
-      font-family: inherit; transition: opacity 0.18s; white-space: nowrap;
+      padding: 0.42rem 0.92rem; font-size: 0.77rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; transition: opacity 0.18s, transform .18s; white-space: nowrap;
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--v1) 30%, transparent);
     }
-    .btn-primary:hover { opacity: 0.86; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
     .btn-secondary {
-      background: rgba(124,92,252,0.11); border: 1px solid var(--border2); border-radius: 8px;
-      padding: 0.4rem 0.78rem; color: var(--txt2); font-size: 0.77rem; cursor: pointer;
-      font-family: inherit; transition: all 0.18s; white-space: nowrap;
+      background: color-mix(in srgb, var(--v1) 8%, transparent); border: 1px solid var(--border2); border-radius: 8px;
+      padding: 0.42rem 0.82rem; color: var(--v2); font-size: 0.77rem; cursor: pointer;
+      font-family: inherit; transition: all 0.18s; white-space: nowrap; font-weight: 600;
     }
-    .btn-secondary:hover { background: rgba(124,92,252,0.22); }
+    .btn-secondary:hover { background: color-mix(in srgb, var(--v1) 14%, transparent); transform: translateY(-1px); }
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; min-width: 520px; }
     .data-table th {
-      padding: 0.58rem 0.85rem; text-align: left; color: var(--txt3);
+      padding: 0.6rem 0.9rem; text-align: left; color: var(--txt3);
       font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-      border-bottom: 1px solid var(--border); white-space: nowrap; background: rgba(124,92,252,0.04);
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+      background: color-mix(in srgb, var(--v1) 4%, transparent);
     }
     .data-table td {
-      padding: 0.68rem 0.85rem; border-bottom: 1px solid rgba(124,92,252,0.06);
+      padding: 0.72rem 0.9rem; border-bottom: 1px solid var(--border);
       color: var(--txt2); vertical-align: middle;
     }
     .data-table tr:last-child td { border-bottom: none; }
-    .data-table tr:hover td { background: rgba(124,92,252,0.04); }
-    .badge-green  { background: rgba(34,197,94,0.14);  color: #4ade80; }
-    .badge-yellow { background: rgba(234,179,8,0.14);  color: #facc15; }
-    .badge-red    { background: rgba(239,68,68,0.14);  color: #f87171; }
-    .badge-blue   { background: rgba(59,130,246,0.14); color: #60a5fa; }
-    .badge-purple { background: rgba(124,92,252,0.14); color: #a78bfa; }
-    .badge-gray   { background: rgba(100,116,139,0.18);color: #94a3b8; }
+    .data-table tr:hover td { background: color-mix(in srgb, var(--v1) 3%, transparent); }
+    .badge-green  { background: rgba(16,185,129,0.12); color: #065f46; border-radius:999px; padding:.15rem .55rem; font-size:.68rem; font-weight:700; }
+    .badge-yellow { background: rgba(245,158,11,0.12); color: #92400e; border-radius:999px; padding:.15rem .55rem; font-size:.68rem; font-weight:700; }
+    .badge-red    { background: rgba(239,68,68,0.12);  color: #991b1b; border-radius:999px; padding:.15rem .55rem; font-size:.68rem; font-weight:700; }
+    .badge-blue   { background: rgba(59,130,246,0.12); color: #1e40af; border-radius:999px; padding:.15rem .55rem; font-size:.68rem; font-weight:700; }
+    .badge-purple { background: rgba(124,92,252,0.12); color: var(--v2); border-radius:999px; padding:.15rem .55rem; font-size:.68rem; font-weight:700; }
+    .badge-gray   { background: rgba(100,116,139,0.12);color: #475569; border-radius:999px; padding:.15rem .55rem; font-size:.68rem; font-weight:700; }
+    [data-theme="dark"] .badge-green  { color:#4ade80; }
+    [data-theme="dark"] .badge-yellow { color:#facc15; }
+    [data-theme="dark"] .badge-red    { color:#f87171; }
+    [data-theme="dark"] .badge-blue   { color:#60a5fa; }
+    [data-theme="dark"] .badge-purple { color:#a78bfa; }
+    [data-theme="dark"] .badge-gray   { color:#94a3b8; }
     .action-btns { display: flex; gap: 0.28rem; flex-wrap: wrap; }
     .action-btn {
-      background: none; border: 1px solid var(--border); border-radius: 6px;
-      padding: 0.2rem 0.44rem; color: var(--v1); font-size: 0.7rem; cursor: pointer;
-      transition: all 0.18s; font-family: inherit; white-space: nowrap;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 0.22rem 0.5rem; color: var(--v1); font-size: 0.7rem; cursor: pointer;
+      transition: all 0.18s; font-family: inherit; white-space: nowrap; font-weight: 600;
     }
-    .action-btn:hover { background: rgba(124,92,252,0.13); border-color: var(--border2); }
-    .action-btn.danger { border-color: rgba(239,68,68,0.28); color: #f87171; }
-    .action-btn.danger:hover { background: rgba(239,68,68,0.1); }
-    .table-empty { text-align: center; padding: 2.5rem 1rem; color: var(--txt4); font-size: 0.82rem; }
+    .action-btn:hover { background: color-mix(in srgb, var(--v1) 8%, transparent); border-color: var(--border2); transform: translateY(-1px); }
+    .action-btn.danger { border-color: rgba(239,68,68,0.24); color: #dc2626; }
+    .action-btn.danger:hover { background: rgba(239,68,68,0.08); }
+    .table-empty { text-align: center; padding: 3rem 1rem; color: var(--txt4); font-size: 0.82rem; }
 
     /* ── MODAL ── */
     .modal-overlay {
-      position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.72);
+      position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.4);
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       display: flex; align-items: center; justify-content: center; padding: 1rem;
       opacity: 0; visibility: hidden; transition: all 0.25s;
     }
     .modal-overlay.open { opacity: 1; visibility: visible; }
     .modal-box {
-      background: #130f2a; border: 1.5px solid var(--border2); border-radius: 18px; padding: 1.6rem;
+      background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 18px; padding: 1.6rem;
       width: 100%; max-width: 540px; max-height: 88vh; overflow-y: auto;
       transform: scale(0.94) translateY(10px); transition: transform 0.25s; position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,.12), 0 4px 16px rgba(0,0,0,.06);
     }
     .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-    .modal-title { font-size: 1.02rem; font-weight: 800; margin-bottom: 1.1rem; }
+    .modal-title { font-size: 1.02rem; font-weight: 800; margin-bottom: 1.1rem; color: var(--txt); }
     .modal-close {
       position: absolute; top: 0.9rem; right: 0.9rem;
-      background: rgba(124,92,252,0.13); border: 1px solid var(--border2);
+      background: color-mix(in srgb, var(--v1) 8%, transparent); border: 1px solid var(--border2);
       border-radius: 50%; width: 28px; height: 28px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--v1); font-size: 0.85rem; transition: background 0.18s;
     }
-    .modal-close:hover { background: rgba(124,92,252,0.28); }
+    .modal-close:hover { background: color-mix(in srgb, var(--v1) 18%, transparent); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
     .f-group { margin-bottom: 0.9rem; }
     .f-group label { display: block; font-size: 0.73rem; font-weight: 600; color: var(--txt3); margin-bottom: 0.28rem; }
     .f-group input, .f-group select, .f-group textarea {
-      width: 100%; background: var(--panel2); border: 1.5px solid var(--border); border-radius: var(--r2);
+      width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r2);
       padding: 0.56rem 0.78rem; color: var(--txt); font-size: 0.82rem;
-      outline: none; font-family: inherit; transition: border-color 0.18s;
+      outline: none; font-family: inherit; transition: border-color 0.18s, box-shadow .18s;
     }
-    .f-group input:focus, .f-group select:focus, .f-group textarea:focus { border-color: rgba(155,143,255,0.55); }
-    .f-group select option { background: #130f2a; }
+    .f-group input:focus, .f-group select:focus, .f-group textarea:focus {
+      border-color: var(--border2);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--v1) 8%, transparent);
+    }
+    .f-group select option { background: var(--bg2); }
     .f-group textarea { resize: vertical; min-height: 76px; }
     .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.1rem; flex-wrap: wrap; }
 
@@ -346,93 +460,276 @@
 
   <div class="nav-scroll">
   <nav>
+    <!-- OVERVIEW -->
     <div class="nav-section">
       <div class="nav-label">Overview</div>
       <div class="nav-item active" data-section="dashboard">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="2" y="2" width="7" height="7" rx="1.5"/>
+            <rect x="11" y="2" width="7" height="7" rx="1.5"/>
+            <rect x="2" y="11" width="7" height="7" rx="1.5"/>
+            <rect class="adm-pulse" x="11" y="11" width="7" height="7" rx="1.5" style="animation-duration:2s"/>
+          </svg>
+        </span>
+        Dashboard
       </div>
     </div>
+
+    <!-- MANAGEMENT -->
     <div class="nav-section">
       <div class="nav-label">Management</div>
       <div class="nav-item" data-section="courses">
-        <span class="nav-icon">📚</span> Courses
+        <span class="nav-icon cyan">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path class="adm-bob" d="M3 5h14M3 10h14M3 15h8" style="animation-duration:3s"/>
+            <circle cx="16" cy="15" r="2.5" fill="none"/>
+            <path class="adm-slide" d="M15 14.4l1 .9 2-2" stroke-width="1.4" style="animation-duration:2.4s"/>
+          </svg>
+        </span>
+        Courses
       </div>
       <div class="nav-item" data-section="categories">
-        <span class="nav-icon">🗂</span> Categories
+        <span class="nav-icon sky">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="2" y="2" width="6.5" height="6.5" rx="1.2"/>
+            <rect x="11.5" y="2" width="6.5" height="6.5" rx="1.2"/>
+            <rect x="2" y="11.5" width="6.5" height="6.5" rx="1.2"/>
+            <rect class="adm-spin" x="11.5" y="11.5" width="6.5" height="6.5" rx="1.2" style="animation-duration:10s"/>
+          </svg>
+        </span>
+        Categories
       </div>
       <div class="nav-item" data-section="users">
-        <span class="nav-icon">👥</span> Users
-        <span class="badge" id="users-badge" style="background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;">0</span>
+        <span class="nav-icon indigo">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="8" cy="6" r="2.8"/>
+            <path d="M2 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+            <circle class="adm-pulse" cx="15" cy="7" r="2" style="animation-duration:1.8s"/>
+          </svg>
+        </span>
+        Users
+        <span class="badge" id="users-badge" style="display:none">0</span>
       </div>
       <div class="nav-item" data-section="mentors">
-        <span class="nav-icon">👨‍🏫</span> Mentors
-        <span class="badge" id="mentor-badge" style="background:rgba(239,68,68,.18);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;">0</span>
+        <span class="nav-icon emerald">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="10" cy="6" r="3"/>
+            <path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+            <path class="adm-bob" d="M8 3.5Q10 1 12 3.5" style="animation-duration:2.2s"/>
+          </svg>
+        </span>
+        Mentors
+        <span class="badge" id="mentor-badge" style="display:none">0</span>
       </div>
       <div class="nav-item" data-section="enrollments">
-        <span class="nav-icon">📋</span> Enrollments
+        <span class="nav-icon amber">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="3" y="2" width="14" height="17" rx="2"/>
+            <path d="M7 7h6M7 11h4"/>
+            <path class="adm-slide" d="M7 15h2.5l4-3" stroke-width="1.4" style="animation-duration:2.6s"/>
+          </svg>
+        </span>
+        Enrollments
       </div>
       <div class="nav-item" data-section="batches">
-        <span class="nav-icon">👨‍👩‍👧‍👦</span> Batches
+        <span class="nav-icon sky">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="5.5" cy="9" r="2.5"/>
+            <circle cx="14.5" cy="9" r="2.5"/>
+            <circle class="adm-pulse" cx="10" cy="7" r="2.5" style="animation-duration:2s"/>
+            <path d="M2 17c0-2.2 1.6-4 3.5-4M18 17c0-2.2-1.6-4-3.5-4M6.5 17c0-1.9 1.6-3.5 3.5-3.5s3.5 1.6 3.5 3.5"/>
+          </svg>
+        </span>
+        Batches
       </div>
       <div class="nav-item" data-section="internships">
-        <span class="nav-icon">📁</span> Projects
+        <span class="nav-icon indigo">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path class="adm-bob" d="M2 6.5C2 5.7 2.7 5 3.5 5h13c.8 0 1.5.7 1.5 1.5v9c0 .8-.7 1.5-1.5 1.5h-13C2.7 17 2 16.3 2 15.5v-9z" style="animation-duration:2.8s"/>
+            <path d="M7 5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/>
+            <path d="M2 10h16"/>
+            <path class="adm-blink" d="M8 10v1.5h4V10" style="animation-duration:2s"/>
+          </svg>
+        </span>
+        Projects
       </div>
       <div class="nav-item" data-section="internships-mgmt">
-        <span class="nav-icon">🎓</span> Internships
-        <span class="badge" id="intern-badge" style="display:none;background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;">0</span>
+        <span class="nav-icon amber">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M10 2L12.5 7.5H18l-4.5 3.5 1.7 5.5L10 13.8l-5.2 2.7 1.7-5.5L2 7.5h5.5L10 2z"/>
+            <circle class="adm-pulse" cx="10" cy="10" r="1.5" fill="currentColor" stroke="none" style="animation-duration:1.6s"/>
+          </svg>
+        </span>
+        Internships
+        <span class="badge" id="intern-badge" style="display:none;background:rgba(245,158,11,.85);color:#fff">0</span>
+      </div>
+      <div class="nav-item" data-section="project-requirements">
+        <span class="nav-icon rose">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="2" y="4" width="16" height="13" rx="2"/>
+            <path d="M6 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/>
+            <path class="adm-slide" d="M6 9h8M6 13h5" style="animation-duration:3s"/>
+            <circle class="adm-pulse" cx="15" cy="13" r="1.2" fill="currentColor" stroke="none" style="animation-duration:1.8s"/>
+          </svg>
+        </span>
+        Client Requests
+        <span class="badge" id="creq-badge" style="display:none;background:rgba(244,63,94,.85);color:#fff">0</span>
       </div>
     </div>
+
+    <!-- FINANCE -->
     <div class="nav-section">
       <div class="nav-label">Finance</div>
       <div class="nav-item" data-section="payments">
-        <span class="nav-icon">💳</span> Payments
+        <span class="nav-icon emerald">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="1.5" y="5" width="17" height="12" rx="2"/>
+            <path d="M1.5 9h17"/>
+            <rect class="adm-blink" x="4" y="12" width="3" height="2" rx="0.5" fill="currentColor" stroke="none" style="animation-duration:2.2s"/>
+            <rect x="9" y="12" width="4" height="2" rx="0.5" fill="none"/>
+          </svg>
+        </span>
+        Payments
       </div>
       <div class="nav-item" data-section="emi">
-        <span class="nav-icon">📅</span> EMI Schedules
+        <span class="nav-icon cyan">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="2" y="3" width="16" height="15" rx="2"/>
+            <path d="M6 3V1M14 3V1M2 8h16"/>
+            <rect class="adm-pulse" x="5" y="11" width="2" height="2" rx=".4" fill="currentColor" stroke="none" style="animation-duration:2s;animation-delay:.3s"/>
+            <rect x="9" y="11" width="2" height="2" rx=".4" fill="none"/>
+            <rect class="adm-pulse" x="13" y="11" width="2" height="2" rx=".4" fill="currentColor" stroke="none" style="animation-duration:2s;animation-delay:.8s"/>
+          </svg>
+        </span>
+        EMI Schedules
       </div>
       <div class="nav-item" data-section="pricing">
-        <span class="nav-icon">💰</span> Fee & Pricing
+        <span class="nav-icon gold">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path class="adm-bob" d="M10 2v2M10 16v2M4.9 4.9l1.4 1.4M13.7 13.7l1.4 1.4M2 10h2M16 10h2M4.9 15.1l1.4-1.4M13.7 6.3l1.4-1.4" style="animation-duration:3s"/>
+            <circle cx="10" cy="10" r="3.5"/>
+          </svg>
+        </span>
+        Fee &amp; Pricing
       </div>
       <div class="nav-item" data-section="discounts">
-        <span class="nav-icon">🏷</span> Discounts
+        <span class="nav-icon rose">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M5 15L15 5"/>
+            <circle cx="6.5" cy="6.5" r="1.5"/>
+            <circle class="adm-pulse" cx="13.5" cy="13.5" r="1.5" style="animation-duration:1.8s"/>
+            <path d="M2 9l-.5-5 5-.5L17 13.5l-4 4L2 9z"/>
+          </svg>
+        </span>
+        Discounts
       </div>
       <div class="nav-item" data-section="referrals">
-        <span class="nav-icon">🎁</span> Referrals
+        <span class="nav-icon indigo">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path class="adm-swing" d="M10 3c0 0-.5 2 0 4s2.5 3 2.5 3" style="animation-duration:2.4s"/>
+            <rect x="7.5" y="10" width="5" height="7" rx="1.5"/>
+            <path d="M5 10h10"/>
+            <circle class="adm-bob" cx="10" cy="3" r="1.5" fill="currentColor" stroke="none" style="animation-duration:2s"/>
+          </svg>
+        </span>
+        Referrals
       </div>
       <div class="nav-item" data-section="reports">
-        <span class="nav-icon">📈</span> Reports
+        <span class="nav-icon emerald">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <polyline points="2,15 7,9 11,12 18,4"/>
+            <rect class="adm-pulse" x="5.5" y="12" width="2" height="4" rx=".5" fill="currentColor" stroke="none" style="animation-duration:2.2s"/>
+            <rect x="9.5" y="10" width="2" height="6" rx=".5" fill="none"/>
+            <rect class="adm-pulse" x="13.5" y="7" width="2" height="9" rx=".5" fill="currentColor" stroke="none" style="animation-duration:2.2s;animation-delay:.6s"/>
+          </svg>
+        </span>
+        Reports
       </div>
     </div>
+
+    <!-- CONTENT -->
     <div class="nav-section">
       <div class="nav-label">Content</div>
       <div class="nav-item" data-section="recordings">
-        <span class="nav-icon">🎬</span> Recordings
+        <span class="nav-icon rose">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="2" y="5" width="12" height="10" rx="2"/>
+            <path class="adm-slide" d="M14 8.5l4-2.5v7l-4-2.5" style="animation-duration:2s"/>
+            <circle class="adm-pulse" cx="8" cy="10" r="2.2" fill="none" style="animation-duration:1.8s"/>
+          </svg>
+        </span>
+        Recordings
       </div>
       <div class="nav-item" data-section="schedules">
-        <span class="nav-icon">📆</span> Class Schedules
+        <span class="nav-icon cyan">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="2" y="4" width="16" height="14" rx="2"/>
+            <path d="M6 4V2M14 4V2M2 9h16"/>
+            <path class="adm-drop" d="M6 13h1M10 13h1M14 13h1" style="animation-duration:2.6s"/>
+          </svg>
+        </span>
+        Class Schedules
       </div>
       <div class="nav-item" data-section="reviews">
-        <span class="nav-icon">⭐</span> Reviews
-        <span class="badge" id="review-badge">0</span>
+        <span class="nav-icon gold">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path class="adm-bob" d="M10 2l2 4.5L17 7l-3.5 3.4.8 4.8L10 13l-4.3 2.2.8-4.8L3 7l5-.5L10 2z" style="animation-duration:3s"/>
+          </svg>
+        </span>
+        Reviews
+        <span class="badge" id="review-badge" style="display:none">0</span>
       </div>
       <div class="nav-item" data-section="forms">
-        <span class="nav-icon">📝</span> Forms
+        <span class="nav-icon sky">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="3" y="2" width="14" height="17" rx="2"/>
+            <path d="M7 7h6M7 10.5h6M7 14h4"/>
+            <path class="adm-slide" d="M13 14h2" style="animation-duration:2.2s"/>
+          </svg>
+        </span>
+        Forms
       </div>
       <div class="nav-item" data-section="inquiries">
-        <span class="nav-icon">💬</span> Inquiries
-        <span class="badge" id="inquiry-badge">0</span>
+        <span class="nav-icon indigo">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M3 4h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6l-4 3V5a1 1 0 0 1 1-1z"/>
+            <path class="adm-pulse" d="M7 9h6M7 12h4" style="animation-duration:2.4s"/>
+          </svg>
+        </span>
+        Inquiries
+        <span class="badge" id="inquiry-badge" style="display:none">0</span>
       </div>
       <div class="nav-item" data-section="feedback">
-        <span class="nav-icon">🗂</span> Feedback
-        <span class="badge" id="feedback-badge">0</span>
+        <span class="nav-icon amber">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M10 11C6.7 11 4 8.8 4 6s2.7-5 6-5 6 2.2 6 5-2.7 5-6 5z"/>
+            <path class="adm-drop" d="M4 11l-2 6 4-2 4 2 4-2 4 2-2-6" style="animation-duration:3s"/>
+          </svg>
+        </span>
+        Feedback
+        <span class="badge" id="feedback-badge" style="display:none">0</span>
       </div>
       <div class="nav-item" data-section="interests">
-        <span class="nav-icon">🔔</span> Interested Users
+        <span class="nav-icon rose">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path class="adm-swing" d="M10 3C7 3 4.5 5 4.5 8c0 4 5.5 9 5.5 9s5.5-5 5.5-9C15.5 5 13 3 10 3z" fill="none" style="animation-duration:2s"/>
+            <circle class="adm-pulse" cx="10" cy="8" r="2" fill="currentColor" stroke="none" style="animation-duration:1.8s"/>
+          </svg>
+        </span>
+        Interested Users
         <span class="badge" id="interest-badge" style="display:none">0</span>
       </div>
       <div class="nav-item" data-section="holidays">
-        <span class="nav-icon">🗓</span> Holidays
-        <span class="badge" id="holiday-badge" style="background:rgba(99,102,241,.18);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);border-radius:50px;padding:.1rem .45rem;font-size:.65rem;font-weight:800;margin-left:auto;display:none">0</span>
+        <span class="nav-icon gold">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle class="adm-bob" cx="10" cy="9" r="4" style="animation-duration:3s"/>
+            <path d="M10 2v1.5M10 15.5V17M2 9H3.5M16.5 9H18M4.4 4.4l1.1 1.1M14.5 14.5l1.1 1.1M4.4 13.6l1.1-1.1M14.5 5.5l1.1-1.1"/>
+            <path class="adm-wave" d="M3 17c1.2-.8 2.5-1.5 4-1.5s2.8.7 4 1.5 2.8 1.5 4 1.5" style="animation-duration:2.4s"/>
+          </svg>
+        </span>
+        Holidays
+        <span class="badge" id="holiday-badge" style="display:none">0</span>
       </div>
     </div>
   </nav>
@@ -447,7 +744,13 @@
       </div>
     </div>
     <div class="nav-item" style="margin-top:0.5rem" onclick="logout()">
-      <span class="nav-icon">🚪</span> Sign Out
+      <span class="nav-icon rose">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M13 3h4a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-4"/>
+          <path class="adm-slide" d="M9 13l4-3-4-3M13 10H3" style="animation-duration:2s"/>
+        </svg>
+      </span>
+      Sign Out
     </div>
   </div>
 </aside>
@@ -470,14 +773,38 @@
     <!-- ===== DASHBOARD ===== -->
     <div class="section active" id="section-dashboard">
       <div class="stats-grid" id="stat-cards">
-        <div class="stat-card" style="cursor:pointer" title="View all users" onclick="navTo('users')"><div class="stat-icon">👥</div><div class="stat-value" id="s-users">—</div><div class="stat-label">Total Users <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
-        <div class="stat-card" style="cursor:pointer" title="View all mentors" onclick="navTo('mentors')"><div class="stat-icon">👨‍🏫</div><div class="stat-value" id="s-mentors">—</div><div class="stat-label">Mentors <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
-        <div class="stat-card" style="cursor:pointer" title="View all courses" onclick="navTo('courses')"><div class="stat-icon">📚</div><div class="stat-value" id="s-courses">—</div><div class="stat-label">Active Courses <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
-        <div class="stat-card" style="cursor:pointer" title="View enrollments" onclick="navTo('enrollments')"><div class="stat-icon">📋</div><div class="stat-value" id="s-enrollments">—</div><div class="stat-label">Enrollments <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
-        <div class="stat-card" style="cursor:pointer" title="View payments" onclick="navTo('payments')"><div class="stat-icon">💰</div><div class="stat-value" id="s-revenue">—</div><div class="stat-label">Total Revenue <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
-        <div class="stat-card" style="cursor:pointer" title="View this month payments" onclick="navTo('payments')"><div class="stat-icon">📆</div><div class="stat-value" id="s-revenue-month">—</div><div class="stat-label">Revenue This Month <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
-        <div class="stat-card" style="cursor:pointer" title="View pending payments" onclick="navTo('payments')"><div class="stat-icon">⚠️</div><div class="stat-value" id="s-pending-pay">—</div><div class="stat-label">Pending Payments <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
-        <div class="stat-card" style="cursor:pointer" title="View inquiries" onclick="navTo('inquiries')"><div class="stat-icon">💬</div><div class="stat-value" id="s-inquiries">—</div><div class="stat-label">Open Inquiries <span style="font-size:.6rem;opacity:.5">↗</span></div></div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#441998" title="View all users" onclick="navTo('users')">
+          <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#441998" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="6" r="2.8"/><path d="M2 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle class="adm-pulse" cx="15" cy="7" r="2" style="animation-duration:1.8s"/></svg></div>
+          <div class="stat-value" id="s-users">—</div><div class="stat-label">Total Users ↗</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#10b981" title="View all mentors" onclick="navTo('mentors')">
+          <div class="stat-icon" style="background:rgba(16,185,129,.1);color:#10b981"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#10b981" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="6" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path class="adm-bob" d="M8 3.5Q10 1 12 3.5" style="animation-duration:2.2s"/></svg></div>
+          <div class="stat-value" style="color:#10b981" id="s-mentors">—</div><div class="stat-label">Mentors ↗</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#06b6d4" title="View all courses" onclick="navTo('courses')">
+          <div class="stat-icon" style="background:rgba(6,182,212,.1);color:#06b6d4"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#06b6d4" stroke-width="1.6" stroke-linecap="round"><path class="adm-bob" d="M3 5h14M3 10h14M3 15h8" style="animation-duration:3s"/><circle cx="16" cy="15" r="2.5" fill="none"/></svg></div>
+          <div class="stat-value" style="color:#06b6d4" id="s-courses">—</div><div class="stat-label">Active Courses ↗</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#f59e0b" title="View enrollments" onclick="navTo('enrollments')">
+          <div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="2" width="14" height="17" rx="2"/><path d="M7 7h6M7 11h4"/><path class="adm-slide" d="M7 15h2.5l4-3" stroke-width="1.4" style="animation-duration:2.6s"/></svg></div>
+          <div class="stat-value" style="color:#f59e0b" id="s-enrollments">—</div><div class="stat-label">Enrollments ↗</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#441998" title="View payments" onclick="navTo('payments')">
+          <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#441998" stroke-width="1.6" stroke-linecap="round"><rect x="1.5" y="5" width="17" height="12" rx="2"/><path d="M1.5 9h17"/><rect class="adm-blink" x="4" y="12" width="3" height="2" rx=".5" fill="#441998" stroke="none" style="animation-duration:2.2s"/></svg></div>
+          <div class="stat-value" id="s-revenue">—</div><div class="stat-label">Total Revenue ↗</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#8b5cf6" title="View this month payments" onclick="navTo('payments')">
+          <div class="stat-icon" style="background:rgba(139,92,246,.1);color:#8b5cf6"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#8b5cf6" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="3" width="16" height="15" rx="2"/><path d="M6 3V1M14 3V1M2 8h16"/><rect class="adm-pulse" x="5" y="11" width="2" height="2" rx=".4" fill="#8b5cf6" stroke="none" style="animation-duration:2s"/></svg></div>
+          <div class="stat-value" style="color:#8b5cf6" id="s-revenue-month">—</div><div class="stat-label">Revenue This Month ↗</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#f43f5e" title="View pending payments" onclick="navTo('payments')">
+          <div class="stat-icon" style="background:rgba(244,63,94,.1);color:#f43f5e"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f43f5e" stroke-width="1.6" stroke-linecap="round"><circle class="adm-pulse" cx="10" cy="10" r="8" style="animation-duration:2s"/><path d="M10 6v4.5M10 14.5v.5"/></svg></div>
+          <div class="stat-value" style="color:#f43f5e" id="s-pending-pay">—</div><div class="stat-label">Pending Payments ↗</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;--stat-c:#06b6d4" title="View inquiries" onclick="navTo('inquiries')">
+          <div class="stat-icon" style="background:rgba(6,182,212,.1);color:#06b6d4"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#06b6d4" stroke-width="1.6" stroke-linecap="round"><path d="M3 4h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6l-4 3V5a1 1 0 0 1 1-1z"/><path class="adm-pulse" d="M7 9h6M7 12h4" style="animation-duration:2.4s"/></svg></div>
+          <div class="stat-value" style="color:#06b6d4" id="s-inquiries">—</div><div class="stat-label">Open Inquiries ↗</div>
+        </div>
       </div>
 
       <!-- Revenue chart -->
@@ -722,11 +1049,11 @@
 
       <!-- Summary stat cards -->
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:.85rem;margin-bottom:1.25rem;">
-        <div class="stat-card"><div class="stat-icon">🎟</div><div class="stat-value" id="ref-codes-count">—</div><div class="stat-label">Total Codes</div></div>
-        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="ref-codes-active">—</div><div class="stat-label">Active Codes</div></div>
-        <div class="stat-card"><div class="stat-icon">🎁</div><div class="stat-value" id="ref-total-count">—</div><div class="stat-label">Total Referrals</div></div>
-        <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="ref-total-points">—</div><div class="stat-label">Points Issued</div></div>
-        <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="ref-top-count">—</div><div class="stat-label">Top Referrer Pts</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg class="adm-bob" width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="7" width="16" height="11" rx="2"/><path d="M6 7c0-2.2 1.8-4 4-4s4 1.8 4 4"/><circle cx="10" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></div><div class="stat-value" id="ref-codes-count">—</div><div class="stat-label">Total Codes</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.1);color:#10b981"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#10b981" stroke-width="1.7" stroke-linecap="round"><path class="adm-swing" d="M4 10l4 4 8-8"/></svg></div><div class="stat-value" id="ref-codes-active">—</div><div class="stat-label">Active Codes</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><svg class="adm-bob" width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"><path d="M10 3c-3.9 0-7 3.1-7 7s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7z"/><path d="M10 3c0 0-2 2-2 5s2 4 2 4"/><path d="M3 10h14"/></svg></div><div class="stat-value" id="ref-total-count">—</div><div class="stat-label">Total Referrals</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(251,191,36,.1);color:#fbbf24"><svg class="adm-pulse" width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#fbbf24" stroke-width="1.6" stroke-linecap="round"><path d="M10 2l2 5.5h5.5l-4.5 3.3 1.7 5.5L10 13.2l-4.7 3.1 1.7-5.5L2.5 7.5H8z"/></svg></div><div class="stat-value" id="ref-total-points">—</div><div class="stat-label">Points Issued</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(168,85,247,.1);color:#a855f7"><svg class="adm-float" width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#a855f7" stroke-width="1.6" stroke-linecap="round"><path d="M10 2l1.5 5h5l-4 3 1.5 5L10 12.5 6 15l1.5-5-4-3h5z"/><circle cx="10" cy="2" r="1" fill="#a855f7" stroke="none"/></svg></div><div class="stat-value" id="ref-top-count">—</div><div class="stat-label">Top Referrer Pts</div></div>
       </div>
 
       <!-- ── TAB: REFERRAL CODES ── -->
@@ -896,10 +1223,10 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="rpt-total-rev">—</div><div class="stat-label">Total Revenue</div></div>
-        <div class="stat-card"><div class="stat-icon">🧾</div><div class="stat-value" id="rpt-total-pay">—</div><div class="stat-label">Total Payments</div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" id="rpt-outstanding">—</div><div class="stat-label">Outstanding</div></div>
-        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" id="rpt-enrollments">—</div><div class="stat-label">Enrollments</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1.5" y="5" width="17" height="12" rx="2"/><path d="M1.5 9h17"/><rect class="adm-blink" x="4" y="12" width="3" height="2" rx=".5" fill="currentColor" stroke="none"/></svg></div><div class="stat-value" id="rpt-total-rev">—</div><div class="stat-label">Total Revenue</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="2" width="14" height="17" rx="2"/><path d="M7 7h6M7 11h4"/><path class="adm-slide" d="M7 15h2.5l4-3" stroke-width="1.4"/></svg></div><div class="stat-value" id="rpt-total-pay">—</div><div class="stat-label">Total Payments</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(244,63,94,.1);color:#f43f5e"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f43f5e" stroke-width="1.6" stroke-linecap="round"><circle class="adm-pulse" cx="10" cy="10" r="8"/><path d="M10 6v4.5M10 14.5v.5"/></svg></div><div class="stat-value" id="rpt-outstanding">—</div><div class="stat-label">Outstanding</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="2" width="14" height="17" rx="2"/><path d="M7 7h6M7 11h4M7 15h4"/></svg></div><div class="stat-value" id="rpt-enrollments">—</div><div class="stat-label">Enrollments</div></div>
       </div>
 
       <div class="charts-grid">
@@ -1239,10 +1566,10 @@
       <!-- Tab: Reports -->
       <div id="forms-tab-reports" style="display:none;">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;" id="form-stats-grid">
-          <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="fstat-total">—</div><div class="stat-label">Total Submissions</div></div>
-          <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="fstat-completed">—</div><div class="stat-label">Completed</div></div>
-          <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" id="fstat-pending">—</div><div class="stat-label">Pending Review</div></div>
-          <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="fstat-today">—</div><div class="stat-label">Today's Submissions</div></div>
+          <div class="stat-card"><div class="stat-icon"><svg class="adm-bob" width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="2" width="12" height="16" rx="2"/><path d="M7 6h6M7 10h6M7 14h4"/></svg></div><div class="stat-value" id="fstat-total">—</div><div class="stat-label">Total Submissions</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.1);color:#10b981"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#10b981" stroke-width="1.7" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path class="adm-swing" d="M6.5 10l2.5 2.5 4.5-4.5"/></svg></div><div class="stat-value" id="fstat-completed">—</div><div class="stat-label">Completed</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><svg class="adm-spin" width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round" style="animation-duration:3s"><path d="M10 3a7 7 0 0 1 6.93 6"/><circle cx="10" cy="10" r="2.5" fill="#f59e0b" stroke="none"/><path d="M10 7v3l2 2" stroke="#fff" stroke-width="1.2"/></svg></div><div class="stat-value" id="fstat-pending">—</div><div class="stat-label">Pending Review</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(99,102,241,.1);color:#6366f1"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#6366f1" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="3" width="16" height="15" rx="2"/><path d="M6 3V1M14 3V1M2 8h16"/><circle class="adm-pulse" cx="10" cy="13" r="1.3" fill="#6366f1" stroke="none" style="animation-duration:1.8s"/></svg></div><div class="stat-value" id="fstat-today">—</div><div class="stat-label">Today's Submissions</div></div>
         </div>
         <div class="table-card">
           <div class="table-header"><h3>Submissions by Form Type</h3><button class="table-btn" onclick="exportFormsCsv()" style="background:var(--v1);color:#fff;border:none;padding:.4rem .9rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;">⬇ Export Report</button></div>
@@ -1471,10 +1798,10 @@
     <div class="section" id="section-holidays">
       <!-- Stats row -->
       <div class="stats-grid" style="margin-bottom:1.25rem">
-        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="hol-total">—</div><div class="stat-label">Total Holidays</div></div>
-        <div class="stat-card"><div class="stat-icon">🎌</div><div class="stat-value" id="hol-national">—</div><div class="stat-label">National</div></div>
-        <div class="stat-card"><div class="stat-icon">🕌</div><div class="stat-value" id="hol-religious">—</div><div class="stat-label">Religious</div></div>
-        <div class="stat-card"><div class="stat-icon">📍</div><div class="stat-value" id="hol-upcoming">—</div><div class="stat-label">Upcoming (30d)</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="3" width="16" height="15" rx="2"/><path d="M6 3V1M14 3V1M2 8h16"/><rect class="adm-pulse" x="5" y="11" width="2" height="2" rx=".4" fill="currentColor" stroke="none"/></svg></div><div class="stat-value" id="hol-total">—</div><div class="stat-label">Total Holidays</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(6,182,212,.1);color:#06b6d4"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#06b6d4" stroke-width="1.6" stroke-linecap="round"><path d="M10 2l2 5h5l-4 3 1.5 5L10 13l-4.5 2 1.5-5L3 7h5z"/></svg></div><div class="stat-value" id="hol-national">—</div><div class="stat-label">National</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"><path class="adm-bob" d="M10 2v2M10 16v2M4.9 4.9l1.4 1.4M13.7 13.7l1.4 1.4M2 10h2M16 10h2" style="animation-duration:3s"/><circle cx="10" cy="10" r="3.5"/></svg></div><div class="stat-value" id="hol-religious">—</div><div class="stat-label">Religious</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(244,63,94,.1);color:#f43f5e"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#f43f5e" stroke-width="1.6" stroke-linecap="round"><circle class="adm-pulse" cx="10" cy="10" r="8" style="animation-duration:2s"/><path d="M10 6v4l2.5 2.5"/></svg></div><div class="stat-value" id="hol-upcoming">—</div><div class="stat-label">Upcoming (30d)</div></div>
       </div>
 
       <div class="table-card">
@@ -1516,6 +1843,64 @@
         </div>
       </div>
     </div><!-- /section-holidays -->
+
+    <!-- ===== CLIENT REQUIREMENTS ===== -->
+    <div class="section" id="section-project-requirements">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Client Project Requirements</h3>
+          <div class="table-actions">
+            <select id="creq-status-filter" onchange="loadClientRequirements()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.34rem .65rem;color:var(--txt);font-size:.77rem;outline:none;font-family:inherit;">
+              <option value="">All Requests</option>
+              <option value="pending">Pending</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="contacted">Contacted</option>
+              <option value="converted">Converted</option>
+            </select>
+            <button class="btn-secondary" onclick="loadClientRequirements()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Domain</th>
+                <th>Project Title</th>
+                <th>Timeline</th>
+                <th>Budget</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="creq-tbody">
+              <tr><td colspan="9" class="table-empty">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detail modal -->
+      <div class="modal-overlay" id="creq-detail-modal">
+        <div class="modal-box" style="max-width:640px">
+          <button class="modal-close" onclick="document.getElementById('creq-detail-modal').classList.remove('open')">✕</button>
+          <div class="modal-title" id="creq-detail-title">Client Requirement</div>
+          <div id="creq-detail-body" style="font-size:.84rem;line-height:1.8;color:var(--txt2)"></div>
+          <div class="modal-actions">
+            <select id="creq-status-update" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.38rem .65rem;color:var(--txt);font-size:.8rem;outline:none;font-family:inherit;">
+              <option value="pending">Pending</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="contacted">Contacted</option>
+              <option value="converted">Converted</option>
+            </select>
+            <button class="btn-primary" onclick="updateCreqStatus()">Update Status</button>
+            <button class="btn-secondary" onclick="document.getElementById('creq-detail-modal').classList.remove('open')">Close</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /section-project-requirements -->
 
     <!-- ===== INTERNSHIPS ===== -->
     <div class="section" id="section-internships">
@@ -2598,6 +2983,7 @@ function loadSection(sec) {
     holidays: loadHolidays,
     internships: loadInternships,
     'internships-mgmt': loadInternshipsMgmt,
+    'project-requirements': loadClientRequirements,
   };
   loaders[sec]?.();
 }
@@ -2984,20 +3370,24 @@ async function loadDashboard() {
   document.getElementById('s-revenue-month').textContent = fmtCurr(revenueThisMonth);
   document.getElementById('s-pending-pay').textContent = pendingPayments;
   document.getElementById('s-inquiries').textContent = openInquiries;
-  // Sidebar badges — always visible even before sections are opened
+  // Sidebar badges — only show when count > 0
   const ubadge = document.getElementById('users-badge');
-  if (ubadge) ubadge.textContent = usersRes.count || 0;
-  // mentor-badge: show total mentor count; pulse red if any pending
+  if (ubadge) { const n = usersRes.count || 0; ubadge.textContent = n; ubadge.style.display = n > 0 ? '' : 'none'; }
   const mbadge = document.getElementById('mentor-badge');
   if (mbadge) {
-    mbadge.textContent = mentorsRes.count || 0;
     const pending = pendingMentorsRes.count || 0;
-    mbadge.style.background = pending > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
-    mbadge.title = pending > 0 ? `${pending} pending approval` : `${mentorsRes.count || 0} total mentors`;
+    mbadge.textContent = pending;
+    mbadge.style.display = pending > 0 ? '' : 'none';
+    mbadge.style.background = 'rgba(239,68,68,.85)';
+    mbadge.title = pending > 0 ? `${pending} pending approval` : '';
   }
-  document.getElementById('review-badge').textContent = pendingReviewsRes.count || 0;
-  document.getElementById('inquiry-badge').textContent = openInquiries;
-  // Holiday badge — upcoming in next 30 days
+  const reviewBadge = document.getElementById('review-badge');
+  if (reviewBadge) { const n = pendingReviewsRes.count || 0; reviewBadge.textContent = n; reviewBadge.style.display = n > 0 ? '' : 'none'; }
+  const inqBadge = document.getElementById('inquiry-badge');
+  if (inqBadge) { inqBadge.textContent = openInquiries; inqBadge.style.display = openInquiries > 0 ? '' : 'none'; }
+  const fbBadge = document.getElementById('feedback-badge');
+  if (fbBadge) { const n = pendingFeedbackRes.count || 0; fbBadge.textContent = n; fbBadge.style.display = n > 0 ? '' : 'none'; }
+  // Holiday badge
   const holBadge = document.getElementById('holiday-badge');
   if (holBadge) {
     const holCount = upcomingHolidaysRes.count || 0;
@@ -3005,6 +3395,12 @@ async function loadDashboard() {
     holBadge.style.display = holCount > 0 ? '' : 'none';
     holBadge.title = `${holCount} holiday${holCount !== 1 ? 's' : ''} in next 30 days`;
   }
+  // Client requirements badge
+  try {
+    const { count: creqCount } = await db.client.from('project_requirements').select('id', { count:'exact', head:true }).eq('status','pending');
+    const creqBadge = document.getElementById('creq-badge');
+    if (creqBadge) { creqBadge.textContent = creqCount || 0; creqBadge.style.display = creqCount > 0 ? '' : 'none'; }
+  } catch (_) {}
 
   const revenueByCourse = {};
   (completedPayments || []).forEach(payment => {
@@ -4157,7 +4553,11 @@ async function loadReviews() {
 async function refreshReviewBadge() {
   const { count } = await db.client.from('reviews').select('id', { count: 'exact', head: true }).eq('is_approved', false);
   const badge = document.getElementById('review-badge');
-  if (badge) badge.textContent = count || 0;
+  if (badge) {
+    const n = count || 0;
+    badge.textContent = n;
+    badge.style.display = n > 0 ? '' : 'none';
+  }
 }
 
 let _currentReviewEdit = null;
@@ -4491,6 +4891,89 @@ function exportInterestCSV() {
   const a    = document.createElement('a');
   a.href = url; a.download = `interested-users-${Date.now()}.csv`;
   a.click(); URL.revokeObjectURL(url);
+}
+
+// ===== CLIENT REQUIREMENTS =====
+let _creqCurrentId = null;
+async function loadClientRequirements() {
+  const tbody = document.getElementById('creq-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading…</td></tr>';
+  const statusFilter = document.getElementById('creq-status-filter')?.value || '';
+
+  try {
+    let query = db.client.from('project_requirements').select('*').order('submitted_at', { ascending: false });
+    if (statusFilter) query = query.eq('status', statusFilter);
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Update badge
+    const { count } = await db.client.from('project_requirements').select('id', { count:'exact', head:true }).eq('status','pending');
+    const badge = document.getElementById('creq-badge');
+    if (badge) { badge.textContent = count || 0; badge.style.display = count > 0 ? '' : 'none'; }
+
+    if (!data || !data.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No client requirements found.</td></tr>';
+      return;
+    }
+
+    const statusColors = { pending:'badge-yellow', reviewed:'badge-blue', contacted:'badge-green', converted:'badge-purple' };
+
+    tbody.innerHTML = data.map(r => `<tr>
+      <td><strong>${escHtml(r.company_name || '—')}</strong><br><span style="font-size:.72rem;color:var(--txt3)">${escHtml(r.contact_phone || '')}</span></td>
+      <td><a href="mailto:${escHtml(r.contact_email || '')}" style="color:var(--v1);text-decoration:none">${escHtml(r.contact_email || '—')}</a></td>
+      <td>${escHtml(r.domain || '—')}</td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(r.project_title || '—')}</td>
+      <td>${escHtml(r.timeline || '—')}</td>
+      <td>${escHtml(r.budget || '—')}</td>
+      <td style="white-space:nowrap">${r.submitted_at ? new Date(r.submitted_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}) : '—'}</td>
+      <td><span class="${statusColors[r.status] || 'badge-gray'}">${r.status || 'pending'}</span></td>
+      <td><div class="action-btns">
+        <button class="action-btn" onclick="viewCreq('${r.id}')">View</button>
+        <button class="action-btn danger" onclick="deleteCreq('${r.id}')">Delete</button>
+      </div></td>
+    </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#dc2626">Error: ${escHtml(err.message)}</td></tr>`;
+  }
+}
+
+async function viewCreq(id) {
+  _creqCurrentId = id;
+  const { data, error } = await db.client.from('project_requirements').select('*').eq('id', id).single();
+  if (error || !data) { alert('Could not load requirement.'); return; }
+  document.getElementById('creq-detail-title').textContent = data.project_title || 'Client Requirement';
+  document.getElementById('creq-status-update').value = data.status || 'pending';
+  document.getElementById('creq-detail-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+      <div><strong style="font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Company</strong><div style="margin-top:.2rem">${escHtml(data.company_name||'—')}</div></div>
+      <div><strong style="font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Contact</strong><div style="margin-top:.2rem"><a href="mailto:${escHtml(data.contact_email||'')}" style="color:var(--v1)">${escHtml(data.contact_email||'—')}</a>${data.contact_phone?`<br>${escHtml(data.contact_phone)}`:''}
+      </div></div>
+      <div><strong style="font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Domain</strong><div style="margin-top:.2rem">${escHtml(data.domain||'—')}</div></div>
+      <div><strong style="font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Timeline</strong><div style="margin-top:.2rem">${escHtml(data.timeline||'—')}</div></div>
+      <div><strong style="font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Tech Stack</strong><div style="margin-top:.2rem">${escHtml(data.tech_stack||'—')}</div></div>
+      <div><strong style="font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Budget</strong><div style="margin-top:.2rem">${escHtml(data.budget||'—')}</div></div>
+    </div>
+    <div><strong style="font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em">Requirements</strong>
+    <div style="margin-top:.4rem;padding:.85rem;background:var(--panel);border-radius:10px;white-space:pre-wrap;line-height:1.75">${escHtml(data.requirements||'—')}</div></div>`;
+  document.getElementById('creq-detail-modal').classList.add('open');
+}
+
+async function updateCreqStatus() {
+  if (!_creqCurrentId) return;
+  const newStatus = document.getElementById('creq-status-update').value;
+  const { error } = await db.client.from('project_requirements').update({ status: newStatus }).eq('id', _creqCurrentId);
+  if (error) { alert('Update failed: ' + error.message); return; }
+  _showAdminToast('Status updated.', 'success');
+  document.getElementById('creq-detail-modal').classList.remove('open');
+  loadClientRequirements();
+}
+
+async function deleteCreq(id) {
+  if (!confirm('Delete this client requirement? This cannot be undone.')) return;
+  const { error } = await db.client.from('project_requirements').delete().eq('id', id);
+  if (error) { alert('Delete failed: ' + error.message); return; }
+  loadClientRequirements();
 }
 
 // ===== HOLIDAYS =====

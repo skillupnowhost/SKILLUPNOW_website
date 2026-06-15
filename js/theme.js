@@ -4,8 +4,8 @@
 
 class ThemeManager {
   constructor() {
-    // Sync with pn-theme (new switcher) or fall back to old 'theme' key, default dark
-    this.currentTheme = localStorage.getItem('pn-theme') || localStorage.getItem('theme') || 'dark';
+    // Sync with pn-theme (new switcher) or fall back to old 'theme' key, default light
+    this.currentTheme = localStorage.getItem('pn-theme') || localStorage.getItem('theme') || 'light';
     this.root = document.documentElement;
     this.toggleButton = null;
     this.init();

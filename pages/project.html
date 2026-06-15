@@ -21,6 +21,7 @@
       --prj-v:      var(--v1, #441998);
       --prj-cyan:   #06b6d4;
       --prj-gold:   #f59e0b;
+      --prj-orange: #f97316;  /* unique vivid orange — distinct from amber */
       --prj-em:     #10b981;
       --prj-rose:   #f43f5e;
       --prj-sky:    #38bdf8;
@@ -576,8 +577,59 @@
        CARDS — Unified grid (matches internship page style)
     ═══════════════════════════════════════════════════════ */
     .prj-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1.5rem; }
-    @media(max-width:600px) { .prj-cards-grid { grid-template-columns:1fr; } }
     .lg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1.6rem; }
+
+    /* ── project-card-tags: wrap to max 2 lines, no horizontal scroll ── */
+    .project-card-tags {
+      display:flex; flex-wrap:wrap; gap:.28rem; margin-bottom:.65rem;
+      overflow:hidden; max-height:3.2rem; /* approx 2 tag lines */
+      align-content:flex-start;
+    }
+    .project-card-tags.allow-wrap { max-height:none; }
+
+    /* ── Horizontal overflow slider for > 3 available projects ── */
+    .prj-overflow-section { grid-column:1/-1; margin-top:.25rem; }
+    .prj-overflow-label {
+      font-size:.72rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase;
+      color:var(--txt3); margin-bottom:.85rem;
+      display:flex; align-items:center; gap:.55rem;
+    }
+    .prj-overflow-label::after {
+      content:''; flex:1; height:1px;
+      background:linear-gradient(90deg, var(--border), transparent);
+    }
+    .prj-overflow-slider {
+      display:flex; gap:1.4rem; overflow-x:auto;
+      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+      padding-bottom:1.1rem;
+      scrollbar-width:thin;
+      scrollbar-color:color-mix(in srgb, var(--prj-v) 32%, transparent) transparent;
+    }
+    .prj-overflow-slider::-webkit-scrollbar { height:4px; }
+    .prj-overflow-slider::-webkit-scrollbar-track { background:transparent; }
+    .prj-overflow-slider::-webkit-scrollbar-thumb {
+      background:color-mix(in srgb, var(--prj-v) 36%, transparent); border-radius:4px;
+    }
+    .prj-overflow-slider .prj-card {
+      flex:0 0 290px; scroll-snap-align:start; min-height:310px;
+    }
+
+    /* ── Mobile: one card at a time snap slider ── */
+    @media(max-width:640px) {
+      .prj-cards-grid {
+        display:flex; overflow-x:auto;
+        scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+        gap:1.1rem; padding-bottom:1.1rem;
+        scrollbar-width:none;
+      }
+      .prj-cards-grid::-webkit-scrollbar { display:none; }
+      .prj-cards-grid .prj-card {
+        flex:0 0 calc(100vw - 3.4rem); scroll-snap-align:center; min-height:300px;
+      }
+      .prj-overflow-slider .prj-card {
+        flex:0 0 calc(100vw - 3.4rem); scroll-snap-align:center;
+      }
+    }
 
     @keyframes cardIn {
       from { opacity:0; transform:translateY(26px) scale(.96); }
@@ -642,11 +694,13 @@
     .prj-cmeta-dur  { color:#a78bfa; background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.18); }
     .prj-card-meta-item svg { flex-shrink:0; animation:metaPulse 2.4s ease-in-out infinite; }
 
-    /* Explore button */
+    /* Explore button — centered */
+    .prj-card-body { display:flex; flex-direction:column; }
     .prj-explore-btn {
       display:inline-flex; align-items:center; gap:.38rem;
       margin-top:.85rem; padding:.58rem 1.1rem; border-radius:10px; font-size:.82rem; font-weight:700;
       color:var(--prj-card-accent,var(--prj-v)); text-decoration:none; width:fit-content;
+      align-self:center;
       background:color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 10%, transparent);
       border:1px solid color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 26%, transparent);
       transition:background .2s, transform .2s, box-shadow .2s;
@@ -1018,6 +1072,59 @@
     /* ═══════════════════════════════════════════════════════
        PROJECT DETAIL MODAL  — Full Redesign
     ═══════════════════════════════════════════════════════ */
+    /* ── Modal: company badge aligned left (not centered) ── */
+    .prj-modal-client-centered { display:flex; justify-content:flex-start; margin:.4rem 0; }
+    .prj-modal-company-badge {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.45rem 1.1rem; border-radius:12px;
+      background:color-mix(in srgb, var(--prj-orange) 10%, transparent);
+      border:1px solid color-mix(in srgb, var(--prj-orange) 28%, transparent);
+      color:var(--prj-orange); font-size:.85rem; font-weight:700;
+      box-shadow:0 0 14px color-mix(in srgb, var(--prj-orange) 12%, transparent);
+    }
+    /* ── Bullet-point features list ── */
+    .prj-modal-outcomes-bullets {
+      list-style:none; margin:.55rem 0 0; padding:0;
+      display:flex; flex-direction:column; gap:.5rem;
+    }
+    .prj-modal-outcomes-bullets li {
+      display:flex; align-items:flex-start; gap:.7rem;
+      font-size:.84rem; color:var(--txt2); line-height:1.6;
+    }
+    .prj-bullet-dot {
+      flex-shrink:0; width:7px; height:7px; border-radius:50%;
+      background:var(--prj-orange); margin-top:.45rem;
+      box-shadow:0 0 7px color-mix(in srgb, var(--prj-orange) 55%, transparent);
+    }
+    /* ── Action area: centered Login to Apply ── */
+    .prj-modal-action-wrap {
+      display:flex; flex-direction:column; align-items:center; gap:.7rem;
+      padding-top:.2rem;
+    }
+    .prj-modal-action-btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:.55rem;
+      padding:.82rem 2.4rem; border-radius:14px; font-size:.95rem; font-weight:700;
+      background:linear-gradient(135deg, var(--prj-v), var(--prj-cyan));
+      color:#fff; border:none; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 18px color-mix(in srgb, var(--prj-v) 36%, transparent);
+      transition:transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s;
+      min-width:180px;
+    }
+    .prj-modal-action-btn:hover {
+      transform:translateY(-3px) scale(1.035);
+      box-shadow:0 12px 32px color-mix(in srgb, var(--prj-v) 50%, transparent);
+    }
+    .prj-modal-login-note-centered {
+      font-size:.76rem; color:var(--txt3); text-align:center;
+    }
+    /* ── Completed project note ── */
+    .prj-modal-completed-note {
+      display:flex; align-items:center; justify-content:center; gap:.55rem;
+      padding:.82rem 1.5rem; border-radius:14px;
+      background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.22);
+      color:var(--prj-em); font-size:.88rem; font-weight:600; text-align:center;
+    }
+
     @keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
     @keyframes modalSlideIn  { from{opacity:0;transform:scale(.86) translateY(36px)} to{opacity:1;transform:none} }
     @keyframes mdGlowPulse   { 0%,100%{opacity:.38} 50%{opacity:.68} }
@@ -1293,6 +1400,110 @@
       .prj-modal { padding:1.2rem 1rem; max-height:92vh; }
       .prj-modal-close { top:.85rem; right:.85rem; }
     }
+
+    /* ═══════════════════════════════════════════════════════
+       CLIENT REQUIREMENTS CTA + MODAL
+    ═══════════════════════════════════════════════════════ */
+    .prj-client-cta-strip {
+      background:linear-gradient(135deg, color-mix(in srgb, var(--prj-v) 8%, transparent), color-mix(in srgb, var(--prj-cyan) 6%, transparent));
+      border-bottom:1px solid color-mix(in srgb, var(--prj-v) 18%, transparent);
+      padding:.85rem 0;
+    }
+    :root[data-theme="light"] .prj-client-cta-strip {
+      background:linear-gradient(135deg, rgba(68,25,152,.06), rgba(6,182,212,.04));
+      border-bottom-color:rgba(68,25,152,.12);
+    }
+    .prj-client-cta-inner {
+      display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    }
+    .prj-client-cta-left {
+      display:flex; align-items:center; gap:.85rem; color:var(--txt2); font-size:.86rem;
+    }
+    .prj-client-cta-left svg { color:var(--prj-v); flex-shrink:0; }
+    .prj-client-cta-left strong { color:var(--txt); font-weight:700; margin-right:.35rem; }
+    .prj-client-cta-btn {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.6rem 1.35rem; border-radius:10px; font-size:.82rem; font-weight:700;
+      background:var(--prj-v); color:#fff; border:none; cursor:pointer; flex-shrink:0;
+      transition:transform .2s, box-shadow .2s; box-shadow:0 4px 16px color-mix(in srgb, var(--prj-v) 35%, transparent);
+    }
+    .prj-client-cta-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px color-mix(in srgb, var(--prj-v) 45%, transparent); }
+
+    /* Modal overlay */
+    @keyframes creqIn { from{opacity:0;transform:translateY(24px) scale(.97)} to{opacity:1;transform:none} }
+    .prj-creq-overlay {
+      position:fixed; inset:0; z-index:2000;
+      background:rgba(0,0,0,.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      display:flex; align-items:center; justify-content:center; padding:1rem;
+      opacity:0; visibility:hidden; transition:opacity .25s, visibility .25s;
+    }
+    .prj-creq-overlay.open { opacity:1; visibility:visible; }
+    .prj-creq-box {
+      background:var(--bg); border:1.5px solid var(--border2);
+      border-radius:22px; padding:2rem; width:100%; max-width:680px;
+      max-height:90vh; overflow-y:auto; position:relative;
+      box-shadow:0 32px 80px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
+      animation:creqIn .32s cubic-bezier(.22,1,.36,1) both;
+    }
+    .prj-creq-close {
+      position:absolute; top:1rem; right:1rem;
+      width:30px; height:30px; border-radius:50%; border:1px solid var(--border2);
+      background:var(--panel); color:var(--txt3); cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .18s, color .18s;
+    }
+    .prj-creq-close:hover { background:var(--panel2); color:var(--txt); }
+    .prj-creq-header {
+      display:flex; align-items:flex-start; gap:1rem; margin-bottom:1.5rem;
+    }
+    .prj-creq-icon {
+      width:52px; height:52px; border-radius:14px; flex-shrink:0;
+      background:color-mix(in srgb, var(--prj-v) 12%, transparent);
+      border:1.5px solid color-mix(in srgb, var(--prj-v) 24%, transparent);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--prj-v);
+    }
+    .prj-creq-title { font-size:1.15rem; font-weight:800; color:var(--txt); margin-bottom:.3rem; }
+    .prj-creq-sub { font-size:.82rem; color:var(--txt3); line-height:1.55; }
+    .prj-creq-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:.85rem;
+    }
+    @media(max-width:560px) { .prj-creq-grid { grid-template-columns:1fr; } }
+    .prj-creq-full { grid-column:1/-1; }
+    .prj-creq-field { display:flex; flex-direction:column; gap:.3rem; }
+    .prj-creq-field label { font-size:.76rem; font-weight:600; color:var(--txt3); }
+    .prj-creq-field .req { color:var(--prj-rose); }
+    .prj-creq-field input, .prj-creq-field select, .prj-creq-field textarea {
+      background:var(--panel); border:1.5px solid var(--border); border-radius:10px;
+      padding:.58rem .82rem; color:var(--txt); font-size:.84rem; outline:none; font-family:inherit;
+      transition:border-color .18s, box-shadow .18s;
+    }
+    .prj-creq-field input:focus, .prj-creq-field select:focus, .prj-creq-field textarea:focus {
+      border-color:color-mix(in srgb, var(--prj-v) 55%, transparent);
+      box-shadow:0 0 0 3px color-mix(in srgb, var(--prj-v) 10%, transparent);
+    }
+    .prj-creq-field select option { background:var(--bg); }
+    .prj-creq-field textarea { resize:vertical; }
+    .prj-creq-field input::placeholder, .prj-creq-field textarea::placeholder { color:var(--txt4,var(--txt3)); opacity:.55; }
+    .prj-creq-actions {
+      display:flex; align-items:center; justify-content:flex-end; gap:.65rem; margin-top:1.35rem; flex-wrap:wrap;
+    }
+    .prj-creq-cancel {
+      padding:.6rem 1.2rem; border-radius:10px; font-size:.82rem; font-weight:600;
+      background:transparent; border:1px solid var(--border2); color:var(--txt3); cursor:pointer;
+      transition:background .18s; font-family:inherit;
+    }
+    .prj-creq-cancel:hover { background:var(--panel); }
+    .prj-creq-submit {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.68rem 1.5rem; border-radius:10px; font-size:.84rem; font-weight:700;
+      background:linear-gradient(135deg, var(--prj-v), var(--prj-cyan));
+      color:#fff; border:none; cursor:pointer; font-family:inherit;
+      transition:transform .2s, box-shadow .2s;
+      box-shadow:0 4px 16px color-mix(in srgb, var(--prj-v) 35%, transparent);
+    }
+    .prj-creq-submit:hover { transform:translateY(-2px); box-shadow:0 8px 24px color-mix(in srgb, var(--prj-v) 45%, transparent); }
+    .prj-creq-submit:disabled { opacity:.6; cursor:not-allowed; transform:none; }
 
     /* ═══════════════════════════════════════════════════════
        SHARED SMALL COMPONENTS
@@ -2141,6 +2352,7 @@
       display:inline-flex; align-items:center; gap:.38rem;
       padding:.58rem 1.1rem; border-radius:10px; font-size:.82rem; font-weight:700;
       color:var(--prj-card-accent, var(--prj-v)); text-decoration:none; width:fit-content;
+      align-self:center;
       background:color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 10%, transparent);
       border:1px solid color-mix(in srgb, var(--prj-card-accent,var(--prj-v)) 26%, transparent);
       transition:background .2s, transform .2s, box-shadow .2s; position:relative; overflow:visible;
@@ -2426,6 +2638,111 @@
   </section>
 
   <!-- ══════════════════════════════════════════════════════════
+       CLIENT REQUIREMENTS CTA STRIP
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="prj-client-cta-strip">
+    <div class="prj-container">
+      <div class="prj-client-cta-inner">
+        <div class="prj-client-cta-left">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          <div>
+            <strong>Have a project idea?</strong>
+            <span>Submit your requirements — our team will reach out within 24 hours.</span>
+          </div>
+        </div>
+        <button class="prj-client-cta-btn" onclick="openClientReqModal()">
+          Submit Requirements
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT REQUIREMENTS MODAL -->
+  <div class="prj-creq-overlay" id="prj-creq-modal" onclick="if(event.target===this)closeClientReqModal()">
+    <div class="prj-creq-box">
+      <button class="prj-creq-close" onclick="closeClientReqModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="prj-creq-header">
+        <div class="prj-creq-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </div>
+        <div>
+          <h2 class="prj-creq-title">Submit Your Project Requirements</h2>
+          <p class="prj-creq-sub">Tell us what you're building — we'll match you with the right team.</p>
+        </div>
+      </div>
+      <form id="prj-creq-form" onsubmit="submitClientReq(event)">
+        <div class="prj-creq-grid">
+          <div class="prj-creq-field">
+            <label>Company / Client Name <span class="req">*</span></label>
+            <input type="text" id="creq-company" placeholder="e.g. Acme Corp" required>
+          </div>
+          <div class="prj-creq-field">
+            <label>Contact Email <span class="req">*</span></label>
+            <input type="email" id="creq-email" placeholder="you@company.com" required>
+          </div>
+          <div class="prj-creq-field">
+            <label>Contact Phone</label>
+            <input type="tel" id="creq-phone" placeholder="+91 98765 43210">
+          </div>
+          <div class="prj-creq-field">
+            <label>Project Domain <span class="req">*</span></label>
+            <select id="creq-domain" required>
+              <option value="">Select domain…</option>
+              <option>FinTech</option>
+              <option>HealthTech</option>
+              <option>EdTech</option>
+              <option>E-Commerce</option>
+              <option>HRTech</option>
+              <option>Real Estate</option>
+              <option>Logistics</option>
+              <option>SaaS / Enterprise</option>
+              <option>Social / Media</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="prj-creq-field prj-creq-full">
+            <label>Project Title / Brief <span class="req">*</span></label>
+            <input type="text" id="creq-title" placeholder="e.g. Customer Portal for Digital Banking" required>
+          </div>
+          <div class="prj-creq-field prj-creq-full">
+            <label>Detailed Requirements <span class="req">*</span></label>
+            <textarea id="creq-desc" rows="4" placeholder="Describe the features, tech preferences, integrations, and any specific goals…" required></textarea>
+          </div>
+          <div class="prj-creq-field">
+            <label>Preferred Tech Stack</label>
+            <input type="text" id="creq-tech" placeholder="e.g. React, Node.js, PostgreSQL">
+          </div>
+          <div class="prj-creq-field">
+            <label>Expected Timeline</label>
+            <select id="creq-timeline">
+              <option value="">Select…</option>
+              <option>1–2 months</option>
+              <option>3–6 months</option>
+              <option>6–12 months</option>
+              <option>Flexible</option>
+            </select>
+          </div>
+          <div class="prj-creq-field prj-creq-full">
+            <label>Budget Range (optional)</label>
+            <input type="text" id="creq-budget" placeholder="e.g. ₹50,000 – ₹2,00,000">
+          </div>
+        </div>
+        <div class="prj-creq-actions">
+          <button type="button" class="prj-creq-cancel" onclick="closeClientReqModal()">Cancel</button>
+          <button type="submit" class="prj-creq-submit" id="creq-submit-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Submit Requirements
+          </button>
+        </div>
+        <div id="creq-msg" style="display:none;margin-top:.85rem;padding:.75rem 1rem;border-radius:10px;font-size:.83rem;"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
        MAIN CONTENT
   ═══════════════════════════════════════════════════════════ -->
   <main>
@@ -2619,25 +2936,93 @@
 
         <!-- Internships CTA Banner — directs to dedicated page -->
         <section class="prj-section">
-          <div style="background:linear-gradient(135deg,rgba(245,158,11,.09) 0%,rgba(16,185,129,.07) 100%);border:1.5px solid rgba(245,158,11,.28);border-radius:24px;padding:2.4rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;position:relative;overflow:hidden;">
-            <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 80% at 90% 50%,rgba(16,185,129,.08),transparent);"></div>
-            <div style="position:relative;z-index:1;display:flex;align-items:center;gap:1.4rem;flex:1;min-width:0;">
-              <div style="width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(16,185,129,.15));border:1.5px solid rgba(245,158,11,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <style>
+            .prj-intern-cta {
+              background:linear-gradient(135deg,rgba(249,115,22,.08) 0%,rgba(16,185,129,.07) 55%,rgba(245,158,11,.06) 100%);
+              border:1.5px solid rgba(249,115,22,.28);
+              border-radius:24px; padding:2.2rem 2.4rem;
+              display:flex; align-items:center; justify-content:space-between;
+              gap:1.8rem; flex-wrap:wrap; position:relative; overflow:hidden;
+            }
+            :root[data-theme="light"] .prj-intern-cta {
+              background:linear-gradient(135deg,rgba(249,115,22,.06) 0%,rgba(16,185,129,.04) 55%,rgba(245,158,11,.04) 100%);
+              border-color:rgba(249,115,22,.22);
+            }
+            .prj-intern-cta::before {
+              content:''; position:absolute; inset:0; pointer-events:none;
+              background:radial-gradient(ellipse 55% 90% at 95% 50%,rgba(16,185,129,.07),transparent);
+            }
+            .prj-intern-cta-body {
+              position:relative; z-index:1;
+              display:flex; align-items:center; gap:1.3rem; flex:1; min-width:0;
+            }
+            .prj-intern-cta-icon {
+              width:56px; height:56px; flex-shrink:0; border-radius:16px;
+              background:linear-gradient(135deg,rgba(249,115,22,.2),rgba(16,185,129,.14));
+              border:1.5px solid rgba(249,115,22,.32);
+              display:flex; align-items:center; justify-content:center;
+            }
+            .prj-intern-cta-title {
+              font-size:1.18rem; font-weight:900; color:var(--txt);
+              margin-bottom:.28rem; letter-spacing:-.022em;
+            }
+            .prj-intern-cta-desc {
+              font-size:.86rem; color:var(--txt2); line-height:1.62; margin:0;
+            }
+            .prj-intern-cta-chips {
+              display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.65rem;
+            }
+            .prj-intern-chip {
+              display:inline-flex; align-items:center; gap:.3rem;
+              padding:.2rem .62rem; border-radius:999px;
+              font-size:.68rem; font-weight:700; letter-spacing:.03em;
+            }
+            .prj-intern-chip-or { background:rgba(249,115,22,.1); color:var(--prj-orange); border:1px solid rgba(249,115,22,.22); }
+            .prj-intern-chip-em { background:rgba(16,185,129,.1); color:var(--prj-em); border:1px solid rgba(16,185,129,.22); }
+            .prj-intern-chip-cy { background:rgba(6,182,212,.1); color:var(--prj-cyan); border:1px solid rgba(6,182,212,.22); }
+            .prj-intern-cta-btn {
+              position:relative; z-index:1; flex-shrink:0;
+              display:inline-flex; align-items:center; gap:.5rem;
+              padding:.82rem 1.75rem; border-radius:14px;
+              background:linear-gradient(135deg,var(--prj-orange),#10b981);
+              color:#fff; font-size:.9rem; font-weight:700;
+              text-decoration:none; white-space:nowrap;
+              box-shadow:0 4px 18px rgba(249,115,22,.32);
+              transition:transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
+            }
+            .prj-intern-cta-btn:hover {
+              transform:translateY(-3px);
+              box-shadow:0 12px 30px rgba(249,115,22,.45);
+            }
+            @media(max-width:640px) {
+              .prj-intern-cta { padding:1.6rem; gap:1.2rem; }
+              .prj-intern-cta-btn { width:100%; justify-content:center; }
+              .prj-intern-cta-icon { width:46px; height:46px; border-radius:13px; }
+              .prj-intern-cta-title { font-size:1.05rem; }
+            }
+          </style>
+          <div class="prj-intern-cta">
+            <div class="prj-intern-cta-body">
+              <div class="prj-intern-cta-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--prj-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <rect class="si-bob" x="2" y="7" width="20" height="14" rx="2"/>
                   <path class="si-slide" d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
                   <line class="si-blink" x1="12" y1="12" x2="12" y2="16"/>
                   <line x1="10" y1="14" x2="14" y2="14"/>
                 </svg>
               </div>
-              <div>
-                <div style="font-size:1.2rem;font-weight:900;color:var(--txt);margin-bottom:.3rem;">Looking for Internships?</div>
-                <div style="font-size:.88rem;color:var(--txt2);line-height:1.6;">Explore structured free &amp; paid internship programmes, apply with a simple form, and earn an industry-recognised certificate.</div>
+              <div style="min-width:0">
+                <div class="prj-intern-cta-title">Looking for Internships?</div>
+                <p class="prj-intern-cta-desc">Explore structured internship programmes — work on real client projects, get expert mentorship, and earn an industry-recognised certificate.</p>
+                <div class="prj-intern-cta-chips">
+                  <span class="prj-intern-chip prj-intern-chip-or">Ongoing</span>
+                  <span class="prj-intern-chip prj-intern-chip-cy">Upcoming</span>
+                  <span class="prj-intern-chip prj-intern-chip-em">Certificate</span>
+                  <span class="prj-intern-chip prj-intern-chip-em">Mentored</span>
+                </div>
               </div>
             </div>
-            <a href="internship" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.8rem;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#10b981);color:#fff;font-size:.9rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:transform .25s,box-shadow .25s;box-shadow:0 4px 18px rgba(245,158,11,.35);"
-              onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 30px rgba(245,158,11,.45)'"
-              onmouseout="this.style.transform='';this.style.boxShadow='0 4px 18px rgba(245,158,11,.35)'">
+            <a href="internship.html" class="prj-intern-cta-btn">
               View Internships
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
@@ -2853,12 +3238,41 @@
     document.getElementById('count-completed').textContent  = completed.length;
 
     try {
-      _renderGrid('prj-available-grid', available,  'available',  ['🚀','No available projects','Check back soon — new projects are added regularly.']);
+      _renderAvailableProjects(available);
       _renderGrid('prj-upcoming-grid',  upcoming,   'upcoming',   ['⏳','No upcoming projects','New projects coming soon. Stay tuned!']);
       _renderGrid('prj-completed-grid', completed,  'completed',  ['🏆','No completed projects yet','Successfully delivered projects will appear here.']);
     } catch (renderErr) {
       console.error('[project] render error:', renderErr);
     }
+  }
+
+  /* ── Available Projects: first 3 as grid; rest in horizontal overflow slider ── */
+  function _renderAvailableProjects(projects) {
+    const el = document.getElementById('prj-available-grid');
+    if (!el) return;
+    if (!projects.length) {
+      el.innerHTML = `<div class="prj-empty" style="grid-column:1/-1"><div class="prj-empty-icon">🚀</div><h3>No available projects</h3><p>Check back soon — new projects are added regularly.</p></div>`;
+      return;
+    }
+
+    const first3 = projects.slice(0, 3);
+    const rest   = projects.slice(3);
+
+    el.innerHTML = first3.map(p => _buildUnifiedCard(p, 'available')).join('');
+
+    if (rest.length) {
+      el.insertAdjacentHTML('beforeend', `
+        <div class="prj-overflow-section">
+          <div class="prj-overflow-label">More available projects</div>
+          <div class="prj-overflow-slider" id="prj-overflow-more">
+            ${rest.map(p => _buildUnifiedCard(p, 'available')).join('')}
+          </div>
+        </div>`);
+    }
+
+    // Staggered entrance for all cards
+    const cards = el.querySelectorAll('.prj-card');
+    cards.forEach((c, i) => setTimeout(() => c.classList.add('prj-card-in'), 60 + i * 80));
   }
 
   /* ── Domain → emoji + brand colors + orbit speed ── */
@@ -3233,7 +3647,7 @@
         ${pillMap[type] || pillMap.available}
       </div>
       <div class="prj-card-body">
-        <div class="prj-card-tags">${renderTags(p)}</div>
+        <div class="prj-card-tags project-card-tags">${renderTags(p)}</div>
         <div class="prj-card-title">${_esc(p.project_name)}</div>
         <p class="prj-card-desc">${_esc(p.description || 'Real-world project experience awaits.')}</p>
         <div class="prj-card-meta">
@@ -3318,31 +3732,36 @@
     if (p.client_name) {
       extraHtml += `<div class="prj-modal-section">
         <div class="prj-modal-section-label">Client / Company</div>
-        <div class="prj-modal-client">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-          ${_esc(p.client_name)}
+        <div class="prj-modal-client-centered">
+          <div class="prj-modal-company-badge">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            ${_esc(p.client_name)}
+          </div>
         </div>
       </div>`;
     }
 
     if (p.learning_outcomes?.length) {
       extraHtml += `<div class="prj-modal-section">
-        <div class="prj-modal-section-label">Learning Outcomes</div>
-        <ul class="prj-modal-outcomes">
-          ${p.learning_outcomes.map(o => `<li>${_esc(o)}</li>`).join('')}
+        <div class="prj-modal-section-label">Key Features &amp; Learning Outcomes</div>
+        <ul class="prj-modal-outcomes-bullets">
+          ${p.learning_outcomes.map(o => `<li>
+            <span class="prj-bullet-dot"></span>
+            <span>${_esc(o)}</span>
+          </li>`).join('')}
         </ul>
       </div>`;
     }
 
     if (p.tasks?.length) {
       extraHtml += `<div class="prj-modal-section">
-        <div class="prj-modal-section-label">Key Tasks</div>
-        <div class="prj-modal-tasks">
-          ${p.tasks.map((t, i) => `<div class="prj-modal-task">
-            <div class="prj-modal-task-num">${i+1}</div>
-            <div>${_esc(typeof t === 'string' ? t : (t.title || t.name || JSON.stringify(t)))}</div>
-          </div>`).join('')}
-        </div>
+        <div class="prj-modal-section-label">Project Deliverables</div>
+        <ul class="prj-modal-outcomes-bullets">
+          ${p.tasks.map(t => `<li>
+            <span class="prj-bullet-dot"></span>
+            <span>${_esc(typeof t === 'string' ? t : (t.title || t.name || JSON.stringify(t)))}</span>
+          </li>`).join('')}
+        </ul>
       </div>`;
     }
 
@@ -3350,7 +3769,13 @@
 
     // Action area
     const actionArea = document.getElementById('md-action-area');
-    if (_prjUser) {
+    const isCompleted = p.project_type === 'completed';
+    if (isCompleted) {
+      actionArea.innerHTML = `<div class="prj-modal-completed-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+        This project has been completed. Applications are now closed.
+      </div>`;
+    } else if (_prjUser) {
       const myAssign = _prjAssignments.find(a => a.project_id === id && a.status === 'active');
       if (myAssign) {
         actionArea.innerHTML = `<div class="prj-alert ok">
@@ -3362,10 +3787,13 @@
       }
     } else {
       actionArea.innerHTML = `
-        <button class="prj-modal-action" onclick="window.profileNav&&window.profileNav.openLoginModal()">
-          Login to Apply
-        </button>
-        <div class="prj-modal-login-note">Already registered? Log in to see your assignment status.</div>`;
+        <div class="prj-modal-action-wrap">
+          <button class="prj-modal-action-btn" onclick="window.profileNav&&window.profileNav.openLoginModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+            Login to Apply
+          </button>
+          <div class="prj-modal-login-note-centered">Already registered? Sign in to check your assignment status.</div>
+        </div>`;
     }
 
     document.getElementById('prj-detail-modal').classList.add('open');
@@ -3833,8 +4261,61 @@
 
   /* Keyboard Escape closes modal */
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePrjModal();
+    if (e.key === 'Escape') { closePrjModal(); closeClientReqModal(); }
   });
+
+  /* ── CLIENT REQUIREMENTS FORM ── */
+  function openClientReqModal() {
+    document.getElementById('prj-creq-modal').classList.add('open');
+  }
+  function closeClientReqModal() {
+    document.getElementById('prj-creq-modal').classList.remove('open');
+    const msg = document.getElementById('creq-msg');
+    if (msg) { msg.style.display = 'none'; }
+  }
+
+  async function submitClientReq(e) {
+    e.preventDefault();
+    const btn = document.getElementById('creq-submit-btn');
+    const msg = document.getElementById('creq-msg');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    const payload = {
+      company_name:  document.getElementById('creq-company').value.trim(),
+      contact_email: document.getElementById('creq-email').value.trim(),
+      contact_phone: document.getElementById('creq-phone').value.trim(),
+      domain:        document.getElementById('creq-domain').value,
+      project_title: document.getElementById('creq-title').value.trim(),
+      requirements:  document.getElementById('creq-desc').value.trim(),
+      tech_stack:    document.getElementById('creq-tech').value.trim(),
+      timeline:      document.getElementById('creq-timeline').value,
+      budget:        document.getElementById('creq-budget').value.trim(),
+      submitted_at:  new Date().toISOString(),
+      status:        'pending'
+    };
+
+    try {
+      const { error } = await _prjSb.from('project_requirements').insert([payload]);
+      if (error) throw error;
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(16,185,129,.1)';
+      msg.style.border = '1px solid rgba(16,185,129,.28)';
+      msg.style.color = 'var(--prj-em)';
+      msg.innerHTML = '✅ <strong>Submitted successfully!</strong> Our team will reach out within 24 hours.';
+      document.getElementById('prj-creq-form').reset();
+      setTimeout(closeClientReqModal, 2800);
+    } catch (err) {
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(244,63,94,.08)';
+      msg.style.border = '1px solid rgba(244,63,94,.24)';
+      msg.style.color = 'var(--prj-rose)';
+      msg.innerHTML = '⚠️ Submission failed. Please email us directly at <strong>skillupnow.in@gmail.com</strong>';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Submit Requirements';
+    }
+  }
 
   /* ============================================================
      BOOT — wait for window.supabaseConfig.client (set by supabase-config.js)
