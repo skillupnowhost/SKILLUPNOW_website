@@ -177,7 +177,7 @@ class SkillUpNowApp {
     paymentLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = 'pages/payment.html';
+        window.location.href = window.location.protocol === 'file:' ? 'pages/payment.html' : '/payment';
       });
     });
   }
@@ -478,7 +478,9 @@ async function submitAdminLogin() {
       await window.supabaseConfig.signOut();
       throw new Error('Access denied. Admin privileges required.');
     }
-    window.location.href = (window.location.pathname.includes('/pages/') ? '' : 'pages/') + 'admin-dashboard.html';
+    window.location.href = window.location.protocol === 'file:'
+      ? (window.location.pathname.includes('/pages/') ? '' : 'pages/') + 'admin-dashboard.html'
+      : '/admin-dashboard';
   } catch (e) {
     if (errEl) { errEl.textContent = e.message || 'Login failed'; errEl.style.display = 'block'; }
     if (btn) { btn.disabled = false; btn.textContent = 'Admin Sign In'; }

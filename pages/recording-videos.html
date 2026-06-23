@@ -1492,12 +1492,37 @@
       return;
     }
 
-    btn.disabled = true; btn.textContent = 'Processing…';
+    btn.disabled = true; btn.textContent = 'Creating order…';
+
+    // Create Razorpay order via Netlify function (required for live mode)
+    let rzpOrderId = null;
+    try {
+      const orderRes = await fetch('/api/create-razorpay-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Math.round(totalAmount * 100), currency: 'INR' }),
+      });
+      const orderData = await orderRes.json();
+      if (orderRes.ok && orderData.id) {
+        rzpOrderId = orderData.id;
+      } else {
+        throw new Error(orderData.error || 'Order creation failed');
+      }
+    } catch (orderErr) {
+      console.error('Order creation failed:', orderErr);
+      btn.disabled = false;
+      btn.textContent = 'Pay ₹' + Number(totalAmount).toLocaleString('en-IN') + ' via Razorpay';
+      _showGateError('Could not create payment order. Please try again or contact support.');
+      return;
+    }
+
+    btn.textContent = 'Processing…';
     try {
       const options = {
         key: 'rzp_live_ILgsSZCZoFMQjO',
-        amount: totalAmount * 100,
+        amount: Math.round(totalAmount * 100),
         currency: 'INR',
+        order_id: rzpOrderId,
         name: 'SkillUpNow',
         description: _gateVideo?.title || 'Course Enrollment',
         image: '../icon/logo.png',

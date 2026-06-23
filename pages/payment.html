@@ -312,7 +312,7 @@ const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digit'
 
 async function init() {
   const { data: { session } } = await db.client.auth.getSession();
-  if (!session) { window.location.href = '../index.html?login=1'; return; }
+  if (!session) { window.location.href = '/?login=1'; return; }
   currentUser = session.user;
 
   // Pre-fill billing info
@@ -435,25 +435,32 @@ async function initiatePayment() {
 
   try {
     if (selectedMethod === 'razorpay' || selectedMethod === 'emi') {
-      // Create Razorpay order via Node.js payment API
+      // Create Razorpay order via Netlify function
       label.innerHTML = '<span class="spinner"></span> Creating order…';
       let rzpOrderId = null;
       try {
-        const orderRes = await fetch('/api/payment/create-order', {
+        const orderRes = await fetch('/api/create-razorpay-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            amount:  payAmount,
+            amount: Math.round(payAmount * 100),
             currency: 'INR',
             receipt: `rcpt_${enrollmentData.id}`,
             notes: { enrollment_id: enrollmentData.id, user_id: currentUser.id },
           }),
         });
         const orderData = await orderRes.json();
-        if (orderData.success && orderData.orderId) rzpOrderId = orderData.orderId;
-        else console.warn('Order creation failed:', orderData.error);
+        if (orderRes.ok && orderData.id) {
+          rzpOrderId = orderData.id;
+        } else {
+          throw new Error(orderData.error || 'Order creation failed');
+        }
       } catch (orderErr) {
-        console.warn('Could not create order:', orderErr);
+        console.error('Order creation failed:', orderErr);
+        btn.disabled = false;
+        label.textContent = 'Pay ' + fmtCurr(payAmount);
+        alert('Could not create payment order. Please try again or contact support.');
+        return;
       }
       label.innerHTML = '<span class="spinner"></span> Processing…';
 
@@ -530,8 +537,8 @@ async function initiatePayment() {
             activated_at:      newDue <= 0 ? new Date().toISOString() : undefined,
           }).eq('id', enrollmentData.id);
 
-          if (payment?.id) window.location.href = `payment.html?invoice=${payment.id}`;
-          else window.location.href = 'profile.html?tab=payments';
+          if (payment?.id) window.location.href = `/payment?invoice=${payment.id}`;
+          else window.location.href = '/profile?tab=payments';
         },
       };
       if (rzpOrderId) options.order_id = rzpOrderId;
@@ -558,7 +565,7 @@ async function initiatePayment() {
         payment_status:       'processing',
       });
       alert('Bank transfer recorded. Admin will verify and activate your access within 24 hours.');
-      window.location.href = 'profile.html?tab=payments';
+      window.location.href = '/profile?tab=payments';
     } else if (selectedMethod === 'cash') {
       await db.client.from('payments').insert({
         student_user_id: currentUser.id,
@@ -570,7 +577,7 @@ async function initiatePayment() {
         payment_status:  'pending',
       });
       alert('Cash payment recorded. Please visit our office with the exact amount.');
-      window.location.href = 'profile.html?tab=payments';
+      window.location.href = '/profile?tab=payments';
     }
   } catch (err) {
     alert('Payment error: ' + err.message);

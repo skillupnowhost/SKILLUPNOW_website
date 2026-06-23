@@ -1,15 +1,37 @@
 [build]
   publish = "."
 
-# Clean URLs: serve /pages/courses → /pages/courses.html
+# 1. /index.html → / (home page special case)
+[[redirects]]
+  from = "/index.html"
+  to   = "/"
+  status = 301
+  force  = true
+
+# 2. /pages/foo.html → /foo (strip folder + extension)
+[[redirects]]
+  from = "/pages/:page.html"
+  to   = "/:page"
+  status = 301
+  force  = true
+
+# 3. /pages/foo → /foo (strip folder prefix)
 [[redirects]]
   from = "/pages/:page"
-  to   = "/pages/:page.html"
-  status = 200
-  force  = false
+  to   = "/:page"
+  status = 301
+  force  = true
 
+# 4. /foo.html → /foo (strip extension)
+[[redirects]]
+  from = "/:page.html"
+  to   = "/:page"
+  status = 301
+  force  = true
+
+# 5. /foo → /pages/foo.html (internal rewrite — only when no static file matches)
 [[redirects]]
   from = "/:page"
-  to   = "/:page.html"
+  to   = "/pages/:page.html"
   status = 200
   force  = false

@@ -1,4 +1,17 @@
-# Netlify clean URL rewrites (200 = internal rewrite, not a redirect)
-# Serve pages without .html extension
-/pages/:page     /pages/:page.html    200
-/:page           /:page.html          200
+# Netlify clean URL rewrites
+# Order matters — first match wins
+
+# 1. Home page special case
+/index.html          /               301!
+
+# 2. Strip /pages/ folder + .html extension
+/pages/:page.html    /:page          301!
+
+# 3. Strip /pages/ folder prefix
+/pages/:page         /:page          301!
+
+# 4. Strip .html extension at root
+/:page.html          /:page          301!
+
+# 5. Serve clean URL from pages/ folder (internal rewrite)
+/:page               /pages/:page.html  200

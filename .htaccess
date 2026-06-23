@@ -1,12 +1,26 @@
 Options -MultiViews
 RewriteEngine On
 
-# Serve .html files without the extension (clean URLs)
+# 1. /index.html → /
+RewriteRule ^index\.html$ / [R=301,L]
+
+# 2. /pages/foo.html → /foo (strip folder + extension)
+RewriteRule ^pages/(.+)\.html$ /$1 [R=301,L]
+
+# 3. /pages/foo → /foo (strip folder prefix)
+RewriteRule ^pages/(.+)$ /$1 [R=301,L]
+
+# 4. /foo.html → /foo (strip .html from any visible URL)
+RewriteCond %{THE_REQUEST} /([^.]+)\.html[\s?]
+RewriteRule ^ /%1 [R=301,L]
+
+# 5. Serve /foo → pages/foo.html (internal rewrite for page routes)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^/.]+)/?$ pages/$1.html [L]
+
+# 6. Fallback: try .html at root level (for index, etc.)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]
-
-# Redirect .html requests to clean URL (strip .html from visible URL)
-RewriteCond %{THE_REQUEST} /([^.]+)\.html[\s?]
-RewriteRule ^ /%1 [R=301,L]

@@ -8,13 +8,13 @@
   <meta name="description" content="Explore SkillUpNow's courses: AWS Cloud, DevOps, AI/ML, Cybersecurity, Full-Stack Web Development, Mobile App Development and more. Live classes, real-world projects, no-cost EMI. Enroll today.">
   <meta name="keywords" content="IT courses Chennai, web development course, app development training, AWS training, DevOps course, AI ML training, Cybersecurity certification, full stack developer course India, mobile app course">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
-  <link rel="canonical" href="https://skillupnowadmin.org/pages/courses.html">
+  <link rel="canonical" href="https://skillupnowadmin.org/courses">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SkillUpNow">
   <meta property="og:title" content="Courses — IT Training, Web & App Development | SkillUpNow">
   <meta property="og:description" content="AWS, DevOps, AI/ML, Cybersecurity, Full-Stack Web Dev, Mobile App courses with live mentorship and no-cost EMI.">
-  <meta property="og:url" content="https://skillupnowadmin.org/pages/courses.html">
+  <meta property="og:url" content="https://skillupnowadmin.org/courses">
   <meta property="og:image" content="https://skillupnowadmin.org/assets/og-image.png">
 
   <meta name="twitter:card" content="summary_large_image">
@@ -27,7 +27,7 @@
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "IT Training Courses — SkillUpNow",
-    "url": "https://skillupnowadmin.org/pages/courses.html",
+    "url": "https://skillupnowadmin.org/courses",
     "description": "Browse all IT training courses at SkillUpNow — Cloud, DevOps, AI/ML, Cybersecurity and more.",
     "provider": {
       "@type": "EducationalOrganization",
@@ -1867,7 +1867,7 @@
     </div>
     <p class="ec-note">You can complete your payment anytime from your <strong>Profile → Payments</strong> tab.</p>
     <div class="ec-actions">
-      <a href="profile.html?tab=learning" class="ec-btn-primary">View My Courses</a>
+      <a href="/profile?tab=learning" class="ec-btn-primary">View My Courses</a>
       <button type="button" class="ec-btn-secondary" onclick="closeEnrollConfirm()">Stay Here</button>
     </div>
   </div>
@@ -2412,7 +2412,7 @@
         <div class="course-footer" style="justify-content:flex-end;">
           <div class="card-actions">
             ${enrolled && !isPending
-              ? `<button type="button" class="btn-enroll enrolled-btn" onclick="event.stopPropagation();window.location.href='profile.html?tab=learning'">View Course →</button>`
+              ? `<button type="button" class="btn-enroll enrolled-btn" onclick="event.stopPropagation();window.location.href='/profile?tab=learning'">View Course →</button>`
               : isPending
                 ? `<button type="button" class="btn-enroll" style="background:linear-gradient(135deg,#f59e0b,#f97316);" onclick="event.stopPropagation();openCourseDetail('${c.id}')">Complete Payment →</button>`
                 : `<button type="button" class="btn-details" onclick="event.stopPropagation();openCourseDetail('${c.id}')">Details</button>
@@ -2564,7 +2564,7 @@
         enrollBtn.textContent = '✓ Already Enrolled — View Course';
         enrollBtn.style.background = 'linear-gradient(135deg,#4ade80,#22d3ee)';
         enrollBtn.style.color = '#0a2a1a';
-        enrollBtn.onclick = () => { window.location.href = 'profile.html?tab=learning'; };
+        enrollBtn.onclick = () => { window.location.href = '/profile?tab=learning'; };
       } else if (existingEnrollStatus === 'pending') {
         // Show the pending notice in Panel 1
         const notice = document.getElementById('em-pending-notice');
@@ -2716,7 +2716,7 @@
       if (existing) {
         closeEnrollModal();
         if (['active', 'completed'].includes(existing.enrollment_status)) {
-          window.location.href = 'profile.html?tab=learning';
+          window.location.href = '/profile?tab=learning';
         } else {
           showEnrollConfirm(selectedCourse.title, selectedTotalAmount);
         }
@@ -2853,15 +2853,17 @@
         enroll = newEnroll;
       }
 
-      // Create server-side Razorpay order (required for live mode signature verification)
+      // Create server-side Razorpay order (required for live mode)
       btn.textContent = 'Creating order…';
       let rzpOrderId = null;
+      const _rzpKey = 'rzp_live_ILgsSZCZoFMQjO';
+      const isLiveKey = _rzpKey.startsWith('rzp_live_');
       try {
         const orderRes = await fetch(
-          'https://kenlnisfhrkgolvxitfc.supabase.co/functions/v1/create-razorpay-order',
+          '/api/create-razorpay-order',
           {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': 'sb_publishable_bn3ALAJLmsKePx3V-NsMBw_ADJ-3S3D' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               amount: Math.round(totalAmount * 100),
               currency: 'INR',
@@ -2874,9 +2876,22 @@
         if (orderRes.ok && orderData.id) {
           rzpOrderId = orderData.id;
         } else {
-          console.warn('Order creation failed, proceeding without order_id:', orderData.error);
+          const errDetail = orderData.error || `HTTP ${orderRes.status}`;
+          console.error('Order creation failed:', errDetail);
+          if (isLiveKey) throw new Error('Could not create payment order. Please try again or contact support.');
         }
       } catch (orderErr) {
+        if (isLiveKey) {
+          btn.disabled = false; btn.innerHTML = _payBtnHtml;
+          const errEl = document.createElement('div');
+          errEl.className = 'em-payment-error';
+          errEl.innerHTML = '<strong>Payment order could not be created.</strong><br>Please check your connection and try again. If the problem persists, contact support.';
+          const existing = btn.parentNode?.querySelector('.em-payment-error');
+          if (existing) existing.remove();
+          btn.parentNode?.insertBefore(errEl, btn.nextSibling);
+          setTimeout(() => errEl.remove(), 10000);
+          return;
+        }
         console.warn('Could not create order, proceeding without order_id:', orderErr);
       }
       btn.textContent = 'Processing…';
@@ -2922,7 +2937,7 @@
             activated_at: new Date().toISOString(),
           }).eq('id', enroll.id);
           closeEnrollModal();
-          window.location.href = 'profile.html?tab=learning&enrolled=' + encodeURIComponent(selectedCourse.title);
+          window.location.href = '/profile?tab=learning&enrolled=' + encodeURIComponent(selectedCourse.title);
         },
       };
       if (rzpOrderId) options.order_id = rzpOrderId;

@@ -420,11 +420,11 @@
         </button>
 
         <div class="divider">or</div>
-        <div class="link-row">Already have an account? <a href="../index.html" onclick="window.profileNav?.openLoginModal?.(); return false;">Sign In</a></div>
+        <div class="link-row">Already have an account? <a href="/" onclick="window.profileNav?.openLoginModal?.(); return false;">Sign In</a></div>
 
         <div class="mentor-link-badge" id="mentor-link">
           <span>🧑‍🏫</span>
-          <span>Becoming a mentor? <a href="mentor-signup.html">Full Mentor Registration →</a></span>
+          <span>Becoming a mentor? <a href="/mentor-signup">Full Mentor Registration →</a></span>
         </div>
       </div>
 
@@ -658,8 +658,8 @@ async function verifyOtp() {
       role: pendingSignup.role, interest: pendingSignup.interest
     });
 
-    if (pendingSignup.role === 'mentor') window.location.href = 'mentor-signup.html';
-    else window.location.href = 'profile.html';
+    if (pendingSignup.role === 'mentor') window.location.href = '/mentor-signup';
+    else window.location.href = '/profile';
   } catch (err) {
     document.getElementById('otp-err-msg').textContent = err.message || 'Invalid code. Please try again.';
     document.getElementById('otp-err-alert').classList.add('show');

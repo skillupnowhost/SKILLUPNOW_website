@@ -1089,6 +1089,58 @@ html, body { overflow-x: hidden; width: 100%; max-width: 100%; }
   .contact-map    { height: 260px !important; }
 }
 
+/* ── Pamphlet / Brochure page ── */
+@media (max-width: 599px) {
+  .pamphlet-hero { padding: 1.8rem 1rem 1.5rem !important; }
+  .pamphlet-hero h1 { font-size: clamp(1.6rem, 7vw, 2.2rem) !important; }
+  .pamphlet-hero p  { font-size: .88rem !important; }
+  .hero-actions { flex-direction: column !important; gap: .6rem !important; }
+  .hero-actions .btn-white,
+  .hero-actions .btn-outline-white { width: 100% !important; text-align: center !important; }
+  .stats-inner { grid-template-columns: repeat(2, 1fr) !important; gap: .5rem !important; padding: 1rem !important; }
+  .stat-item { padding: .5rem !important; }
+  .stat-num  { font-size: 1.4rem !important; }
+  .toolbar { padding: 0 1rem !important; flex-direction: column !important; align-items: flex-start !important; gap: .6rem !important; }
+  .toolbar-right { width: 100% !important; flex-wrap: wrap !important; }
+  .courses-wrap { padding: 0 .75rem !important; margin-bottom: 2rem !important; }
+  .courses-grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
+  .pam-card { min-height: auto !important; }
+  .pam-card-header { min-height: 100px !important; padding: 1rem !important; }
+  .pam-card-body { padding: 1rem !important; }
+  .pam-desc { font-size: .8rem !important; }
+  .mentors-wrap { padding: 0 .75rem !important; margin-bottom: 2.5rem !important; }
+  .mentors-grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
+  .mentor-card { padding: 1.2rem 1rem 1rem !important; border-radius: 16px !important; }
+  .mentor-top { gap: .65rem !important; }
+  .about-wrap { padding: 0 .75rem !important; }
+  .about-inner { grid-template-columns: 1fr !important; }
+  .about-left, .about-right { padding: 1.5rem 1rem !important; }
+  .about-left { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+  .coaching-grid { grid-template-columns: 1fr 1fr !important; gap: .6rem !important; }
+  .why-wrap { padding: 0 .75rem !important; }
+  .why-grid { grid-template-columns: 1fr 1fr !important; gap: .75rem !important; }
+  .why-card { padding: 1rem !important; }
+  .cta-banner { padding: 2rem 1rem !important; }
+  .cta-banner h2 { font-size: 1.5rem !important; }
+  .cta-actions { flex-direction: column !important; gap: .6rem !important; }
+  .cta-actions .btn-white,
+  .cta-actions .btn-outline-white { width: 100% !important; text-align: center !important; }
+  /* Popup */
+  .course-popup-box { max-width: 95vw !important; }
+  .cpop-header { padding: 1.2rem 1rem 1rem !important; }
+  .cpop-title  { font-size: 1.1rem !important; }
+  .cpop-body   { padding: 1rem !important; }
+  .cpop-actions { padding: 1rem !important; flex-direction: column !important; }
+  .cpop-book-btn, .cpop-cancel-btn { width: 100% !important; text-align: center !important; }
+}
+@media (max-width: 399px) {
+  .pamphlet-hero h1 { font-size: 1.5rem !important; }
+  .stats-inner { grid-template-columns: 1fr 1fr !important; }
+  .coaching-grid { grid-template-columns: 1fr !important; }
+  .why-grid { grid-template-columns: 1fr !important; }
+  .mentor-card { padding: 1rem .85rem .85rem !important; }
+}
+
 /* ── Index page: Trust Bar (inline-styled, gap:3rem causes issues on mobile) ── */
 @media (max-width: 767px) {
   /* Trust bar: reduce gap, use 1rem side padding, allow wrapping */

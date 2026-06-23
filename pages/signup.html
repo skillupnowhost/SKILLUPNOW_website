@@ -753,7 +753,7 @@
         </button>
 
         <div class="divider">or</div>
-        <div class="login-link">Already have an account? <a href="../index.html" onclick="window.profileNav?.openLoginModal?.();return false;">Sign In</a></div>
+        <div class="login-link">Already have an account? <a href="/" onclick="window.profileNav?.openLoginModal?.();return false;">Sign In</a></div>
       </div>
 
       <!-- ═══ STEP 2: OTP VERIFICATION ═══ -->
@@ -1443,7 +1443,7 @@ document.addEventListener('DOMContentLoaded', () => {
   (async () => {
     try {
       const { data: { session } } = await db.client.auth.getSession();
-      if (session) window.location.href = 'profile.html';
+      if (session) window.location.href = '/profile';
     } catch (_) {}
   })();
 

@@ -457,7 +457,7 @@ async function submitEmi() {
       },
     });
     showAlert('suc', '✅ EMI application submitted! Admin will review and respond within 24 hours. Check your email for updates.');
-    setTimeout(() => { window.location.href = 'profile.html'; }, 3000);
+    setTimeout(() => { window.location.href = '/profile'; }, 3000);
   } catch (err) {
     showAlert('err', err.message || 'Submission failed.');
   }

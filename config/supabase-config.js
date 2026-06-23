@@ -232,7 +232,7 @@ class SupabaseConfig {
 
   getPasswordResetRedirectUrl() {
     const origin = this.getSiteOrigin();
-    return origin ? `${origin}/pages/reset-password.html` : undefined;
+    return origin ? `${origin}/reset-password` : undefined;
   }
 
   async sendPasswordResetEmail(email, options = {}) {
@@ -2269,6 +2269,85 @@ class SupabaseConfig {
       return { success: true, data };
     } catch (error) {
       console.error('Error marking notification read:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ==================== ADMIN: DELETE PAYMENT ====================
+
+  async adminDeletePayment(paymentId) {
+    try {
+      const { error } = await this.client
+        .from('payments')
+        .delete()
+        .eq('id', paymentId);
+
+      if (error) {
+        const { error: rpcErr } = await this.client.rpc('admin_delete_payment', { target_payment_id: paymentId });
+        if (rpcErr) throw error;
+      }
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ==================== ADMIN: GET ALL PAYMENTS ====================
+
+  async getAllPayments(statusFilter = null, limit = 200) {
+    try {
+      let query = this.client
+        .from('payments')
+        .select('*, user_profiles(full_name, email, phone)')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (statusFilter) query = query.eq('payment_status', statusFilter);
+      const { data, error } = await query;
+      if (error) throw error;
+      return { success: true, data: data || [] };
+    } catch (error) {
+      console.error('Error fetching all payments:', error);
+      return { success: false, data: [], error: error.message };
+    }
+  }
+
+  // ==================== ADMIN: GET PAYMENT STATS ====================
+
+  async getPaymentStats() {
+    try {
+      const { data, error } = await this.client
+        .from('payments')
+        .select('payment_status, amount');
+      if (error) throw error;
+      const all = data || [];
+      const completed = all.filter(p => p.payment_status === 'completed');
+      const pending = all.filter(p => p.payment_status === 'pending');
+      const failed = all.filter(p => p.payment_status === 'failed');
+      return {
+        success: true,
+        total: all.length,
+        completed: completed.length,
+        pending: pending.length,
+        failed: failed.length,
+        revenue: completed.reduce((s, p) => s + (Number(p.amount) || 0), 0),
+        pendingAmount: pending.reduce((s, p) => s + (Number(p.amount) || 0), 0),
+      };
+    } catch (error) {
+      console.error('Error fetching payment stats:', error);
+      return { success: false, total: 0, completed: 0, pending: 0, failed: 0, revenue: 0, pendingAmount: 0 };
+    }
+  }
+
+  // ==================== ADMIN: DELETE USER ====================
+
+  async adminDeleteUser(userId) {
+    try {
+      const { data, error } = await this.client.rpc('admin_delete_user', { target_user_id: userId });
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error deleting user:', error);
       return { success: false, error: error.message };
     }
   }

@@ -1122,7 +1122,7 @@
           <h2 class="pam-rv-title">Real feedback from our learners.</h2>
           <p class="pam-rv-sub">Verified reviews from students who have completed our programmes.</p>
         </div>
-        <a href="reviews.html" class="pam-rv-btn">
+        <a href="reviews" class="pam-rv-btn">
           All Reviews
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -1221,8 +1221,8 @@
     <h2>Ready to Skill Up?</h2>
     <p>Join thousands of learners who have already transformed their careers with SkillUpNow.</p>
     <div class="cta-actions">
-      <a href="quick-registration.html"><button class="btn-white">Start Free Today</button></a>
-      <a href="contact-enquiry.html"><button class="btn-outline-white">Talk to Us</button></a>
+      <a href="quick-registration"><button class="btn-white">Start Free Today</button></a>
+      <a href="contact-enquiry"><button class="btn-outline-white">Talk to Us</button></a>
     </div>
   </section>
 </div>
@@ -1372,12 +1372,8 @@ function populateMentorStrips() {
           const dest = (m.expertise_areas || [])[0] || m.designation || 'Instructor';
           const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
           return `
-          <div class="mentor-mini-av" title="${name}" style="${pic ? '' : 'background:' + prof.grad}">
-            ${pic
-              ? `<img src="${pic}" alt="${name}" loading="lazy"
-                   onerror="this.parentElement.innerHTML='<span>${initials}</span>'">`
-              : `<span>${initials}</span>`
-            }
+          <div class="mentor-mini-av" title="${name}">
+            <img src="../icon/teacher.png" alt="${name}" loading="lazy">
           </div>`;
         }).join('')}
         ${extra > 0 ? `<div class="mentor-mini-av" title="${extra} more" style="background:rgba(124,92,252,.25);font-size:.7rem">+${extra}</div>` : ''}
@@ -1580,10 +1576,7 @@ async function loadMentors() {
     const roleLabel   = m.designation || expertise[0] || 'Instructor';
     const quals       = m.qualifications && m.qualifications !== 'Pending qualification update' ? m.qualifications : null;
 
-    const photoHtml = pic
-      ? `<img class="mentor-icon-photo" src="${pic}" alt="${name}" loading="lazy"
-           onerror="this.outerHTML='<div class=\\"mentor-icon-char\\" style=\\"background:${prof.grad}\\">${prof.emoji}</div>'">`
-      : `<div class="mentor-icon-char" style="background:${prof.grad}">${prof.emoji}</div>`;
+    const photoHtml = `<img class="mentor-icon-photo" src="../icon/teacher.png" alt="${name}" loading="lazy">`;
 
     return `
     <div class="mentor-card" style="animation-delay:${delay}s">
@@ -1630,7 +1623,7 @@ async function loadMentors() {
         ${myBatches.length > 0 ? `<span class="mentor-stat-pill"><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'/></svg> ${myBatches.length} batch${myBatches.length > 1 ? 'es' : ''}</span>` : ''}
       </div>` : ''}
 
-      <button class="mentor-connect" onclick="window.location.href='contact-enquiry.html'">Connect →</button>
+      <button class="mentor-connect" onclick="window.location.href='contact-enquiry'">Connect →</button>
     </div>`;
   }).join('');
   requestAnimationFrame(() => initMentorTilt(document.querySelectorAll('.mentor-card')));
@@ -1769,7 +1762,7 @@ function buildPopupHTML(course, mentors, activeIdx) {
     </div>`}
 
     <div class="cpop-actions">
-      <a href="courses.html?enroll=${course.id}" class="cpop-book-btn">🔒 Book This Course</a>
+      <a href="courses?enroll=${course.id}" class="cpop-book-btn">🔒 Book This Course</a>
       <button type="button" class="cpop-cancel-btn" onclick="closeCoursePopup()">Cancel</button>
     </div>`;
 }
@@ -1790,11 +1783,7 @@ function buildMentorDetail(m) {
       <div class="cpop-mentor-photo-wrap">
         <div class="cpop-mentor-glow"></div>
         <div class="cpop-mentor-ring"></div>
-        ${pic
-          ? `<img class="cpop-mentor-photo" src="${pic}" alt="${name}"
-               onerror="this.outerHTML='<div class=\\"cpop-mentor-initials\\" style=\\"background:${prof.grad}\\">${initials}</div>'">`
-          : `<div class="cpop-mentor-initials" style="background:${prof.grad}">${initials}</div>`
-        }
+        <img class="cpop-mentor-photo" src="../icon/teacher.png" alt="${name}">
       </div>
       <div style="flex:1;min-width:0">
         <div class="cpop-mentor-name">${name}</div>

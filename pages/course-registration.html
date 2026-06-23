@@ -8,13 +8,13 @@
   <meta name="description" content="Register for IT training courses at SkillUpNow — Cloud, DevOps, AI/ML, Cybersecurity and more. Flexible schedule, live mentorship, no-cost EMI available.">
   <meta name="keywords" content="IT course registration, enroll DevOps course, AWS training registration, AI ML course enrollment Chennai">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://skillupnowadmin.org/pages/course-registration.html">
+  <link rel="canonical" href="https://skillupnowadmin.org/course-registration">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SkillUpNow">
   <meta property="og:title" content="Enroll in IT Courses — SkillUpNow">
   <meta property="og:description" content="Register for Cloud, DevOps, AI/ML, and Cybersecurity courses with live mentorship and no-cost EMI.">
-  <meta property="og:url" content="https://skillupnowadmin.org/pages/course-registration.html">
+  <meta property="og:url" content="https://skillupnowadmin.org/course-registration">
   <meta property="og:image" content="https://skillupnowadmin.org/assets/og-image.png">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/main.css">
@@ -228,7 +228,7 @@ const fmtCurr = v => '₹' + Number(v||0).toLocaleString('en-IN');
 
 async function init() {
   const { data: { session } } = await db.client.auth.getSession();
-  if (!session) { window.location.href = '../index.html?login=1'; return; }
+  if (!session) { window.location.href = '/?login=1'; return; }
   const { data: p } = await db.client.from('user_profiles').select('full_name,email,phone,address,date_of_birth,gender').eq('id', session.user.id).single();
   if (p) {
     document.getElementById('r-name').value    = p.full_name||'';
@@ -342,7 +342,7 @@ async function submitRegistration() {
     });
 
     showAlert('suc', '✅ Registration successful! Redirecting to payment…');
-    setTimeout(() => { window.location.href = `payment.html?enrollment=${enroll.id}`; }, 1500);
+    setTimeout(() => { window.location.href = `/payment?enrollment=${enroll.id}`; }, 1500);
   } catch (err) {
     showAlert('err', err.message || 'Registration failed.');
   }

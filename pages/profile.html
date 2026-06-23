@@ -650,6 +650,7 @@
     .class-status.completed { background: rgba(74,222,128,.1); color: #4ade80; border: 1px solid rgba(74,222,128,.2); }
     .class-status.live { background: rgba(248,113,113,.12); color: #f87171; border: 1px solid rgba(248,113,113,.25); animation: pulse .9s ease-in-out infinite alternate; }
     @keyframes pulse { from { opacity: .7; } to { opacity: 1; } }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
   </style>
 </head>
 <body>
@@ -784,18 +785,28 @@
 
       <!-- PAYMENTS -->
       <div class="tab-section" id="tab-payments">
+        <!-- Payment Status Banner -->
+        <div class="pcard" id="pay-status-banner" style="display:none;">
+          <div id="pay-status-banner-content" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;"></div>
+        </div>
         <div class="pcard">
           <div class="pcard-title">Fee Summary</div>
           <div class="stats-grid" style="border-radius:12px;overflow:hidden;margin-bottom:0;">
-            <div class="stat-cell"><span class="stat-val" id="pay-total">₹0</span><div class="stat-lbl">Total Fee</div></div>
-            <div class="stat-cell"><span class="stat-val" id="pay-paid">₹0</span><div class="stat-lbl">Paid</div></div>
-            <div class="stat-cell"><span class="stat-val" id="pay-balance">₹0</span><div class="stat-lbl">Balance</div></div>
+            <div class="stat-cell"><span class="stat-val" id="pay-total">&#8377;0</span><div class="stat-lbl">Total Fee</div></div>
+            <div class="stat-cell"><span class="stat-val" id="pay-paid">&#8377;0</span><div class="stat-lbl">Paid</div></div>
+            <div class="stat-cell">
+              <span class="stat-val" id="pay-balance" style="transition:color .3s;">&#8377;0</span>
+              <div class="stat-lbl">Balance</div>
+            </div>
             <div class="stat-cell"><span class="stat-val" id="pay-count">0</span><div class="stat-lbl">Transactions</div></div>
           </div>
         </div>
         <!-- Pending payments — shown only when due_amount > 0 -->
         <div class="pcard" id="pending-pay-card" style="display:none;">
-          <div class="pcard-title" style="color:#f59e0b;">⏳ Pending Payments</div>
+          <div class="pcard-title" style="color:#f59e0b;display:flex;align-items:center;gap:.5rem;">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;animation:pulse-dot 1.5s ease-in-out infinite;"></span>
+            Pending Payments
+          </div>
           <div id="pending-pay-list"></div>
         </div>
         <div class="pcard">
@@ -803,7 +814,7 @@
           <div style="overflow-x:auto">
             <table class="pay-table">
               <thead><tr><th>Invoice</th><th>Course</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Download</th></tr></thead>
-              <tbody id="payment-history"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--txt4)">Loading…</td></tr></tbody>
+              <tbody id="payment-history"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--txt4)">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -1036,9 +1047,9 @@ document.querySelectorAll('.snav-item[data-tab]').forEach(item => {
 async function init() {
   let tries = 0;
   while (!_db() && tries++ < 20) await new Promise(r => setTimeout(r, 150));
-  if (!_db()) { window.location.href = '../index.html?login=1'; return; }
+  if (!_db()) { window.location.href = '/?login=1'; return; }
   const { data: { session } } = await _db().auth.getSession();
-  if (!session) { window.location.href = '../index.html?login=1'; return; }
+  if (!session) { window.location.href = '/?login=1'; return; }
   currentUser = session.user;
   initRealtimeProfile();
 
@@ -1072,6 +1083,7 @@ function initRealtimeProfile() {
 
   _profileRealtimeChannel = _db().channel('profile-live-updates')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'enrollments', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'payments', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'class_attendance', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'class_sessions' }, refresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'live_recordings' }, refresh)
@@ -1198,8 +1210,51 @@ async function loadPayments(enrollments) {
   document.getElementById('pay-balance').textContent = fmtCurr(totalBal);
   document.getElementById('pay-count').textContent   = (payments || []).length;
 
-  // Show pending payment rows
-  const pendingEnrolls = (enrollments || []).filter(e => e.enrollment_status === 'pending' && (e.due_amount > 0 || e.net_amount > 0));
+  // Color-code balance
+  const balEl = document.getElementById('pay-balance');
+  if (balEl) balEl.style.color = totalBal > 0 ? '#f59e0b' : '#4ade80';
+
+  // Show payment status banner
+  const banner = document.getElementById('pay-status-banner');
+  const bannerContent = document.getElementById('pay-status-banner-content');
+  if (banner && bannerContent) {
+    const pendingPayments = (payments || []).filter(p => p.payment_status === 'pending');
+    if (totalBal > 0 || pendingPayments.length > 0) {
+      banner.style.display = '';
+      banner.style.background = 'rgba(245,158,11,.08)';
+      banner.style.border = '1px solid rgba(245,158,11,.25)';
+      banner.style.borderRadius = '12px';
+      bannerContent.innerHTML = `
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--txt);">You have pending payments</div>
+          <div style="font-size:.78rem;color:var(--txt3);margin-top:.15rem;">
+            Outstanding balance: <strong style="color:#f59e0b">${fmtCurr(totalBal)}</strong>
+            ${pendingPayments.length ? ` &middot; ${pendingPayments.length} pending transaction${pendingPayments.length > 1 ? 's' : ''}` : ''}
+          </div>
+        </div>`;
+    } else if (totalFee > 0) {
+      banner.style.display = '';
+      banner.style.background = 'rgba(74,222,128,.08)';
+      banner.style.border = '1px solid rgba(74,222,128,.2)';
+      banner.style.borderRadius = '12px';
+      bannerContent.innerHTML = `
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(74,222,128,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--txt);">All payments up to date</div>
+          <div style="font-size:.78rem;color:var(--txt3);margin-top:.15rem;">Total paid: <strong style="color:#4ade80">${fmtCurr(totalPaid)}</strong></div>
+        </div>`;
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  // Show pending payment rows — include any enrollment with outstanding balance
+  const pendingEnrolls = (enrollments || []).filter(e => (e.due_amount > 0 || (e.enrollment_status === 'pending' && e.net_amount > 0)));
   const pendingCard = document.getElementById('pending-pay-card');
   if (pendingCard) {
     if (pendingEnrolls.length) {
@@ -1212,7 +1267,7 @@ async function loadPayments(enrollments) {
             <div style="font-weight:700;font-size:.88rem;color:var(--txt2)">${courseTitle}</div>
             <div style="font-size:.75rem;color:var(--txt4);margin-top:.2rem">Balance due: <strong style="color:#f59e0b">${fmtCurr(due)}</strong></div>
           </div>
-          <button class="btn-sm lp-pay-btn" onclick="profilePay('${e.id}',${JSON.stringify(courseTitle).replace(/"/g,'&quot;')},${due})">💳 Pay Now</button>
+          <button class="btn-sm lp-pay-btn" onclick="profilePay('${e.id}',${JSON.stringify(courseTitle).replace(/"/g,'&quot;')},${due})">Pay Now</button>
         </div>`;
       }).join('');
     } else {
@@ -1253,7 +1308,7 @@ async function loadEmi() {
         <div style="font-size:.75rem">${statusIcon[e.schedule_status] || '🕐'} ${e.schedule_status}</div>
       </div>
       ${e.schedule_status === 'pending' || e.schedule_status === 'overdue'
-        ? `<a href="payment.html?emi=${e.id}" style="margin-left:1rem"><button class="btn-sm btn-sm-primary">Pay Now</button></a>` : ''}
+        ? `<a href="/payment?emi=${e.id}" style="margin-left:1rem"><button class="btn-sm btn-sm-primary">Pay Now</button></a>` : ''}
     </div>`).join('');
 }
 
@@ -1916,10 +1971,33 @@ async function profilePay(enrollmentId, courseTitle, amount) {
     showMsg('err', 'Payment gateway not loaded. Please refresh.');
     return;
   }
+
+  // Create Razorpay order via Netlify function (required for live mode)
+  showMsg('info', 'Creating payment order…');
+  let rzpOrderId = null;
+  try {
+    const orderRes = await fetch('/api/create-razorpay-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: Math.round(amount * 100), currency: 'INR', receipt: `rcpt_${enrollmentId}` }),
+    });
+    const orderData = await orderRes.json();
+    if (orderRes.ok && orderData.id) {
+      rzpOrderId = orderData.id;
+    } else {
+      throw new Error(orderData.error || 'Order creation failed');
+    }
+  } catch (orderErr) {
+    console.error('Order creation failed:', orderErr);
+    showMsg('err', 'Could not create payment order. Please try again or contact support.');
+    return;
+  }
+
   const options = {
     key: 'rzp_live_ILgsSZCZoFMQjO',
     amount: Math.round(amount * 100),
     currency: 'INR',
+    order_id: rzpOrderId,
     name: 'SkillUpNow',
     description: courseTitle,
     prefill: {
@@ -1937,6 +2015,8 @@ async function profilePay(enrollmentId, courseTitle, amount) {
           payment_method: 'gateway_link',
           payment_gateway: 'razorpay',
           gateway_payment_id: response.razorpay_payment_id,
+          gateway_order_id: response.razorpay_order_id || null,
+          gateway_signature: response.razorpay_signature || null,
           transaction_reference: response.razorpay_payment_id,
           payment_status: 'completed',
           paid_at: new Date().toISOString(),

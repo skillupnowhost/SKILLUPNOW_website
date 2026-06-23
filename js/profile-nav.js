@@ -7,8 +7,13 @@ class ProfileNavigationManager {
     this.currentUser = null;
     const path = window.location.pathname.replace(/\\/g, '/');
     this.inPages     = path.includes('/pages/');
-    this.rootPfx     = this.inPages ? '../' : '';
-    this.pagesPfx    = this.inPages ? ''    : 'pages/';
+    if (window.location.protocol === 'file:') {
+      this.rootPfx  = this.inPages ? '../' : '';
+      this.pagesPfx = this.inPages ? ''    : 'pages/';
+    } else {
+      this.rootPfx  = '/';
+      this.pagesPfx = '/';
+    }
     this.isAdminPage = path.includes('admin-dashboard') || path.includes('admin-login') || path.includes('admin-signup');
     this.isMentorPage = path.includes('mentor-dashboard');
     this._pendingOtpEmail = null;
@@ -18,12 +23,12 @@ class ProfileNavigationManager {
   }
 
   async init() {
-    // Strip .html extension for clean URLs on all pages
     if (window.location.protocol !== 'file:') {
-      const _p = window.location.pathname;
-      if (_p.endsWith('.html')) {
-        history.replaceState(null, '', _p.replace(/\.html$/, '').replace(/\/index$/, '/') + window.location.search + window.location.hash);
-      }
+      let _p = window.location.pathname;
+      let _changed = false;
+      if (_p.includes('/pages/')) { _p = _p.replace('/pages/', '/'); _changed = true; }
+      if (_p.endsWith('.html'))   { _p = _p.replace(/\.html$/, '').replace(/\/index$/, '/'); _changed = true; }
+      if (_changed) history.replaceState(null, '', _p + window.location.search + window.location.hash);
     }
     this.injectFavicon();
     this.injectNeuralCursor(); // Always inject cursor — including admin and mentor pages
@@ -1932,7 +1937,7 @@ class ProfileNavigationManager {
       err.style.display = 'none';
 
       const fullName = fname + ' ' + lname;
-      const redirectTo = 'https://skillupnowadmin.org/pages/email-verified.html';
+      const redirectTo = 'https://skillupnowadmin.org/email-verified';
 
       try {
         if (!window.supabaseConfig) throw new Error('Auth service not ready. Please refresh and try again.');
@@ -2019,7 +2024,7 @@ class ProfileNavigationManager {
       err.style.display = 'none';
 
       const fullName = fname + ' ' + lname;
-      const redirectTo = 'https://skillupnowadmin.org/pages/email-verified.html';
+      const redirectTo = 'https://skillupnowadmin.org/email-verified';
 
       try {
         if (!window.supabaseConfig) throw new Error('Auth service not ready. Please refresh and try again.');

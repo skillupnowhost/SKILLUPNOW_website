@@ -78,7 +78,7 @@
           "@type": "SearchAction",
           "target": {
             "@type": "EntryPoint",
-            "urlTemplate": "https://skillupnowadmin.org/pages/courses.html?q={search_term_string}"
+            "urlTemplate": "https://skillupnowadmin.org/courses?q={search_term_string}"
           },
           "query-input": "required name=search_term_string"
         }
@@ -738,7 +738,7 @@
           // Clean URL
           history.replaceState(null, '', window.location.pathname);
           setTimeout(function() {
-            window.location.href = 'pages/profile';
+            window.location.href = '/profile';
           }, 1800);
         } catch(err) {
           banner.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
@@ -811,7 +811,7 @@
 
       <div class="hero-actions" style="animation: fadeUp 0.7s 0.3s ease both; margin-bottom: 2.2rem;">
         <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: flex-start; align-items: center;">
-          <a href="pages/courses" class="btn-grad" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 0 28px rgba(124,92,252,0.45), 0 8px 28px rgba(124,92,252,0.28); transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
+          <a href="/courses" class="btn-grad" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 0 28px rgba(124,92,252,0.45), 0 8px 28px rgba(124,92,252,0.28); transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
             onmouseover="this.style.boxShadow='0 0 48px rgba(124,92,252,0.7), 0 12px 40px rgba(124,92,252,0.45)';this.style.transform='translateY(-3px)'"
             onmouseout="this.style.boxShadow='0 0 28px rgba(124,92,252,0.45), 0 8px 28px rgba(124,92,252,0.28)';this.style.transform=''">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
@@ -822,7 +822,7 @@
             </svg>
             Explore More
           </a>
-          <a href="pages/project" class="btn-outline fee-quote-btn" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
+          <a href="/project" class="btn-outline fee-quote-btn" style="min-width: 190px; padding: 1rem 2.2rem; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);"
             onmouseover="this.style.boxShadow='0 0 32px rgba(61,107,255,0.4), 0 8px 28px rgba(61,107,255,0.22)';this.style.transform='translateY(-3px)'"
             onmouseout="this.style.boxShadow='';this.style.transform=''">
             <span class="fq-ico">
@@ -1210,7 +1210,7 @@
         <span style="padding:.25rem .9rem;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.25);border-radius:50px;font-size:.72rem;font-weight:700;color:var(--v1);letter-spacing:.07em;text-transform:uppercase;">Real-World Experience</span>
         <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;color:var(--txt);margin:0;line-height:1.15;">Projects <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">That Matter</span></h2>
         <p style="font-size:.92rem;color:var(--txt3);margin:0;line-height:1.6;">Build production-grade web &amp; mobile apps, earn a certificate, and grow your portfolio with industry mentors.</p>
-        <a href="pages/project" class="btn-outline" style="display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;margin-top:.25rem;">
+        <a href="/project" class="btn-outline" style="display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;margin-top:.25rem;">
           All Projects
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -1241,7 +1241,7 @@
               <span class="hp-chip">8 Weeks</span>
             </div>
           </div>
-          <a href="pages/project" class="hp-btn hp-btn-purple">
+          <a href="/project" class="hp-btn hp-btn-purple">
             Apply Now
             <svg class="hp-arr" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -1267,7 +1267,7 @@
               <span class="hp-chip" style="background:rgba(6,182,212,.08);color:#06b6d4;border-color:rgba(6,182,212,.2);">10 Weeks</span>
             </div>
           </div>
-          <a href="pages/project" class="hp-btn hp-btn-cyan">
+          <a href="/project" class="hp-btn hp-btn-cyan">
             Apply Now
             <svg class="hp-arr" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -1293,7 +1293,7 @@
               <span class="hp-chip" style="background:rgba(245,158,11,.08);color:#f59e0b;border-color:rgba(245,158,11,.2);">6 Weeks</span>
             </div>
           </div>
-          <a href="pages/project" class="hp-btn hp-btn-amber">
+          <a href="/project" class="hp-btn hp-btn-amber">
             <svg class="hp-bell" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             Notify Me
           </a>
@@ -1321,7 +1321,7 @@
               <span class="hp-chip" style="background:rgba(16,185,129,.08);color:#10b981;border-color:rgba(16,185,129,.2);">4–12 Weeks</span>
             </div>
           </div>
-          <a href="pages/project" class="hp-btn hp-btn-green">
+          <a href="/project" class="hp-btn hp-btn-green">
             Explore Projects
             <svg class="hp-arr" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -1383,7 +1383,7 @@
           <span style="display:inline-block;padding:.25rem .9rem;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.25);border-radius:50px;font-size:.72rem;font-weight:700;color:var(--v1);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.7rem;">Web &amp; App Development</span>
           <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;color:var(--txt);margin:0;line-height:1.15;">Courses <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Built to Ship</span></h2>
         </div>
-        <a href="pages/courses" class="btn-outline" style="display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;">
+        <a href="/courses" class="btn-outline" style="display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;">
           View All
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -1433,7 +1433,7 @@
             <div style="width: 1px; height: 36px; background: var(--border);"></div>
             <div style="font-size: .78rem; color: #fbbf24;"><div style="font-weight: 700;">🕐 Ends in</div><div id="offer-timer-1" style="font-size: 1rem; font-weight: 800; font-family: monospace; color: #ef4444;">48:00:00</div></div>
           </div>
-          <a href="pages/contact-enquiry" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem;">Claim Offer →</a>
+          <a href="/contact-enquiry" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem;">Claim Offer →</a>
         </div>
 
         <!-- Offer 2 -->
@@ -1446,7 +1446,7 @@
             <div style="width: 1px; height: 36px; background: var(--border);"></div>
             <div style="font-size: .78rem; color: var(--txt4);"><div style="font-weight: 700; color: #4ade80;">✓ 0% Interest</div><div>6 months plan</div></div>
           </div>
-          <a href="pages/emi-application" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem; background: linear-gradient(135deg, rgba(0,207,238,0.85), rgba(61,107,255,0.85));">Apply for EMI →</a>
+          <a href="/emi-application" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem; background: linear-gradient(135deg, rgba(0,207,238,0.85), rgba(61,107,255,0.85));">Apply for EMI →</a>
         </div>
 
         <!-- Offer 3 -->
@@ -1459,7 +1459,7 @@
             <div style="width: 1px; height: 36px; background: var(--border);"></div>
             <div style="font-size: .78rem; color: var(--txt4);"><div style="font-weight: 700; color: #4ade80;">✓ Unlimited</div><div>referrals allowed</div></div>
           </div>
-          <a href="pages/contact-enquiry" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem; background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(16,185,129,0.85));">Refer Now →</a>
+          <a href="/contact-enquiry" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem; background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(16,185,129,0.85));">Refer Now →</a>
         </div>
 
         <!-- Offer 4 -->
@@ -1472,7 +1472,7 @@
             <div style="width: 1px; height: 36px; background: var(--border);"></div>
             <div style="font-size: .78rem; color: var(--txt4);"><div style="font-weight: 700; color: #a855f7;">✓ Any 2 courses</div><div>choose freely</div></div>
           </div>
-          <a href="pages/courses" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem; background: linear-gradient(135deg, rgba(168,85,247,0.85), rgba(236,72,153,0.85));">View Bundles →</a>
+          <a href="/courses" class="liquid-btn" style="width: 100%; justify-content: center; padding: .85rem; background: linear-gradient(135deg, rgba(168,85,247,0.85), rgba(236,72,153,0.85));">View Bundles →</a>
         </div>
 
       </div>
@@ -1489,7 +1489,7 @@
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem;">
         <!-- Browse Courses -->
-        <a href="pages/courses" class="platform-card">
+        <a href="/courses" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(124,92,252,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
             <div class="platform-icon" style="background: linear-gradient(135deg, var(--v1) 0%, var(--v2) 100%); animation-delay: 0s;">
@@ -1509,7 +1509,7 @@
         </a>
 
         <!-- Fee Enquiry -->
-        <a href="pages/contact-enquiry" class="platform-card">
+        <a href="/contact-enquiry" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(61,107,255,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
             <div class="platform-icon" style="background: linear-gradient(135deg, var(--b1) 0%, var(--b2) 100%); animation-delay: 0.5s;">
@@ -1528,7 +1528,7 @@
         </a>
 
         <!-- Course Registration -->
-        <a href="pages/quick-registration" style="text-decoration: none; display: flex; flex-direction: column; background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r2); padding: 2rem; transition: all 0.35s cubic-bezier(0.4,0,0.2,1); position: relative; overflow: hidden;">
+        <a href="/quick-registration" style="text-decoration: none; display: flex; flex-direction: column; background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r2); padding: 2rem; transition: all 0.35s cubic-bezier(0.4,0,0.2,1); position: relative; overflow: hidden;">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(124,92,252,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
             <div class="platform-icon" style="background: linear-gradient(135deg, #ff8c5a 0%, #ff6b35 100%); animation-delay: 1s;">
@@ -1546,7 +1546,7 @@
         </a>
 
         <!-- EMI Application -->
-        <a href="pages/emi-application" class="platform-card">
+        <a href="/emi-application" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(16,185,129,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
             <div class="platform-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); animation-delay: 1.5s;">
@@ -1566,7 +1566,7 @@
         </a>
 
         <!-- Student Feedback -->
-        <a href="pages/feedback" class="platform-card">
+        <a href="/feedback" class="platform-card">
           <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(59,130,246,0.08), transparent); opacity: 0; transition: opacity 0.35s ease;"></div>
           <div style="position: relative; z-index: 1;">
             <div class="platform-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); animation-delay: 2.5s;">
@@ -1689,7 +1689,7 @@
           <h3 style="font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 700; color: var(--txt); margin-bottom: 1.2rem; line-height: 1.2;">Transfer Your Career With <span style="background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">SkillUpNow</span></h3>
           <p style="font-size: 0.97rem; color: var(--txt3); line-height: 1.8; margin-bottom: 1.5rem;">Founded by seasoned HR leaders and communication coaches, SkillUpNow was built on a simple insight: technical talent alone no longer guarantees career success. The differentiator is how you communicate, collaborate, and lead.</p>
           <p style="font-size: 0.97rem; color: var(--txt3); line-height: 1.8; margin-bottom: 2rem;">Our live cohort model ensures you don't just watch videos — you practice real scenarios, get expert feedback, and build lasting professional habits in a supportive community.</p>
-          <a href="pages/courses" class="btn-grad" style="display: inline-flex; align-items: center; gap: 0.5rem;">Explore Our Courses <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <a href="/courses" class="btn-grad" style="display: inline-flex; align-items: center; gap: 0.5rem;">Explore Our Courses <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
         <div style="display: flex; flex-direction: column; gap: 1.2rem;">
           <div style="background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--r2); padding: 1.4rem 1.6rem; display: flex; align-items: flex-start; gap: 1rem; transition: border-color 0.25s, transform 0.25s;">
@@ -1900,11 +1900,11 @@
         </div>
         <!-- CTA -->
         <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-          <a id="hcm-enroll-link" href="pages/courses" class="btn-grad" style="flex:1;text-align:center;justify-content:center;padding:.9rem 1.5rem;font-size:.95rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;min-width:140px;">
+          <a id="hcm-enroll-link" href="/courses" class="btn-grad" style="flex:1;text-align:center;justify-content:center;padding:.9rem 1.5rem;font-size:.95rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;min-width:140px;">
             Enroll Now
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-          <a href="pages/contact-enquiry" class="btn-outline fee-quote-btn" style="flex:1;text-align:center;justify-content:center;padding:.9rem 1.5rem;font-size:.95rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;min-width:140px;">
+          <a href="/contact-enquiry" class="btn-outline fee-quote-btn" style="flex:1;text-align:center;justify-content:center;padding:.9rem 1.5rem;font-size:.95rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;min-width:140px;">
             <span class="fq-ico">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 2h16v17l-2-1.5L16 19l-2-1.5L12 19l-2-1.5L8 19l-2-1.5L4 19Z"/>
@@ -2155,7 +2155,7 @@
           <h2 class="rv-title">Real learner feedback<br>from our courses.</h2>
           <p class="rv-sub">Verified reviews from students who have completed our programmes.</p>
         </div>
-        <a href="pages/reviews.html" class="rv-explore-btn">
+        <a href="/reviews" class="rv-explore-btn">
           Explore All Reviews
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -2217,7 +2217,7 @@
       <div class="rv-empty" id="rv-empty">
         <div class="rv-empty-icon">💬</div>
         <p>No reviews yet — be the first to share your experience.</p>
-        <a href="pages/feedback.html" class="rv-explore-btn" style="margin-top:.85rem;display:inline-flex;">Write a Review →</a>
+        <a href="/feedback" class="rv-explore-btn" style="margin-top:.85rem;display:inline-flex;">Write a Review →</a>
       </div>
 
       <div class="rv-carousel-outer" id="rv-carousel-outer">
@@ -2846,7 +2846,7 @@
       </div>
       <p style="font-size:.8rem;color:var(--txt3);margin-bottom:1.25rem;">Complete your payment anytime from <strong>Profile → Payments</strong>.</p>
       <div style="display:flex;gap:.65rem;">
-        <a href="pages/profile.html?tab=learning" style="flex:1;padding:.75rem;border-radius:var(--r1);background:var(--grad);color:#fff;font-size:.85rem;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;">View My Courses</a>
+        <a href="/profile?tab=learning" style="flex:1;padding:.75rem;border-radius:var(--r1);background:var(--grad);color:#fff;font-size:.85rem;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;">View My Courses</a>
         <button onclick="hcCloseEnrollConfirm()" style="flex:1;padding:.75rem;border-radius:var(--r1);background:var(--panel);border:1.5px solid var(--border);color:var(--txt3);font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;">Stay Here</button>
       </div>
     </div>
@@ -3662,7 +3662,7 @@
           enrollBtn.textContent = '✓ Already Enrolled — View Course';
           enrollBtn.style.background = 'linear-gradient(135deg,#4ade80,#22d3ee)';
           enrollBtn.style.color = '#0a2a1a';
-          enrollBtn.onclick = () => { window.location.href = 'pages/profile.html?tab=learning'; };
+          enrollBtn.onclick = () => { window.location.href = '/profile?tab=learning'; };
         } else {
           enrollBtn.style.cssText = '';
           enrollBtn.textContent = isLoggedIn ? 'Enroll Now →' : 'Login to Enroll';
@@ -3748,7 +3748,7 @@
         const { data: existing } = await _hcDb().from('enrollments')
           .select('id').eq('student_user_id', user.id).eq('course_id', hcSelectedCourse.id)
           .in('enrollment_status', ['active', 'completed']).maybeSingle();
-        if (existing) { hcCloseEnrollModal(); window.location.href = 'pages/profile.html?tab=learning'; return; }
+        if (existing) { hcCloseEnrollModal(); window.location.href = '/profile?tab=learning'; return; }
 
         const activePricing = (hcSelectedCourse.course_pricing || []).find(p => p.is_active) || hcSelectedCourse.course_pricing?.[0];
         if (!activePricing?.id) { alert('No pricing available. Please contact support.'); btn.disabled = false; btn.textContent = 'Pay Later'; return; }
@@ -3798,11 +3798,46 @@
         }, { onConflict: 'student_user_id,course_id' }).select().single();
         if (enrollErr) throw enrollErr;
 
-        const rzp = new window.Razorpay({
-          key: 'rzp_live_ILgsSZCZoFMQjO', amount: totalAmount * 100, currency: 'INR',
+        // Create server-side Razorpay order (required for live mode)
+        btn.textContent = 'Creating order…';
+        let rzpOrderId = null;
+        try {
+          const orderRes = await fetch(
+            '/api/create-razorpay-order',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                amount: Math.round(totalAmount * 100),
+                currency: 'INR',
+                receipt: `rcpt_${enroll.id}`,
+                notes: { course_id: hcSelectedCourse.id, enrollment_id: enroll.id, user_id: user.id },
+              }),
+            }
+          );
+          const orderData = await orderRes.json();
+          if (orderRes.ok && orderData.id) {
+            rzpOrderId = orderData.id;
+          } else {
+            throw new Error(orderData.error || `Order creation failed (HTTP ${orderRes.status})`);
+          }
+        } catch (orderErr) {
+          console.error('Order creation failed:', orderErr);
+          btn.disabled = false; btn.innerHTML = _payBtnHtml;
+          alert('Could not create payment order. Please try again or contact support.');
+          return;
+        }
+        btn.textContent = 'Processing…';
+
+        const rzpOptions = {
+          key: 'rzp_live_ILgsSZCZoFMQjO', amount: Math.round(totalAmount * 100), currency: 'INR',
+          order_id: rzpOrderId,
           name: 'SkillUpNow', description: hcSelectedCourse.title,
           prefill: { name: user.user_metadata?.full_name || '', email: user.email },
           theme: { color: '#7c6cff' },
+          modal: {
+            ondismiss: () => { btn.disabled = false; btn.innerHTML = _payBtnHtml; }
+          },
           handler: async (response) => {
             const pi = {
               student_user_id: user.id, enrollment_id: enroll.id, course_id: hcSelectedCourse.id,
@@ -3819,9 +3854,10 @@
               paid_amount: totalAmount, due_amount: 0, activated_at: new Date().toISOString(),
             }).eq('id', enroll.id);
             hcCloseEnrollModal();
-            window.location.href = 'pages/profile.html?tab=learning&enrolled=' + encodeURIComponent(hcSelectedCourse.title);
+            window.location.href = '/profile?tab=learning&enrolled=' + encodeURIComponent(hcSelectedCourse.title);
           },
-        });
+        };
+        const rzp = new window.Razorpay(rzpOptions);
         rzp.on('payment.failed', (response) => {
           _hcDb().from('payments').insert({
             student_user_id: user.id, enrollment_id: enroll?.id, course_id: hcSelectedCourse.id,
@@ -3964,9 +4000,9 @@
               </div>
               <div class="hc-actions">
                 ${c._enrollStatus === 'active' || c._enrollStatus === 'completed'
-                  ? `<button class="hc-btn-enrolled" onclick="event.stopPropagation();window.location.href='pages/profile.html?tab=learning'">✓ View Course →</button>`
+                  ? `<button class="hc-btn-enrolled" onclick="event.stopPropagation();window.location.href='/profile?tab=learning'">✓ View Course →</button>`
                   : c._enrollStatus === 'pending'
-                    ? `<button class="hc-btn-pending" onclick="event.stopPropagation();window.location.href='pages/profile.html?tab=payments'">⏳ Complete Payment →</button>`
+                    ? `<button class="hc-btn-pending" onclick="event.stopPropagation();window.location.href='/profile?tab=payments'">⏳ Complete Payment →</button>`
                     : `<button class="hc-btn-details" onclick="event.stopPropagation();hcOpenCourseDetail('${c.id}')">Details</button>
                        <button class="hc-btn-enroll" onclick="event.stopPropagation();hcQuickEnroll('${c.id}')">Enroll →</button>`
                 }
@@ -3977,7 +4013,7 @@
 
         const browseMore = hasMore
           ? `<div style="grid-column:1/-1;text-align:center;padding:.75rem 0 .25rem;">
-               <a href="pages/courses" style="display:inline-flex;align-items:center;gap:.4rem;color:var(--v1);font-size:.85rem;font-weight:700;text-decoration:none;padding:.5rem 1.4rem;border:1.5px solid rgba(124,92,252,.3);border-radius:50px;transition:all .2s;" onmouseover="this.style.background='rgba(124,92,252,.08)'" onmouseout="this.style.background=''">
+               <a href="/courses" style="display:inline-flex;align-items:center;gap:.4rem;color:var(--v1);font-size:.85rem;font-weight:700;text-decoration:none;padding:.5rem 1.4rem;border:1.5px solid rgba(124,92,252,.3);border-radius:50px;transition:all .2s;" onmouseover="this.style.background='rgba(124,92,252,.08)'" onmouseout="this.style.background=''">
                  Browse all courses
                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                </a>
@@ -4024,7 +4060,7 @@
       } catch(e) {
         console.error('loadHomeCoursesSection:', e);
         grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--txt4);font-size:.88rem;">
-          Could not load courses — <a href="pages/courses" style="color:var(--v1);font-weight:600;">Browse all courses →</a>
+          Could not load courses — <a href="/courses" style="color:var(--v1);font-weight:600;">Browse all courses →</a>
         </div>`;
       }
     }
