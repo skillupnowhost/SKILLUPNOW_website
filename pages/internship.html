@@ -1109,7 +1109,8 @@
   ══════════════════════════════════════════ */
 
   // Razorpay key (same as site)
-  const RZP_KEY = 'rzp_live_ILgsSZCZoFMQjO';
+  let RZP_KEY = '';
+  fetch('/api/payment-config').then(r=>r.json()).then(d=>{RZP_KEY=d.key_id||''}).catch(()=>{});
 
   // State
   let currentUser    = null;

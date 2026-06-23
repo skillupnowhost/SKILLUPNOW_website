@@ -995,6 +995,7 @@
               <option value="">All Status</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
               <option value="failed">Failed</option>
               <option value="refunded">Refunded</option>
             </select>
@@ -4214,12 +4215,53 @@ async function generateInvoice(paymentId) {
 }
 
 async function confirmPayment(paymentId) {
-  if (!confirm('Confirm this payment as completed? This will generate an invoice.')) return;
+  if (!confirm('Confirm this payment as completed? This will activate enrollment and send email notification.')) return;
+
+  // Fetch payment details for enrollment update and email
+  const { data: payment, error: fetchErr } = await db.client.from('payments')
+    .select('*, enrollments(id, paid_amount, due_amount, net_amount, enrollment_status, access_status, courses(title)), student_profiles(user_profiles!student_profiles_user_id_fkey(full_name, email))')
+    .eq('id', paymentId).single();
+  if (fetchErr || !payment) { _showAdminToast('Error fetching payment', 'error'); return; }
+
+  // Update payment status
   const { error } = await db.client.from('payments')
     .update({ payment_status: 'completed', paid_at: new Date().toISOString() })
     .eq('id', paymentId);
   if (error) { _showAdminToast('Error: ' + error.message, 'error'); return; }
-  _showAdminToast('✓ Payment confirmed & invoice generated', 'success');
+
+  // Update enrollment: add paid amount, reduce due, activate if fully paid
+  const enrollment = payment.enrollments;
+  if (enrollment) {
+    const amt = Number(payment.amount || 0);
+    const newPaid = (Number(enrollment.paid_amount) || 0) + amt;
+    const newDue = Math.max(0, (Number(enrollment.due_amount) || 0) - amt);
+    const updateData = { paid_amount: newPaid, due_amount: newDue };
+    if (newDue <= 0) {
+      updateData.enrollment_status = 'active';
+      updateData.access_status = 'active';
+      updateData.activated_at = new Date().toISOString();
+    }
+    await db.client.from('enrollments').update(updateData).eq('id', enrollment.id);
+  }
+
+  // Send success email notification
+  const userProfile = payment.student_profiles?.user_profiles;
+  if (userProfile?.email) {
+    fetch('/api/notify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        payment_id: paymentId,
+        user_email: userProfile.email,
+        user_name: userProfile.full_name || '',
+        course_name: enrollment?.courses?.title || '',
+        amount: payment.amount,
+        status: 'completed',
+      }),
+    }).catch(() => {});
+  }
+
+  _showAdminToast('✓ Payment confirmed, enrollment activated & email sent', 'success');
   loadPayments();
 }
 

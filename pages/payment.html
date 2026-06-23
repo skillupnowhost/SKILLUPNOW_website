@@ -300,8 +300,10 @@
 <script src="../config/supabase-config.js"></script>
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
+<script src="../js/payment.js"></script>
 <script>
 const db = new SupabaseConfig();
+const processor = new PaymentProcessor();
 const params = new URLSearchParams(window.location.search);
 const enrollmentId = params.get('enrollment');
 const emiId        = params.get('emi');
@@ -315,7 +317,6 @@ async function init() {
   if (!session) { window.location.href = '/?login=1'; return; }
   currentUser = session.user;
 
-  // Pre-fill billing info
   const { data: profile } = await db.client.from('user_profiles').select('full_name,email,phone').eq('id', session.user.id).single();
   if (profile) {
     document.getElementById('bill-name').value  = profile.full_name || '';
@@ -323,13 +324,13 @@ async function init() {
     document.getElementById('bill-phone').value = profile.phone || '';
   }
 
-  // Invoice view mode
   if (invoiceId) { loadInvoice(invoiceId); return; }
-
-  // Load enrollment / EMI
   if (emiId) { await loadEmiPayment(emiId); }
   else if (enrollmentId) { await loadEnrollment(enrollmentId); }
   else { document.getElementById('order-loading').textContent = 'No order specified. Please enroll from the courses page.'; }
+
+  // Pre-initialize payment processor
+  processor.init().catch(() => {});
 }
 
 async function loadEnrollment(id) {
@@ -378,7 +379,6 @@ function showOrderSummary() {
 
   document.getElementById('pay-btn-label').textContent = `Pay ${fmtCurr(payNow)}`;
 
-  // Build EMI plans from pricing if available
   const pricing = enrollmentData.pricing;
   if (pricing?.emi_installments && pricing.emi_installments > 1 && !emiAmount) {
     const installments = pricing.emi_installments;
@@ -433,141 +433,101 @@ async function initiatePayment() {
     ? Math.ceil(netAmount / selectedEmiMonths)
     : (emiAmt || enrollmentData.due_amount || netAmount);
 
+  const resetBtn = () => {
+    btn.disabled = false;
+    label.textContent = 'Pay ' + fmtCurr(payAmount);
+  };
+
   try {
     if (selectedMethod === 'razorpay' || selectedMethod === 'emi') {
-      // Create Razorpay order via Netlify function
+      // 1. Initialize processor & create order
       label.innerHTML = '<span class="spinner"></span> Creating order…';
-      let rzpOrderId = null;
-      try {
-        const orderRes = await fetch('/api/create-razorpay-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: Math.round(payAmount * 100),
-            currency: 'INR',
-            receipt: `rcpt_${enrollmentData.id}`,
-            notes: { enrollment_id: enrollmentData.id, user_id: currentUser.id },
-          }),
-        });
-        const orderData = await orderRes.json();
-        if (orderRes.ok && orderData.id) {
-          rzpOrderId = orderData.id;
-        } else {
-          throw new Error(orderData.error || 'Order creation failed');
+      await processor.init();
+      const order = await processor.createOrder(
+        Math.round(payAmount * 100),
+        `rcpt_${enrollmentData.id}`,
+        {
+          enrollment_id: enrollmentData.id,
+          user_id: currentUser.id,
+          course_name: courseData?.title || '',
+          student_name: document.getElementById('bill-name').value,
         }
-      } catch (orderErr) {
-        console.error('Order creation failed:', orderErr);
-        btn.disabled = false;
-        label.textContent = 'Pay ' + fmtCurr(payAmount);
-        alert('Could not create payment order. Please try again or contact support.');
-        return;
-      }
-      label.innerHTML = '<span class="spinner"></span> Processing…';
+      );
 
-      const options = {
-        key: 'rzp_live_ILgsSZCZoFMQjO',
-        amount: Math.round(payAmount * 100),
-        currency: 'INR',
-        name: 'SkillUpNow',
-        description: courseData?.title || 'Course Enrollment',
-        image: 'https://skillupnowadmin.org/assets/logo.png',
+      // 2. Open Razorpay checkout
+      label.innerHTML = '<span class="spinner"></span> Opening payment…';
+      processor.openCheckout(order, {
+        courseTitle: courseData?.title || 'Course Enrollment',
         prefill: {
           name: document.getElementById('bill-name').value,
           email: document.getElementById('bill-email').value,
-          contact: document.getElementById('bill-phone').value,
+          phone: document.getElementById('bill-phone').value,
         },
-        theme: { color: '#7c6cff' },
-        modal: {
-          ondismiss: () => {
-            btn.disabled = false;
-            label.textContent = 'Pay ' + fmtCurr(payAmount);
-          }
+        onDismiss: resetBtn,
+        onFailure: (errMsg) => {
+          resetBtn();
+          label.textContent = 'Retry Payment';
+          alert(errMsg);
         },
-        handler: async (response) => {
-          // Verify payment signature server-side before recording
-          if (response.razorpay_order_id && response.razorpay_signature) {
-            try {
-              const verifyRes = await fetch('/api/payment/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  razorpay_order_id:   response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature:  response.razorpay_signature,
-                }),
-              });
-              const verifyData = await verifyRes.json();
-              if (!verifyData.success) {
-                alert('Payment verification failed. Please contact support with ID: ' + response.razorpay_payment_id);
-                btn.disabled = false;
-                label.textContent = 'Retry Payment';
-                return;
-              }
-            } catch (verifyErr) {
-              console.warn('Verification request failed, proceeding with caution:', verifyErr);
+        onSuccess: async (response) => {
+          label.innerHTML = '<span class="spinner"></span> Verifying payment…';
+          try {
+            // 3. Verify payment server-side (records in DB, updates enrollment, sends email)
+            const result = await processor.verifyPayment(response, {
+              enrollment_id: enrollmentData.id,
+              course_id: enrollmentData.course_id,
+              user_id: currentUser.id,
+              amount: payAmount,
+              payment_schedule_id: enrollmentData._paymentScheduleId || null,
+              user_email: document.getElementById('bill-email').value,
+              user_name: document.getElementById('bill-name').value,
+              course_name: courseData?.title || '',
+            });
+
+            // 4. Redirect to invoice
+            if (result.payment_id) {
+              window.location.href = `/payment?invoice=${result.payment_id}`;
+            } else {
+              window.location.href = '/profile?tab=payments';
             }
+          } catch (verifyErr) {
+            alert('Payment verification failed. Please contact support with ID: ' + response.razorpay_payment_id);
+            resetBtn();
+            label.textContent = 'Retry Payment';
           }
-
-          const paymentInsert = {
-            student_user_id:    currentUser.id,
-            course_id:          enrollmentData.course_id,
-            enrollment_id:      enrollmentData.id,
-            payment_schedule_id: enrollmentData._paymentScheduleId || null,
-            amount:             payAmount,
-            payment_method:     'gateway_link',
-            payment_gateway:    'razorpay',
-            payment_status:     'completed',
-            paid_at:            new Date().toISOString(),
-            transaction_reference: response.razorpay_payment_id,
-            gateway_payment_id:  response.razorpay_payment_id,
-          };
-          if (response.razorpay_order_id)  paymentInsert.gateway_order_id  = response.razorpay_order_id;
-          if (response.razorpay_signature) paymentInsert.gateway_signature = response.razorpay_signature;
-
-          const { data: payment } = await db.client.from('payments').insert(paymentInsert).select('id').single();
-
-          // Update enrollment to active
-          const newPaid = (enrollmentData.paid_amount || 0) + payAmount;
-          const newDue  = Math.max(0, (enrollmentData.due_amount || 0) - payAmount);
-          await db.client.from('enrollments').update({
-            enrollment_status: newDue <= 0 ? 'active' : enrollmentData.enrollment_status,
-            access_status:     newDue <= 0 ? 'active' : enrollmentData.access_status,
-            paid_amount:       newPaid,
-            due_amount:        newDue,
-            activated_at:      newDue <= 0 ? new Date().toISOString() : undefined,
-          }).eq('id', enrollmentData.id);
-
-          if (payment?.id) window.location.href = `/payment?invoice=${payment.id}`;
-          else window.location.href = '/profile?tab=payments';
         },
-      };
-      if (rzpOrderId) options.order_id = rzpOrderId;
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (response) => {
-        console.error('Payment failed:', response.error);
-        btn.disabled = false;
-        label.textContent = 'Retry Payment';
-        const errMsg = response.error?.description || response.error?.reason || 'Payment was declined. Please try again.';
-        alert(errMsg);
       });
-      rzp.open();
+
     } else if (selectedMethod === 'bank') {
       const utr = document.getElementById('utr-ref').value.trim();
-      if (!utr) { alert('Please enter the UTR/Transaction reference number.'); return; }
-      await db.client.from('payments').insert({
-        student_user_id:      currentUser.id,
-        course_id:            enrollmentData.course_id,
-        enrollment_id:        enrollmentData.id,
-        amount:               payAmount,
-        payment_method:       'bank_transfer',
-        payment_gateway:      'manual',
+      if (!utr) { alert('Please enter the UTR/Transaction reference number.'); resetBtn(); return; }
+      const { data: payment } = await db.client.from('payments').insert({
+        student_user_id:       currentUser.id,
+        course_id:             enrollmentData.course_id,
+        enrollment_id:         enrollmentData.id,
+        amount:                payAmount,
+        payment_method:        'bank_transfer',
+        payment_gateway:       'manual',
         transaction_reference: utr,
-        payment_status:       'processing',
-      });
+        payment_status:        'processing',
+      }).select('id').single();
+
+      // Send pending notification
+      if (payment?.id) {
+        processor.sendNotification({
+          payment_id: payment.id,
+          user_email: document.getElementById('bill-email').value,
+          user_name: document.getElementById('bill-name').value,
+          course_name: courseData?.title || '',
+          amount: payAmount,
+          status: 'pending',
+        });
+      }
       alert('Bank transfer recorded. Admin will verify and activate your access within 24 hours.');
       window.location.href = '/profile?tab=payments';
+
     } else if (selectedMethod === 'cash') {
-      await db.client.from('payments').insert({
+      const { data: payment } = await db.client.from('payments').insert({
         student_user_id: currentUser.id,
         course_id:       enrollmentData.course_id,
         enrollment_id:   enrollmentData.id,
@@ -575,15 +535,25 @@ async function initiatePayment() {
         payment_method:  'cash',
         payment_gateway: 'cash',
         payment_status:  'pending',
-      });
+      }).select('id').single();
+
+      if (payment?.id) {
+        processor.sendNotification({
+          payment_id: payment.id,
+          user_email: document.getElementById('bill-email').value,
+          user_name: document.getElementById('bill-name').value,
+          course_name: courseData?.title || '',
+          amount: payAmount,
+          status: 'pending',
+        });
+      }
       alert('Cash payment recorded. Please visit our office with the exact amount.');
       window.location.href = '/profile?tab=payments';
     }
   } catch (err) {
     alert('Payment error: ' + err.message);
+    resetBtn();
   }
-  btn.disabled = false;
-  label.textContent = 'Pay ' + fmtCurr(payAmount);
 }
 
 async function loadInvoice(id) {

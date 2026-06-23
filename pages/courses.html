@@ -1876,6 +1876,7 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="../js/razorpay-loader.js"></script>
 <script src="../config/supabase-config.js"></script>
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
@@ -2856,7 +2857,7 @@
       // Create server-side Razorpay order (required for live mode)
       btn.textContent = 'Creating order…';
       let rzpOrderId = null;
-      const _rzpKey = 'rzp_live_ILgsSZCZoFMQjO';
+      const _rzpKey = window.__RZP_KEY_ID || '';
       const isLiveKey = _rzpKey.startsWith('rzp_live_');
       try {
         const orderRes = await fetch(
@@ -2897,7 +2898,7 @@
       btn.textContent = 'Processing…';
 
       const options = {
-        key: 'rzp_live_ILgsSZCZoFMQjO',
+        key: window.__RZP_KEY_ID || '',
         amount: Math.round(totalAmount * 100),
         currency: 'INR',
         name: 'SkillUpNow',

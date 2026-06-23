@@ -1,391 +1,127 @@
-/* ==========================================
-   PAYMENT PROCESSING & RAZORPAY INTEGRATION
-   ========================================== */
-
 class PaymentProcessor {
   constructor() {
-    this.razorpayKeyId = 'rzp_live_ILgsSZCZoFMQjO'; // Replace with your key
-    this.currentOrder = null;
-    this.currentPayment = null;
-    this.setupRazorpay();
+    this.keyId = null;
+    this.initialized = false;
   }
 
-  setupRazorpay() {
-    if (typeof Razorpay === 'undefined') {
-      console.warn('Razorpay SDK not loaded');
-    }
-  }
-
-  // ==================== ORDER CREATION ====================
-  async createOrder(amount, courseId, courseTitle) {
+  async init() {
+    if (this.initialized) return;
     try {
-      const response = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          amount: amount * 100, // Razorpay expects amount in paise
-          currency: 'INR',
-          courseId: courseId,
-          courseTitle: courseTitle
-        })
-      });
-
-      if (!response.ok) throw new Error('Failed to create order');
-      
-      this.currentOrder = await response.json();
-      return this.currentOrder;
-    } catch (error) {
-      console.error('Error creating order:', error);
-      throw error;
+      const res = await fetch('/api/payment-config');
+      if (!res.ok) throw new Error('Failed to load payment config');
+      const data = await res.json();
+      this.keyId = data.key_id;
+      this.initialized = true;
+    } catch (err) {
+      console.error('PaymentProcessor init error:', err);
+      throw new Error('Payment system unavailable. Please try again later.');
     }
   }
 
-  // ==================== PAYMENT PROCESSING ====================
-  async processPayment(amount, courseData, userData) {
-    if (typeof Razorpay === 'undefined') {
-      return this.mockPaymentProcess(amount, courseData, userData);
-    }
-
-    try {
-      const order = await this.createOrder(amount, courseData.id, courseData.title);
-      
-      const options = {
-        key: this.razorpayKeyId,
-        amount: amount * 100,
+  async createOrder(amountPaise, receipt, notes) {
+    await this.init();
+    const res = await fetch('/api/create-razorpay-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: Math.round(amountPaise),
         currency: 'INR',
-        order_id: order.id,
-        name: 'SkillUpNow',
-        description: courseData.title,
-        image: 'https://skillupnow.com/logo.png',
-        handler: this.handlePaymentSuccess.bind(this),
-        prefill: {
-          name: userData.name,
-          email: userData.email,
-          contact: userData.phone
-        },
-        notes: {
-          courseId: courseData.id,
-          courseTitle: courseData.title,
-          userId: userData.id
-        },
-        theme: {
-          color: '#7c5cfc'
-        }
-      };
-
-      const razorpay = new Razorpay(options);
-      razorpay.open();
-
-      razorpay.on('payment.failed', this.handlePaymentFailure.bind(this));
-    } catch (error) {
-      console.error('Payment processing error:', error);
-      throw error;
-    }
-  }
-
-  // ==================== PAYMENT SUCCESS ====================
-  async handlePaymentSuccess(response) {
-    try {
-      const verifyResponse = await fetch('/api/verify-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          paymentId: response.razorpay_payment_id,
-          orderId: response.razorpay_order_id,
-          signature: response.razorpay_signature
-        })
-      });
-
-      if (!verifyResponse.ok) throw new Error('Payment verification failed');
-
-      this.currentPayment = await verifyResponse.json();
-      
-      // Save payment record
-      this.savePaymentRecord({
-        ...response,
-        status: 'success',
-        timestamp: new Date()
-      });
-
-      // Trigger success callback
-      this.triggerPaymentSuccess(this.currentPayment);
-
-      return this.currentPayment;
-    } catch (error) {
-      console.error('Payment verification error:', error);
-      this.triggerPaymentError(error);
-    }
-  }
-
-  handlePaymentFailure(error) {
-    console.error('Payment failed:', error);
-    
-    this.savePaymentRecord({
-      status: 'failed',
-      error: error,
-      timestamp: new Date()
+        receipt: receipt || `rcpt_${Date.now()}`,
+        notes: notes || {},
+      }),
     });
-
-    this.triggerPaymentFailure(error);
+    const order = await res.json();
+    if (!res.ok) throw new Error(order.error || 'Order creation failed');
+    return order;
   }
 
-  // ==================== MOCK PAYMENT (For Development) ====================
-  async mockPaymentProcess(amount, courseData, userData) {
-    return new Promise((resolve, reject) => {
-      this.currentPayment = {
-        id: Math.random().toString(36).substr(2, 9),
-        amount: amount,
-        course: courseData,
-        user: userData,
-        status: 'success',
-        timestamp: new Date(),
-        method: 'mock'
-      };
-
-      this.savePaymentRecord(this.currentPayment);
-      
-      setTimeout(() => {
-        this.triggerPaymentSuccess(this.currentPayment);
-        resolve(this.currentPayment);
-      }, 1000);
-    });
-  }
-
-  // ==================== EMI PAYMENT ====================
-  async processEMIPayment(emiOption, courseData, userData) {
-    try {
-      const firstEMI = emiOption.emi;
-      
-      const response = await fetch('/api/create-emi-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          courseId: courseData.id,
-          totalAmount: emiOption.totalAmount,
-          emiAmount: firstEMI,
-          months: emiOption.months,
-          interestRate: emiOption.rate,
-          userData: userData
-        })
-      });
-
-      if (!response.ok) throw new Error('EMI subscription failed');
-
-      const emiSubscription = await response.json();
-      
-      // Process first EMI payment
-      return await this.processPayment(firstEMI, courseData, userData);
-    } catch (error) {
-      console.error('EMI processing error:', error);
-      throw error;
+  openCheckout(order, { prefill, courseTitle, onSuccess, onDismiss, onFailure }) {
+    if (!this.keyId) throw new Error('PaymentProcessor not initialized');
+    if (typeof window.Razorpay === 'undefined') {
+      throw new Error('Razorpay SDK not loaded. Please refresh the page.');
     }
-  }
 
-  // ==================== PAYMENT RECORD MANAGEMENT ====================
-  savePaymentRecord(paymentData) {
-    let payments = JSON.parse(localStorage.getItem('payments') || '[]');
-    payments.push(paymentData);
-    localStorage.setItem('payments', JSON.stringify(payments));
-  }
-
-  getPaymentHistory() {
-    return JSON.parse(localStorage.getItem('payments') || '[]');
-  }
-
-  getPaymentById(paymentId) {
-    const payments = this.getPaymentHistory();
-    return payments.find(p => p.id === paymentId);
-  }
-
-  // ==================== REFUND PROCESSING ====================
-  async processRefund(paymentId, amount) {
-    try {
-      const response = await fetch('/api/process-refund', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+    const options = {
+      key: this.keyId,
+      amount: order.amount,
+      currency: order.currency || 'INR',
+      order_id: order.id,
+      name: 'SkillUpNow',
+      description: courseTitle || 'Course Enrollment',
+      image: 'https://skillupnow.in/assets/logo.png',
+      prefill: {
+        name: prefill?.name || '',
+        email: prefill?.email || '',
+        contact: prefill?.phone || '',
+      },
+      notes: order.notes || {},
+      theme: { color: '#7c5cfc' },
+      modal: {
+        ondismiss: () => {
+          if (onDismiss) onDismiss();
         },
-        body: JSON.stringify({
-          paymentId: paymentId,
-          amount: amount * 100
-        })
-      });
-
-      if (!response.ok) throw new Error('Refund failed');
-
-      const refund = await response.json();
-      
-      // Update payment status
-      let payments = this.getPaymentHistory();
-      const index = payments.findIndex(p => p.id === paymentId);
-      if (index > -1) {
-        payments[index].refund = refund;
-        payments[index].refundStatus = 'processed';
-        localStorage.setItem('payments', JSON.stringify(payments));
-      }
-
-      return refund;
-    } catch (error) {
-      console.error('Refund processing error:', error);
-      throw error;
-    }
-  }
-
-  // ==================== INVOICE GENERATION ====================
-  generateInvoice(paymentId) {
-    const payment = this.getPaymentById(paymentId);
-    if (!payment) throw new Error('Payment not found');
-
-    const invoice = {
-      number: `INV-${paymentId}`,
-      date: new Date(payment.timestamp).toLocaleDateString('en-IN'),
-      amount: payment.amount,
-      course: payment.course,
-      user: payment.user,
-      status: payment.status,
-      paymentMethod: payment.method || 'Razorpay'
+      },
+      handler: (response) => {
+        if (onSuccess) onSuccess(response);
+      },
     };
 
-    return invoice;
+    const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', (response) => {
+      const errMsg = response.error?.description || response.error?.reason || 'Payment was declined.';
+      if (onFailure) onFailure(errMsg, response);
+    });
+    rzp.open();
+    return rzp;
   }
 
-  downloadInvoice(paymentId) {
-    const invoice = this.generateInvoice(paymentId);
-    
-    const content = `
-      INVOICE
-      ========================================
-      Invoice Number: ${invoice.number}
-      Date: ${invoice.date}
-      
-      BILL TO:
-      Name: ${invoice.user.name}
-      Email: ${invoice.user.email}
-      
-      COURSE DETAILS:
-      Course: ${invoice.course.title}
-      Amount: ₹${invoice.amount}
-      
-      PAYMENT METHOD: ${invoice.paymentMethod}
-      STATUS: ${invoice.status.toUpperCase()}
-      ========================================
-    `;
+  async verifyPayment(razorpayResponse, enrollmentData) {
+    const res = await fetch('/api/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        razorpay_order_id: razorpayResponse.razorpay_order_id,
+        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+        razorpay_signature: razorpayResponse.razorpay_signature,
+        enrollment_id: enrollmentData.enrollment_id,
+        course_id: enrollmentData.course_id,
+        user_id: enrollmentData.user_id,
+        amount: enrollmentData.amount,
+        payment_schedule_id: enrollmentData.payment_schedule_id || null,
+        user_email: enrollmentData.user_email || '',
+        user_name: enrollmentData.user_name || '',
+        course_name: enrollmentData.course_name || '',
+      }),
+    });
 
-    const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-    element.setAttribute('download', `invoice-${paymentId}.txt`);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  }
-
-  // ==================== PAYMENT EVENTS ====================
-  onPaymentSuccess(callback) {
-    document.addEventListener('paymentSuccess', (e) => callback(e.detail));
-  }
-
-  onPaymentFailure(callback) {
-    document.addEventListener('paymentFailure', (e) => callback(e.detail));
-  }
-
-  onPaymentError(callback) {
-    document.addEventListener('paymentError', (e) => callback(e.detail));
-  }
-
-  triggerPaymentSuccess(paymentData) {
-    const event = new CustomEvent('paymentSuccess', { detail: paymentData });
-    document.dispatchEvent(event);
-    
-    if (window.app) {
-      window.app.showNotification('Payment successful! Your course access has been activated.', 'success');
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Payment verification failed');
     }
+    return data;
   }
 
-  triggerPaymentFailure(error) {
-    const event = new CustomEvent('paymentFailure', { detail: error });
-    document.dispatchEvent(event);
-    
-    if (window.app) {
-      window.app.showNotification('Payment failed. Please try again.', 'error');
-    }
-  }
-
-  triggerPaymentError(error) {
-    const event = new CustomEvent('paymentError', { detail: error });
-    document.dispatchEvent(event);
-  }
-
-  // ==================== SUBSCRIPTION MANAGEMENT ====================
-  async createSubscription(planId, userData) {
+  async sendNotification(paymentData) {
     try {
-      const response = await fetch('/api/create-subscription', {
+      await fetch('/api/notify-payment', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          planId: planId,
-          userData: userData
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentData),
       });
-
-      if (!response.ok) throw new Error('Subscription creation failed');
-
-      return await response.json();
-    } catch (error) {
-      console.error('Subscription error:', error);
-      throw error;
+    } catch (err) {
+      console.warn('Notification send failed:', err);
     }
   }
 
-  async cancelSubscription(subscriptionId) {
-    try {
-      const response = await fetch(`/api/cancel-subscription/${subscriptionId}`, {
-        method: 'POST'
-      });
-
-      if (!response.ok) throw new Error('Subscription cancellation failed');
-
-      return await response.json();
-    } catch (error) {
-      console.error('Cancellation error:', error);
-      throw error;
-    }
-  }
-
-  // ==================== UTILITIES ====================
   formatAmount(amount) {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount);
-  }
-
-  getPaymentStatus(status) {
-    const statusMap = {
-      'success': 'Completed',
-      'failed': 'Failed',
-      'pending': 'Pending',
-      'cancelled': 'Cancelled'
-    };
-    return statusMap[status] || status;
   }
 }
 
-// Initialize payment processor
 document.addEventListener('DOMContentLoaded', () => {
   window.paymentProcessor = new PaymentProcessor();
 });
-
-// Export for use
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PaymentProcessor;
-}

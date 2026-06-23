@@ -1994,7 +1994,7 @@ async function profilePay(enrollmentId, courseTitle, amount) {
   }
 
   const options = {
-    key: 'rzp_live_ILgsSZCZoFMQjO',
+    key: window.__RZP_KEY_ID || '',
     amount: Math.round(amount * 100),
     currency: 'INR',
     order_id: rzpOrderId,
@@ -2044,5 +2044,6 @@ async function profilePay(enrollmentId, courseTitle, amount) {
 }
 </script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="../js/razorpay-loader.js"></script>
 </body>
 </html>

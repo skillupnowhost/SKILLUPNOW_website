@@ -1,7 +1,6 @@
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -15,7 +14,7 @@ module.exports = async function handler(req, res) {
   const { amount, currency = 'INR', receipt, notes } = req.body || {};
 
   if (!amount || amount <= 0) {
-    return res.status(400).json({ error: 'Invalid amount' });
+    return res.status(400).json({ error: 'Invalid amount (provide amount in paise)' });
   }
 
   try {
@@ -39,12 +38,14 @@ module.exports = async function handler(req, res) {
 
     if (!response.ok) {
       console.error('Razorpay order error:', order);
-      return res.status(response.status).json({ error: order.error?.description || 'Order creation failed' });
+      return res.status(response.status).json({
+        error: order.error?.description || 'Order creation failed',
+      });
     }
 
     return res.status(200).json(order);
   } catch (err) {
-    console.error('Function error:', err);
+    console.error('create-razorpay-order error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
-}
+};

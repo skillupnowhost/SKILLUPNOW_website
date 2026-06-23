@@ -2860,6 +2860,7 @@
   <script src="js/payment.js"></script>
   <script src="js/main.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="js/razorpay-loader.js"></script>
 
   <script>
     // ==================== LOGIN & REGISTRATION WITH DATABASE ====================
@@ -3830,7 +3831,7 @@
         btn.textContent = 'Processing…';
 
         const rzpOptions = {
-          key: 'rzp_live_ILgsSZCZoFMQjO', amount: Math.round(totalAmount * 100), currency: 'INR',
+          key: window.__RZP_KEY_ID || '', amount: Math.round(totalAmount * 100), currency: 'INR',
           order_id: rzpOrderId,
           name: 'SkillUpNow', description: hcSelectedCourse.title,
           prefill: { name: user.user_metadata?.full_name || '', email: user.email },
