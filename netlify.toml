@@ -1,6 +1,16 @@
 [build]
   publish = "."
 
+[functions]
+  directory = "netlify/functions"
+
+# ── API redirects (must come before catch-all page rewrite) ──────────────────
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
 # 1. /index.html → / (home page special case)
 [[redirects]]
   from = "/index.html"
@@ -35,3 +45,10 @@
   to   = "/pages/:page.html"
   status = 200
   force  = false
+
+# ── Headers ──────────────────────────────────────────────────────────────────
+[[headers]]
+  for = "/api/razorpay-webhook"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "POST"
