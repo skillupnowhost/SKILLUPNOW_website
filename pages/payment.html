@@ -382,6 +382,11 @@ async function init() {
     document.getElementById('bill-phone').value = profile.phone || '';
   }
 
+  // Handle payment error from redirect
+  if (params.get('payment_error')) {
+    showToast('error', 'Payment could not be completed. Please try again.', { title: 'Payment Failed', buttonText: 'Retry' });
+  }
+
   // Handle Razorpay redirect response (after 3DS authentication)
   const rzpPaymentId = params.get('razorpay_payment_id');
   const rzpOrderId = params.get('razorpay_order_id');
@@ -588,8 +593,8 @@ async function initiatePayment() {
       };
       sessionStorage.setItem('_skillupnow_payment', JSON.stringify(paymentContext));
 
-      // 3. Build callback URL for redirect after 3DS authentication
-      const callbackUrl = window.location.origin + '/payment?enrollment=' + enrollmentData.id;
+      // 3. Build callback URL — Razorpay POSTs here, API redirects back to payment page with GET params
+      const callbackUrl = window.location.origin + '/api/payment-callback?enrollment=' + enrollmentData.id;
 
       // 4. Open Razorpay checkout with redirect mode
       label.innerHTML = '<span class="spinner"></span> Opening payment…';
