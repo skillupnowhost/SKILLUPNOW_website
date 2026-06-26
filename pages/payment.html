@@ -101,6 +101,43 @@
     .spinner { width:18px; height:18px; border:2.5px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block; }
     @keyframes spin { to{ transform:rotate(360deg); } }
 
+    /* Toast / popup notification */
+    .toast-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.35); backdrop-filter:blur(4px);
+      z-index:9999; display:flex; align-items:center; justify-content:center;
+      opacity:0; visibility:hidden; transition:all 0.25s ease;
+    }
+    .toast-overlay.show { opacity:1; visibility:visible; }
+    .toast-box {
+      background:var(--panel); border-radius:16px; padding:2rem 2rem 1.5rem; max-width:400px; width:90%;
+      box-shadow:0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px var(--border);
+      text-align:center; transform:scale(0.9) translateY(10px); transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .toast-overlay.show .toast-box { transform:scale(1) translateY(0); }
+    .toast-icon {
+      width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 1rem; font-size:1.5rem;
+    }
+    .toast-icon.error   { background:rgba(239,68,68,0.1); color:#ef4444; }
+    .toast-icon.success { background:rgba(34,197,94,0.1);  color:#16a34a; }
+    .toast-icon.warning { background:rgba(245,158,11,0.1); color:#f59e0b; }
+    .toast-icon.info    { background:rgba(99,102,241,0.1); color:#6366f1; }
+    .toast-title { font-size:1.05rem; font-weight:800; color:var(--txt); margin-bottom:0.4rem; }
+    .toast-msg   { font-size:0.88rem; color:var(--txt3); line-height:1.5; margin-bottom:1.25rem; word-break:break-word; }
+    .toast-msg code { background:var(--bg2); padding:0.15rem 0.4rem; border-radius:4px; font-size:0.82rem; color:var(--v1); }
+    .toast-btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;
+      background:var(--grad); color:#fff; border:none; border-radius:10px;
+      padding:0.7rem 2rem; font-size:0.88rem; font-weight:700; cursor:pointer;
+      font-family:inherit; transition:all 0.2s; min-width:120px;
+    }
+    .toast-btn:hover { opacity:0.88; transform:translateY(-1px); }
+    .toast-btn.outline {
+      background:transparent; color:var(--txt3); border:1.5px solid var(--border);
+    }
+    .toast-btn.outline:hover { border-color:var(--v1); color:var(--v1); }
+    .toast-actions { display:flex; gap:0.5rem; justify-content:center; }
+
     @media(max-width:768px) {
       .pay-wrap { grid-template-columns:1fr; }
       .pay-sidebar { order:-1; }
@@ -109,6 +146,16 @@
   </style>
 </head>
 <body>
+<div class="toast-overlay" id="toast-overlay" onclick="if(event.target===this)closeToast()">
+  <div class="toast-box">
+    <div class="toast-icon" id="toast-icon"></div>
+    <div class="toast-title" id="toast-title"></div>
+    <div class="toast-msg" id="toast-msg"></div>
+    <div class="toast-actions" id="toast-actions">
+      <button class="toast-btn" onclick="closeToast()">OK</button>
+    </div>
+  </div>
+</div>
 <div class="mesh-bg"></div>
 <div class="orb orb1"></div>
 <nav></nav>
@@ -421,6 +468,30 @@ function selectMethod(method, el) {
   });
 }
 
+const TOAST_ICONS = { error:'&#10006;', success:'&#10004;', warning:'&#9888;', info:'&#8505;' };
+const TOAST_TITLES = { error:'Payment Failed', success:'Success', warning:'Attention', info:'Info' };
+let _toastCallback = null;
+
+function showToast(type, msg, { title, onClose, buttonText, redirectUrl } = {}) {
+  document.getElementById('toast-icon').className = 'toast-icon ' + type;
+  document.getElementById('toast-icon').innerHTML = TOAST_ICONS[type] || TOAST_ICONS.info;
+  document.getElementById('toast-title').textContent = title || TOAST_TITLES[type] || '';
+  document.getElementById('toast-msg').innerHTML = msg;
+  _toastCallback = onClose || null;
+  const actions = document.getElementById('toast-actions');
+  if (redirectUrl) {
+    actions.innerHTML = `<button class="toast-btn" onclick="window.location.href='${redirectUrl}'">${buttonText || 'Continue'}</button>`;
+  } else {
+    actions.innerHTML = `<button class="toast-btn" onclick="closeToast()">${buttonText || 'OK'}</button>`;
+  }
+  document.getElementById('toast-overlay').classList.add('show');
+}
+
+function closeToast() {
+  document.getElementById('toast-overlay').classList.remove('show');
+  if (_toastCallback) { const cb = _toastCallback; _toastCallback = null; cb(); }
+}
+
 async function initiatePayment() {
   const btn = document.getElementById('pay-btn');
   const label = document.getElementById('pay-btn-label');
@@ -467,7 +538,7 @@ async function initiatePayment() {
         onFailure: (errMsg) => {
           resetBtn();
           label.textContent = 'Retry Payment';
-          alert(errMsg);
+          showToast('error', errMsg, { title: 'Payment Declined', buttonText: 'Try Again' });
         },
         onSuccess: async (response) => {
           label.innerHTML = '<span class="spinner"></span> Verifying payment…';
@@ -491,7 +562,7 @@ async function initiatePayment() {
               window.location.href = '/profile?tab=payments';
             }
           } catch (verifyErr) {
-            alert('Payment verification failed. Please contact support with ID: ' + response.razorpay_payment_id);
+            showToast('warning', 'Payment verification failed. Please contact support with your Transaction ID: <code>' + response.razorpay_payment_id + '</code>', { title: 'Verification Issue' });
             resetBtn();
             label.textContent = 'Retry Payment';
           }
@@ -500,7 +571,7 @@ async function initiatePayment() {
 
     } else if (selectedMethod === 'bank') {
       const utr = document.getElementById('utr-ref').value.trim();
-      if (!utr) { alert('Please enter the UTR/Transaction reference number.'); resetBtn(); return; }
+      if (!utr) { showToast('warning', 'Please enter the UTR / Transaction reference number from your bank transfer.', { title: 'Missing Reference' }); resetBtn(); return; }
       const { data: payment } = await db.client.from('payments').insert({
         student_user_id:       currentUser.id,
         course_id:             enrollmentData.course_id,
@@ -523,8 +594,7 @@ async function initiatePayment() {
           status: 'pending',
         });
       }
-      alert('Bank transfer recorded. Admin will verify and activate your access within 24 hours.');
-      window.location.href = '/profile?tab=payments';
+      showToast('success', 'Bank transfer recorded successfully. Our admin will verify and activate your course access within <strong>24 hours</strong>.', { title: 'Transfer Received', buttonText: 'Go to Profile', redirectUrl: '/profile?tab=payments' });
 
     } else if (selectedMethod === 'cash') {
       const { data: payment } = await db.client.from('payments').insert({
@@ -547,11 +617,10 @@ async function initiatePayment() {
           status: 'pending',
         });
       }
-      alert('Cash payment recorded. Please visit our office with the exact amount.');
-      window.location.href = '/profile?tab=payments';
+      showToast('success', 'Cash payment recorded. Please visit our office with the exact amount to complete your enrollment.', { title: 'Payment Noted', buttonText: 'Go to Profile', redirectUrl: '/profile?tab=payments' });
     }
   } catch (err) {
-    alert('Payment error: ' + err.message);
+    showToast('error', err.message || 'Something went wrong. Please try again or contact support.', { title: 'Payment Error' });
     resetBtn();
   }
 }
