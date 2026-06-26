@@ -459,14 +459,32 @@
           </div>
         </div>
 
-        <!-- ═══ ASSIGNED MODULES ═══ -->
+        <!-- ═══ ASSIGNED MODULES (Day-wise) ═══ -->
         <div class="id-section" style="animation-delay:.2s">
           <div class="id-sec-hdr">
-            <h2>Assigned Modules</h2>
+            <h2>Daily Tasks & Modules</h2>
+            <span id="id-today-day" style="font-size:.75rem;font-weight:700;color:var(--id-gold)"></span>
           </div>
           <div class="id-sec-body">
-            <div class="id-modules" id="id-modules-list">
-              <div class="id-mod-empty">No modules assigned yet. Your admin will assign tasks soon.</div>
+            <div id="id-today-tasks" style="margin-bottom:1rem"></div>
+            <details style="margin-bottom:.8rem">
+              <summary style="cursor:pointer;font-size:.82rem;font-weight:700;color:var(--txt2);padding:.5rem 0">View all modules by day</summary>
+              <div class="id-modules" id="id-modules-list" style="margin-top:.6rem">
+                <div class="id-mod-empty">No modules assigned yet. Your admin will assign tasks soon.</div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- ═══ SESSION TASKS ═══ -->
+        <div class="id-section" style="animation-delay:.22s">
+          <div class="id-sec-hdr">
+            <h2>Today's Session Tasks</h2>
+            <span id="id-tasks-count" style="font-size:.75rem;font-weight:700;color:var(--txt3)">0 tasks</span>
+          </div>
+          <div class="id-sec-body">
+            <div class="id-modules" id="id-session-tasks-list">
+              <div class="id-mod-empty">No tasks assigned for this session yet.</div>
             </div>
           </div>
         </div>
@@ -706,6 +724,7 @@
       loadAttendance()
     ]);
 
+    loadSessionTasks();
     startAppTracking();
   }
 
@@ -961,20 +980,15 @@
     document.getElementById('id-subs-count').textContent = subCount || 0;
   }
 
-  /* ── Modules ── */
+  /* ── Modules (day-wise) ── */
   async function loadModules() {
     const c = _client();
     const { data } = await c
       .from('intern_modules')
       .select('*')
       .eq('enrollment_id', _enrollment.id)
+      .order('day_number', { ascending: true, nullsFirst: false })
       .order('sort_order', { ascending: true });
-
-    const list = document.getElementById('id-modules-list');
-    if (!data || !data.length) {
-      list.innerHTML = '<div class="id-mod-empty">No modules assigned yet. Your admin will assign tasks soon.</div>';
-      return;
-    }
 
     const statusIcons = {
       assigned: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
@@ -983,17 +997,99 @@
       reviewed: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
     };
 
-    list.innerHTML = data.map(m => `
+    const renderMod = m => `
       <div class="id-module">
         <div class="id-module-status ${m.status}">${statusIcons[m.status] || ''}</div>
         <div class="id-mod-info">
-          <div class="id-mod-title">${esc(m.module_title)}</div>
+          <div class="id-mod-title">${m.day_number ? '<span style="color:var(--id-gold);font-weight:800;margin-right:.4rem">Day ' + m.day_number + '</span>' : ''}${esc(m.module_title)}</div>
           ${m.module_desc ? `<div class="id-mod-desc">${esc(m.module_desc)}</div>` : ''}
-          ${m.due_date ? `<div class="id-mod-due">Due: ${new Date(m.due_date).toLocaleDateString('en-IN')}</div>` : ''}
+          <div class="id-mod-due" style="display:flex;gap:.8rem;flex-wrap:wrap">
+            ${m.due_date ? 'Due: ' + new Date(m.due_date).toLocaleDateString('en-IN') : ''}
+            ${m.task_type && m.task_type !== 'daily' ? '<span style="color:var(--id-violet);font-weight:700;text-transform:uppercase;font-size:.62rem">'+m.task_type+'</span>' : ''}
+            ${m.estimated_hours ? '<span>~' + m.estimated_hours + 'h</span>' : ''}
+          </div>
         </div>
         <span class="id-mod-badge ${m.status}">${m.status.replace('_',' ')}</span>
+      </div>`;
+
+    const list = document.getElementById('id-modules-list');
+    const todayEl = document.getElementById('id-today-tasks');
+    const dayLabel = document.getElementById('id-today-day');
+
+    if (!data || !data.length) {
+      list.innerHTML = '<div class="id-mod-empty">No modules assigned yet. Your admin will assign tasks soon.</div>';
+      todayEl.innerHTML = '<div class="id-mod-empty" style="padding:1rem">No daily tasks assigned yet.</div>';
+      return;
+    }
+
+    list.innerHTML = data.map(renderMod).join('');
+
+    const currentDay = _session?.day_number || 0;
+    dayLabel.textContent = currentDay ? 'Day ' + currentDay : '';
+    const todayMods = data.filter(m => m.day_number === currentDay);
+    if (todayMods.length) {
+      todayEl.innerHTML = '<div style="font-size:.78rem;font-weight:700;color:var(--txt3);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em">Today\'s Tasks</div>' +
+        '<div class="id-modules">' + todayMods.map(renderMod).join('') + '</div>';
+    } else {
+      todayEl.innerHTML = '<div class="id-mod-empty" style="padding:.8rem;font-size:.84rem">No specific tasks for today. Check all modules below.</div>';
+    }
+  }
+
+  /* ── Session Tasks ── */
+  async function loadSessionTasks() {
+    const c = _client();
+    if (!_session) {
+      document.getElementById('id-session-tasks-list').innerHTML = '<div class="id-mod-empty">Start your work session to see assigned tasks.</div>';
+      return;
+    }
+    const { data } = await c
+      .from('intern_session_tasks')
+      .select('*, intern_modules(module_title)')
+      .eq('session_id', _session.id)
+      .order('created_at', { ascending: true });
+
+    const list = document.getElementById('id-session-tasks-list');
+    const countEl = document.getElementById('id-tasks-count');
+
+    if (!data || !data.length) {
+      list.innerHTML = '<div class="id-mod-empty">No tasks assigned for this session yet.</div>';
+      countEl.textContent = '0 tasks';
+      return;
+    }
+    countEl.textContent = data.length + ' task' + (data.length > 1 ? 's' : '');
+
+    const statusIcons = {
+      pending: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+      in_progress: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+      completed: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+      blocked: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    };
+    const statusCls = { pending: 'assigned', in_progress: 'in_progress', completed: 'completed', blocked: 'reviewed' };
+
+    list.innerHTML = data.map(t => `
+      <div class="id-module" style="cursor:pointer" onclick="updateTaskStatus('${t.id}','${t.status}')">
+        <div class="id-module-status ${statusCls[t.status] || 'assigned'}">${statusIcons[t.status] || ''}</div>
+        <div class="id-mod-info">
+          <div class="id-mod-title">${esc(t.task_title)}</div>
+          ${t.task_desc ? `<div class="id-mod-desc">${esc(t.task_desc)}</div>` : ''}
+          ${t.intern_modules?.module_title ? `<div class="id-mod-due">Module: ${esc(t.intern_modules.module_title)}</div>` : ''}
+        </div>
+        <span class="id-mod-badge ${statusCls[t.status] || 'assigned'}">${t.status.replace('_',' ')}</span>
       </div>
     `).join('');
+  }
+
+  async function updateTaskStatus(taskId, currentStatus) {
+    const next = { pending: 'in_progress', in_progress: 'completed' };
+    const newStatus = next[currentStatus];
+    if (!newStatus) return;
+    const c = _client();
+    const update = { status: newStatus };
+    if (newStatus === 'in_progress') update.started_at = new Date().toISOString();
+    if (newStatus === 'completed') update.completed_at = new Date().toISOString();
+    await c.from('intern_session_tasks').update(update).eq('id', taskId);
+    toast('Task: ' + newStatus.replace('_', ' '), 'ok');
+    loadSessionTasks();
   }
 
   /* ── Git Permission ── */
