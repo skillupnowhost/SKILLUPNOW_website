@@ -26,7 +26,7 @@ class PaymentProcessor {
       body: JSON.stringify({
         amount: Math.round(amountPaise),
         currency: 'INR',
-        receipt: receipt || `rcpt_${Date.now()}`,
+        receipt: (receipt || `rcpt_${Date.now()}`).slice(0, 40),
         notes: notes || {},
       }),
     });

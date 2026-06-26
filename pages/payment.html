@@ -445,7 +445,7 @@ async function initiatePayment() {
       await processor.init();
       const order = await processor.createOrder(
         Math.round(payAmount * 100),
-        `rcpt_${enrollmentData.id}`,
+        `rcpt_${enrollmentData.id}`.slice(0, 40),
         {
           enrollment_id: enrollmentData.id,
           user_id: currentUser.id,

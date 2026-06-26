@@ -60,7 +60,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         amount: Math.round(amount),
         currency,
-        receipt: receipt || `rcpt_${Date.now()}`,
+        receipt: (receipt || `rcpt_${Date.now()}`).slice(0, 40),
         notes: notes || {},
       }),
     });
