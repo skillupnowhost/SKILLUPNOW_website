@@ -427,6 +427,10 @@ class ProfileNavigationManager {
               <span class="pd-icon">💳</span>
               <div><div class="pd-title">Payments & EMI</div><div class="pd-sub">Invoices & installments</div></div>
             </a>
+            <a href="${p}intern-dashboard${pageSuffix}" class="pd-item" role="menuitem">
+              <span class="pd-icon">⏱</span>
+              <div><div class="pd-title">Intern Dashboard</div><div class="pd-sub">Work tracking & submissions</div></div>
+            </a>
             <a id="dd-mentor-link" href="${p}mentor-dashboard${pageSuffix}" class="pd-item" role="menuitem" style="display:none;">
               <span class="pd-icon">📋</span>
               <div><div class="pd-title">Mentor Portal</div><div class="pd-sub">Batches & schedules</div></div>

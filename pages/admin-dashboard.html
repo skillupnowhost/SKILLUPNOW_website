@@ -2262,6 +2262,11 @@
         <button class="itnm-sub-tab"        data-itnmtab="paid-settings" onclick="switchInternMgmtTab('paid-settings')">💳 Paid Settings</button>
         <button class="itnm-sub-tab"        data-itnmtab="reports"      onclick="switchInternMgmtTab('reports')">📝 Reports</button>
         <button class="itnm-sub-tab"        data-itnmtab="attendance"   onclick="switchInternMgmtTab('attendance')">📅 Attendance</button>
+        <button class="itnm-sub-tab"        data-itnmtab="tracking"     onclick="switchInternMgmtTab('tracking')">⏱ Tracking</button>
+        <button class="itnm-sub-tab"        data-itnmtab="modules"      onclick="switchInternMgmtTab('modules')">📦 Modules</button>
+        <button class="itnm-sub-tab"        data-itnmtab="git-access"   onclick="switchInternMgmtTab('git-access')">🔀 Git Access</button>
+        <button class="itnm-sub-tab"        data-itnmtab="submissions"  onclick="switchInternMgmtTab('submissions')">📎 Submissions</button>
+        <button class="itnm-sub-tab"        data-itnmtab="app-usage"    onclick="switchInternMgmtTab('app-usage')">👁 App Usage</button>
       </div>
 
       <!-- Internships List -->
@@ -2416,6 +2421,106 @@
           <div class="table-scroll"><table class="data-table">
             <thead><tr><th>Date</th><th>Student</th><th>Internship</th><th>Check-In</th><th>Check-Out</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead>
             <tbody id="itnm-atd-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Work Session Tracking -->
+      <div class="itnm-itab-pane" id="itnm-itab-tracking">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Work Session Tracking</h3>
+            <div class="table-actions">
+              <select id="itnm-trk-student-filter" onchange="loadInternTracking()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
+                <option value="">All Students</option>
+              </select>
+              <input type="date" id="itnm-trk-date-filter" onchange="loadInternTracking()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+              <button class="btn-secondary" onclick="exportTrackingCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Date</th><th>Day #</th><th>Start</th><th>End</th><th>Work Mins</th><th>Break 1</th><th>Break 2</th><th>Status</th></tr></thead>
+            <tbody id="itnm-trk-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Module Assignment -->
+      <div class="itnm-itab-pane" id="itnm-itab-modules">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Module Assignment</h3>
+            <div class="table-actions">
+              <select id="itnm-mod-student-filter" onchange="loadInternModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
+                <option value="">All Students</option>
+              </select>
+              <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)" onclick="openInternModuleModal()">+ Assign Module</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Module</th><th>Description</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-mod-tbody"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Git Access -->
+      <div class="itnm-itab-pane" id="itnm-itab-git-access">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Git Push Permissions</h3>
+            <div class="table-actions">
+              <button class="btn-primary" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)" onclick="openGitPermModal()">+ Grant Access</button>
+            </div>
+          </div>
+          <p style="font-size:.82rem;color:var(--txt3);margin:0 0 .8rem;padding:0 .25rem">
+            Grant or revoke push access per student. Once granted, the student's Intern Dashboard shows a push button that commits reliably to the assigned repo.
+          </p>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Repository</th><th>Branch</th><th>Active</th><th>Granted</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-git-tbody"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Submissions -->
+      <div class="itnm-itab-pane" id="itnm-itab-submissions">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Student Submissions</h3>
+            <div class="table-actions">
+              <select id="itnm-sub-status-filter" onchange="loadInternSubmissions()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="submitted">Submitted</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button class="btn-secondary" onclick="exportSubmissionsCSV()">⬇ CSV</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Title</th><th>Screenshot</th><th>Report</th><th>Commit</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-sub-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- App Usage (Confidential) -->
+      <div class="itnm-itab-pane" id="itnm-itab-app-usage">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>App Usage Tracking <span style="font-size:.7rem;color:var(--txt4);font-weight:400;margin-left:.5rem">(Confidential — students cannot see this)</span></h3>
+            <div class="table-actions">
+              <select id="itnm-au-student-filter" onchange="loadAppUsage()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
+                <option value="">All Students</option>
+              </select>
+              <input type="date" id="itnm-au-date-filter" onchange="loadAppUsage()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>App</th><th>Window Title</th><th>Active Time</th><th>Recorded At</th></tr></thead>
+            <tbody id="itnm-au-tbody"><tr><td colspan="5" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2928,6 +3033,110 @@
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('recording-modal')">Cancel</button>
       <button class="btn-primary" id="rec-save-btn" onclick="saveRecording()">Save Recording</button>
+    </div>
+  </div>
+</div>
+
+<!-- Intern Module Assignment Modal -->
+<div class="modal-overlay" id="intern-module-modal" onclick="if(event.target===this)closeModal('intern-module-modal')">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-close" onclick="closeModal('intern-module-modal')">✕</div>
+    <div class="modal-title" id="imod-modal-title">Assign Module</div>
+    <input type="hidden" id="imod-edit-id">
+    <div class="f-group">
+      <label>Student (Enrollment) *</label>
+      <select id="imod-enrollment-id" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:.56rem .78rem;color:var(--txt);font-size:.82rem;font-family:inherit">
+        <option value="">Select student...</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label>Module Title *</label>
+      <input type="text" id="imod-title" placeholder="e.g. Build Responsive Navbar">
+    </div>
+    <div class="f-group">
+      <label>Description</label>
+      <textarea id="imod-desc" placeholder="Detailed module instructions..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="f-group">
+        <label>Due Date</label>
+        <input type="date" id="imod-due">
+      </div>
+      <div class="f-group">
+        <label>Status</label>
+        <select id="imod-status">
+          <option value="assigned">Assigned</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="reviewed">Reviewed</option>
+        </select>
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Sort Order</label>
+      <input type="number" id="imod-sort" value="0" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('intern-module-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveInternModule()">Save Module</button>
+    </div>
+  </div>
+</div>
+
+<!-- Git Permission Modal -->
+<div class="modal-overlay" id="git-perm-modal" onclick="if(event.target===this)closeModal('git-perm-modal')">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-close" onclick="closeModal('git-perm-modal')">✕</div>
+    <div class="modal-title">Grant Git Push Access</div>
+    <div class="f-group">
+      <label>Student (Enrollment) *</label>
+      <select id="git-enrollment-id" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:.56rem .78rem;color:var(--txt);font-size:.82rem;font-family:inherit">
+        <option value="">Select student...</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label>Repository URL *</label>
+      <input type="text" id="git-repo-url" placeholder="https://github.com/org/repo">
+    </div>
+    <div class="f-group">
+      <label>Branch</label>
+      <input type="text" id="git-branch" value="main" placeholder="main">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('git-perm-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveGitPermission()">Grant Access</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submission Review Modal -->
+<div class="modal-overlay" id="sub-review-modal" onclick="if(event.target===this)closeModal('sub-review-modal')">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-close" onclick="closeModal('sub-review-modal')">✕</div>
+    <div class="modal-title">Review Submission</div>
+    <input type="hidden" id="sub-review-id">
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);padding:1rem;margin-bottom:1rem">
+      <div style="font-size:.82rem;color:var(--txt3);margin-bottom:.4rem">Submission Details</div>
+      <div id="sub-review-details" style="font-size:.86rem;color:var(--txt)"></div>
+    </div>
+    <div id="sub-review-files" style="display:flex;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap"></div>
+    <div class="form-row">
+      <div class="f-group">
+        <label>Status *</label>
+        <select id="sub-review-status">
+          <option value="reviewed">Reviewed</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Admin Feedback</label>
+      <textarea id="sub-review-feedback" placeholder="Provide feedback to the student..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('sub-review-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveSubReview()">Save Review</button>
     </div>
   </div>
 </div>
@@ -8255,6 +8464,11 @@ function switchInternMgmtTab(tab) {
   if (tab === 'paid-settings') loadAdminPaidSettings();
   if (tab === 'reports')       { _populateInternProjFilter('itnm-rpt-proj-filter', 'All Internships'); loadInternReports(); }
   if (tab === 'attendance')    { _populateInternProjFilter('itnm-atd-proj-filter', 'All Internships'); loadInternAttendance(); }
+  if (tab === 'tracking')      { _populateStudentFilter('itnm-trk-student-filter'); loadInternTracking(); }
+  if (tab === 'modules')       { _populateStudentFilter('itnm-mod-student-filter'); loadInternModules(); }
+  if (tab === 'git-access')    loadGitPermissions();
+  if (tab === 'submissions')   loadInternSubmissions();
+  if (tab === 'app-usage')     { _populateStudentFilter('itnm-au-student-filter'); loadAppUsage(); }
 }
 
 async function loadAdminInternships() {
@@ -9983,6 +10197,440 @@ async function savePaidSetting(projId) {
   initDropdowns();
   initRealtime();
 })();
+
+/* ============================================================
+   INTERN TRACKING — Work Sessions, Modules, Git, Submissions, App Usage
+   ============================================================ */
+
+async function _populateStudentFilter(selectId) {
+  const sel = document.getElementById(selectId);
+  if (!sel || sel.options.length > 1) return;
+  const { data: enrols } = await db.client
+    .from('internship_enrollments')
+    .select('id, student_user_id, internship_projects(project_name)')
+    .eq('approval_status', 'approved');
+  if (!enrols?.length) return;
+  const sIds = [...new Set(enrols.map(e => e.student_user_id))];
+  const { data: profiles } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id', sIds);
+  const pm = {};
+  (profiles||[]).forEach(p => { pm[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+  sel.innerHTML = '<option value="">All Students</option>' +
+    enrols.map(e => `<option value="${e.student_user_id}" data-enroll="${e.id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}</option>`).join('');
+}
+
+async function _getProfileMap(userIds) {
+  if (!userIds.length) return {};
+  const { data } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id', userIds);
+  const m = {};
+  (data||[]).forEach(p => { m[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+  return m;
+}
+
+/* ── Work Session Tracking ── */
+async function loadInternTracking() {
+  const tbody = document.getElementById('itnm-trk-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading…</td></tr>';
+
+  let q = db.client.from('intern_work_sessions')
+    .select('*, intern_breaks(*)')
+    .order('session_date', { ascending: false })
+    .limit(100);
+
+  const studentF = document.getElementById('itnm-trk-student-filter')?.value;
+  const dateF = document.getElementById('itnm-trk-date-filter')?.value;
+  if (studentF) q = q.eq('student_user_id', studentF);
+  if (dateF) q = q.eq('session_date', dateF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No work sessions recorded yet.</td></tr>'; return; }
+
+  const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id))]);
+  const statusBadge = { active:'badge-green', completed:'badge-blue', auto_closed:'badge-yellow' };
+
+  tbody.innerHTML = data.map(s => {
+    const brk1 = (s.intern_breaks||[]).find(b => b.break_number === 1);
+    const brk2 = (s.intern_breaks||[]).find(b => b.break_number === 2);
+    const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
+    const brkText = b => b ? (b.duration_mins ? `${b.duration_mins}m` : (b.break_start ? 'On break' : '—')) : '—';
+    return `<tr>
+      <td>${_adm_esc(pm[s.student_user_id]||'—')}</td>
+      <td>${s.session_date}</td>
+      <td>${s.day_number}</td>
+      <td>${fmtTime(s.start_time)}</td>
+      <td>${fmtTime(s.end_time)}</td>
+      <td>${s.total_work_mins||0}</td>
+      <td>${brkText(brk1)}</td>
+      <td>${brkText(brk2)}</td>
+      <td><span class="${statusBadge[s.status]||'badge-gray'}">${s.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function exportTrackingCSV() {
+  const table = document.querySelector('#itnm-itab-tracking .data-table');
+  if (!table) return;
+  _exportTableCSV(table, 'intern-tracking.csv');
+}
+
+/* ── Module Assignment ── */
+async function loadInternModules() {
+  const tbody = document.getElementById('itnm-mod-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+
+  let q = db.client.from('intern_modules')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  const studentF = document.getElementById('itnm-mod-student-filter')?.value;
+  if (studentF) q = q.eq('student_user_id', studentF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No modules assigned yet. Click "+ Assign Module" to get started.</td></tr>'; return; }
+
+  const pm = await _getProfileMap([...new Set(data.map(m => m.student_user_id))]);
+  const sBadge = { assigned:'badge-blue', in_progress:'badge-yellow', completed:'badge-green', reviewed:'badge-purple' };
+
+  tbody.innerHTML = data.map(m => `<tr>
+    <td>${_adm_esc(pm[m.student_user_id]||'—')}</td>
+    <td style="font-weight:600">${_adm_esc(m.module_title)}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_adm_esc(m.module_desc||'—')}</td>
+    <td>${m.due_date||'—'}</td>
+    <td><span class="${sBadge[m.status]||'badge-gray'}">${m.status.replace('_',' ')}</span></td>
+    <td class="action-btns">
+      <button class="action-btn" onclick="editInternModule('${m.id}')">Edit</button>
+      <button class="action-btn danger" onclick="deleteInternModule('${m.id}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function openInternModuleModal() {
+  document.getElementById('imod-edit-id').value = '';
+  document.getElementById('imod-title').value = '';
+  document.getElementById('imod-desc').value = '';
+  document.getElementById('imod-due').value = '';
+  document.getElementById('imod-status').value = 'assigned';
+  document.getElementById('imod-sort').value = '0';
+  document.getElementById('imod-modal-title').textContent = 'Assign Module';
+
+  const sel = document.getElementById('imod-enrollment-id');
+  const { data: enrols } = await db.client
+    .from('internship_enrollments')
+    .select('id, student_user_id, internship_projects(project_name)')
+    .eq('approval_status', 'approved');
+  const sIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
+  const pm = await _getProfileMap(sIds);
+  sel.innerHTML = '<option value="">Select student...</option>' +
+    (enrols||[]).map(e => `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}</option>`).join('');
+
+  openModal('intern-module-modal');
+}
+
+async function editInternModule(modId) {
+  const { data: m } = await db.client.from('intern_modules').select('*').eq('id', modId).single();
+  if (!m) return;
+  await openInternModuleModal();
+  document.getElementById('imod-edit-id').value = m.id;
+  document.getElementById('imod-title').value = m.module_title;
+  document.getElementById('imod-desc').value = m.module_desc || '';
+  document.getElementById('imod-due').value = m.due_date || '';
+  document.getElementById('imod-status').value = m.status;
+  document.getElementById('imod-sort').value = m.sort_order || 0;
+  document.getElementById('imod-modal-title').textContent = 'Edit Module';
+  const sel = document.getElementById('imod-enrollment-id');
+  for (const opt of sel.options) { if (opt.value === m.enrollment_id) { opt.selected = true; break; } }
+}
+
+async function saveInternModule() {
+  const editId = document.getElementById('imod-edit-id').value;
+  const enrollId = document.getElementById('imod-enrollment-id').value;
+  const title = document.getElementById('imod-title').value.trim();
+  const desc = document.getElementById('imod-desc').value.trim();
+  const due = document.getElementById('imod-due').value || null;
+  const status = document.getElementById('imod-status').value;
+  const sort = parseInt(document.getElementById('imod-sort').value) || 0;
+
+  if (!enrollId || !title) { _showAdminToast('Student and title are required.','error'); return; }
+
+  const sel = document.getElementById('imod-enrollment-id');
+  const uid = sel.options[sel.selectedIndex]?.dataset.uid;
+  const { data: admin } = await db.client.auth.getUser();
+
+  const payload = {
+    enrollment_id: enrollId,
+    student_user_id: uid,
+    module_title: title,
+    module_desc: desc || null,
+    due_date: due,
+    status,
+    sort_order: sort,
+    assigned_by: admin?.user?.id || null
+  };
+
+  let err;
+  if (editId) {
+    ({ error: err } = await db.client.from('intern_modules').update(payload).eq('id', editId));
+  } else {
+    ({ error: err } = await db.client.from('intern_modules').insert(payload));
+  }
+
+  if (err) { _showAdminToast('Save failed: ' + err.message, 'error'); return; }
+  _showAdminToast(editId ? 'Module updated!' : 'Module assigned!', 'success');
+  closeModal('intern-module-modal');
+  loadInternModules();
+}
+
+async function deleteInternModule(modId) {
+  if (!confirm('Delete this module?')) return;
+  const { error } = await db.client.from('intern_modules').delete().eq('id', modId);
+  if (error) { _showAdminToast('Delete failed: ' + error.message, 'error'); return; }
+  _showAdminToast('Module deleted.', 'success');
+  loadInternModules();
+}
+
+/* ── Git Permissions ── */
+async function loadGitPermissions() {
+  const tbody = document.getElementById('itnm-git-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+
+  const { data, error } = await db.client.from('intern_git_permissions')
+    .select('*')
+    .order('granted_at', { ascending: false });
+
+  if (error) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No git permissions granted yet.</td></tr>'; return; }
+
+  const pm = await _getProfileMap([...new Set(data.map(g => g.student_user_id))]);
+
+  tbody.innerHTML = data.map(g => `<tr>
+    <td>${_adm_esc(pm[g.student_user_id]||'—')}</td>
+    <td style="font-size:.76rem;word-break:break-all">${_adm_esc(g.repo_url)}</td>
+    <td><span class="badge-blue">${_adm_esc(g.branch_name)}</span></td>
+    <td><span class="${g.is_active?'badge-green':'badge-red'}">${g.is_active?'Active':'Revoked'}</span></td>
+    <td>${new Date(g.granted_at).toLocaleDateString('en-IN')}</td>
+    <td class="action-btns">
+      ${g.is_active
+        ? `<button class="action-btn danger" onclick="revokeGitPerm('${g.id}')">Revoke</button>`
+        : `<button class="action-btn" onclick="reactivateGitPerm('${g.id}')">Reactivate</button>`}
+    </td>
+  </tr>`).join('');
+}
+
+async function openGitPermModal() {
+  document.getElementById('git-repo-url').value = '';
+  document.getElementById('git-branch').value = 'main';
+
+  const sel = document.getElementById('git-enrollment-id');
+  const { data: enrols } = await db.client
+    .from('internship_enrollments')
+    .select('id, student_user_id, internship_projects(project_name)')
+    .eq('approval_status', 'approved');
+  const sIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
+  const pm = await _getProfileMap(sIds);
+  sel.innerHTML = '<option value="">Select student...</option>' +
+    (enrols||[]).map(e => `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}</option>`).join('');
+
+  openModal('git-perm-modal');
+}
+
+async function saveGitPermission() {
+  const enrollId = document.getElementById('git-enrollment-id').value;
+  const repoUrl = document.getElementById('git-repo-url').value.trim();
+  const branch = document.getElementById('git-branch').value.trim() || 'main';
+
+  if (!enrollId || !repoUrl) { _showAdminToast('Student and repository URL are required.','error'); return; }
+
+  const sel = document.getElementById('git-enrollment-id');
+  const uid = sel.options[sel.selectedIndex]?.dataset.uid;
+  const { data: admin } = await db.client.auth.getUser();
+
+  const { error } = await db.client.from('intern_git_permissions').upsert({
+    enrollment_id: enrollId,
+    student_user_id: uid,
+    repo_url: repoUrl,
+    branch_name: branch,
+    is_active: true,
+    granted_by: admin?.user?.id
+  }, { onConflict: 'enrollment_id,repo_url' });
+
+  if (error) { _showAdminToast('Failed: ' + error.message, 'error'); return; }
+  _showAdminToast('Git push access granted!', 'success');
+  closeModal('git-perm-modal');
+  loadGitPermissions();
+}
+
+async function revokeGitPerm(permId) {
+  if (!confirm('Revoke this push permission?')) return;
+  const { error } = await db.client.from('intern_git_permissions')
+    .update({ is_active: false, revoked_at: new Date().toISOString() })
+    .eq('id', permId);
+  if (error) { _showAdminToast('Revoke failed.','error'); return; }
+  _showAdminToast('Permission revoked.','success');
+  loadGitPermissions();
+}
+
+async function reactivateGitPerm(permId) {
+  const { error } = await db.client.from('intern_git_permissions')
+    .update({ is_active: true, revoked_at: null })
+    .eq('id', permId);
+  if (error) { _showAdminToast('Failed.','error'); return; }
+  _showAdminToast('Permission reactivated.','success');
+  loadGitPermissions();
+}
+
+/* ── Submissions ── */
+async function loadInternSubmissions() {
+  const tbody = document.getElementById('itnm-sub-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+
+  let q = db.client.from('intern_submissions')
+    .select('*')
+    .order('submitted_at', { ascending: false })
+    .limit(100);
+
+  const statusF = document.getElementById('itnm-sub-status-filter')?.value;
+  if (statusF) q = q.eq('status', statusF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No submissions yet.</td></tr>'; return; }
+
+  const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id))]);
+  const sBadge = { submitted:'badge-yellow', reviewed:'badge-blue', approved:'badge-green', rejected:'badge-red' };
+
+  tbody.innerHTML = data.map(s => {
+    const screenshotLink = s.screenshot_url
+      ? `<a href="#" onclick="viewSubFile('${_adm_esc(s.screenshot_url)}');return false" style="color:var(--v1);font-size:.76rem">View</a>`
+      : '—';
+    const reportLink = s.report_file_url
+      ? `<a href="#" onclick="viewSubFile('${_adm_esc(s.report_file_url)}');return false" style="color:var(--v1);font-size:.76rem">${s.report_file_type||'File'}</a>`
+      : '—';
+    return `<tr>
+      <td>${_adm_esc(pm[s.student_user_id]||'—')}</td>
+      <td style="font-weight:600">${_adm_esc(s.submission_title)}</td>
+      <td>${screenshotLink}</td>
+      <td>${reportLink}</td>
+      <td style="font-size:.76rem">${_adm_esc(s.commit_message||'—')}</td>
+      <td><span class="${sBadge[s.status]||'badge-gray'}">${s.status}</span></td>
+      <td>${new Date(s.submitted_at).toLocaleDateString('en-IN')}</td>
+      <td class="action-btns">
+        <button class="action-btn" onclick="openSubReview('${s.id}')">Review</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function viewSubFile(path) {
+  const { data } = await db.client.storage.from('intern-submissions').createSignedUrl(path, 300);
+  if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+  else _showAdminToast('Could not generate file link.','error');
+}
+
+async function openSubReview(subId) {
+  const { data: s } = await db.client.from('intern_submissions').select('*').eq('id', subId).single();
+  if (!s) return;
+  document.getElementById('sub-review-id').value = s.id;
+  document.getElementById('sub-review-details').innerHTML = `
+    <strong>${_adm_esc(s.submission_title)}</strong><br>
+    <span style="color:var(--txt3);font-size:.8rem">${_adm_esc(s.description||'No description')}</span>
+    ${s.commit_message ? `<br><code style="font-size:.76rem;background:var(--panel2);padding:.1rem .4rem;border-radius:4px">${_adm_esc(s.commit_message)}</code>` : ''}
+  `;
+  const filesEl = document.getElementById('sub-review-files');
+  filesEl.innerHTML = '';
+  if (s.screenshot_url) filesEl.innerHTML += `<a href="#" onclick="viewSubFile('${_adm_esc(s.screenshot_url)}');return false" class="btn-secondary" style="font-size:.76rem">View Screenshot</a>`;
+  if (s.report_file_url) filesEl.innerHTML += `<a href="#" onclick="viewSubFile('${_adm_esc(s.report_file_url)}');return false" class="btn-secondary" style="font-size:.76rem">View Report (${s.report_file_type||'file'})</a>`;
+
+  document.getElementById('sub-review-status').value = s.status === 'submitted' ? 'reviewed' : s.status;
+  document.getElementById('sub-review-feedback').value = s.admin_feedback || '';
+  openModal('sub-review-modal');
+}
+
+async function saveSubReview() {
+  const subId = document.getElementById('sub-review-id').value;
+  const status = document.getElementById('sub-review-status').value;
+  const feedback = document.getElementById('sub-review-feedback').value.trim();
+  const { data: admin } = await db.client.auth.getUser();
+
+  const { error } = await db.client.from('intern_submissions').update({
+    status,
+    admin_feedback: feedback || null,
+    reviewed_by: admin?.user?.id || null,
+    reviewed_at: new Date().toISOString()
+  }).eq('id', subId);
+
+  if (error) { _showAdminToast('Review failed: ' + error.message, 'error'); return; }
+  _showAdminToast('Submission reviewed!', 'success');
+  closeModal('sub-review-modal');
+  loadInternSubmissions();
+}
+
+function exportSubmissionsCSV() {
+  const table = document.querySelector('#itnm-itab-submissions .data-table');
+  if (!table) return;
+  _exportTableCSV(table, 'intern-submissions.csv');
+}
+
+/* ── App Usage (Confidential) ── */
+async function loadAppUsage() {
+  const tbody = document.getElementById('itnm-au-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Loading…</td></tr>';
+
+  let q = db.client.from('intern_app_usage')
+    .select('*, intern_work_sessions(session_date)')
+    .order('recorded_at', { ascending: false })
+    .limit(200);
+
+  const studentF = document.getElementById('itnm-au-student-filter')?.value;
+  const dateF = document.getElementById('itnm-au-date-filter')?.value;
+  if (studentF) q = q.eq('student_user_id', studentF);
+  if (dateF) q = q.eq('intern_work_sessions.session_date', dateF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No app usage data recorded yet.</td></tr>'; return; }
+
+  const pm = await _getProfileMap([...new Set(data.map(a => a.student_user_id))]);
+
+  tbody.innerHTML = data.map(a => {
+    const mins = Math.round((a.active_seconds||0) / 60);
+    const secs = (a.active_seconds||0) % 60;
+    return `<tr>
+      <td>${_adm_esc(pm[a.student_user_id]||'—')}</td>
+      <td style="font-weight:600">${_adm_esc(a.app_name)}</td>
+      <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.76rem">${_adm_esc(a.window_title||'—')}</td>
+      <td>${mins>0 ? mins+'m ' : ''}${secs}s</td>
+      <td>${new Date(a.recorded_at).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Generic CSV export helper ── */
+function _exportTableCSV(table, filename) {
+  if (typeof _exportTableCSV._impl === 'undefined') {
+    _exportTableCSV._impl = true;
+  }
+  const rows = [];
+  table.querySelectorAll('tr').forEach(tr => {
+    const cols = [];
+    tr.querySelectorAll('th,td').forEach(td => {
+      cols.push('"' + (td.textContent||'').replace(/"/g,'""').trim() + '"');
+    });
+    rows.push(cols.join(','));
+  });
+  const blob = new Blob([rows.join('\n')], { type:'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 </script>
 
 <!-- ===== INTERNSHIP MODALS ===== -->

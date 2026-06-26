@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Intern Dashboard — SkillUpNow</title>
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --id-gold:    #f59e0b;
+      --id-emerald: #10b981;
+      --id-rose:    #f43f5e;
+      --id-cyan:    #06b6d4;
+      --id-violet:  #7c3aed;
+      --id-r:       18px;
+    }
+
+    img { -webkit-user-drag:none; user-drag:none; }
+
+    @keyframes idPulse  { 0%,100%{opacity:.3;transform:scale(.85)} 50%{opacity:1;transform:scale(1.1)} }
+    @keyframes idBob    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+    @keyframes idSpin   { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+    @keyframes idSlideUp{ from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
+    @keyframes idFadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes idShimmer{ 0%{background-position:200% center} 100%{background-position:-200% center} }
+    @keyframes idGlow   { 0%,100%{box-shadow:0 0 20px rgba(16,185,129,.3)} 50%{box-shadow:0 0 40px rgba(16,185,129,.6)} }
+    @keyframes idCountUp{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    @keyframes idPop    { 0%{transform:scale(0);opacity:0} 50%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+    @keyframes idRipple { 0%{transform:scale(1);opacity:.5} 100%{transform:scale(3);opacity:0} }
+    @keyframes idSuccessLine { from{stroke-dashoffset:100} to{stroke-dashoffset:0} }
+    @keyframes idConfetti1 { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-200px) rotate(720deg);opacity:0} }
+    @keyframes idConfetti2 { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-180px) rotate(-540deg);opacity:0} }
+    @keyframes idModalIn { from{opacity:0;transform:scale(.92) translateY(20px)} to{opacity:1;transform:none} }
+
+    .id-page { padding-bottom:4rem; min-height:100vh; }
+
+    .id-container { max-width:1100px; margin:0 auto; padding:0 1.5rem; }
+
+    /* ── Auth gate ── */
+    .id-auth-gate {
+      text-align:center; padding:5rem 2rem; max-width:460px; margin:4rem auto;
+      background:var(--bg2); border:1.5px solid var(--border); border-radius:24px;
+      box-shadow:0 8px 40px rgba(0,0,0,.1);
+    }
+    .id-auth-gate h2 { font-size:1.4rem; font-weight:900; margin-bottom:.5rem; }
+    .id-auth-gate p { color:var(--txt3); margin-bottom:1.5rem; font-size:.9rem; }
+    .id-auth-gate-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.8rem 2rem; border-radius:14px; font-size:.92rem; font-weight:700;
+      background:linear-gradient(135deg,var(--v1),var(--v2)); color:#fff;
+      border:none; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 18px rgba(124,92,252,.35);
+      transition:transform .25s,box-shadow .25s;
+    }
+    .id-auth-gate-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(124,92,252,.5); }
+
+    /* ── Header bar ── */
+    .id-header {
+      padding:2.5rem 0 1.5rem; display:flex; align-items:center;
+      justify-content:space-between; flex-wrap:wrap; gap:1rem;
+      animation:idSlideUp .5s ease both;
+    }
+    .id-header h1 {
+      font-size:clamp(1.5rem,3.5vw,2rem); font-weight:900; letter-spacing:-.03em;
+      background:linear-gradient(135deg,var(--txt) 0%,var(--id-gold) 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .id-header-meta { display:flex; gap:.6rem; flex-wrap:wrap; }
+    .id-header-pill {
+      display:inline-flex; align-items:center; gap:.35rem;
+      padding:.3rem .9rem; border-radius:999px; font-size:.72rem; font-weight:700;
+      background:rgba(16,185,129,.1); color:var(--id-emerald);
+      border:1px solid rgba(16,185,129,.25);
+    }
+    .id-header-pill.gold { background:rgba(245,158,11,.1); color:var(--id-gold); border-color:rgba(245,158,11,.25); }
+
+    /* ── Stats row ── */
+    .id-stats {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem;
+      animation:idSlideUp .55s .1s ease both;
+    }
+    @media(max-width:768px) { .id-stats { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:480px) { .id-stats { grid-template-columns:1fr; } }
+
+    .id-stat {
+      background:var(--bg2); border:1px solid var(--border); border-radius:var(--id-r);
+      padding:1.2rem 1.4rem; position:relative; overflow:hidden;
+      box-shadow:0 2px 12px rgba(0,0,0,.06);
+      transition:transform .3s,box-shadow .3s;
+    }
+    .id-stat:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,.12); }
+    .id-stat::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:var(--stat-grad,linear-gradient(90deg,var(--id-emerald),var(--id-cyan)));
+    }
+    .id-stat-label { font-size:.7rem; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.3rem; }
+    .id-stat-value { font-size:1.6rem; font-weight:900; color:var(--txt); }
+    .id-stat-sub { font-size:.72rem; color:var(--txt3); margin-top:.15rem; }
+
+    /* ── Section cards ── */
+    .id-sections { display:flex; flex-direction:column; gap:2rem; }
+
+    .id-section {
+      background:var(--bg2); border:1px solid var(--border); border-radius:var(--id-r);
+      overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.06);
+      animation:idSlideUp .55s ease both;
+    }
+    .id-sec-hdr {
+      display:flex; align-items:center; justify-content:space-between; gap:1rem;
+      padding:1.2rem 1.5rem; border-bottom:1px solid var(--border);
+      background:linear-gradient(135deg,rgba(245,158,11,.04),rgba(16,185,129,.03));
+    }
+    .id-sec-hdr h2 { font-size:1.05rem; font-weight:800; }
+    .id-sec-body { padding:1.5rem; }
+
+    /* ── START WORK button ── */
+    .id-work-zone { text-align:center; padding:2rem 1rem; }
+
+    .id-start-btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:.7rem;
+      padding:1.1rem 3rem; border-radius:16px; font-size:1.1rem; font-weight:800;
+      cursor:pointer; border:none; font-family:inherit;
+      background:linear-gradient(135deg,#10b981 0%,#059669 100%);
+      color:#fff; position:relative; overflow:hidden;
+      box-shadow:0 6px 24px rgba(16,185,129,.4);
+      transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s;
+      animation:idGlow 3s ease-in-out infinite;
+    }
+    .id-start-btn:hover { transform:translateY(-4px) scale(1.03); box-shadow:0 14px 40px rgba(16,185,129,.55); }
+    .id-start-btn:active { transform:scale(.97); }
+    .id-start-btn::after {
+      content:''; position:absolute; top:50%; left:50%;
+      width:12px; height:12px; border-radius:50%;
+      background:rgba(255,255,255,.4);
+      transform:translate(-50%,-50%) scale(0);
+      pointer-events:none;
+    }
+    .id-start-btn.clicking::after { animation:idRipple .6s ease-out; }
+    .id-start-btn svg { flex-shrink:0; }
+
+    .id-end-btn {
+      display:inline-flex; align-items:center; gap:.6rem;
+      padding:.85rem 2.4rem; border-radius:14px; font-size:.95rem; font-weight:700;
+      cursor:pointer; border:none; font-family:inherit;
+      background:linear-gradient(135deg,#f43f5e,#dc2626);
+      color:#fff;
+      box-shadow:0 4px 18px rgba(244,63,94,.35);
+      transition:transform .25s,box-shadow .25s;
+    }
+    .id-end-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(244,63,94,.5); }
+
+    /* Live timer */
+    .id-timer {
+      display:inline-flex; align-items:center; gap:.6rem;
+      font-size:2rem; font-weight:900; font-variant-numeric:tabular-nums;
+      color:var(--id-emerald); margin:1rem 0;
+      animation:idCountUp .4s ease both;
+    }
+    .id-timer-dot {
+      width:10px; height:10px; border-radius:50%;
+      background:var(--id-emerald);
+      animation:idPulse 1.5s ease-in-out infinite;
+    }
+
+    /* ── Break buttons ── */
+    .id-break-row {
+      display:flex; gap:1rem; justify-content:center; margin-top:1rem; flex-wrap:wrap;
+    }
+    .id-break-btn {
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.6rem 1.4rem; border-radius:12px; font-size:.82rem; font-weight:700;
+      cursor:pointer; border:1.5px solid rgba(245,158,11,.35);
+      background:rgba(245,158,11,.08); color:var(--id-gold);
+      font-family:inherit; transition:all .2s;
+    }
+    .id-break-btn:hover { background:rgba(245,158,11,.18); border-color:var(--id-gold); }
+    .id-break-btn.active {
+      background:rgba(245,158,11,.2); border-color:var(--id-gold);
+      color:#fff; background:linear-gradient(135deg,#f59e0b,#d97706);
+    }
+    .id-break-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .id-break-info { font-size:.75rem; color:var(--txt3); margin-top:.6rem; }
+
+    /* ── Modules list ── */
+    .id-modules { display:flex; flex-direction:column; gap:.8rem; }
+    .id-module {
+      display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem;
+      border:1px solid var(--border); border-radius:14px;
+      background:var(--panel); transition:border-color .2s,background .2s;
+    }
+    .id-module:hover { border-color:rgba(245,158,11,.3); }
+    .id-module-status {
+      width:36px; height:36px; border-radius:10px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.8rem;
+    }
+    .id-module-status.assigned { background:rgba(6,182,212,.1); color:var(--id-cyan); }
+    .id-module-status.in_progress { background:rgba(245,158,11,.1); color:var(--id-gold); }
+    .id-module-status.completed { background:rgba(16,185,129,.1); color:var(--id-emerald); }
+    .id-module-status.reviewed { background:rgba(124,58,237,.1); color:var(--id-violet); }
+    .id-mod-info { flex:1; min-width:0; }
+    .id-mod-title { font-size:.88rem; font-weight:700; color:var(--txt); }
+    .id-mod-desc { font-size:.76rem; color:var(--txt3); margin-top:.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .id-mod-due { font-size:.68rem; color:var(--txt3); margin-top:.2rem; }
+    .id-mod-badge {
+      padding:.2rem .65rem; border-radius:999px; font-size:.65rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.04em; flex-shrink:0;
+    }
+    .id-mod-badge.assigned { background:rgba(6,182,212,.1); color:var(--id-cyan); border:1px solid rgba(6,182,212,.2); }
+    .id-mod-badge.in_progress { background:rgba(245,158,11,.1); color:var(--id-gold); border:1px solid rgba(245,158,11,.2); }
+    .id-mod-badge.completed { background:rgba(16,185,129,.1); color:var(--id-emerald); border:1px solid rgba(16,185,129,.2); }
+    .id-mod-badge.reviewed { background:rgba(124,58,237,.1); color:var(--id-violet); border:1px solid rgba(124,58,237,.2); }
+    .id-mod-empty { text-align:center; padding:2rem; color:var(--txt3); font-size:.88rem; }
+
+    /* ── Submission form ── */
+    .id-submit-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media(max-width:640px) { .id-submit-grid { grid-template-columns:1fr; } }
+    .id-submit-full { grid-column:1/-1; }
+
+    .id-field { display:flex; flex-direction:column; gap:.35rem; }
+    .id-label { font-size:.76rem; font-weight:700; color:var(--txt2); }
+    .id-label span { color:var(--id-rose); }
+    .id-input, .id-textarea, .id-file-input {
+      padding:.65rem .9rem; border-radius:12px; font-size:.86rem; font-family:inherit;
+      background:var(--panel); color:var(--txt); border:1.5px solid var(--border);
+      transition:border-color .2s,box-shadow .2s; outline:none; width:100%;
+    }
+    .id-input:focus, .id-textarea:focus { border-color:rgba(245,158,11,.5); box-shadow:0 0 0 3px rgba(245,158,11,.1); }
+    .id-textarea { resize:vertical; min-height:80px; }
+
+    .id-file-zone {
+      border:2px dashed var(--border); border-radius:14px; padding:1.5rem;
+      text-align:center; cursor:pointer; transition:border-color .2s,background .2s;
+    }
+    .id-file-zone:hover { border-color:rgba(245,158,11,.4); background:rgba(245,158,11,.03); }
+    .id-file-zone.has-file { border-color:var(--id-emerald); background:rgba(16,185,129,.04); }
+    .id-file-zone p { font-size:.8rem; color:var(--txt3); margin-top:.3rem; }
+    .id-file-name { font-size:.78rem; font-weight:600; color:var(--id-emerald); margin-top:.4rem; }
+
+    .id-submit-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.8rem 2rem; border-radius:14px; font-size:.9rem; font-weight:700;
+      background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff;
+      border:none; cursor:pointer; font-family:inherit; width:100%; justify-content:center;
+      box-shadow:0 4px 18px rgba(245,158,11,.35);
+      transition:transform .25s,box-shadow .25s;
+    }
+    .id-submit-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(245,158,11,.5); }
+    .id-submit-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* ── Git Push section ── */
+    .id-git-zone { text-align:center; }
+    .id-git-info {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.5rem 1.2rem; border-radius:12px; font-size:.8rem; font-weight:600;
+      margin-bottom:1rem;
+    }
+    .id-git-info.granted { background:rgba(16,185,129,.1); color:var(--id-emerald); border:1px solid rgba(16,185,129,.25); }
+    .id-git-info.denied { background:rgba(244,63,94,.08); color:var(--id-rose); border:1px solid rgba(244,63,94,.2); }
+
+    .id-git-form { max-width:500px; margin:0 auto; text-align:left; }
+
+    .id-push-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.75rem 2rem; border-radius:14px; font-size:.88rem; font-weight:700;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff;
+      border:none; cursor:pointer; font-family:inherit; width:100%; justify-content:center;
+      box-shadow:0 4px 18px rgba(37,99,235,.35);
+      transition:transform .25s,box-shadow .25s; margin-top:1rem;
+    }
+    .id-push-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(37,99,235,.5); }
+    .id-push-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* ── Success Popup Overlay ── */
+    .id-popup-overlay {
+      position:fixed; inset:0; z-index:99999;
+      background:rgba(3,1,10,.75); backdrop-filter:blur(14px);
+      display:none; align-items:center; justify-content:center; padding:1rem;
+    }
+    .id-popup-overlay.open { display:flex; }
+    .id-popup {
+      background:var(--bg2); border:1.5px solid rgba(16,185,129,.4);
+      border-radius:24px; padding:2.5rem 2rem; max-width:420px; width:100%;
+      text-align:center; position:relative;
+      box-shadow:0 32px 80px rgba(0,0,0,.4);
+      animation:idModalIn .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    .id-popup-icon {
+      width:80px; height:80px; margin:0 auto 1.2rem;
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.08));
+      border:2px solid rgba(16,185,129,.3);
+      animation:idPop .5s .15s cubic-bezier(.22,1,.36,1) both;
+    }
+    .id-popup h3 { font-size:1.2rem; font-weight:900; margin-bottom:.4rem; animation:idSlideUp .4s .25s ease both; }
+    .id-popup p { font-size:.86rem; color:var(--txt3); line-height:1.6; animation:idSlideUp .4s .3s ease both; }
+    .id-popup-close {
+      margin-top:1.4rem; padding:.7rem 2rem; border-radius:12px; font-size:.86rem; font-weight:700;
+      background:linear-gradient(135deg,var(--id-emerald),#059669); color:#fff;
+      border:none; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(16,185,129,.35);
+      transition:transform .2s; animation:idSlideUp .4s .35s ease both;
+    }
+    .id-popup-close:hover { transform:translateY(-2px); }
+
+    /* Confetti */
+    .id-confetti { position:absolute; top:50%; left:50%; pointer-events:none; }
+    .id-confetti span {
+      position:absolute; width:8px; height:8px; border-radius:2px;
+      animation:idConfetti1 1.2s ease-out forwards;
+    }
+    .id-confetti span:nth-child(even) { animation-name:idConfetti2; border-radius:50%; }
+
+    /* ── Toast ── */
+    #id-toast {
+      position:fixed; bottom:1.5rem; right:1.5rem; z-index:99999;
+      background:var(--bg2); color:var(--txt); padding:.8rem 1.2rem;
+      border-radius:14px; font-size:.82rem; font-weight:600;
+      box-shadow:0 8px 32px rgba(0,0,0,.3); border:1px solid var(--border);
+      max-width:340px; opacity:0; pointer-events:none;
+      transition:opacity .25s,transform .25s; transform:translateY(10px);
+    }
+    #id-toast.show { opacity:1; pointer-events:auto; transform:none; }
+    #id-toast.ok  { border-color:rgba(16,185,129,.4); }
+    #id-toast.err { border-color:rgba(244,63,94,.4); }
+
+    /* ── Attendance calendar mini ── */
+    .id-attendance { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .id-att-day {
+      width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+      font-size:.6rem; font-weight:700; cursor:default;
+      border:1px solid var(--border); background:var(--panel);
+    }
+    .id-att-day.present { background:rgba(16,185,129,.15); color:var(--id-emerald); border-color:rgba(16,185,129,.3); }
+    .id-att-day.today { border-color:var(--id-gold); box-shadow:0 0 0 2px rgba(245,158,11,.2); }
+
+    /* Responsive */
+    @media(max-width:640px) {
+      .id-header { padding:1.5rem 0 1rem; }
+      .id-sec-body { padding:1rem; }
+    }
+  </style>
+</head>
+<body class="id-page">
+  <nav></nav>
+  <div id="id-toast" role="alert" aria-live="polite"></div>
+
+  <!-- Auth Gate (shown when not logged in) -->
+  <div id="id-auth-gate" class="id-auth-gate" style="display:none">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(124,92,252,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    <h2>Intern Dashboard</h2>
+    <p>Login to access your internship workspace, track work hours, and submit reports.</p>
+    <button class="id-auth-gate-btn" onclick="window.profileNav&&window.profileNav.openLoginModal()">
+      Login / Sign Up
+    </button>
+  </div>
+
+  <!-- Main Dashboard (shown when logged in + enrolled) -->
+  <div id="id-main" style="display:none">
+    <div class="id-container">
+
+      <!-- Header -->
+      <div class="id-header">
+        <div>
+          <h1 id="id-greeting">Welcome Back</h1>
+          <div class="id-header-meta">
+            <span class="id-header-pill" id="id-project-pill">Loading...</span>
+            <span class="id-header-pill gold" id="id-day-pill">Day 0 / 50</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="id-stats">
+        <div class="id-stat" style="--stat-grad:linear-gradient(90deg,#10b981,#06b6d4)">
+          <div class="id-stat-label">Days Worked</div>
+          <div class="id-stat-value" id="id-days-count">0</div>
+          <div class="id-stat-sub">of 50 max</div>
+        </div>
+        <div class="id-stat" style="--stat-grad:linear-gradient(90deg,#f59e0b,#f97316)">
+          <div class="id-stat-label">This Week</div>
+          <div class="id-stat-value" id="id-week-count">0</div>
+          <div class="id-stat-sub">min 5 days/week</div>
+        </div>
+        <div class="id-stat" style="--stat-grad:linear-gradient(90deg,#7c3aed,#a78bfa)">
+          <div class="id-stat-label">Modules</div>
+          <div class="id-stat-value" id="id-modules-count">0</div>
+          <div class="id-stat-sub">assigned</div>
+        </div>
+        <div class="id-stat" style="--stat-grad:linear-gradient(90deg,#06b6d4,#0ea5e9)">
+          <div class="id-stat-label">Submissions</div>
+          <div class="id-stat-value" id="id-subs-count">0</div>
+          <div class="id-stat-sub">total</div>
+        </div>
+      </div>
+
+      <div class="id-sections">
+
+        <!-- ═══ WORK SESSION ═══ -->
+        <div class="id-section" style="animation-delay:.15s">
+          <div class="id-sec-hdr">
+            <h2>Work Session</h2>
+            <span id="id-session-status" style="font-size:.75rem;font-weight:700;color:var(--txt3)">Not started</span>
+          </div>
+          <div class="id-sec-body">
+            <div class="id-work-zone" id="id-work-zone">
+              <div id="id-pre-start">
+                <p style="color:var(--txt3);margin-bottom:1.2rem;font-size:.88rem">Click to begin your work day (10:00 AM — 6:00 PM)</p>
+                <button class="id-start-btn" id="id-start-btn" onclick="startWork()">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Start Work
+                </button>
+              </div>
+
+              <div id="id-working" style="display:none">
+                <div class="id-timer" id="id-timer">
+                  <span class="id-timer-dot"></span>
+                  <span id="id-timer-display">00:00:00</span>
+                </div>
+                <p style="font-size:.8rem;color:var(--txt3);margin-bottom:.5rem" id="id-started-at-text"></p>
+
+                <div class="id-break-row">
+                  <button class="id-break-btn" id="id-break1-btn" onclick="toggleBreak(1)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                    Break 1
+                  </button>
+                  <button class="id-break-btn" id="id-break2-btn" onclick="toggleBreak(2)" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                    Break 2
+                  </button>
+                </div>
+                <div class="id-break-info" id="id-break-info">Breaks: 30–45 min each</div>
+
+                <div style="margin-top:1.5rem">
+                  <button class="id-end-btn" id="id-end-btn" onclick="endWork()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    End Work
+                  </button>
+                </div>
+              </div>
+
+              <div id="id-completed" style="display:none">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--id-emerald)" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><polyline points="9 12 11.5 14.5 15.5 10"/>
+                </svg>
+                <p style="font-size:.95rem;font-weight:700;color:var(--txt);margin-top:.8rem">Work day completed!</p>
+                <p style="font-size:.82rem;color:var(--txt3);margin-top:.3rem" id="id-completed-summary"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ ASSIGNED MODULES ═══ -->
+        <div class="id-section" style="animation-delay:.2s">
+          <div class="id-sec-hdr">
+            <h2>Assigned Modules</h2>
+          </div>
+          <div class="id-sec-body">
+            <div class="id-modules" id="id-modules-list">
+              <div class="id-mod-empty">No modules assigned yet. Your admin will assign tasks soon.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ SUBMIT WORK ═══ -->
+        <div class="id-section" style="animation-delay:.25s">
+          <div class="id-sec-hdr">
+            <h2>Submit Work</h2>
+          </div>
+          <div class="id-sec-body">
+            <form id="id-submit-form" onsubmit="submitWork(event)">
+              <div class="id-submit-grid">
+                <div class="id-field id-submit-full">
+                  <label class="id-label">Title <span>*</span></label>
+                  <input class="id-input" id="id-sub-title" placeholder="e.g. Completed homepage layout" required>
+                </div>
+                <div class="id-field id-submit-full">
+                  <label class="id-label">Description</label>
+                  <textarea class="id-textarea" id="id-sub-desc" placeholder="Describe what you accomplished..."></textarea>
+                </div>
+                <div class="id-field">
+                  <label class="id-label">Screenshot <span>*</span></label>
+                  <div class="id-file-zone" id="id-screenshot-zone" onclick="document.getElementById('id-screenshot-input').click()">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    <p>Click to upload screenshot</p>
+                    <div class="id-file-name" id="id-screenshot-name"></div>
+                  </div>
+                  <input type="file" id="id-screenshot-input" accept="image/*" style="display:none" onchange="handleFileSelect(this,'screenshot')">
+                </div>
+                <div class="id-field">
+                  <label class="id-label">Report (PDF/Excel) <span>*</span></label>
+                  <div class="id-file-zone" id="id-report-zone" onclick="document.getElementById('id-report-input').click()">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <p>Click to upload PDF or Excel</p>
+                    <div class="id-file-name" id="id-report-name"></div>
+                  </div>
+                  <input type="file" id="id-report-input" accept=".pdf,.xlsx,.xls" style="display:none" onchange="handleFileSelect(this,'report')">
+                </div>
+                <div class="id-field id-submit-full">
+                  <label class="id-label">Commit Message</label>
+                  <input class="id-input" id="id-sub-commit" placeholder="e.g. feat: add responsive navbar">
+                </div>
+              </div>
+              <button type="submit" class="id-submit-btn" id="id-submit-work-btn" style="margin-top:1.2rem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Submit Work
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- ═══ GIT PUSH ═══ -->
+        <div class="id-section" style="animation-delay:.3s">
+          <div class="id-sec-hdr">
+            <h2>Git Push</h2>
+          </div>
+          <div class="id-sec-body">
+            <div class="id-git-zone" id="id-git-zone">
+              <div id="id-git-no-perm">
+                <div class="id-git-info denied">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  Push permission not granted
+                </div>
+                <p style="font-size:.82rem;color:var(--txt3)">Your admin needs to grant push access before you can push to the repository.</p>
+              </div>
+              <div id="id-git-has-perm" style="display:none">
+                <div class="id-git-info granted">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Push access granted
+                </div>
+                <div class="id-git-form">
+                  <div class="id-field" style="margin-bottom:.8rem">
+                    <label class="id-label">Repository</label>
+                    <input class="id-input" id="id-git-repo" readonly style="background:var(--panel2)">
+                  </div>
+                  <div class="id-field" style="margin-bottom:.8rem">
+                    <label class="id-label">Branch</label>
+                    <input class="id-input" id="id-git-branch" readonly style="background:var(--panel2)">
+                  </div>
+                  <div class="id-field">
+                    <label class="id-label">Commit Message <span>*</span></label>
+                    <input class="id-input" id="id-git-commit-msg" placeholder="Describe your changes...">
+                  </div>
+                  <button class="id-push-btn" id="id-push-btn" onclick="gitPush()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                    Push to GitHub
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ ATTENDANCE ═══ -->
+        <div class="id-section" style="animation-delay:.35s">
+          <div class="id-sec-hdr">
+            <h2>Attendance</h2>
+            <span id="id-att-summary" style="font-size:.75rem;font-weight:700;color:var(--txt3)"></span>
+          </div>
+          <div class="id-sec-body">
+            <div class="id-attendance" id="id-attendance-grid"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUCCESS POPUP ═══ -->
+  <div class="id-popup-overlay" id="id-popup-overlay" onclick="if(event.target===this)closePopup()">
+    <div class="id-popup" id="id-popup">
+      <div class="id-confetti" id="id-confetti"></div>
+      <div class="id-popup-icon" id="id-popup-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--id-emerald)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" style="stroke-dasharray:100;animation:idSuccessLine .6s .3s ease both"/>
+          <polyline points="22 4 12 14.01 9 11.01" style="stroke-dasharray:100;animation:idSuccessLine .4s .6s ease both"/>
+        </svg>
+      </div>
+      <h3 id="id-popup-title">Success!</h3>
+      <p id="id-popup-msg">Your action was completed successfully.</p>
+      <button class="id-popup-close" onclick="closePopup()">Done</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config/supabase-config.js"></script>
+  <script src="../js/profile-nav.js"></script>
+
+  <script>
+  /* ══════════════════════════════════════════════════
+     INTERN DASHBOARD — Main Script
+  ══════════════════════════════════════════════════ */
+
+  let _user = null;
+  let _enrollment = null;
+  let _session = null;
+  let _timerInterval = null;
+  let _breakState = { 1: null, 2: null };
+  let _gitPerm = null;
+  let _selectedFiles = { screenshot: null, report: null };
+
+  function _client() { return window.supabaseConfig?.client; }
+
+  function toast(msg, type='ok', dur=3800) {
+    const t = document.getElementById('id-toast');
+    t.textContent = msg; t.className = 'show ' + type;
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => { t.className = ''; }, dur);
+  }
+
+  function showPopup(title, msg) {
+    document.getElementById('id-popup-title').textContent = title;
+    document.getElementById('id-popup-msg').textContent = msg;
+    document.getElementById('id-popup-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    spawnConfetti();
+  }
+
+  function closePopup() {
+    document.getElementById('id-popup-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function spawnConfetti() {
+    const el = document.getElementById('id-confetti');
+    el.innerHTML = '';
+    const colors = ['#f59e0b','#10b981','#7c3aed','#f43f5e','#06b6d4','#fbbf24','#a78bfa'];
+    for (let i = 0; i < 24; i++) {
+      const s = document.createElement('span');
+      s.style.cssText = `
+        background:${colors[i % colors.length]};
+        left:${(Math.random() - .5) * 200}px;
+        top:${(Math.random() - .5) * 100}px;
+        width:${6 + Math.random() * 6}px;
+        height:${6 + Math.random() * 6}px;
+        animation-duration:${.8 + Math.random() * .8}s;
+        animation-delay:${Math.random() * .3}s;
+      `;
+      el.appendChild(s);
+    }
+  }
+
+  /* ── Auth ── */
+  async function initAuth() {
+    const c = _client();
+    if (!c) return;
+    const { data } = await c.auth.getSession();
+    _user = data?.session?.user || null;
+    c.auth.onAuthStateChange(async (_e, s) => {
+      _user = s?.user || null;
+      await initDashboard();
+    });
+    await initDashboard();
+  }
+
+  async function initDashboard() {
+    if (!_user) {
+      document.getElementById('id-auth-gate').style.display = '';
+      document.getElementById('id-main').style.display = 'none';
+      return;
+    }
+
+    const c = _client();
+    const { data: enrollments } = await c
+      .from('internship_enrollments')
+      .select('*, internship_projects(*)')
+      .eq('student_user_id', _user.id)
+      .eq('approval_status', 'approved')
+      .order('enrolled_at', { ascending: false })
+      .limit(1);
+
+    if (!enrollments || !enrollments.length) {
+      document.getElementById('id-auth-gate').style.display = '';
+      document.getElementById('id-main').style.display = 'none';
+      const gate = document.getElementById('id-auth-gate');
+      gate.querySelector('h2').textContent = 'No Active Internship';
+      gate.querySelector('p').textContent = 'You don\'t have an approved internship enrollment yet. Apply on the internships page.';
+      gate.querySelector('button').textContent = 'Browse Internships';
+      gate.querySelector('button').onclick = () => { window.location.href = '/internship'; };
+      return;
+    }
+
+    _enrollment = enrollments[0];
+    document.getElementById('id-auth-gate').style.display = 'none';
+    document.getElementById('id-main').style.display = '';
+
+    const name = _user.user_metadata?.full_name || _user.email?.split('@')[0] || 'Intern';
+    document.getElementById('id-greeting').textContent = `Welcome, ${name}`;
+    document.getElementById('id-project-pill').textContent = _enrollment.internship_projects?.project_name || 'Internship';
+
+    await Promise.all([
+      loadWorkSession(),
+      loadStats(),
+      loadModules(),
+      loadGitPermission(),
+      loadAttendance()
+    ]);
+
+    startAppTracking();
+  }
+
+  /* ── Work Session ── */
+  async function loadWorkSession() {
+    const c = _client();
+    const today = new Date().toISOString().slice(0, 10);
+
+    const { data } = await c
+      .from('intern_work_sessions')
+      .select('*, intern_breaks(*)')
+      .eq('enrollment_id', _enrollment.id)
+      .eq('session_date', today)
+      .limit(1)
+      .maybeSingle();
+
+    _session = data;
+
+    if (!_session) {
+      showPreStart();
+    } else if (_session.status === 'completed' || _session.status === 'auto_closed') {
+      showCompleted();
+    } else {
+      showWorking();
+      loadBreakState();
+      startTimer();
+    }
+  }
+
+  function showPreStart() {
+    document.getElementById('id-pre-start').style.display = '';
+    document.getElementById('id-working').style.display = 'none';
+    document.getElementById('id-completed').style.display = 'none';
+    document.getElementById('id-session-status').textContent = 'Not started';
+  }
+
+  function showWorking() {
+    document.getElementById('id-pre-start').style.display = 'none';
+    document.getElementById('id-working').style.display = '';
+    document.getElementById('id-completed').style.display = 'none';
+    document.getElementById('id-session-status').textContent = 'In progress';
+    document.getElementById('id-session-status').style.color = 'var(--id-emerald)';
+    if (_session?.start_time) {
+      const st = new Date(_session.start_time);
+      document.getElementById('id-started-at-text').textContent =
+        `Started at ${st.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' })}`;
+    }
+  }
+
+  function showCompleted() {
+    document.getElementById('id-pre-start').style.display = 'none';
+    document.getElementById('id-working').style.display = 'none';
+    document.getElementById('id-completed').style.display = '';
+    document.getElementById('id-session-status').textContent = 'Completed';
+    document.getElementById('id-session-status').style.color = 'var(--id-emerald)';
+    if (_session) {
+      const mins = _session.total_work_mins || 0;
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      document.getElementById('id-completed-summary').textContent =
+        `Worked ${h}h ${m}m today (Day ${_session.day_number})`;
+    }
+  }
+
+  async function startWork() {
+    const btn = document.getElementById('id-start-btn');
+    btn.classList.add('clicking');
+    btn.disabled = true;
+    btn.textContent = 'Starting...';
+
+    const c = _client();
+    const today = new Date().toISOString().slice(0, 10);
+
+    const { data: sessions } = await c
+      .from('intern_work_sessions')
+      .select('id')
+      .eq('enrollment_id', _enrollment.id)
+      .order('session_date', { ascending: false });
+
+    const dayNum = (sessions?.length || 0) + 1;
+
+    if (dayNum > 50) {
+      toast('Maximum 50 work days reached.', 'err');
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Work';
+      return;
+    }
+
+    const { data, error } = await c
+      .from('intern_work_sessions')
+      .insert({
+        enrollment_id: _enrollment.id,
+        student_user_id: _user.id,
+        session_date: today,
+        start_time: new Date().toISOString(),
+        status: 'active',
+        day_number: dayNum
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast('Failed to start session: ' + (error.message || ''), 'err');
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Work';
+      return;
+    }
+
+    _session = data;
+    showWorking();
+    startTimer();
+    toast('Work session started! Day ' + dayNum, 'ok');
+    loadStats();
+  }
+
+  async function endWork() {
+    if (!_session) return;
+    const c = _client();
+    const { error } = await c
+      .from('intern_work_sessions')
+      .update({ end_time: new Date().toISOString(), status: 'completed' })
+      .eq('id', _session.id);
+
+    if (error) { toast('Failed to end session', 'err'); return; }
+
+    clearInterval(_timerInterval);
+    _session.end_time = new Date().toISOString();
+    _session.status = 'completed';
+    const start = new Date(_session.start_time);
+    const end = new Date(_session.end_time);
+    _session.total_work_mins = Math.round((end - start) / 60000);
+    showCompleted();
+    toast('Work day ended!', 'ok');
+    loadStats();
+  }
+
+  function startTimer() {
+    if (!_session?.start_time) return;
+    const updateDisplay = () => {
+      const start = new Date(_session.start_time);
+      const now = new Date();
+      let diff = Math.floor((now - start) / 1000);
+      if (diff < 0) diff = 0;
+      const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+      const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+      const s = String(diff % 60).padStart(2, '0');
+      document.getElementById('id-timer-display').textContent = `${h}:${m}:${s}`;
+    };
+    updateDisplay();
+    _timerInterval = setInterval(updateDisplay, 1000);
+  }
+
+  /* ── Breaks ── */
+  function loadBreakState() {
+    if (!_session?.intern_breaks) return;
+    _session.intern_breaks.forEach(b => {
+      _breakState[b.break_number] = b;
+      const btn = document.getElementById(`id-break${b.break_number}-btn`);
+      if (b.break_end) {
+        btn.textContent = `Break ${b.break_number} (${b.duration_mins || '?'}m)`;
+        btn.disabled = true;
+        btn.classList.remove('active');
+      } else {
+        btn.classList.add('active');
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> End Break ${b.break_number}`;
+      }
+    });
+    if (_breakState[1] && _breakState[1].break_end) {
+      document.getElementById('id-break2-btn').disabled = false;
+    }
+  }
+
+  async function toggleBreak(num) {
+    const c = _client();
+    const existing = _breakState[num];
+
+    if (!existing || !existing.id) {
+      const { data, error } = await c
+        .from('intern_breaks')
+        .insert({
+          session_id: _session.id,
+          student_user_id: _user.id,
+          break_number: num,
+          break_start: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) { toast('Failed to start break', 'err'); return; }
+      _breakState[num] = data;
+      const btn = document.getElementById(`id-break${num}-btn`);
+      btn.classList.add('active');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> End Break ${num}`;
+      document.getElementById('id-break-info').textContent = `Break ${num} started — 30 to 45 min`;
+      toast(`Break ${num} started`, 'ok');
+    } else if (!existing.break_end) {
+      const startTime = new Date(existing.break_start);
+      const durMins = Math.round((Date.now() - startTime.getTime()) / 60000);
+
+      const { error } = await c
+        .from('intern_breaks')
+        .update({ break_end: new Date().toISOString() })
+        .eq('id', existing.id);
+
+      if (error) { toast('Failed to end break', 'err'); return; }
+      _breakState[num].break_end = new Date().toISOString();
+      const btn = document.getElementById(`id-break${num}-btn`);
+      btn.classList.remove('active');
+      btn.textContent = `Break ${num} (${durMins}m)`;
+      btn.disabled = true;
+
+      if (num === 1) document.getElementById('id-break2-btn').disabled = false;
+
+      document.getElementById('id-break-info').textContent =
+        durMins < 30 ? `Break ${num}: ${durMins}m (short — aim for 30–45m)`
+        : durMins > 45 ? `Break ${num}: ${durMins}m (over limit)`
+        : `Break ${num}: ${durMins}m`;
+      toast(`Break ${num} ended (${durMins}m)`, 'ok');
+    }
+  }
+
+  /* ── Stats ── */
+  async function loadStats() {
+    const c = _client();
+
+    const { data: allSessions } = await c
+      .from('intern_work_sessions')
+      .select('session_date, day_number')
+      .eq('enrollment_id', _enrollment.id);
+
+    const totalDays = allSessions?.length || 0;
+    document.getElementById('id-days-count').textContent = totalDays;
+    document.getElementById('id-day-pill').textContent = `Day ${totalDays} / 50`;
+
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    const weekDays = (allSessions || []).filter(s =>
+      new Date(s.session_date) >= weekStart
+    ).length;
+    document.getElementById('id-week-count').textContent = weekDays;
+
+    const { count: modCount } = await c
+      .from('intern_modules')
+      .select('id', { count: 'exact', head: true })
+      .eq('enrollment_id', _enrollment.id);
+    document.getElementById('id-modules-count').textContent = modCount || 0;
+
+    const { count: subCount } = await c
+      .from('intern_submissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('enrollment_id', _enrollment.id);
+    document.getElementById('id-subs-count').textContent = subCount || 0;
+  }
+
+  /* ── Modules ── */
+  async function loadModules() {
+    const c = _client();
+    const { data } = await c
+      .from('intern_modules')
+      .select('*')
+      .eq('enrollment_id', _enrollment.id)
+      .order('sort_order', { ascending: true });
+
+    const list = document.getElementById('id-modules-list');
+    if (!data || !data.length) {
+      list.innerHTML = '<div class="id-mod-empty">No modules assigned yet. Your admin will assign tasks soon.</div>';
+      return;
+    }
+
+    const statusIcons = {
+      assigned: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+      in_progress: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+      completed: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+      reviewed: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+    };
+
+    list.innerHTML = data.map(m => `
+      <div class="id-module">
+        <div class="id-module-status ${m.status}">${statusIcons[m.status] || ''}</div>
+        <div class="id-mod-info">
+          <div class="id-mod-title">${esc(m.module_title)}</div>
+          ${m.module_desc ? `<div class="id-mod-desc">${esc(m.module_desc)}</div>` : ''}
+          ${m.due_date ? `<div class="id-mod-due">Due: ${new Date(m.due_date).toLocaleDateString('en-IN')}</div>` : ''}
+        </div>
+        <span class="id-mod-badge ${m.status}">${m.status.replace('_',' ')}</span>
+      </div>
+    `).join('');
+  }
+
+  /* ── Git Permission ── */
+  async function loadGitPermission() {
+    const c = _client();
+    const { data } = await c
+      .from('intern_git_permissions')
+      .select('*')
+      .eq('enrollment_id', _enrollment.id)
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+
+    _gitPerm = data;
+    if (data) {
+      document.getElementById('id-git-no-perm').style.display = 'none';
+      document.getElementById('id-git-has-perm').style.display = '';
+      document.getElementById('id-git-repo').value = data.repo_url;
+      document.getElementById('id-git-branch').value = data.branch_name;
+    } else {
+      document.getElementById('id-git-no-perm').style.display = '';
+      document.getElementById('id-git-has-perm').style.display = 'none';
+    }
+  }
+
+  async function gitPush() {
+    if (!_gitPerm) { toast('No push permission granted', 'err'); return; }
+    const commitMsg = document.getElementById('id-git-commit-msg').value.trim();
+    if (!commitMsg) { toast('Enter a commit message', 'err'); return; }
+
+    const btn = document.getElementById('id-push-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:idSpin 1s linear infinite"><circle cx="12" cy="12" r="10"/></svg> Pushing...';
+
+    try {
+      const c = _client();
+      const { data, error } = await c.functions.invoke('git-push', {
+        body: {
+          enrollment_id: _enrollment.id,
+          repo_url: _gitPerm.repo_url,
+          branch: _gitPerm.branch_name,
+          commit_message: commitMsg,
+          permission_id: _gitPerm.id
+        }
+      });
+
+      if (error) throw error;
+
+      showPopup(
+        'Push Successful!',
+        `Your code has been pushed to ${_gitPerm.branch_name} on ${_gitPerm.repo_url.split('/').slice(-1)[0]}.`
+      );
+      document.getElementById('id-git-commit-msg').value = '';
+    } catch (err) {
+      toast('Push failed: ' + (err.message || 'Unknown error'), 'err', 5000);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg> Push to GitHub';
+  }
+
+  /* ── File handling ── */
+  function handleFileSelect(input, type) {
+    const file = input.files?.[0];
+    if (!file) return;
+    _selectedFiles[type] = file;
+    const nameEl = document.getElementById(`id-${type}-name`);
+    nameEl.textContent = file.name;
+    document.getElementById(`id-${type}-zone`).classList.add('has-file');
+  }
+
+  /* ── Submit work ── */
+  async function submitWork(e) {
+    e.preventDefault();
+    const title = document.getElementById('id-sub-title').value.trim();
+    const desc = document.getElementById('id-sub-desc').value.trim();
+    const commit = document.getElementById('id-sub-commit').value.trim();
+
+    if (!title) { toast('Title is required', 'err'); return; }
+    if (!_selectedFiles.screenshot) { toast('Screenshot is required', 'err'); return; }
+    if (!_selectedFiles.report) { toast('Report file is required', 'err'); return; }
+
+    const btn = document.getElementById('id-submit-work-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+
+    const c = _client();
+    let screenshotUrl = null;
+    let reportUrl = null;
+    const folder = `${_user.id}/${Date.now()}`;
+
+    try {
+      const ext1 = _selectedFiles.screenshot.name.split('.').pop();
+      const { data: s1, error: e1 } = await c.storage
+        .from('intern-submissions')
+        .upload(`${folder}/screenshot.${ext1}`, _selectedFiles.screenshot);
+      if (e1) throw new Error('Screenshot upload failed: ' + e1.message);
+      screenshotUrl = s1.path;
+
+      const ext2 = _selectedFiles.report.name.split('.').pop().toLowerCase();
+      const { data: s2, error: e2 } = await c.storage
+        .from('intern-submissions')
+        .upload(`${folder}/report.${ext2}`, _selectedFiles.report);
+      if (e2) throw new Error('Report upload failed: ' + e2.message);
+      reportUrl = s2.path;
+
+      btn.textContent = 'Saving...';
+
+      const payload = {
+        enrollment_id: _enrollment.id,
+        student_user_id: _user.id,
+        session_id: _session?.id || null,
+        submission_title: title,
+        description: desc || null,
+        screenshot_url: screenshotUrl,
+        report_file_url: reportUrl,
+        report_file_type: ext2 === 'pdf' ? 'pdf' : (ext2 === 'xlsx' || ext2 === 'xls' ? ext2 : null),
+        commit_message: commit || null,
+        status: 'submitted'
+      };
+
+      const { data: sub, error: subErr } = await c
+        .from('intern_submissions')
+        .insert(payload)
+        .select()
+        .single();
+
+      if (subErr) throw subErr;
+
+      await c.from('intern_admin_reports').insert({
+        submission_id: sub.id,
+        enrollment_id: _enrollment.id,
+        student_user_id: _user.id,
+        report_date: new Date().toISOString().slice(0, 10),
+        work_duration: _session?.total_work_mins || 0,
+        attendance_day: _session?.day_number || 0,
+        notes: `Submission: ${title}`
+      });
+
+      document.getElementById('id-submit-form').reset();
+      _selectedFiles = { screenshot: null, report: null };
+      document.getElementById('id-screenshot-name').textContent = '';
+      document.getElementById('id-report-name').textContent = '';
+      document.getElementById('id-screenshot-zone').classList.remove('has-file');
+      document.getElementById('id-report-zone').classList.remove('has-file');
+
+      showPopup('Work Submitted!', 'Your submission has been recorded. Your admin will receive a detailed report.');
+      loadStats();
+    } catch (err) {
+      toast('Submission failed: ' + (err.message || ''), 'err', 5000);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit Work';
+  }
+
+  /* ── Attendance ── */
+  async function loadAttendance() {
+    const c = _client();
+    const { data: sessions } = await c
+      .from('intern_work_sessions')
+      .select('session_date, day_number, status')
+      .eq('enrollment_id', _enrollment.id)
+      .order('session_date', { ascending: true });
+
+    const grid = document.getElementById('id-attendance-grid');
+    const today = new Date().toISOString().slice(0, 10);
+    const dateSet = new Set((sessions || []).map(s => s.session_date));
+
+    let html = '';
+    for (let d = 1; d <= 50; d++) {
+      const session = (sessions || []).find(s => s.day_number === d);
+      const isToday = session?.session_date === today;
+      const cls = session ? 'present' : '';
+      const todayCls = isToday ? 'today' : '';
+      html += `<div class="id-att-day ${cls} ${todayCls}" title="Day ${d}">${d}</div>`;
+    }
+    grid.innerHTML = html;
+
+    const presentDays = (sessions || []).filter(s => s.status === 'completed' || s.status === 'active').length;
+    document.getElementById('id-att-summary').textContent = `${presentDays} / 50 days`;
+  }
+
+  /* ── Background app tracking (confidential) ── */
+  function startAppTracking() {
+    if (!_session || _session.status !== 'active') return;
+
+    const trackApp = async () => {
+      if (!_session || _session.status !== 'active') return;
+      const c = _client();
+      if (!c) return;
+
+      const apps = [];
+      if (document.visibilityState === 'visible') {
+        const ua = navigator.userAgent.toLowerCase();
+        let appName = 'Browser';
+        if (ua.includes('chrome')) appName = 'Chrome';
+        else if (ua.includes('firefox')) appName = 'Firefox';
+        else if (ua.includes('safari')) appName = 'Safari';
+        else if (ua.includes('edge')) appName = 'Edge';
+
+        apps.push({
+          session_id: _session.id,
+          student_user_id: _user.id,
+          app_name: appName,
+          window_title: document.title,
+          active_seconds: 30
+        });
+      }
+
+      if (apps.length) {
+        await c.from('intern_app_usage').insert(apps).then(() => {});
+      }
+    };
+
+    setInterval(trackApp, 30000);
+  }
+
+  /* ── Prevent screenshots ── */
+  function setupSecurityMeasures() {
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'PrintScreen') {
+        navigator.clipboard.writeText('');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's')) {
+        e.preventDefault();
+      }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+        e.preventDefault();
+      }
+    });
+  }
+
+  /* ── Helpers ── */
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Init ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    setupSecurityMeasures();
+    initAuth();
+  });
+  </script>
+</body>
+</html>
