@@ -1,5 +1,5 @@
 const { selectRows } = require('./_utils/supabase');
-const { sendPaymentEmail, buildSuccessEmail, buildPendingEmail } = require('./_utils/email');
+const { sendPaymentEmail, buildSuccessEmail, buildPendingEmail, sendAdminNotification } = require('./_utils/email');
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -88,6 +88,17 @@ exports.handler = async (event) => {
   }
 
   const result = await sendPaymentEmail(user_email, subject, htmlBody);
+
+  // Notify admin about new payment (non-blocking)
+  sendAdminNotification({
+    studentName: user_name,
+    studentEmail: user_email,
+    courseName: course_name || 'Course Enrollment',
+    amount: Number(amount),
+    paymentId: payment_id,
+    paymentMethod: paymentStatus === 'completed' ? 'gateway_link' : 'manual',
+    status: paymentStatus,
+  }).catch(() => {});
 
   if (!result) {
     return {

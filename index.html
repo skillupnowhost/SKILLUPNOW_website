@@ -45,15 +45,15 @@
       {
         "@type": "Organization",
         "@id": "https://skillupnowadmin.org/#organization",
-        "name": "SkillUpNow",
+        "name": "SKILLUpnow Tech Pvt Ltd",
         "url": "https://skillupnowadmin.org/",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://skillupnowadmin.org/assets/logo.png",
+          "url": "https://skillupnowadmin.org/icon/Logo.png",
           "width": 200,
           "height": 60
         },
-        "description": "SkillUpNow is a Chennai-based IT training institute and software development company offering courses in Cloud, DevOps, AI/ML, Cybersecurity and custom web & mobile app development services.",
+        "description": "SKILLUpnow Tech Pvt Ltd is a Chennai-based IT training institute and software development company offering courses in Cloud, DevOps, AI/ML, Cybersecurity and custom web & mobile app development services.",
         "address": {
           "@type": "PostalAddress",
           "addressLocality": "Chennai",
@@ -63,7 +63,7 @@
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "customer support",
-          "email": "support@skillupnow.com",
+          "email": "skillupnowoff@gmail.com",
           "availableLanguage": ["English", "Tamil"]
         },
         "sameAs": []
@@ -72,7 +72,7 @@
         "@type": "WebSite",
         "@id": "https://skillupnowadmin.org/#website",
         "url": "https://skillupnowadmin.org/",
-        "name": "SkillUpNow",
+        "name": "SKILLUpnow Tech Pvt Ltd",
         "publisher": { "@id": "https://skillupnowadmin.org/#organization" },
         "potentialAction": {
           "@type": "SearchAction",
@@ -2859,8 +2859,6 @@
   <script src="js/emi-calculator.js"></script>
   <script src="js/payment.js"></script>
   <script src="js/main.js"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="js/razorpay-loader.js"></script>
 
   <script>
     // ==================== LOGIN & REGISTRATION WITH DATABASE ====================
@@ -3787,7 +3785,6 @@
       btn.disabled = true; btn.textContent = 'Processing…';
       const totalAmount = hcSelectedTotal;
       if (!totalAmount || totalAmount <= 0) { alert('No pricing available. Please contact support.'); btn.disabled = false; btn.innerHTML = _payBtnHtml; return; }
-      if (typeof window.Razorpay === 'undefined') { alert('Payment gateway failed to load. Please refresh.'); btn.disabled = false; btn.innerHTML = _payBtnHtml; return; }
 
       try {
         const activePricing = (hcSelectedCourse.course_pricing || []).find(p => p.is_active) || hcSelectedCourse.course_pricing?.[0];
@@ -3799,81 +3796,9 @@
         }, { onConflict: 'student_user_id,course_id' }).select().single();
         if (enrollErr) throw enrollErr;
 
-        // Create server-side Razorpay order (required for live mode)
-        btn.textContent = 'Creating order…';
-        let rzpOrderId = null;
-        try {
-          const orderRes = await fetch(
-            '/api/create-razorpay-order',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                amount: Math.round(totalAmount * 100),
-                currency: 'INR',
-                receipt: `rcpt_${enroll.id}`,
-                notes: { course_id: hcSelectedCourse.id, enrollment_id: enroll.id, user_id: user.id },
-              }),
-            }
-          );
-          const orderData = await orderRes.json();
-          if (orderRes.ok && orderData.id) {
-            rzpOrderId = orderData.id;
-          } else {
-            throw new Error(orderData.error || `Order creation failed (HTTP ${orderRes.status})`);
-          }
-        } catch (orderErr) {
-          console.error('Order creation failed:', orderErr);
-          btn.disabled = false; btn.innerHTML = _payBtnHtml;
-          alert('Could not create payment order. Please try again or contact support.');
-          return;
-        }
-        btn.textContent = 'Processing…';
-
-        const rzpOptions = {
-          key: window.__RZP_KEY_ID || '', amount: Math.round(totalAmount * 100), currency: 'INR',
-          order_id: rzpOrderId,
-          name: 'SkillUpNow', description: hcSelectedCourse.title,
-          prefill: { name: user.user_metadata?.full_name || '', email: user.email },
-          theme: { color: '#7c6cff' },
-          modal: {
-            ondismiss: () => { btn.disabled = false; btn.innerHTML = _payBtnHtml; }
-          },
-          handler: async (response) => {
-            const pi = {
-              student_user_id: user.id, enrollment_id: enroll.id, course_id: hcSelectedCourse.id,
-              amount: totalAmount, payment_method: 'gateway_link', payment_gateway: 'razorpay',
-              gateway_payment_id: response.razorpay_payment_id,
-              transaction_reference: response.razorpay_payment_id,
-              payment_status: 'completed', paid_at: new Date().toISOString(),
-            };
-            if (response.razorpay_order_id)  pi.gateway_order_id  = response.razorpay_order_id;
-            if (response.razorpay_signature) pi.gateway_signature = response.razorpay_signature;
-            await _hcDb().from('payments').insert(pi);
-            await _hcDb().from('enrollments').update({
-              enrollment_status: 'active', access_status: 'active',
-              paid_amount: totalAmount, due_amount: 0, activated_at: new Date().toISOString(),
-            }).eq('id', enroll.id);
-            hcCloseEnrollModal();
-            window.location.href = '/profile?tab=learning&enrolled=' + encodeURIComponent(hcSelectedCourse.title);
-          },
-        };
-        const rzp = new window.Razorpay(rzpOptions);
-        rzp.on('payment.failed', (response) => {
-          _hcDb().from('payments').insert({
-            student_user_id: user.id, enrollment_id: enroll?.id, course_id: hcSelectedCourse.id,
-            amount: totalAmount, payment_method: 'gateway_link', payment_gateway: 'razorpay',
-            payment_status: 'failed', notes: { error_code: response.error?.code, error_description: response.error?.description }
-          }).catch(() => {});
-          btn.disabled = false;
-          btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:.3rem;"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Retry Payment`;
-          const errEl = document.createElement('div');
-          errEl.style.cssText = 'background:rgba(239,68,68,.12);border:1.5px solid rgba(239,68,68,.3);border-radius:10px;padding:.5rem .75rem;font-size:.8rem;color:#f87171;margin-top:.5rem;';
-          errEl.textContent = response.error?.description || response.error?.reason || 'Payment was declined.';
-          btn.parentNode?.insertBefore(errEl, btn.nextSibling);
-          setTimeout(() => errEl.remove(), 7000);
-        });
-        rzp.open();
+        // Redirect to secure payment page (server-side verified)
+        hcCloseEnrollModal();
+        window.location.href = '/payment?enrollment=' + encodeURIComponent(enroll.id);
       } catch(e) {
         console.error(e); btn.disabled = false; btn.innerHTML = _payBtnHtml;
         alert(e.message || 'Unable to initiate payment. Please check your connection.');

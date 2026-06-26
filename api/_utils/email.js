@@ -117,4 +117,80 @@ function buildPendingEmail({ studentName, courseName, amount, orderId }) {
 </body></html>`;
 }
 
-module.exports = { sendPaymentEmail, buildSuccessEmail, buildPendingEmail };
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+
+function buildAdminNotificationEmail({ studentName, studentEmail, studentPhone, courseName, amount, paymentId, paymentMethod, status, paidAt }) {
+  const date = paidAt
+    ? new Date(paidAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const formattedAmt = '₹' + Number(amount).toLocaleString('en-IN');
+  const statusColor = status === 'completed' ? '#16a34a' : '#b45309';
+  const statusLabel = status === 'completed' ? 'Completed' : 'Pending Verification';
+  const methodMap = { gateway_link: 'Razorpay (Online)', bank_transfer: 'Bank Transfer', cash: 'Cash', upi: 'UPI', card: 'Card' };
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0f4ff;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+  <tr><td style="background:linear-gradient(135deg,#1e3a5f,#2563eb);padding:24px 32px;text-align:center">
+    <h1 style="margin:0;color:#fff;font-size:20px">New Payment Received</h1>
+    <p style="margin:6px 0 0;color:rgba(255,255,255,.8);font-size:13px">SkillUpNow Admin Alert</p>
+  </td></tr>
+  <tr><td style="padding:24px 32px">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:20px">
+      <tr><td style="padding:14px 20px;border-bottom:1px solid #e2e8f0">
+        <span style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Student</span><br>
+        <strong style="color:#1e293b;font-size:15px">${studentName || '—'}</strong>
+        <div style="color:#64748b;font-size:13px;margin-top:2px">${studentEmail || '—'}${studentPhone ? ' · ' + studentPhone : ''}</div>
+      </td></tr>
+      <tr><td style="padding:14px 20px;border-bottom:1px solid #e2e8f0">
+        <span style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Course</span><br>
+        <strong style="color:#1e293b;font-size:14px">${courseName || '—'}</strong>
+      </td></tr>
+      <tr>
+        <td style="padding:14px 20px;border-bottom:1px solid #e2e8f0">
+          <span style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Amount</span><br>
+          <strong style="color:#2563eb;font-size:20px">${formattedAmt}</strong>
+        </td>
+      </tr>
+      <tr><td style="padding:14px 20px;border-bottom:1px solid #e2e8f0">
+        <span style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Method</span><br>
+        <strong style="color:#1e293b;font-size:14px">${methodMap[paymentMethod] || paymentMethod || '—'}</strong>
+      </td></tr>
+      <tr><td style="padding:14px 20px;border-bottom:1px solid #e2e8f0">
+        <span style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Status</span><br>
+        <strong style="color:${statusColor};font-size:14px">${statusLabel}</strong>
+      </td></tr>
+      <tr><td style="padding:14px 20px;border-bottom:1px solid #e2e8f0">
+        <span style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Date</span><br>
+        <strong style="color:#1e293b;font-size:13px">${date}</strong>
+      </td></tr>
+      ${paymentId ? `<tr><td style="padding:14px 20px">
+        <span style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Transaction ID</span><br>
+        <code style="color:#2563eb;font-size:13px">${paymentId}</code>
+      </td></tr>` : ''}
+    </table>
+    <p style="margin:0;color:#64748b;font-size:13px;line-height:1.5">
+      ${status === 'completed' ? 'Payment verified and enrollment activated automatically.' : 'This payment requires manual verification in the admin dashboard.'}
+    </p>
+  </td></tr>
+  <tr><td style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center">
+    <p style="margin:0;color:#94a3b8;font-size:11px">SkillUpNow Admin Notification · Do not reply to this email</p>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+async function sendAdminNotification(paymentDetails) {
+  if (!ADMIN_EMAIL) {
+    console.warn('ADMIN_EMAIL not set — skipping admin notification');
+    return null;
+  }
+  const subject = paymentDetails.status === 'completed'
+    ? `Payment Received: ₹${Number(paymentDetails.amount).toLocaleString('en-IN')} — ${paymentDetails.studentName || 'Student'}`
+    : `Payment Pending: ₹${Number(paymentDetails.amount).toLocaleString('en-IN')} — ${paymentDetails.studentName || 'Student'}`;
+  const html = buildAdminNotificationEmail(paymentDetails);
+  return sendPaymentEmail(ADMIN_EMAIL, subject, html);
+}
+
+module.exports = { sendPaymentEmail, buildSuccessEmail, buildPendingEmail, buildAdminNotificationEmail, sendAdminNotification };

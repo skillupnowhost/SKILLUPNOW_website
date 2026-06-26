@@ -1,5 +1,5 @@
 const { selectRows } = require('./_utils/supabase');
-const { sendPaymentEmail, buildSuccessEmail, buildPendingEmail } = require('./_utils/email');
+const { sendPaymentEmail, buildSuccessEmail, buildPendingEmail, sendAdminNotification } = require('./_utils/email');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -54,6 +54,17 @@ module.exports = async function handler(req, res) {
   }
 
   const result = await sendPaymentEmail(user_email, subject, htmlBody);
+
+  // Notify admin about new payment (non-blocking)
+  sendAdminNotification({
+    studentName: user_name,
+    studentEmail: user_email,
+    courseName: course_name || 'Course Enrollment',
+    amount: Number(amount),
+    paymentId: payment_id,
+    paymentMethod: paymentStatus === 'completed' ? 'gateway_link' : 'manual',
+    status: paymentStatus,
+  }).catch(() => {});
 
   if (!result) {
     return res.status(500).json({ error: 'Email sending failed or not configured' });

@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { insertRow, updateRows, selectRows } = require('./_utils/supabase');
-const { sendPaymentEmail, buildSuccessEmail } = require('./_utils/email');
+const { sendPaymentEmail, buildSuccessEmail, sendAdminNotification } = require('./_utils/email');
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -125,6 +125,18 @@ exports.handler = async (event) => {
       });
       sendPaymentEmail(user_email, 'Payment Confirmed — SkillUpNow', emailHtml).catch(() => {});
     }
+
+    // Notify admin (non-blocking)
+    sendAdminNotification({
+      studentName: user_name,
+      studentEmail: user_email,
+      courseName: course_name || 'Course Enrollment',
+      amount: Number(amount),
+      paymentId: razorpay_payment_id,
+      paymentMethod: 'gateway_link',
+      status: 'completed',
+      paidAt: new Date().toISOString(),
+    }).catch(() => {});
 
     return {
       statusCode: 200,

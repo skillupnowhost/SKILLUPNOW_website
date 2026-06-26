@@ -1875,8 +1875,6 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="../js/razorpay-loader.js"></script>
 <script src="../config/supabase-config.js"></script>
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
@@ -2827,12 +2825,6 @@
       return;
     }
 
-    if (typeof window.Razorpay === 'undefined') {
-      alert('Payment gateway failed to load. Please check your connection and refresh.');
-      btn.disabled = false; btn.innerHTML = _payBtnHtml;
-      return;
-    }
-
     try {
       const activePricing = (selectedCourse.course_pricing || []).find(p => p.is_active) || selectedCourse.course_pricing?.[0];
       if (!activePricing?.id) { alert('No pricing available. Please contact support.'); btn.disabled = false; btn.innerHTML = _payBtnHtml; return; }
@@ -2854,114 +2846,9 @@
         enroll = newEnroll;
       }
 
-      // Create server-side Razorpay order (required for live mode)
-      btn.textContent = 'Creating order…';
-      let rzpOrderId = null;
-      const _rzpKey = window.__RZP_KEY_ID || '';
-      const isLiveKey = _rzpKey.startsWith('rzp_live_');
-      try {
-        const orderRes = await fetch(
-          '/api/create-razorpay-order',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount: Math.round(totalAmount * 100),
-              currency: 'INR',
-              receipt: `rcpt_${enroll.id}`,
-              notes: { course_id: selectedCourse.id, enrollment_id: enroll.id, user_id: user.id },
-            }),
-          }
-        );
-        const orderData = await orderRes.json();
-        if (orderRes.ok && orderData.id) {
-          rzpOrderId = orderData.id;
-        } else {
-          const errDetail = orderData.error || `HTTP ${orderRes.status}`;
-          console.error('Order creation failed:', errDetail);
-          if (isLiveKey) throw new Error('Could not create payment order. Please try again or contact support.');
-        }
-      } catch (orderErr) {
-        if (isLiveKey) {
-          btn.disabled = false; btn.innerHTML = _payBtnHtml;
-          const errEl = document.createElement('div');
-          errEl.className = 'em-payment-error';
-          errEl.innerHTML = '<strong>Payment order could not be created.</strong><br>Please check your connection and try again. If the problem persists, contact support.';
-          const existing = btn.parentNode?.querySelector('.em-payment-error');
-          if (existing) existing.remove();
-          btn.parentNode?.insertBefore(errEl, btn.nextSibling);
-          setTimeout(() => errEl.remove(), 10000);
-          return;
-        }
-        console.warn('Could not create order, proceeding without order_id:', orderErr);
-      }
-      btn.textContent = 'Processing…';
-
-      const options = {
-        key: window.__RZP_KEY_ID || '',
-        amount: Math.round(totalAmount * 100),
-        currency: 'INR',
-        name: 'SkillUpNow',
-        description: selectedCourse.title,
-        image: 'https://skillupnowadmin.org/assets/logo.png',
-        prefill: { name: user.user_metadata?.full_name || '', email: user.email },
-        theme: { color: '#7c6cff' },
-        modal: {
-          ondismiss: () => {
-            btn.disabled = false;
-            btn.innerHTML = _payBtnHtml;
-          }
-        },
-        handler: async (response) => {
-          const paymentInsert = {
-            student_user_id: user.id,
-            enrollment_id: enroll.id,
-            course_id: selectedCourse.id,
-            amount: totalAmount,
-            payment_method: 'gateway_link',
-            payment_gateway: 'razorpay',
-            gateway_payment_id: response.razorpay_payment_id,
-            transaction_reference: response.razorpay_payment_id,
-            payment_status: 'completed',
-            paid_at: new Date().toISOString(),
-          };
-          if (response.razorpay_order_id)  paymentInsert.gateway_order_id  = response.razorpay_order_id;
-          if (response.razorpay_signature) paymentInsert.gateway_signature = response.razorpay_signature;
-          await _db().from('payments').insert(paymentInsert);
-          // Update enrollment to active after successful payment.
-          // Requires v28-fix-log-activity-trigger.sql to be run in Supabase.
-          await _db().from('enrollments').update({
-            enrollment_status: 'active',
-            access_status: 'active',
-            paid_amount: totalAmount,
-            due_amount: 0,
-            activated_at: new Date().toISOString(),
-          }).eq('id', enroll.id);
-          closeEnrollModal();
-          window.location.href = '/profile?tab=learning&enrolled=' + encodeURIComponent(selectedCourse.title);
-        },
-      };
-      if (rzpOrderId) options.order_id = rzpOrderId;
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (response) => {
-        console.error('Payment failed:', response.error);
-        _db().from('payments').insert({
-          student_user_id: user.id, enrollment_id: enroll?.id,
-          course_id: selectedCourse.id, amount: totalAmount,
-          payment_method: 'gateway_link', payment_gateway: 'razorpay',
-          payment_status: 'failed',
-          notes: { error_code: response.error?.code, error_description: response.error?.description }
-        }).catch(() => {});
-        btn.disabled = false;
-        btn.innerHTML = _payBtnHtml.replace('Pay via Razorpay', 'Retry Payment');
-        const errMsg = response.error?.description || response.error?.reason || 'Payment was declined.';
-        const errEl = document.createElement('div');
-        errEl.className = 'em-payment-error';
-        errEl.textContent = errMsg;
-        btn.parentNode?.insertBefore(errEl, btn.nextSibling);
-        setTimeout(() => errEl.remove(), 7000);
-      });
-      rzp.open();
+      // Redirect to secure payment page (server-side verified)
+      closeEnrollModal();
+      window.location.href = '/payment?enrollment=' + encodeURIComponent(enroll.id);
     } catch (e) {
       console.error(e);
       btn.disabled = false;

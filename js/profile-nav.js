@@ -579,7 +579,7 @@ class ProfileNavigationManager {
       </div>
 
       <div class="footer-bottom">
-        <p class="footer-copy">© 2026, SkillUpNow, Chennai. All rights reserved.</p>
+        <p class="footer-copy">© <span class="site-year">2026</span>, SKILLUpnow Tech Pvt Ltd, Chennai. All rights reserved.</p>
         <div class="footer-socials">
           <a href="https://www.instagram.com/skillupnowofficial" class="footer-social-icon" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>

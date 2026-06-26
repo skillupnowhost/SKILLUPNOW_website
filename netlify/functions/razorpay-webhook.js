@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { updateRows, selectRows } = require('./_utils/supabase');
-const { sendPaymentEmail, buildSuccessEmail, buildPendingEmail } = require('./_utils/email');
+const { sendPaymentEmail, buildSuccessEmail, buildPendingEmail, sendAdminNotification } = require('./_utils/email');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -112,6 +112,18 @@ async function handlePaymentCaptured(payment) {
       console.error('Email send error on capture:', err);
     }
   }
+
+  // Notify admin
+  sendAdminNotification({
+    studentName: notes.student_name || '',
+    studentEmail: email || '',
+    courseName: notes.course_name || 'Course Enrollment',
+    amount: amountRupees,
+    paymentId,
+    paymentMethod: 'gateway_link',
+    status: 'completed',
+    paidAt: new Date().toISOString(),
+  }).catch(() => {});
 }
 
 async function handlePaymentAuthorized(payment) {

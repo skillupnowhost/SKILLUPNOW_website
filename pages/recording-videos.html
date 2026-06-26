@@ -913,8 +913,6 @@
   <footer></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="../js/razorpay-loader.js"></script>
   <script src="../config/supabase-config.js"></script>
   <script src="../js/theme.js"></script>
   <script src="../js/profile-nav.js"></script>
@@ -1465,12 +1463,6 @@
     const btn = document.getElementById('rv-pay-btn');
     if (!btn) return;
 
-    // Razorpay requires HTTPS — fail gracefully on file:// protocol
-    if (window.location.protocol === 'file:') {
-      _showGateError('Payment requires a hosted site (HTTPS). Please access SkillUpNow via its web URL, not a local file.');
-      return;
-    }
-
     if (!window.supabaseConfig) return;
     const { data: { session } } = await window.supabaseConfig.client.auth.getSession();
     const user = session?.user;
@@ -1488,119 +1480,28 @@
       return;
     }
 
-    if (typeof window.Razorpay === 'undefined') {
-      _showGateError('Payment gateway failed to load. Please check your internet connection and refresh the page.');
-      return;
-    }
+    btn.disabled = true; btn.textContent = 'Preparing payment…';
 
-    btn.disabled = true; btn.textContent = 'Creating order…';
-
-    // Create Razorpay order via Netlify function (required for live mode)
-    let rzpOrderId = null;
     try {
-      const orderRes = await fetch('/api/create-razorpay-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Math.round(totalAmount * 100), currency: 'INR' }),
-      });
-      const orderData = await orderRes.json();
-      if (orderRes.ok && orderData.id) {
-        rzpOrderId = orderData.id;
-      } else {
-        throw new Error(orderData.error || 'Order creation failed');
+      // Create or find enrollment before redirecting to payment page
+      const { data: enroll, error: enrollErr } = await window.supabaseConfig.client
+        .from('enrollments').upsert({
+          student_user_id: user.id, course_id: _gateCourse.id,
+          ...(_gatePricingId ? { pricing_id: _gatePricingId } : {}),
+          enrollment_status: 'pending', access_status: 'pending',
+          net_amount: totalAmount, paid_amount: 0, due_amount: totalAmount,
+        }, { onConflict: 'student_user_id,course_id' }).select('id').maybeSingle();
+
+      if (enrollErr || !enroll?.id) {
+        throw new Error('Could not create enrollment. Please try again.');
       }
-    } catch (orderErr) {
-      console.error('Order creation failed:', orderErr);
-      btn.disabled = false;
-      btn.textContent = 'Pay ₹' + Number(totalAmount).toLocaleString('en-IN') + ' via Razorpay';
-      _showGateError('Could not create payment order. Please try again or contact support.');
-      return;
-    }
 
-    btn.textContent = 'Processing…';
-    try {
-      const options = {
-        key: window.__RZP_KEY_ID || '',
-        amount: Math.round(totalAmount * 100),
-        currency: 'INR',
-        order_id: rzpOrderId,
-        name: 'SkillUpNow',
-        description: _gateVideo?.title || 'Course Enrollment',
-        image: '../icon/logo.png',
-        prefill: {
-          name: user.user_metadata?.full_name || '',
-          email: user.email,
-          contact: user.user_metadata?.phone || ''
-        },
-        notes: { course_id: _gateCourse?.id || '', video_title: _gateVideo?.title || '' },
-        theme: { color: '#7c5cfc' },
-        modal: {
-          ondismiss: () => {
-            btn.disabled = false;
-            btn.textContent = 'Pay ₹' + Number(totalAmount).toLocaleString('en-IN') + ' via Razorpay';
-          }
-        },
-        handler: async (response) => {
-          btn.textContent = 'Processing…';
-          try {
-            // Upsert enrollment
-            const { data: enroll, error: enrollErr } = await window.supabaseConfig.client
-              .from('enrollments').upsert({
-                student_user_id: user.id, course_id: _gateCourse.id,
-                ...(_gatePricingId ? { pricing_id: _gatePricingId } : {}),
-                enrollment_status: 'active', access_status: 'active',
-                net_amount: totalAmount, paid_amount: totalAmount, due_amount: 0,
-              }, { onConflict: 'student_user_id,course_id' }).select().maybeSingle();
-            if (enrollErr) console.warn('Enrollment upsert:', enrollErr.message);
-            // Record payment (only if enrollment succeeded and we have an enrollment ID)
-            if (enroll?.id) {
-              const { error: payErr } = await window.supabaseConfig.client.from('payments').insert({
-                student_user_id: user.id,
-                enrollment_id: enroll.id,
-                course_id: _gateCourse.id,
-                amount: totalAmount,
-                payment_method: 'gateway_link',
-                payment_gateway: 'razorpay',
-                gateway_order_id: response.razorpay_order_id || null,
-                gateway_payment_id: response.razorpay_payment_id || null,
-                gateway_signature: response.razorpay_signature || null,
-                transaction_reference: response.razorpay_payment_id || null,
-                payment_status: 'completed',
-                paid_at: new Date().toISOString(),
-              });
-              if (payErr) console.warn('Payment record:', payErr.message);
-            }
-          } catch(dbErr) { console.warn('DB record error:', dbErr); }
-          _showRvToast('Payment successful! Enjoy your session.', 'success');
-          // Unlock all videos in the same course immediately in the UI
-          if (_gateVideo?.courseId) {
-            allVideos.forEach(v => {
-              if (v.courseId === _gateVideo.courseId) v._access = 'full';
-            });
-            renderPlaylist();
-          }
-          document.getElementById('rv-access-gate')?.remove();
-          // Fetch video URL now that payment is confirmed, then play
-          if (_gateVideo) {
-            const { data: rec } = await window.supabaseConfig.client
-              .from('live_recordings').select('external_url').eq('id', _gateVideo.id).single();
-            if (rec?.external_url) _gateVideo.videoUrl = rec.external_url;
-            playVideo(_gateVideo);
-          }
-        },
-      };
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (resp) => {
-        btn.disabled = false;
-        btn.textContent = 'Retry Payment';
-        const msg = resp?.error?.description || resp?.error?.reason || 'Payment was declined. Please try a different payment method.';
-        _showGateError(msg);
-      });
-      rzp.open();
+      // Redirect to secure payment page (server-side verified)
+      window.location.href = '/payment?enrollment=' + encodeURIComponent(enroll.id);
     } catch(e) {
       console.error(e);
       btn.disabled = false;
-      btn.textContent = 'Pay Now via Razorpay';
+      btn.textContent = 'Pay ₹' + Number(totalAmount).toLocaleString('en-IN') + ' via Razorpay';
       _showGateError(e.message || 'An unexpected error occurred. Please try again.');
     }
   }
