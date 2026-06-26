@@ -10055,7 +10055,7 @@ async function openBulkAttendModal() {
   const { data: enrols } = await db.client
     .from('internship_enrollments')
     .select('id, student_user_id, internship_projects(project_name)')
-    .eq('approval_status', 'approved');
+    .in('approval_status', ['approved', 'pending']);
 
   // Fetch student names
   const studentIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
@@ -10118,7 +10118,7 @@ async function editAttendanceRecord(atdId) {
   const { data: enrols } = await db.client
     .from('internship_enrollments')
     .select('id, student_user_id, internship_projects(project_name)')
-    .eq('approval_status', 'approved');
+    .in('approval_status', ['approved', 'pending']);
 
   const studentIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
   const { data: profiles } = studentIds.length
@@ -10514,8 +10514,8 @@ async function _populateStudentFilter(selectId) {
   if (!sel || sel.options.length > 1) return;
   const { data: enrols } = await db.client
     .from('internship_enrollments')
-    .select('id, student_user_id, internship_projects(project_name)')
-    .eq('approval_status', 'approved');
+    .select('id, student_user_id, approval_status, internship_projects(project_name)')
+    .in('approval_status', ['approved', 'pending']);
   if (!enrols?.length) return;
   const sIds = [...new Set(enrols.map(e => e.student_user_id))];
   const { data: profiles } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id', sIds);
@@ -10633,12 +10633,16 @@ async function openInternModuleModal() {
   const sel = document.getElementById('imod-enrollment-id');
   const { data: enrols } = await db.client
     .from('internship_enrollments')
-    .select('id, student_user_id, internship_projects(project_name)')
-    .eq('approval_status', 'approved');
+    .select('id, student_user_id, approval_status, internship_projects(project_name)')
+    .in('approval_status', ['approved', 'pending'])
+    .order('enrolled_at', { ascending: false });
   const sIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
   const pm = await _getProfileMap(sIds);
   sel.innerHTML = '<option value="">Select student...</option>' +
-    (enrols||[]).map(e => `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}</option>`).join('');
+    (enrols||[]).map(e => {
+      const statusTag = e.approval_status === 'pending' ? ' [Pending]' : '';
+      return `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}${statusTag}</option>`;
+    }).join('');
 
   openModal('intern-module-modal');
 }
@@ -10750,12 +10754,16 @@ async function openGitPermModal() {
   const sel = document.getElementById('git-enrollment-id');
   const { data: enrols } = await db.client
     .from('internship_enrollments')
-    .select('id, student_user_id, internship_projects(project_name)')
-    .eq('approval_status', 'approved');
+    .select('id, student_user_id, approval_status, internship_projects(project_name)')
+    .in('approval_status', ['approved', 'pending'])
+    .order('enrolled_at', { ascending: false });
   const sIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
   const pm = await _getProfileMap(sIds);
   sel.innerHTML = '<option value="">Select student...</option>' +
-    (enrols||[]).map(e => `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}</option>`).join('');
+    (enrols||[]).map(e => {
+      const tag = e.approval_status === 'pending' ? ' [Pending]' : '';
+      return `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}${tag}</option>`;
+    }).join('');
 
   openModal('git-perm-modal');
 }
@@ -10991,10 +10999,10 @@ async function openInternSessionTaskModal() {
   document.getElementById('ist-status').value='pending';
   document.getElementById('ist-notes').value='';
   const sel = document.getElementById('ist-enrollment-id');
-  const {data:enrols} = await db.client.from('internship_enrollments').select('id,student_user_id,internship_projects(project_name)').eq('approval_status','approved');
+  const {data:enrols} = await db.client.from('internship_enrollments').select('id,student_user_id,approval_status,internship_projects(project_name)').in('approval_status',['approved','pending']).order('enrolled_at',{ascending:false});
   const sIds=[...new Set((enrols||[]).map(e=>e.student_user_id))];
   const pm = await _getProfileMap(sIds);
-  sel.innerHTML = '<option value="">Select student...</option>'+(enrols||[]).map(e=>`<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}</option>`).join('');
+  sel.innerHTML = '<option value="">Select student...</option>'+(enrols||[]).map(e=>{const tag=e.approval_status==='pending'?' [Pending]':'';return `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}${tag}</option>`;}).join('');
   const modSel = document.getElementById('ist-module-id');
   const {data:mods} = await db.client.from('intern_modules').select('id,module_title').order('sort_order');
   modSel.innerHTML = '<option value="">None</option>'+(mods||[]).map(m=>`<option value="${m.id}">${_adm_esc(m.module_title)}</option>`).join('');
