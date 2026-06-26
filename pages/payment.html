@@ -434,7 +434,8 @@ async function handleRedirectPayment(paymentId, orderId, signature) {
       try {
         const result = await processor.verifyPayment(
           { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature },
-          context
+          context,
+          db.client
         );
         if (result.payment_id) {
           window.location.href = '/payment?invoice=' + result.payment_id;
@@ -638,7 +639,7 @@ async function initiatePayment() {
           let lastErr = null;
           for (let attempt = 1; attempt <= 3; attempt++) {
             try {
-              const result = await processor.verifyPayment(response, paymentContext);
+              const result = await processor.verifyPayment(response, paymentContext, db.client);
               if (result.payment_id) {
                 window.location.href = '/payment?invoice=' + result.payment_id;
               } else {

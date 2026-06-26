@@ -89,7 +89,8 @@ class PaymentProcessor {
     return rzp;
   }
 
-  async verifyPayment(razorpayResponse, enrollmentData) {
+  async verifyPayment(razorpayResponse, enrollmentData, supabaseClient) {
+    // Step 1: Verify signature server-side
     let res;
     try {
       res = await fetch('/api/verify-payment', {
@@ -99,31 +100,105 @@ class PaymentProcessor {
           razorpay_order_id: razorpayResponse.razorpay_order_id,
           razorpay_payment_id: razorpayResponse.razorpay_payment_id,
           razorpay_signature: razorpayResponse.razorpay_signature,
-          enrollment_id: enrollmentData.enrollment_id,
-          course_id: enrollmentData.course_id,
-          user_id: enrollmentData.user_id,
-          amount: enrollmentData.amount,
-          payment_schedule_id: enrollmentData.payment_schedule_id || null,
-          user_email: enrollmentData.user_email || '',
-          user_name: enrollmentData.user_name || '',
-          course_name: enrollmentData.course_name || '',
         }),
       });
     } catch (networkErr) {
       throw new Error('Network error — please check your internet connection and try again.');
     }
 
-    let data;
+    let sigResult;
     try {
-      data = await res.json();
+      sigResult = await res.json();
     } catch {
       throw new Error(`Server returned status ${res.status} with non-JSON response.`);
     }
 
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || `Verification failed (HTTP ${res.status})`);
+    if (!res.ok || !sigResult.success) {
+      throw new Error(sigResult.error || `Signature verification failed (HTTP ${res.status})`);
     }
-    return data;
+
+    // Step 2: Save payment record client-side using authenticated Supabase client
+    const client = supabaseClient || window.supabaseConfig?.client;
+    if (!client) {
+      throw new Error('Database client not available. Please refresh and try again.');
+    }
+
+    // Check if payment already recorded (idempotency)
+    const { data: existing } = await client
+      .from('payments')
+      .select('id')
+      .eq('gateway_payment_id', razorpayResponse.razorpay_payment_id)
+      .maybeSingle();
+
+    if (existing) {
+      return { success: true, payment_id: existing.id, already_recorded: true };
+    }
+
+    // Insert payment record
+    const { data: paymentRecord, error: insertErr } = await client
+      .from('payments')
+      .insert({
+        student_user_id: enrollmentData.user_id,
+        course_id: enrollmentData.course_id,
+        enrollment_id: enrollmentData.enrollment_id,
+        payment_schedule_id: enrollmentData.payment_schedule_id || null,
+        amount: Number(enrollmentData.amount),
+        payment_method: 'gateway_link',
+        payment_gateway: 'razorpay',
+        payment_status: 'completed',
+        paid_at: new Date().toISOString(),
+        transaction_reference: razorpayResponse.razorpay_payment_id,
+        gateway_payment_id: razorpayResponse.razorpay_payment_id,
+        gateway_order_id: razorpayResponse.razorpay_order_id,
+        gateway_signature: razorpayResponse.razorpay_signature,
+      })
+      .select('id')
+      .single();
+
+    if (insertErr) {
+      console.error('Payment insert error:', insertErr);
+      throw new Error('Payment verified but record save failed: ' + (insertErr.message || 'Database error'));
+    }
+
+    // Step 3: Update enrollment (non-blocking)
+    try {
+      const { data: enrollment } = await client
+        .from('enrollments')
+        .select('paid_amount, due_amount')
+        .eq('id', enrollmentData.enrollment_id)
+        .single();
+
+      if (enrollment) {
+        const newPaid = (Number(enrollment.paid_amount) || 0) + Number(enrollmentData.amount);
+        const newDue = Math.max(0, (Number(enrollment.due_amount) || 0) - Number(enrollmentData.amount));
+        const updateData = { paid_amount: newPaid, due_amount: newDue };
+        if (newDue <= 0) {
+          updateData.enrollment_status = 'active';
+          updateData.access_status = 'active';
+          updateData.activated_at = new Date().toISOString();
+        }
+        await client.from('enrollments').update(updateData).eq('id', enrollmentData.enrollment_id);
+      }
+    } catch (enrollErr) {
+      console.warn('Enrollment update failed (non-fatal):', enrollErr);
+    }
+
+    // Step 4: Send email notification (non-blocking)
+    this.sendNotification({
+      payment_id: paymentRecord?.id,
+      user_email: enrollmentData.user_email,
+      user_name: enrollmentData.user_name,
+      course_name: enrollmentData.course_name,
+      amount: enrollmentData.amount,
+      status: 'completed',
+    });
+
+    return {
+      success: true,
+      payment_id: paymentRecord?.id || null,
+      razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+      razorpay_order_id: razorpayResponse.razorpay_order_id,
+    };
   }
 
   async sendNotification(paymentData) {
