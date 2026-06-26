@@ -53,9 +53,11 @@ class PaymentProcessor {
         name: prefill?.name || '',
         email: prefill?.email || '',
         contact: prefill?.phone || '',
+        method: 'upi',
       },
       notes: order.notes || {},
       theme: { color: '#7c5cfc' },
+      retry: { enabled: true, max_count: 4 },
       modal: {
         ondismiss: () => {
           if (onDismiss) onDismiss();

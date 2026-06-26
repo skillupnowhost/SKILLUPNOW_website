@@ -553,7 +553,11 @@ async function initiatePayment() {
         onFailure: (errMsg) => {
           resetBtn();
           label.textContent = 'Retry Payment';
-          showToast('error', errMsg, { title: 'Payment Declined', buttonText: 'Try Again' });
+          const is3dsError = errMsg && errMsg.toLowerCase().includes('3dsecure');
+          const friendlyMsg = is3dsError
+            ? 'Your card does not support 3D Secure authentication. Please try <strong>UPI</strong>, <strong>Net Banking</strong>, or a different card.'
+            : errMsg;
+          showToast('error', friendlyMsg, { title: is3dsError ? 'Card Not Supported' : 'Payment Declined', buttonText: 'Try Again' });
         },
         onSuccess: async (response) => {
           label.innerHTML = '<span class="spinner"></span> Verifying payment…';
