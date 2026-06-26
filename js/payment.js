@@ -90,27 +90,38 @@ class PaymentProcessor {
   }
 
   async verifyPayment(razorpayResponse, enrollmentData) {
-    const res = await fetch('/api/verify-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        razorpay_order_id: razorpayResponse.razorpay_order_id,
-        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-        razorpay_signature: razorpayResponse.razorpay_signature,
-        enrollment_id: enrollmentData.enrollment_id,
-        course_id: enrollmentData.course_id,
-        user_id: enrollmentData.user_id,
-        amount: enrollmentData.amount,
-        payment_schedule_id: enrollmentData.payment_schedule_id || null,
-        user_email: enrollmentData.user_email || '',
-        user_name: enrollmentData.user_name || '',
-        course_name: enrollmentData.course_name || '',
-      }),
-    });
+    let res;
+    try {
+      res = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: razorpayResponse.razorpay_order_id,
+          razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+          razorpay_signature: razorpayResponse.razorpay_signature,
+          enrollment_id: enrollmentData.enrollment_id,
+          course_id: enrollmentData.course_id,
+          user_id: enrollmentData.user_id,
+          amount: enrollmentData.amount,
+          payment_schedule_id: enrollmentData.payment_schedule_id || null,
+          user_email: enrollmentData.user_email || '',
+          user_name: enrollmentData.user_name || '',
+          course_name: enrollmentData.course_name || '',
+        }),
+      });
+    } catch (networkErr) {
+      throw new Error('Network error — please check your internet connection and try again.');
+    }
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error(`Server returned status ${res.status} with non-JSON response.`);
+    }
+
     if (!res.ok || !data.success) {
-      throw new Error(data.error || 'Payment verification failed');
+      throw new Error(data.error || `Verification failed (HTTP ${res.status})`);
     }
     return data;
   }

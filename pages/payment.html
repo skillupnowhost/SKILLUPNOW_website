@@ -427,17 +427,36 @@ async function handleRedirectPayment(paymentId, orderId, signature) {
 
   try {
     await processor.init();
-    const result = await processor.verifyPayment(
-      { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature },
-      context
-    );
-    if (result.payment_id) {
-      window.location.href = '/payment?invoice=' + result.payment_id;
-    } else {
-      showToast('success', 'Payment completed successfully!', { title: 'Payment Verified', buttonText: 'Go to Profile', redirectUrl: '/profile?tab=payments' });
+
+    // Retry verification up to 3 times
+    let lastErr = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const result = await processor.verifyPayment(
+          { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature },
+          context
+        );
+        if (result.payment_id) {
+          window.location.href = '/payment?invoice=' + result.payment_id;
+        } else {
+          showToast('success', 'Payment completed successfully!', { title: 'Payment Verified', buttonText: 'Go to Profile', redirectUrl: '/profile?tab=payments' });
+        }
+        return;
+      } catch (err) {
+        lastErr = err;
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000 * attempt));
+      }
     }
+    throw lastErr;
   } catch (err) {
-    showToast('warning', 'Payment was received but verification failed. Please contact support with Transaction ID: <code>' + paymentId + '</code>', { title: 'Verification Issue' });
+    const errDetail = err?.message || 'Unknown error';
+    showToast('warning',
+      'Your payment was received but verification failed.<br><br>' +
+      '<strong>Error:</strong> ' + errDetail + '<br><br>' +
+      'Transaction ID: <code>' + paymentId + '</code><br><br>' +
+      'Don\'t worry — your payment is safe. Check your <a href="/profile?tab=payments" style="color:var(--v1);font-weight:700">Profile → Payments</a> shortly.',
+      { title: 'Verification Issue', buttonText: 'Go to Profile', redirectUrl: '/profile?tab=payments' }
+    );
   }
 }
 
@@ -614,21 +633,42 @@ async function initiatePayment() {
           label.innerHTML = '<span class="spinner"></span> Verifying payment…';
           btn.disabled = true;
           sessionStorage.removeItem('_skillupnow_payment');
-          try {
-            const result = await processor.verifyPayment(response, paymentContext);
-            if (result.payment_id) {
-              window.location.href = '/payment?invoice=' + result.payment_id;
-            } else {
-              showToast('success', 'Payment completed successfully!', {
-                title: 'Payment Verified',
-                buttonText: 'Go to Profile',
-                redirectUrl: '/profile?tab=payments',
-              });
+
+          // Retry verification up to 3 times with delay
+          let lastErr = null;
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const result = await processor.verifyPayment(response, paymentContext);
+              if (result.payment_id) {
+                window.location.href = '/payment?invoice=' + result.payment_id;
+              } else {
+                showToast('success', 'Payment completed successfully!', {
+                  title: 'Payment Verified',
+                  buttonText: 'Go to Profile',
+                  redirectUrl: '/profile?tab=payments',
+                });
+              }
+              return;
+            } catch (err) {
+              lastErr = err;
+              console.error(`Verify attempt ${attempt} failed:`, err.message);
+              if (attempt < 3) {
+                label.innerHTML = '<span class="spinner"></span> Retrying verification…';
+                await new Promise(r => setTimeout(r, 2000 * attempt));
+              }
             }
-          } catch (err) {
-            showToast('warning', 'Payment was received but verification failed. Please contact support with Transaction ID: <code>' + (response.razorpay_payment_id || '') + '</code>', { title: 'Verification Issue' });
-            resetBtn();
           }
+
+          const txnId = response.razorpay_payment_id || '';
+          const errDetail = lastErr?.message || 'Unknown error';
+          showToast('warning',
+            'Your payment of <strong>' + fmtCurr(payAmount) + '</strong> was received by Razorpay but verification failed.<br><br>' +
+            '<strong>Error:</strong> ' + errDetail + '<br><br>' +
+            'Transaction ID: <code>' + txnId + '</code><br><br>' +
+            'Don\'t worry — your payment is safe. Please contact support or check your <a href="/profile?tab=payments" style="color:var(--v1);font-weight:700">Profile → Payments</a> shortly.',
+            { title: 'Verification Issue', buttonText: 'Go to Profile', redirectUrl: '/profile?tab=payments' }
+          );
+          resetBtn();
         },
         onDismiss: resetBtn,
         onFailure: (errMsg) => {
