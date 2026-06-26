@@ -138,7 +138,7 @@
     .toast-btn.outline:hover { border-color:var(--v1); color:var(--v1); }
     .toast-actions { display:flex; gap:0.5rem; justify-content:center; }
 
-    /* Test mode banner */
+    /* Test mode banner (only visible in Razorpay test mode) */
     .test-mode-banner {
       display:none; position:fixed; top:0; left:0; right:0; z-index:9998;
       background:linear-gradient(90deg,#f59e0b,#f97316); color:#fff;
@@ -170,7 +170,7 @@
 <div class="orb orb1"></div>
 <nav></nav>
 
-<div class="test-mode-banner" id="test-mode-banner">TEST MODE — Payments will not be charged. Use test card: 4111 1111 1111 1111</div>
+<div class="test-mode-banner" id="test-mode-banner">TEST MODE — Payments will not be charged</div>
 <div class="page-wrap">
   <div class="pay-hero">
     <h1>Secure Payment</h1>
@@ -190,8 +190,9 @@
 
       <div class="invoice-header">
         <div class="inv-brand">
+          <img src="../icon/Logo.png" alt="SkillUpNow" style="height:38px;margin-bottom:.5rem;display:block">
           <h3>SkillUpNow</h3>
-          <p>skillupnowadmin.org · contact@skillupnow.com</p>
+          <p>skillupnow.in · contact@skillupnow.in</p>
           <p style="margin-top:0.25rem;font-size:0.78rem;color:var(--txt3)">GSTIN: 27AAAAA0000A1Z5</p>
         </div>
         <div class="inv-meta">
@@ -354,7 +355,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" crossorigin="anonymous"></script>
 <script src="../config/supabase-config.js"></script>
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
@@ -597,7 +598,10 @@ async function initiatePayment() {
         course_name: courseData?.title || '',
       };
 
-      // 3. Open Razorpay checkout with handler mode (no redirect)
+      // 3. Store payment context for redirect-based flows (3DS authentication)
+      sessionStorage.setItem('_skillupnow_payment', JSON.stringify(paymentContext));
+
+      // 4. Open Razorpay checkout with handler mode (no redirect)
       label.innerHTML = '<span class="spinner"></span> Opening payment…';
       processor.openCheckout(order, {
         courseTitle: courseData?.title || 'Course Enrollment',
@@ -609,6 +613,7 @@ async function initiatePayment() {
         onSuccess: async (response) => {
           label.innerHTML = '<span class="spinner"></span> Verifying payment…';
           btn.disabled = true;
+          sessionStorage.removeItem('_skillupnow_payment');
           try {
             const result = await processor.verifyPayment(response, paymentContext);
             if (result.payment_id) {

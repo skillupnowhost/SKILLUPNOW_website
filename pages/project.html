@@ -3818,7 +3818,31 @@
       .select('id,project_id,module_id,status,project_modules(id,module_name,description,deadline,git_branch),internship_projects(id,project_name,country)')
       .eq('student_user_id', _prjUser.id)
       .eq('status', 'active');
-    _prjAssignments = data || [];
+    const raw = data || [];
+
+    // For assignments with no specific module (assigned to "All Modules"),
+    // expand into one entry per active module in that project
+    const expanded = [];
+    for (const a of raw) {
+      if (a.module_id && a.project_modules) {
+        expanded.push(a);
+      } else {
+        const { data: allMods } = await _prjSb
+          .from('project_modules')
+          .select('id,module_name,description,deadline,git_branch')
+          .eq('project_id', a.project_id)
+          .eq('is_active', true)
+          .order('order_num');
+        if (allMods?.length) {
+          allMods.forEach(m => {
+            expanded.push({ ...a, module_id: m.id, project_modules: m });
+          });
+        } else {
+          expanded.push(a);
+        }
+      }
+    }
+    _prjAssignments = expanded;
   }
 
   /* ============================================================

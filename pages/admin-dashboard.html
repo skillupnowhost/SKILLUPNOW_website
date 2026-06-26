@@ -3895,7 +3895,9 @@ async function loadDashboard() {
   const revenueThisMonth = completedPayments
     .filter(payment => payment.paid_at && new Date(payment.paid_at) >= monthStart)
     .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-  const pendingPayments = (paymentsRes.data || []).filter(p => ['pending', 'processing'].includes(p.payment_status)).length;
+  const pendingPaymentsList = (paymentsRes.data || []).filter(p => ['pending', 'processing'].includes(p.payment_status));
+  const pendingPayments = pendingPaymentsList.length;
+  const pendingPaymentsAmount = pendingPaymentsList.reduce((sum, p) => sum + Number(p.amount || 0), 0);
   const openInquiries = (inquiriesRes.data || []).filter(i => ['open', 'in_progress'].includes(i.status)).length;
 
   document.getElementById('s-users').textContent = usersRes.count || 0;
@@ -3904,7 +3906,7 @@ async function loadDashboard() {
   document.getElementById('s-enrollments').textContent = enrollmentsRes.count || 0;
   document.getElementById('s-revenue').textContent = fmtCurr(totalRevenue);
   document.getElementById('s-revenue-month').textContent = fmtCurr(revenueThisMonth);
-  document.getElementById('s-pending-pay').textContent = pendingPayments;
+  document.getElementById('s-pending-pay').textContent = pendingPayments > 0 ? `${pendingPayments} (${fmtCurr(pendingPaymentsAmount)})` : '0';
   document.getElementById('s-inquiries').textContent = openInquiries;
   // Sidebar badges — only show when count > 0
   const ubadge = document.getElementById('users-badge');
@@ -4241,7 +4243,7 @@ async function openAdminEnrollModal(preUserId = null) {
   openModal('admin-enroll-modal');
 
   const [{ data: users }, { data: courses }] = await Promise.all([
-    db.client.from('user_profiles').select('user_id, full_name, email').order('full_name').limit(300),
+    db.client.from('user_profiles').select('user_id, full_name, email').order('full_name').limit(2000),
     db.client.from('courses').select('id, title').eq('course_status', 'published').order('title'),
   ]);
   userSel.innerHTML = '<option value="">Select user…</option>' +
@@ -4680,9 +4682,10 @@ async function loadPayments() {
   const pending = all.filter(p => p.payment_status === 'pending');
   const revenue = completed.reduce((s, p) => s + (Number(p.amount) || 0), 0);
   const el = id => document.getElementById(id);
+  const pendingAmount = pending.reduce((s, p) => s + (Number(p.amount) || 0), 0);
   if (el('pay-stat-total'))     el('pay-stat-total').textContent = all.length;
   if (el('pay-stat-completed')) el('pay-stat-completed').textContent = completed.length;
-  if (el('pay-stat-pending'))   el('pay-stat-pending').textContent = pending.length;
+  if (el('pay-stat-pending'))   el('pay-stat-pending').textContent = pending.length > 0 ? `${pending.length} (${fmtCurr(pendingAmount)})` : '0';
   if (el('pay-stat-revenue'))   el('pay-stat-revenue').textContent = fmtCurr(revenue);
 
   document.getElementById('payment-tbody').innerHTML = (data||[]).map(p => {
@@ -9626,16 +9629,30 @@ async function loadProjStudents() {
   const tbody = document.getElementById('prj-users-tbody');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
-  const { data, error } = await db.client
-    .from('user_profiles')
-    .select('user_id, full_name, email, phone, role, created_at')
-    .order('created_at', { ascending: false })
-    .limit(300);
-  if (error) {
-    tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;
-    return;
+
+  // Fetch all users in batches to ensure no one is missed
+  let allUsers = [];
+  let from = 0;
+  const batchSize = 500;
+  while (true) {
+    const { data, error } = await db.client
+      .from('user_profiles')
+      .select('user_id, full_name, email, phone, role, created_at')
+      .order('created_at', { ascending: false })
+      .range(from, from + batchSize - 1);
+    if (error) {
+      if (!allUsers.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;
+        return;
+      }
+      break;
+    }
+    allUsers = allUsers.concat(data || []);
+    if (!data || data.length < batchSize) break;
+    from += batchSize;
   }
-  _projUsersAll = data || [];
+
+  _projUsersAll = allUsers;
   _renderProjUsers(_projUsersAll);
 }
 
@@ -9693,7 +9710,7 @@ async function _asgnUserSearch(val) {
       .from('user_profiles')
       .select('user_id, full_name, email')
       .or(`full_name.ilike.%${val}%,email.ilike.%${val}%`)
-      .limit(8);
+      .limit(15);
     if (!data?.length) {
       dd.innerHTML = `<div style="padding:.75rem 1rem;color:rgba(200,191,255,.4);font-size:.82rem">No users found for "${_adm_esc(val)}"</div>`;
       dd.style.display = 'block'; return;
@@ -9810,7 +9827,11 @@ async function loadInternStudents() {
     .select('user_id, full_name, email')
     .in('user_id', studentIds);
   const profileMap = {};
-  (profiles||[]).forEach(p => { profileMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+  const emailMap = {};
+  (profiles||[]).forEach(p => {
+    profileMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8);
+    emailMap[p.user_id] = p.email || '';
+  });
 
   // Fetch report counts and attendance per enrollment
   const enrolIds = enrols.map(e => e.id);
@@ -9828,13 +9849,14 @@ async function loadInternStudents() {
   const sColors = { pending:'#fbbf24', approved:'#4ade80', rejected:'#f87171' };
   tbody.innerHTML = enrols.map(e => {
     const sName = profileMap[e.student_user_id] || '—';
+    const sEmail = emailMap[e.student_user_id] || '';
     const pName = e.internship_projects?.project_name || '—';
     const sc    = sColors[e.approval_status] || '#fff';
     const atd   = atdMap[e.id];
     const pct   = atd?.t ? Math.round(atd.p / atd.t * 100) + '%' : '—';
     const rpts  = rptMap[e.id] || 0;
     const dt    = new Date(e.enrolled_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
-    const sNameE = _adm_esc(sName), pNameE = _adm_esc(pName);
+    const sNameE = _adm_esc(sName), pNameE = _adm_esc(pName), sEmailE = _adm_esc(sEmail);
     return `<tr>
       <td>${sNameE}</td>
       <td>${pNameE}</td>
@@ -9847,7 +9869,8 @@ async function loadInternStudents() {
           <button class="btn-primary"   style="font-size:.72rem;padding:.25rem .55rem" onclick="approveEnrol('${e.id}','${sNameE}')">✅ Approve</button>
           <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;color:#f87171;margin-left:.25rem" onclick="rejectEnrol('${e.id}')">❌ Reject</button>` : ''}
         ${e.approval_status === 'approved' ? `
-          <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem" onclick="openSetDateModal('${e.id}','${e.start_date||''}','${e.end_date||''}')">📅 Dates</button>
+          <button class="btn-primary" style="font-size:.72rem;padding:.25rem .55rem" onclick="openAssignModalFor('${sEmailE}','${sNameE}')">📦 Assign Module</button>
+          <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;margin-left:.25rem" onclick="openSetDateModal('${e.id}','${e.start_date||''}','${e.end_date||''}')">📅 Dates</button>
           <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;margin-left:.25rem" onclick="generateStudentReport('${e.id}','${sNameE}','${pNameE}')">📄 Report</button>` : ''}
       </td>
     </tr>`;
@@ -9863,9 +9886,20 @@ async function approveEnrol(enrollId, studentName) {
     approved_at: new Date().toISOString(),
   }).eq('id', enrollId);
   if (error) { _showAdminToast('Approval failed: ' + error.message,'error'); return; }
-  _showAdminToast('Enrollment approved!','success');
+  _showAdminToast('Enrollment approved! You can now assign modules.','success');
   _updateInternBadge();
   loadInternStudents();
+
+  // Offer to assign the student to a module immediately
+  const { data: enrolData } = await db.client.from('internship_enrollments')
+    .select('student_user_id').eq('id', enrollId).single();
+  if (enrolData) {
+    const { data: prof } = await db.client.from('user_profiles')
+      .select('full_name, email').eq('user_id', enrolData.student_user_id).single();
+    if (prof && confirm(`Assign "${studentName}" to a module now?`)) {
+      openAssignModalFor(prof.email || '', prof.full_name || studentName);
+    }
+  }
 }
 
 async function rejectEnrol(enrollId) {

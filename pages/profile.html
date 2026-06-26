@@ -1137,10 +1137,13 @@ async function loadProfile() {
 
 /* ── Learning path ───────────────────────────────────────── */
 async function loadLearningPath() {
-  const { data: enrollments } = await _db().from('enrollments')
+  const { data: rawEnrollments } = await _db().from('enrollments')
     .select('*, courses(title, thumbnail_url, duration_days, duration_hours, course_categories(name))')
     .eq('student_user_id', currentUser.id)
     .order('created_at', { ascending: false });
+
+  // Filter out enrollments whose course was deleted (courses join returns null)
+  const enrollments = (rawEnrollments || []).filter(e => e.courses != null);
 
   const total     = (enrollments || []).length;
   const active    = (enrollments || []).filter(e => e.enrollment_status === 'active').length;
@@ -1185,6 +1188,9 @@ async function loadLearningPath() {
           ${e.completed_at ? `<button class="btn-sm btn-sm-outline" onclick="alert('Certificate generation coming soon!')">🎓 Certificate</button>` : ''}
           ${e.enrollment_status === 'pending' && (e.due_amount > 0 || e.net_amount > 0)
             ? `<button class="btn-sm btn-sm-primary lp-pay-btn" onclick="profilePay('${e.id}',${JSON.stringify(c.title||'Course').replace(/"/g,'&quot;')},${e.due_amount || e.net_amount})">💳 Complete Payment →</button>`
+            : ''}
+          ${e.enrollment_status === 'pending' && (!e.paid_amount || e.paid_amount <= 0)
+            ? `<button class="btn-sm btn-sm-outline" style="color:#f43f5e;border-color:rgba(244,63,94,.35)" onclick="cancelEnrollment('${e.id}',${JSON.stringify(c.title||'Course').replace(/"/g,'&quot;')})">✕ Cancel</button>`
             : ''}
         </div>
       </div>
@@ -1964,6 +1970,17 @@ init();
 /* ── Razorpay payment from profile page ─────────────────── */
 function profilePay(enrollmentId, courseTitle, amount) {
   window.location.href = '/payment?enrollment=' + encodeURIComponent(enrollmentId);
+}
+
+/* ── Cancel unpaid enrollment ─────────────────────────────── */
+async function cancelEnrollment(enrollmentId, courseTitle) {
+  if (!confirm(`Cancel enrollment for "${courseTitle}"? This cannot be undone.`)) return;
+  const { error } = await _db().from('enrollments')
+    .update({ enrollment_status: 'cancelled', access_status: 'revoked' })
+    .eq('id', enrollmentId)
+    .eq('student_user_id', currentUser.id);
+  if (error) { alert('Cancel failed: ' + error.message); return; }
+  loadLearningPath();
 }
 </script>
 </body>
