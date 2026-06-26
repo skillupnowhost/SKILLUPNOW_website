@@ -383,8 +383,13 @@ async function init() {
   }
 
   // Handle payment error from redirect
-  if (params.get('payment_error')) {
-    showToast('error', 'Payment could not be completed. Please try again.', { title: 'Payment Failed', buttonText: 'Retry' });
+  const paymentError = params.get('payment_error');
+  if (paymentError) {
+    const errorMessages = {
+      missing_fields: 'Payment could not be completed. Please try again.',
+    };
+    const msg = errorMessages[paymentError] || 'Payment was declined or cancelled. Please try again with a different payment method.';
+    showToast('error', msg, { title: 'Payment Failed', buttonText: 'Retry' });
   }
 
   // Handle Razorpay redirect response (after 3DS authentication)
@@ -580,7 +585,7 @@ async function initiatePayment() {
         }
       );
 
-      // 2. Save payment context for redirect-based flow
+      // 2. Build payment context for verification after success
       const paymentContext = {
         enrollment_id: enrollmentData.id,
         course_id: enrollmentData.course_id,
@@ -591,12 +596,8 @@ async function initiatePayment() {
         user_name: document.getElementById('bill-name').value,
         course_name: courseData?.title || '',
       };
-      sessionStorage.setItem('_skillupnow_payment', JSON.stringify(paymentContext));
 
-      // 3. Build callback URL — Razorpay POSTs here, API redirects back to payment page with GET params
-      const callbackUrl = window.location.origin + '/api/payment-callback?enrollment=' + enrollmentData.id;
-
-      // 4. Open Razorpay checkout with redirect mode
+      // 3. Open Razorpay checkout with handler mode (no redirect)
       label.innerHTML = '<span class="spinner"></span> Opening payment…';
       processor.openCheckout(order, {
         courseTitle: courseData?.title || 'Course Enrollment',
@@ -605,7 +606,25 @@ async function initiatePayment() {
           email: document.getElementById('bill-email').value,
           phone: document.getElementById('bill-phone').value,
         },
-        callbackUrl,
+        onSuccess: async (response) => {
+          label.innerHTML = '<span class="spinner"></span> Verifying payment…';
+          btn.disabled = true;
+          try {
+            const result = await processor.verifyPayment(response, paymentContext);
+            if (result.payment_id) {
+              window.location.href = '/payment?invoice=' + result.payment_id;
+            } else {
+              showToast('success', 'Payment completed successfully!', {
+                title: 'Payment Verified',
+                buttonText: 'Go to Profile',
+                redirectUrl: '/profile?tab=payments',
+              });
+            }
+          } catch (err) {
+            showToast('warning', 'Payment was received but verification failed. Please contact support with Transaction ID: <code>' + (response.razorpay_payment_id || '') + '</code>', { title: 'Verification Issue' });
+            resetBtn();
+          }
+        },
         onDismiss: resetBtn,
         onFailure: (errMsg) => {
           resetBtn();

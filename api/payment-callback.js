@@ -17,7 +17,11 @@ module.exports = async function handler(req, res) {
   const razorpay_signature = body.razorpay_signature || req.query.razorpay_signature || '';
 
   if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
-    return res.redirect(302, `/payment?enrollment=${enrollment}&payment_error=missing_fields`);
+    const errorCode = body['error[code]'] || body.error_code || '';
+    const errorDesc = body['error[description]'] || body.error_description || '';
+    const errorReason = body['error[reason]'] || body.error_reason || 'payment_failed';
+    const errorParam = errorCode ? `${errorReason}_${errorCode}` : 'missing_fields';
+    return res.redirect(302, `/payment?enrollment=${enrollment}&payment_error=${encodeURIComponent(errorParam)}`);
   }
 
   const params = new URLSearchParams({

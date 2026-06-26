@@ -25,9 +25,12 @@ exports.handler = async (event) => {
   const razorpay_signature = body.razorpay_signature || qs.razorpay_signature || '';
 
   if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+    const errorCode = body['error[code]'] || body.error_code || '';
+    const errorReason = body['error[reason]'] || body.error_reason || 'payment_failed';
+    const errorParam = errorCode ? `${errorReason}_${errorCode}` : 'missing_fields';
     return {
       statusCode: 302,
-      headers: { Location: `/payment?enrollment=${enrollment}&payment_error=missing_fields` },
+      headers: { Location: `/payment?enrollment=${enrollment}&payment_error=${encodeURIComponent(errorParam)}` },
       body: '',
     };
   }
