@@ -35,11 +35,13 @@ class PaymentProcessor {
     return order;
   }
 
-  openCheckout(order, { prefill, courseTitle, onSuccess, onDismiss, onFailure }) {
+  openCheckout(order, { prefill, courseTitle, onSuccess, onDismiss, onFailure, callbackUrl }) {
     if (!this.keyId) throw new Error('PaymentProcessor not initialized');
     if (typeof window.Razorpay === 'undefined') {
       throw new Error('Razorpay SDK not loaded. Please refresh the page.');
     }
+
+    const logoUrl = window.location.origin + '/icon/Logo.png';
 
     const options = {
       key: this.keyId,
@@ -48,7 +50,7 @@ class PaymentProcessor {
       order_id: order.id,
       name: 'SkillUpNow',
       description: courseTitle || 'Course Enrollment',
-      image: 'https://skillupnow.in/assets/logo.png',
+      image: logoUrl,
       prefill: {
         name: prefill?.name || '',
         email: prefill?.email || '',
@@ -63,15 +65,25 @@ class PaymentProcessor {
           if (onDismiss) onDismiss();
         },
       },
-      handler: (response) => {
-        if (onSuccess) onSuccess(response);
-      },
     };
+
+    if (callbackUrl) {
+      options.callback_url = callbackUrl;
+      options.redirect = true;
+    } else {
+      options.handler = (response) => {
+        if (onSuccess) onSuccess(response);
+      };
+    }
 
     const rzp = new window.Razorpay(options);
     rzp.on('payment.failed', (response) => {
       const errMsg = response.error?.description || response.error?.reason || 'Payment was declined.';
-      if (onFailure) onFailure(errMsg, response);
+      const is3dsError = errMsg && errMsg.toLowerCase().includes('3dsecure');
+      const friendlyMsg = is3dsError
+        ? 'Your card does not support 3D Secure. Please try UPI or Net Banking instead.'
+        : errMsg;
+      if (onFailure) onFailure(friendlyMsg, response);
     });
     rzp.open();
     return rzp;

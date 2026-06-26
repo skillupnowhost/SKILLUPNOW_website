@@ -382,6 +382,15 @@ async function init() {
     document.getElementById('bill-phone').value = profile.phone || '';
   }
 
+  // Handle Razorpay redirect response (after 3DS authentication)
+  const rzpPaymentId = params.get('razorpay_payment_id');
+  const rzpOrderId = params.get('razorpay_order_id');
+  const rzpSignature = params.get('razorpay_signature');
+  if (rzpPaymentId && rzpOrderId && rzpSignature) {
+    await handleRedirectPayment(rzpPaymentId, rzpOrderId, rzpSignature);
+    return;
+  }
+
   if (invoiceId) { loadInvoice(invoiceId); return; }
   if (emiId) { await loadEmiPayment(emiId); }
   else if (enrollmentId) { await loadEnrollment(enrollmentId); }
@@ -393,6 +402,32 @@ async function init() {
       document.getElementById('test-mode-banner').classList.add('show');
     }
   }).catch(() => {});
+}
+
+async function handleRedirectPayment(paymentId, orderId, signature) {
+  document.getElementById('order-loading').innerHTML = '<span class="spinner"></span> Verifying payment…';
+  const stored = sessionStorage.getItem('_skillupnow_payment');
+  if (!stored) {
+    showToast('warning', 'Payment session expired. Please check your payment status in your <a href="/profile?tab=payments" style="color:var(--v1);font-weight:700">Profile</a>.', { title: 'Session Expired' });
+    return;
+  }
+  const context = JSON.parse(stored);
+  sessionStorage.removeItem('_skillupnow_payment');
+
+  try {
+    await processor.init();
+    const result = await processor.verifyPayment(
+      { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature },
+      context
+    );
+    if (result.payment_id) {
+      window.location.href = '/payment?invoice=' + result.payment_id;
+    } else {
+      showToast('success', 'Payment completed successfully!', { title: 'Payment Verified', buttonText: 'Go to Profile', redirectUrl: '/profile?tab=payments' });
+    }
+  } catch (err) {
+    showToast('warning', 'Payment was received but verification failed. Please contact support with Transaction ID: <code>' + paymentId + '</code>', { title: 'Verification Issue' });
+  }
 }
 
 async function loadEnrollment(id) {
@@ -540,7 +575,23 @@ async function initiatePayment() {
         }
       );
 
-      // 2. Open Razorpay checkout
+      // 2. Save payment context for redirect-based flow
+      const paymentContext = {
+        enrollment_id: enrollmentData.id,
+        course_id: enrollmentData.course_id,
+        user_id: currentUser.id,
+        amount: payAmount,
+        payment_schedule_id: enrollmentData._paymentScheduleId || null,
+        user_email: document.getElementById('bill-email').value,
+        user_name: document.getElementById('bill-name').value,
+        course_name: courseData?.title || '',
+      };
+      sessionStorage.setItem('_skillupnow_payment', JSON.stringify(paymentContext));
+
+      // 3. Build callback URL for redirect after 3DS authentication
+      const callbackUrl = window.location.origin + '/payment?enrollment=' + enrollmentData.id;
+
+      // 4. Open Razorpay checkout with redirect mode
       label.innerHTML = '<span class="spinner"></span> Opening payment…';
       processor.openCheckout(order, {
         courseTitle: courseData?.title || 'Course Enrollment',
@@ -549,42 +600,12 @@ async function initiatePayment() {
           email: document.getElementById('bill-email').value,
           phone: document.getElementById('bill-phone').value,
         },
+        callbackUrl,
         onDismiss: resetBtn,
         onFailure: (errMsg) => {
           resetBtn();
           label.textContent = 'Retry Payment';
-          const is3dsError = errMsg && errMsg.toLowerCase().includes('3dsecure');
-          const friendlyMsg = is3dsError
-            ? 'Your card does not support 3D Secure authentication. Please try <strong>UPI</strong>, <strong>Net Banking</strong>, or a different card.'
-            : errMsg;
-          showToast('error', friendlyMsg, { title: is3dsError ? 'Card Not Supported' : 'Payment Declined', buttonText: 'Try Again' });
-        },
-        onSuccess: async (response) => {
-          label.innerHTML = '<span class="spinner"></span> Verifying payment…';
-          try {
-            // 3. Verify payment server-side (records in DB, updates enrollment, sends email)
-            const result = await processor.verifyPayment(response, {
-              enrollment_id: enrollmentData.id,
-              course_id: enrollmentData.course_id,
-              user_id: currentUser.id,
-              amount: payAmount,
-              payment_schedule_id: enrollmentData._paymentScheduleId || null,
-              user_email: document.getElementById('bill-email').value,
-              user_name: document.getElementById('bill-name').value,
-              course_name: courseData?.title || '',
-            });
-
-            // 4. Redirect to invoice
-            if (result.payment_id) {
-              window.location.href = `/payment?invoice=${result.payment_id}`;
-            } else {
-              window.location.href = '/profile?tab=payments';
-            }
-          } catch (verifyErr) {
-            showToast('warning', 'Payment verification failed. Please contact support with your Transaction ID: <code>' + response.razorpay_payment_id + '</code>', { title: 'Verification Issue' });
-            resetBtn();
-            label.textContent = 'Retry Payment';
-          }
+          showToast('error', errMsg, { title: 'Payment Declined', buttonText: 'Try Again' });
         },
       });
 
