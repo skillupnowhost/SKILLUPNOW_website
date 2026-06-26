@@ -8,5 +8,8 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Razorpay not configured' });
   }
 
-  return res.status(200).json({ key_id: keyId });
+  return res.status(200).json({
+    key_id: keyId,
+    mode: keyId.startsWith('rzp_test_') ? 'test' : 'live',
+  });
 };

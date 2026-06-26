@@ -21,6 +21,9 @@ exports.handler = async (event) => {
   return {
     statusCode: 200,
     headers: CORS_HEADERS,
-    body: JSON.stringify({ key_id: keyId }),
+    body: JSON.stringify({
+      key_id: keyId,
+      mode: keyId.startsWith('rzp_test_') ? 'test' : 'live',
+    }),
   };
 };

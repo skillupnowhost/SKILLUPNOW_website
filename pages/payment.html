@@ -138,6 +138,16 @@
     .toast-btn.outline:hover { border-color:var(--v1); color:var(--v1); }
     .toast-actions { display:flex; gap:0.5rem; justify-content:center; }
 
+    /* Test mode banner */
+    .test-mode-banner {
+      display:none; position:fixed; top:0; left:0; right:0; z-index:9998;
+      background:linear-gradient(90deg,#f59e0b,#f97316); color:#fff;
+      text-align:center; padding:0.4rem 1rem; font-size:0.78rem; font-weight:700;
+      letter-spacing:0.3px;
+    }
+    .test-mode-banner.show { display:block; }
+    .test-mode-banner + .page-wrap { padding-top:110px; }
+
     @media(max-width:768px) {
       .pay-wrap { grid-template-columns:1fr; }
       .pay-sidebar { order:-1; }
@@ -160,6 +170,7 @@
 <div class="orb orb1"></div>
 <nav></nav>
 
+<div class="test-mode-banner" id="test-mode-banner">TEST MODE — Payments will not be charged. Use test card: 4111 1111 1111 1111</div>
 <div class="page-wrap">
   <div class="pay-hero">
     <h1>Secure Payment</h1>
@@ -376,8 +387,12 @@ async function init() {
   else if (enrollmentId) { await loadEnrollment(enrollmentId); }
   else { document.getElementById('order-loading').textContent = 'No order specified. Please enroll from the courses page.'; }
 
-  // Pre-initialize payment processor
-  processor.init().catch(() => {});
+  // Pre-initialize payment processor & detect test/live mode
+  processor.init().then(() => {
+    if (processor.keyId && processor.keyId.startsWith('rzp_test_')) {
+      document.getElementById('test-mode-banner').classList.add('show');
+    }
+  }).catch(() => {});
 }
 
 async function loadEnrollment(id) {
