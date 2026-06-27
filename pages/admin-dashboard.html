@@ -2340,21 +2340,19 @@
       </style>
 
       <div class="itnm-sub-tabs">
-        <button class="itnm-sub-tab active" data-itnmtab="internships"  onclick="switchInternMgmtTab('internships')">🎓 Internships</button>
-        <button class="itnm-sub-tab"        data-itnmtab="enrollments"  onclick="switchInternMgmtTab('enrollments')">👤 Enrollments</button>
-        <button class="itnm-sub-tab"        data-itnmtab="applications" onclick="switchInternMgmtTab('applications')">📩 Applications</button>
-        <button class="itnm-sub-tab"        data-itnmtab="paid-settings" onclick="switchInternMgmtTab('paid-settings')">💳 Paid Settings</button>
-        <button class="itnm-sub-tab"        data-itnmtab="reports"      onclick="switchInternMgmtTab('reports')">📝 Reports</button>
-        <button class="itnm-sub-tab"        data-itnmtab="attendance"   onclick="switchInternMgmtTab('attendance')">📅 Attendance</button>
-        <button class="itnm-sub-tab"        data-itnmtab="tracking"     onclick="switchInternMgmtTab('tracking')">⏱ Tracking</button>
-        <button class="itnm-sub-tab"        data-itnmtab="modules"      onclick="switchInternMgmtTab('modules')">📦 Modules</button>
-        <button class="itnm-sub-tab"        data-itnmtab="git-access"   onclick="switchInternMgmtTab('git-access')">🔀 Git Access</button>
-        <button class="itnm-sub-tab"        data-itnmtab="submissions"  onclick="switchInternMgmtTab('submissions')">📎 Submissions</button>
-        <button class="itnm-sub-tab"        data-itnmtab="app-usage"    onclick="switchInternMgmtTab('app-usage')">👁 App Usage</button>
-        <button class="itnm-sub-tab"        data-itnmtab="session-tasks" onclick="switchInternMgmtTab('session-tasks')">📋 Session Tasks</button>
-        <button class="itnm-sub-tab"        data-itnmtab="detailed-report" onclick="switchInternMgmtTab('detailed-report')">📊 Detailed Report</button>
+        <button class="itnm-sub-tab active" data-itnmtab="internships"     onclick="switchInternMgmtTab('internships')">🎓 Internships</button>
         <button class="itnm-sub-tab"        data-itnmtab="program-modules" onclick="switchInternMgmtTab('program-modules')">📦 Intern Modules</button>
-        <button class="itnm-sub-tab"        data-itnmtab="program-assign"  onclick="switchInternMgmtTab('program-assign')">👤 Module Assign</button>
+        <button class="itnm-sub-tab"        data-itnmtab="program-assign"  onclick="switchInternMgmtTab('program-assign')">👤 Assign Module</button>
+        <button class="itnm-sub-tab"        data-itnmtab="enrollments"     onclick="switchInternMgmtTab('enrollments')">👤 Enrollments</button>
+        <button class="itnm-sub-tab"        data-itnmtab="applications"    onclick="switchInternMgmtTab('applications')">📩 Applications</button>
+        <button class="itnm-sub-tab"        data-itnmtab="paid-settings"   onclick="switchInternMgmtTab('paid-settings')">💳 Paid Settings</button>
+        <button class="itnm-sub-tab"        data-itnmtab="reports"         onclick="switchInternMgmtTab('reports')">📝 Reports</button>
+        <button class="itnm-sub-tab"        data-itnmtab="attendance"      onclick="switchInternMgmtTab('attendance')">📅 Attendance</button>
+        <button class="itnm-sub-tab"        data-itnmtab="tracking"        onclick="switchInternMgmtTab('tracking')">⏱ Tracking</button>
+        <button class="itnm-sub-tab"        data-itnmtab="git-access"      onclick="switchInternMgmtTab('git-access')">🔀 Git Access</button>
+        <button class="itnm-sub-tab"        data-itnmtab="submissions"     onclick="switchInternMgmtTab('submissions')">📎 Submissions</button>
+        <button class="itnm-sub-tab"        data-itnmtab="app-usage"       onclick="switchInternMgmtTab('app-usage')">👁 App Usage</button>
+        <button class="itnm-sub-tab"        data-itnmtab="detailed-report" onclick="switchInternMgmtTab('detailed-report')">📊 Detailed Report</button>
       </div>
 
       <!-- Internships List -->
@@ -2533,25 +2531,6 @@
         </div>
       </div>
 
-      <!-- Module Assignment -->
-      <div class="itnm-itab-pane" id="itnm-itab-modules">
-        <div class="table-card">
-          <div class="table-header">
-            <h3>Module Assignment</h3>
-            <div class="table-actions">
-              <select id="itnm-mod-student-filter" onchange="loadInternModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
-                <option value="">All Students</option>
-              </select>
-              <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)" onclick="openInternModuleModal()">+ Assign Module</button>
-            </div>
-          </div>
-          <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Student</th><th>Day</th><th>Module</th><th>Type</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="itnm-mod-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
-          </table></div>
-        </div>
-      </div>
-
       <!-- Git Access -->
       <div class="itnm-itab-pane" id="itnm-itab-git-access">
         <div class="table-card">
@@ -2609,25 +2588,6 @@
           <div class="table-scroll"><table class="data-table">
             <thead><tr><th>Student</th><th>App</th><th>Window Title</th><th>Active Time</th><th>Recorded At</th></tr></thead>
             <tbody id="itnm-au-tbody"><tr><td colspan="5" class="table-empty">Loading…</td></tr></tbody>
-          </table></div>
-        </div>
-      </div>
-
-      <!-- Intern Session Tasks -->
-      <div class="itnm-itab-pane" id="itnm-itab-session-tasks">
-        <div class="table-card">
-          <div class="table-header">
-            <h3>Session Task Assignments</h3>
-            <div class="table-actions">
-              <select id="itnm-st-student-filter" onchange="loadInternSessionTasks()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
-                <option value="">All Students</option>
-              </select>
-              <button class="btn-primary" style="background:linear-gradient(135deg,#f59e0b,#d97706)" onclick="openInternSessionTaskModal()">+ Assign Task</button>
-            </div>
-          </div>
-          <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Student</th><th>Task</th><th>Module</th><th>Day</th><th>Status</th><th>Started</th><th>Completed</th><th>Actions</th></tr></thead>
-            <tbody id="itnm-st-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2804,55 +2764,6 @@
   </div>
 </div>
 
-<!-- Intern Session Task Modal -->
-<div class="modal-overlay" id="intern-session-task-modal" onclick="if(event.target===this)closeModal('intern-session-task-modal')">
-  <div class="modal-box" style="max-width:520px">
-    <div class="modal-close" onclick="closeModal('intern-session-task-modal')">✕</div>
-    <div class="modal-title">Assign Session Task</div>
-    <input type="hidden" id="ist-edit-id">
-    <div class="f-group">
-      <label>Student (Enrollment) *</label>
-      <select id="ist-enrollment-id" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:.56rem .78rem;color:var(--txt);font-size:.82rem;font-family:inherit">
-        <option value="">Select student...</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <div class="f-group">
-        <label>Task Title *</label>
-        <input type="text" id="ist-title" placeholder="e.g. Build login form">
-      </div>
-      <div class="f-group">
-        <label>Module (optional)</label>
-        <select id="ist-module-id" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:.56rem .78rem;color:var(--txt);font-size:.82rem;font-family:inherit">
-          <option value="">None</option>
-        </select>
-      </div>
-    </div>
-    <div class="f-group">
-      <label>Description</label>
-      <textarea id="ist-desc" placeholder="Task details..."></textarea>
-    </div>
-    <div class="form-row">
-      <div class="f-group">
-        <label>Status</label>
-        <select id="ist-status">
-          <option value="pending">Pending</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="blocked">Blocked</option>
-        </select>
-      </div>
-      <div class="f-group">
-        <label>Admin Notes</label>
-        <input type="text" id="ist-notes" placeholder="Internal notes...">
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('intern-session-task-modal')">Cancel</button>
-      <button class="btn-primary" style="background:linear-gradient(135deg,#f59e0b,#d97706)" onclick="saveInternSessionTask()">Save Task</button>
-    </div>
-  </div>
-</div>
 
 <!-- Project Session Task Modal -->
 <div class="modal-overlay" id="proj-session-task-modal" onclick="if(event.target===this)closeModal('proj-session-task-modal')">
@@ -3449,73 +3360,6 @@
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('recording-modal')">Cancel</button>
       <button class="btn-primary" id="rec-save-btn" onclick="saveRecording()">Save Recording</button>
-    </div>
-  </div>
-</div>
-
-<!-- Intern Module Assignment Modal -->
-<div class="modal-overlay" id="intern-module-modal" onclick="if(event.target===this)closeModal('intern-module-modal')">
-  <div class="modal-box" style="max-width:520px">
-    <div class="modal-close" onclick="closeModal('intern-module-modal')">✕</div>
-    <div class="modal-title" id="imod-modal-title">Assign Module</div>
-    <input type="hidden" id="imod-edit-id">
-    <div class="f-group">
-      <label>Student (Enrollment) *</label>
-      <select id="imod-enrollment-id" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:.56rem .78rem;color:var(--txt);font-size:.82rem;font-family:inherit">
-        <option value="">Select student...</option>
-      </select>
-    </div>
-    <div class="f-group">
-      <label>Module Title *</label>
-      <input type="text" id="imod-title" placeholder="e.g. Build Responsive Navbar">
-    </div>
-    <div class="f-group">
-      <label>Description</label>
-      <textarea id="imod-desc" placeholder="Detailed module instructions..."></textarea>
-    </div>
-    <div class="form-row">
-      <div class="f-group">
-        <label>Day Number (1-50)</label>
-        <input type="number" id="imod-day" min="1" max="50" placeholder="e.g. 1">
-      </div>
-      <div class="f-group">
-        <label>Task Type</label>
-        <select id="imod-task-type">
-          <option value="daily">Daily Task</option>
-          <option value="milestone">Milestone</option>
-          <option value="review">Review</option>
-          <option value="assessment">Assessment</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="f-group">
-        <label>Due Date</label>
-        <input type="date" id="imod-due">
-      </div>
-      <div class="f-group">
-        <label>Status</label>
-        <select id="imod-status">
-          <option value="assigned">Assigned</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="reviewed">Reviewed</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="f-group">
-        <label>Estimated Hours</label>
-        <input type="number" id="imod-hours" step="0.5" min="0" placeholder="e.g. 2">
-      </div>
-      <div class="f-group">
-        <label>Sort Order</label>
-        <input type="number" id="imod-sort" value="0" min="0">
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('intern-module-modal')">Cancel</button>
-      <button class="btn-primary" onclick="saveInternModule()">Save Module</button>
     </div>
   </div>
 </div>
@@ -8902,21 +8746,19 @@ function switchInternMgmtTab(tab) {
   document.querySelectorAll('#section-internships-mgmt .itnm-itab-pane').forEach(p => {
     p.classList.toggle('active', p.id === `itnm-itab-${tab}`);
   });
-  if (tab === 'internships')   loadAdminInternships();
-  if (tab === 'enrollments')   loadInternStudents();
-  if (tab === 'applications')  loadInternApplications();
-  if (tab === 'paid-settings') loadAdminPaidSettings();
-  if (tab === 'reports')       { _populateInternProjFilter('itnm-rpt-proj-filter', 'All Internships'); loadInternReports(); }
-  if (tab === 'attendance')    { _populateInternProjFilter('itnm-atd-proj-filter', 'All Internships'); loadInternAttendance(); }
-  if (tab === 'tracking')      { _populateStudentFilter('itnm-trk-student-filter'); loadInternTracking(); }
-  if (tab === 'modules')       { _populateStudentFilter('itnm-mod-student-filter'); loadInternModules(); }
-  if (tab === 'git-access')    loadGitPermissions();
-  if (tab === 'submissions')   loadInternSubmissions();
-  if (tab === 'app-usage')     { _populateStudentFilter('itnm-au-student-filter'); loadAppUsage(); }
-  if (tab === 'session-tasks') { _populateStudentFilter('itnm-st-student-filter'); loadInternSessionTasks(); }
-  if (tab === 'detailed-report') { _populateStudentFilter('dr-student-select'); }
-  if (tab === 'program-modules') { _populateInternshipFilter('ipm-internship-filter'); loadInternProgramModules(); }
-  if (tab === 'program-assign')  { _populateInternshipFilter('ipa-internship-filter'); loadInternProgramAssignments(); }
+  if (tab === 'internships')      loadAdminInternships();
+  if (tab === 'program-modules')  { _populateInternshipFilter('ipm-internship-filter'); loadInternProgramModules(); }
+  if (tab === 'program-assign')   { _populateInternshipFilter('ipa-internship-filter'); loadInternProgramAssignments(); }
+  if (tab === 'enrollments')      loadInternStudents();
+  if (tab === 'applications')     loadInternApplications();
+  if (tab === 'paid-settings')    loadAdminPaidSettings();
+  if (tab === 'reports')          { _populateInternProjFilter('itnm-rpt-proj-filter', 'All Internships'); loadInternReports(); }
+  if (tab === 'attendance')       { _populateInternProjFilter('itnm-atd-proj-filter', 'All Internships'); loadInternAttendance(); }
+  if (tab === 'tracking')         { _populateStudentFilter('itnm-trk-student-filter'); loadInternTracking(); }
+  if (tab === 'git-access')       loadGitPermissions();
+  if (tab === 'submissions')      loadInternSubmissions();
+  if (tab === 'app-usage')        { _populateStudentFilter('itnm-au-student-filter'); loadAppUsage(); }
+  if (tab === 'detailed-report')  { _populateStudentFilter('dr-student-select'); }
 }
 
 async function loadAdminInternships() {
@@ -10317,14 +10159,16 @@ async function editAttendanceRecord(atdId) {
 /* ============================================================
    PDF REPORT — Admin generates for individual student
    ============================================================ */
-async function generateStudentReport(enrollId, studentName, projectName) {
+async function generateStudentReport(enrollId, studentName, projectName, teamNames) {
   if (!window.jspdf?.jsPDF) { _showAdminToast('jsPDF not loaded.','error'); return; }
   const { jsPDF } = window.jspdf;
 
-  const [{ data: rpts }, { data: atd }, { data: enrol }] = await Promise.all([
+  const [{ data: rpts }, { data: atd }, { data: enrol }, { data: wSessions }, { data: appUsage }] = await Promise.all([
     db.client.from('internship_daily_reports').select('*').eq('enrollment_id', enrollId).order('report_date', { ascending: true }),
     db.client.from('internship_attendance').select('status').eq('enrollment_id', enrollId),
     db.client.from('internship_enrollments').select('*, internship_projects(*)').eq('id', enrollId).single(),
+    db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id', enrollId).order('session_date',{ascending:true}),
+    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds').eq('student_user_id', enrol?.student_user_id||'x')
   ]);
 
   const present = (atd||[]).filter(a=>['present','late'].includes(a.status)).length;
@@ -10333,22 +10177,34 @@ async function generateStudentReport(enrollId, studentName, projectName) {
   const proj    = enrol?.internship_projects;
   const totalH  = (rpts||[]).reduce((s,r) => s + Number(r.hours_worked||0), 0);
 
+  const aiTools=['chatgpt','claude','copilot','gemini','bard','perplexity','cursor'];
+  const aiUsage={};
+  (appUsage||[]).forEach(a=>{
+    const title=(a.window_title||'').toLowerCase();
+    const found=aiTools.find(t=>title.includes(t));
+    if(found) aiUsage[found]=(aiUsage[found]||0)+(a.active_seconds||0);
+  });
+  const aiEntries=Object.entries(aiUsage).sort((a,b)=>b[1]-a[1]);
+
   const doc = new jsPDF({ unit:'mm', format:'a4' });
   const pw  = doc.internal.pageSize.getWidth();
 
-  doc.setFillColor(124,92,252); doc.rect(0,0,pw,26,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(13); doc.setFont('helvetica','bold');
-  doc.text('SkillUpNow — Internship Progress Report', 14, 11);
-  doc.setFontSize(8); doc.setFont('helvetica','normal');
-  doc.text('ADMIN COPY — CONFIDENTIAL', 14, 19);
-  doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, pw-14, 19, { align:'right' });
+  doc.setFillColor(124,92,252); doc.rect(0,0,pw,30,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text('SkillUpNow', pw/2, 12, { align:'center' });
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('Internship Progress Report', pw/2, 19, { align:'center' });
+  doc.setFontSize(7);
+  doc.text('ADMIN COPY — CONFIDENTIAL', 14, 26);
+  doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, pw-14, 26, { align:'right' });
 
-  let y = 36;
+  let y = 40;
   doc.setTextColor(20,10,50); doc.setFontSize(9.5); doc.setFont('helvetica','bold');
   doc.text('Student & Project Information', 14, y); y += 6;
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
   doc.text(`Student:   ${studentName}`, 14, y); y += 5;
   doc.text(`Project:   ${proj?.project_name||projectName}`, 14, y); y += 5;
+  if (teamNames) { doc.text(`Team:      ${teamNames}`, 14, y); y += 5; }
   doc.text(`Client:    ${proj?.client_name||'—'}  |  Country: ${proj?.country||'—'}`, 14, y); y += 5;
   doc.text(`Duration:  ${proj?.duration_weeks||'—'} weeks`, 14, y); y += 5;
   if (enrol?.approved_at) doc.text(`Approved:  ${new Date(enrol.approved_at).toLocaleDateString('en-IN')}`, 14, y), y += 5;
@@ -10361,7 +10217,19 @@ async function generateStudentReport(enrollId, studentName, projectName) {
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
   doc.text(`Total Reports Submitted: ${(rpts||[]).length}`, 14, y); y += 5;
   doc.text(`Total Hours Logged:      ${totalH.toFixed(1)}h`, 14, y); y += 5;
-  doc.text(`Days Present:            ${present} / ${total}  (${pct}%)`, 14, y); y += 8;
+  doc.text(`Days Worked (Sessions):  ${(wSessions||[]).length}`, 14, y); y += 5;
+  doc.text(`Days Present:            ${present} / ${total}  (${pct}%)`, 14, y); y += 5;
+  if (wSessions?.length) {
+    const totalWMins=(wSessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+    const totalBMins=(wSessions||[]).reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
+    doc.text(`Total Work Time:         ${Math.floor(totalWMins/60)}h ${totalWMins%60}m`, 14, y); y += 5;
+    doc.text(`Total Break Time:        ${Math.floor(totalBMins/60)}h ${totalBMins%60}m`, 14, y); y += 5;
+    doc.text(`Net Coding Time:         ${Math.floor((totalWMins-totalBMins)/60)}h ${(totalWMins-totalBMins)%60}m`, 14, y); y += 5;
+  }
+  if (aiEntries.length) {
+    y += 3; doc.text(`AI Tools Used:           ${aiEntries.map(([t,s])=>t+' ('+Math.floor(s/60)+'m)').join(', ')}`, 14, y); y += 5;
+  }
+  y += 3;
 
   doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
   doc.text('Daily Reports', 14, y); y += 6;
@@ -10379,6 +10247,11 @@ async function generateStudentReport(enrollId, studentName, projectName) {
     doc.text(r.report_status||'', cols[4], y);
     y += 5; doc.setDrawColor(225,220,245); doc.line(12,y-1,pw-12,y-1);
   }
+
+  if (y > 260) { doc.addPage(); y = 20; }
+  y += 5;
+  doc.setFontSize(7); doc.setTextColor(120,100,180);
+  doc.text('SkillUpNow · skillupnow.in · Confidential', pw/2, doc.internal.pageSize.getHeight()-10, { align:'center' });
 
   doc.save(`intern-report-${studentName.replace(/\s+/g,'-')}-admin.pdf`);
   _showAdminToast('PDF generated!','success');
@@ -10698,10 +10571,12 @@ async function _populateStudentFilter(selectId) {
 }
 
 async function _getProfileMap(userIds) {
-  if (!userIds.length) return {};
-  const { data } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id', userIds);
+  const validIds = (userIds||[]).filter(id => id != null && id !== '');
+  if (!validIds.length) return {};
+  const { data } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id', validIds);
   const m = {};
   (data||[]).forEach(p => { m[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
+  validIds.forEach(id => { if (!m[id]) m[id] = 'User ' + id.slice(0,8); });
   return m;
 }
 
@@ -10725,7 +10600,7 @@ async function loadInternTracking() {
   if (error) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No work sessions recorded yet.</td></tr>'; return; }
 
-  const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id).filter(Boolean))]);
   const statusBadge = { active:'badge-green', completed:'badge-blue', auto_closed:'badge-yellow' };
 
   tbody.innerHTML = data.map(s => {
@@ -10772,7 +10647,7 @@ async function loadInternModules() {
   if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No modules assigned yet. Click "+ Assign Module" to get started.</td></tr>'; return; }
 
-  const pm = await _getProfileMap([...new Set(data.map(m => m.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(m => m.student_user_id).filter(Boolean))]);
   const sBadge = { assigned:'badge-blue', in_progress:'badge-yellow', completed:'badge-green', reviewed:'badge-purple' };
   const tBadge = { daily:'badge-gray', milestone:'badge-purple', review:'badge-blue', assessment:'badge-yellow' };
 
@@ -10808,7 +10683,7 @@ async function openInternModuleModal() {
     .select('id, student_user_id, approval_status, internship_projects(project_name)')
     .in('approval_status', ['approved', 'pending'])
     .order('enrolled_at', { ascending: false });
-  const sIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
+  const sIds = [...new Set((enrols||[]).map(e => e.student_user_id).filter(Boolean))];
   const pm = await _getProfileMap(sIds);
   sel.innerHTML = '<option value="">Select student...</option>' +
     (enrols||[]).map(e => {
@@ -10903,7 +10778,7 @@ async function loadGitPermissions() {
   if (error) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No git permissions granted yet.</td></tr>'; return; }
 
-  const pm = await _getProfileMap([...new Set(data.map(g => g.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(g => g.student_user_id).filter(Boolean))]);
 
   tbody.innerHTML = data.map(g => `<tr>
     <td>${_adm_esc(pm[g.student_user_id]||'—')}</td>
@@ -10929,7 +10804,7 @@ async function openGitPermModal() {
     .select('id, student_user_id, approval_status, internship_projects(project_name)')
     .in('approval_status', ['approved', 'pending'])
     .order('enrolled_at', { ascending: false });
-  const sIds = [...new Set((enrols||[]).map(e => e.student_user_id))];
+  const sIds = [...new Set((enrols||[]).map(e => e.student_user_id).filter(Boolean))];
   const pm = await _getProfileMap(sIds);
   sel.innerHTML = '<option value="">Select student...</option>' +
     (enrols||[]).map(e => {
@@ -10949,21 +10824,33 @@ async function saveGitPermission() {
 
   const sel = document.getElementById('git-enrollment-id');
   const uid = sel.options[sel.selectedIndex]?.dataset.uid;
-  const { data: admin } = await db.client.auth.getUser();
+  if (!uid) { _showAdminToast('Selected student has no user ID. Please check enrollment data.','error'); return; }
 
-  const { error } = await db.client.from('intern_git_permissions').upsert({
-    enrollment_id: enrollId,
-    student_user_id: uid,
-    repo_url: repoUrl,
-    branch_name: branch,
-    is_active: true,
-    granted_by: admin?.user?.id
-  }, { onConflict: 'enrollment_id,repo_url' });
+  const btn = document.querySelector('#git-perm-modal .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
-  if (error) { _showAdminToast('Failed: ' + error.message, 'error'); return; }
-  _showAdminToast('Git push access granted!', 'success');
-  closeModal('git-perm-modal');
-  loadGitPermissions();
+  try {
+    const { data: admin } = await db.client.auth.getUser();
+    let lastErr = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const { error } = await db.client.from('intern_git_permissions').upsert({
+        enrollment_id: enrollId,
+        student_user_id: uid,
+        repo_url: repoUrl,
+        branch_name: branch,
+        is_active: true,
+        granted_by: admin?.user?.id
+      }, { onConflict: 'enrollment_id,repo_url' });
+      if (!error) { lastErr = null; break; }
+      lastErr = error;
+      if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * attempt));
+    }
+    if (lastErr) { _showAdminToast('Failed after retries: ' + lastErr.message, 'error'); return; }
+    _showAdminToast('Git push access granted!', 'success');
+    closeModal('git-perm-modal');
+    loadGitPermissions();
+  } catch(e) { _showAdminToast('Error: ' + (e.message||'Unknown'), 'error'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Grant Access'; } }
 }
 
 async function revokeGitPerm(permId) {
@@ -11003,7 +10890,7 @@ async function loadInternSubmissions() {
   if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No submissions yet.</td></tr>'; return; }
 
-  const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id).filter(Boolean))]);
   const sBadge = { submitted:'badge-yellow', reviewed:'badge-blue', approved:'badge-green', rejected:'badge-red' };
 
   tbody.innerHTML = data.map(s => {
@@ -11098,7 +10985,7 @@ async function loadAppUsage() {
   if (error) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No app usage data recorded yet.</td></tr>'; return; }
 
-  const pm = await _getProfileMap([...new Set(data.map(a => a.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(a => a.student_user_id).filter(Boolean))]);
 
   tbody.innerHTML = data.map(a => {
     const mins = Math.round((a.active_seconds||0) / 60);
@@ -11149,7 +11036,7 @@ async function loadInternSessionTasks() {
   const {data,error} = await q;
   if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No session tasks assigned yet.</td></tr>'; return; }
-  const pm = await _getProfileMap([...new Set(data.map(t=>t.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(t=>t.student_user_id).filter(Boolean))]);
   const sb = {pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red'};
   const ft = t => t ? new Date(t).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'}) : '—';
   tbody.innerHTML = data.map(t => `<tr>
@@ -11172,7 +11059,7 @@ async function openInternSessionTaskModal() {
   document.getElementById('ist-notes').value='';
   const sel = document.getElementById('ist-enrollment-id');
   const {data:enrols} = await db.client.from('internship_enrollments').select('id,student_user_id,approval_status,internship_projects(project_name)').in('approval_status',['approved','pending']).order('enrolled_at',{ascending:false});
-  const sIds=[...new Set((enrols||[]).map(e=>e.student_user_id))];
+  const sIds=[...new Set((enrols||[]).map(e=>e.student_user_id).filter(Boolean))];
   const pm = await _getProfileMap(sIds);
   sel.innerHTML = '<option value="">Select student...</option>'+(enrols||[]).map(e=>{const tag=e.approval_status==='pending'?' [Pending]':'';return `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}${tag}</option>`;}).join('');
   const modSel = document.getElementById('ist-module-id');
@@ -11230,7 +11117,7 @@ async function _populateProjStudentFilter(selectId) {
   if (!sel||sel.options.length>1) return;
   const {data:assigns} = await db.client.from('project_assignments').select('id,student_user_id,internship_projects:project_id(project_name)').eq('status','active');
   if (!assigns?.length) return;
-  const sIds=[...new Set(assigns.map(a=>a.student_user_id))];
+  const sIds=[...new Set(assigns.map(a=>a.student_user_id).filter(Boolean))];
   const pm = await _getProfileMap(sIds);
   sel.innerHTML = '<option value="">All Students</option>'+assigns.map(a=>`<option value="${a.student_user_id}" data-assign="${a.id}">${_adm_esc(pm[a.student_user_id]||'—')} — ${_adm_esc(a.internship_projects?.project_name||'—')}</option>`).join('');
 }
@@ -11246,7 +11133,7 @@ async function loadProjectAppUsage() {
   const {data,error} = await q;
   if (error){tbody.innerHTML=`<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;return;}
   if (!data?.length){tbody.innerHTML='<tr><td colspan="6" class="table-empty">No app usage data yet.</td></tr>';return;}
-  const pm = await _getProfileMap([...new Set(data.map(a=>a.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(a=>a.student_user_id).filter(Boolean))]);
   tbody.innerHTML = data.map(a=>{
     const mins=Math.floor((a.active_seconds||0)/60);const secs=(a.active_seconds||0)%60;
     const sessDate=a.project_work_sessions?.session_start?new Date(a.project_work_sessions.session_start).toLocaleDateString('en-IN'):'—';
@@ -11267,7 +11154,7 @@ async function loadProjectSubmissions() {
   const {data,error} = await q;
   if (error){tbody.innerHTML=`<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;return;}
   if (!data?.length){tbody.innerHTML='<tr><td colspan="8" class="table-empty">No submissions yet.</td></tr>';return;}
-  const pm = await _getProfileMap([...new Set(data.map(s=>s.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(s=>s.student_user_id).filter(Boolean))]);
   const sb={submitted:'badge-yellow',reviewed:'badge-blue',approved:'badge-green',rejected:'badge-red'};
   tbody.innerHTML = data.map(s=>{
     const ssLink=s.screenshot_url?`<a href="#" onclick="viewProjSubFile('${_adm_esc(s.screenshot_url)}');return false" style="color:var(--v1);font-size:.76rem">View</a>`:'—';
@@ -11306,7 +11193,7 @@ async function loadProjectSessionTasks() {
   const {data,error} = await q;
   if (error){tbody.innerHTML=`<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;return;}
   if (!data?.length){tbody.innerHTML='<tr><td colspan="8" class="table-empty">No session tasks yet.</td></tr>';return;}
-  const pm = await _getProfileMap([...new Set(data.map(t=>t.student_user_id))]);
+  const pm = await _getProfileMap([...new Set(data.map(t=>t.student_user_id).filter(Boolean))]);
   const sb={pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red'};
   const ft=t=>t?new Date(t).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'}):'—';
   tbody.innerHTML = data.map(t=>`<tr><td>${_adm_esc(pm[t.student_user_id]||'—')}</td><td style="font-weight:600">${_adm_esc(t.task_title)}</td><td>${_adm_esc(t.project_modules?.module_name||'—')}</td><td>${t.project_work_sessions?.session_start?new Date(t.project_work_sessions.session_start).toLocaleDateString('en-IN'):'—'}</td><td><span class="${sb[t.status]||'badge-gray'}">${t.status.replace('_',' ')}</span></td><td>${ft(t.started_at)}</td><td>${ft(t.completed_at)}</td><td class="action-btns"><button class="action-btn" onclick="editProjectSessionTask('${t.id}')">Edit</button></td></tr>`).join('');
@@ -11318,7 +11205,7 @@ async function openProjectSessionTaskModal(){
   document.getElementById('pst-desc').value='';
   const sel=document.getElementById('pst-assignment-id');
   const {data:assigns}=await db.client.from('project_assignments').select('id,student_user_id,internship_projects:project_id(project_name)').eq('status','active');
-  const sIds=[...new Set((assigns||[]).map(a=>a.student_user_id))];
+  const sIds=[...new Set((assigns||[]).map(a=>a.student_user_id).filter(Boolean))];
   const pm=await _getProfileMap(sIds);
   sel.innerHTML='<option value="">Select student...</option>'+(assigns||[]).map(a=>`<option value="${a.id}" data-uid="${a.student_user_id}">${_adm_esc(pm[a.student_user_id]||'—')} — ${_adm_esc(a.internship_projects?.project_name||'—')}</option>`).join('');
   const modSel=document.getElementById('pst-module-id');
@@ -11447,14 +11334,14 @@ async function loadDetailedReport(){
   if(!studentId){el.innerHTML='<p style="text-align:center;color:var(--txt3);font-size:.88rem">Select a student to view their detailed report.</p>';return;}
   el.innerHTML='<p style="text-align:center;color:var(--txt3)">Loading report…</p>';
   const [
-    {data:enrol},{data:sessions},{data:mods},{data:subs},{data:tasks},{data:appUsage}
+    {data:enrol},{data:sessions},{data:mods},{data:subs},{data:appUsage},{data:progAssign}
   ] = await Promise.all([
     db.client.from('internship_enrollments').select('*,internship_projects(*)').eq('student_user_id',studentId).eq('approval_status','approved').limit(1).maybeSingle(),
     db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:true}),
     db.client.from('intern_modules').select('*').eq('student_user_id',studentId).order('day_number',{ascending:true}),
     db.client.from('intern_submissions').select('*').eq('student_user_id',studentId).order('submitted_at',{ascending:false}),
-    db.client.from('intern_session_tasks').select('*').eq('student_user_id',studentId).order('created_at',{ascending:false}),
-    db.client.from('intern_app_usage').select('app_name,active_seconds').eq('student_user_id',studentId)
+    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at').eq('student_user_id',studentId),
+    db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name,git_push_link)').eq('student_user_id',studentId).order('assigned_at',{ascending:true})
   ]);
   const pm=await _getProfileMap([studentId]);
   const name=pm[studentId]||'Student';
@@ -11464,42 +11351,97 @@ async function loadDetailedReport(){
   const totalBreakMins=(sessions||[]).reduce((s,x)=>{
     return s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
   },0);
+  const netCodingMins=totalWorkMins-totalBreakMins;
   const completedMods=(mods||[]).filter(m=>m.status==='completed'||m.status==='reviewed').length;
+  const completedProg=(progAssign||[]).filter(a=>a.status==='completed').length;
+
   const appMap={};
-  (appUsage||[]).forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0);});
+  const aiTools=['chatgpt','claude','copilot','gemini','bard','perplexity','phind','cursor'];
+  const aiUsage={};
+  (appUsage||[]).forEach(a=>{
+    appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0);
+    const title=(a.window_title||'').toLowerCase();
+    const foundAI=aiTools.find(t=>title.includes(t));
+    if(foundAI) aiUsage[foundAI]=(aiUsage[foundAI]||0)+(a.active_seconds||0);
+  });
   const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const aiEntries=Object.entries(aiUsage).sort((a,b)=>b[1]-a[1]);
+
+  let teamHtml='';
+  if(enrol?.project_id){
+    const {data:teamEnrols}=await db.client.from('internship_enrollments').select('student_user_id').eq('project_id',enrol.project_id).eq('approval_status','approved');
+    const teamIds=(teamEnrols||[]).map(t=>t.student_user_id).filter(Boolean);
+    if(teamIds.length>1){
+      const teamPm=await _getProfileMap(teamIds);
+      const teamNames=teamIds.map(id=>teamPm[id]||'Unknown');
+      teamHtml=`<div style="font-size:.78rem;color:var(--txt3);margin-top:.25rem">Team: ${teamNames.map(n=>_adm_esc(n)).join(' &bull; ')}</div>`;
+    }
+  }
+
   const isPaid=proj?.is_paid;
-  const sb={submitted:'badge-yellow',reviewed:'badge-blue',approved:'badge-green',rejected:'badge-red',pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red',assigned:'badge-blue'};
+  const sb={submitted:'badge-yellow',reviewed:'badge-blue',approved:'badge-green',rejected:'badge-red',pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red',assigned:'badge-blue',active:'badge-blue'};
+  const fmtMins=m=>`${Math.floor(m/60)}h ${m%60}m`;
 
   el.innerHTML=`
-  <div style="margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
-    <div style="width:48px;height:48px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-weight:800;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
-    <div><div style="font-size:1.05rem;font-weight:800">${_adm_esc(name)}</div><div style="font-size:.78rem;color:var(--txt3)">${_adm_esc(proj?.project_name||'N/A')} ${isPaid?'<span class="badge-yellow" style="margin-left:.4rem">Paid</span>':'<span class="badge-green" style="margin-left:.4rem">Free</span>'}</div></div>
+  <div style="text-align:center;margin-bottom:1.5rem;padding:1.2rem 0;border-bottom:2px solid var(--border)">
+    <h2 style="font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--v1),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem">SkillUpNow</h2>
+    <p style="font-size:.82rem;color:var(--txt3);font-weight:600">Internship Progress Report</p>
+    <div style="font-size:.88rem;font-weight:700;color:var(--txt2);margin-top:.5rem">${_adm_esc(proj?.project_name||'N/A')} ${isPaid?'<span class="badge-yellow" style="margin-left:.4rem">Paid</span>':'<span class="badge-green" style="margin-left:.4rem">Free</span>'}</div>
+    ${teamHtml}
   </div>
-  <div class="dr-grid">
+
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-weight:800;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
+    <div><div style="font-size:1.05rem;font-weight:800">${_adm_esc(name)}</div><div style="font-size:.76rem;color:var(--txt3)">Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:1rem">
     <div class="dr-card"><h4>Overview</h4>
       <div class="dr-stat"><span class="dr-stat-label">Total Days Worked</span><span class="dr-stat-val">${totalDays} / 50</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Total Work Time</span><span class="dr-stat-val">${Math.floor(totalWorkMins/60)}h ${totalWorkMins%60}m</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Total Break Time</span><span class="dr-stat-val">${Math.floor(totalBreakMins/60)}h ${totalBreakMins%60}m</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Modules Assigned</span><span class="dr-stat-val">${(mods||[]).length}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Modules Completed</span><span class="dr-stat-val">${completedMods}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Total Work Time</span><span class="dr-stat-val">${fmtMins(totalWorkMins)}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Total Break Time</span><span class="dr-stat-val">${fmtMins(totalBreakMins)}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Net Coding Time</span><span class="dr-stat-val" style="color:var(--v1)">${fmtMins(netCodingMins)}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Modules Assigned</span><span class="dr-stat-val">${(mods||[]).length + (progAssign||[]).length}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Modules Completed</span><span class="dr-stat-val">${completedMods + completedProg}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Submissions</span><span class="dr-stat-val">${(subs||[]).length}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Session Tasks</span><span class="dr-stat-val">${(tasks||[]).length}</span></div>
     </div>
+
+    <div class="dr-card"><h4>Daily Work Log</h4>
+      ${(sessions||[]).length?`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;border-collapse:collapse">
+        <thead><tr style="border-bottom:2px solid var(--border)">
+          <th style="text-align:left;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Date</th>
+          <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Work</th>
+          <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Break</th>
+          <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Net Coding</th>
+        </tr></thead>
+        <tbody>${(sessions||[]).map(s=>{
+          const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
+          const net=Math.max(0,(s.total_work_mins||0)-brk);
+          return `<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:.4rem .5rem">${s.session_date?new Date(s.session_date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—'}</td>
+            <td style="text-align:right;padding:.4rem .5rem">${s.total_work_mins||0}m</td>
+            <td style="text-align:right;padding:.4rem .5rem">${brk}m</td>
+            <td style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--v1)">${net}m</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`:'<p style="color:var(--txt3);font-size:.82rem">No work sessions recorded.</p>'}
+    </div>
+
+    ${aiEntries.length?`<div class="dr-card"><h4>AI Tool Usage (Confidential)</h4>
+      <ul class="dr-list">${aiEntries.map(([tool,secs])=>`<li><span style="font-weight:600;text-transform:capitalize">${_adm_esc(tool)}</span><span style="color:var(--v1);font-weight:700">${Math.floor(secs/60)}m</span></li>`).join('')}</ul>
+    </div>`:''}
+
     <div class="dr-card"><h4>App Usage (Confidential)</h4>
       ${appEntries.length?`<ul class="dr-list">${appEntries.map(([app,secs])=>`<li><span style="font-weight:600">${_adm_esc(app)}</span><span style="color:var(--v1);font-weight:700">${Math.floor(secs/60)}m</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No app usage recorded.</p>'}
     </div>
-  </div>
-  <div class="dr-grid" style="margin-top:1rem">
-    <div class="dr-card"><h4>Modules (Day-wise)</h4>
-      ${(mods||[]).length?`<ul class="dr-list">${(mods||[]).map(m=>`<li><span>${m.day_number?'Day '+m.day_number+': ':''}${_adm_esc(m.module_title)}</span><span class="${sb[m.status]||'badge-gray'}">${m.status.replace('_',' ')}</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No modules assigned.</p>'}
+
+    <div class="dr-card"><h4>Module Progress</h4>
+      ${(progAssign||[]).length?`<ul class="dr-list">${(progAssign||[]).map((a,i)=>`<li><span>${i+1}. ${_adm_esc(a.intern_program_modules?.module_name||'Module')}</span><span class="${sb[a.status]||'badge-gray'}">${a.status.replace('_',' ')}</span></li>`).join('')}</ul>`:(mods||[]).length?`<ul class="dr-list">${(mods||[]).map(m=>`<li><span>${m.day_number?'Day '+m.day_number+': ':''}${_adm_esc(m.module_title)}</span><span class="${sb[m.status]||'badge-gray'}">${m.status.replace('_',' ')}</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No modules assigned.</p>'}
     </div>
+
     <div class="dr-card"><h4>Submissions</h4>
-      ${(subs||[]).length?`<ul class="dr-list">${(subs||[]).map(s=>`<li><span>${_adm_esc(s.submission_title)}<br><small style="color:var(--txt3)">${new Date(s.submitted_at).toLocaleDateString('en-IN')}</small></span><span class="${sb[s.status]||'badge-gray'}">${s.status}</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No submissions.</p>'}
+      ${(subs||[]).length?`<ul class="dr-list">${(subs||[]).map(s=>`<li><span>${_adm_esc(s.submission_title)}<br><small style="color:var(--txt3)">${new Date(s.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</small></span><span class="${sb[s.status]||'badge-gray'}">${s.status}</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No submissions.</p>'}
     </div>
-  </div>
-  <div class="dr-card" style="margin-top:1rem"><h4>Session Tasks</h4>
-    ${(tasks||[]).length?`<ul class="dr-list">${(tasks||[]).map(t=>`<li><span>${_adm_esc(t.task_title)}<br><small style="color:var(--txt3)">${t.started_at?new Date(t.started_at).toLocaleDateString('en-IN'):'Not started'}</small></span><span class="${sb[t.status]||'badge-gray'}">${t.status.replace('_',' ')}</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No tasks.</p>'}
   </div>`;
 }
 
@@ -11508,7 +11450,13 @@ async function exportDetailedReport(){
   if(!studentId){_showAdminToast('Select a student first.','error');return;}
   const pm=await _getProfileMap([studentId]);
   const {data:enrol}=await db.client.from('internship_enrollments').select('*,internship_projects(project_name)').eq('student_user_id',studentId).eq('approval_status','approved').maybeSingle();
-  generateStudentReport(enrol?.id,pm[studentId]||'Student',enrol?.internship_projects?.project_name||'Internship');
+  let teamNames='';
+  if(enrol?.project_id){
+    const {data:teamEnrols}=await db.client.from('internship_enrollments').select('student_user_id').eq('project_id',enrol.project_id).eq('approval_status','approved');
+    const teamIds=(teamEnrols||[]).map(t=>t.student_user_id).filter(Boolean);
+    if(teamIds.length>1){const teamPm=await _getProfileMap(teamIds);teamNames=teamIds.map(id=>teamPm[id]||'Unknown').join(', ');}
+  }
+  generateStudentReport(enrol?.id,pm[studentId]||'Student',enrol?.internship_projects?.project_name||'Internship',teamNames);
 }
 
 /* ============================================================
@@ -11642,7 +11590,7 @@ async function loadInternProgramAssignments() {
   if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No assignments yet.</td></tr>'; return; }
 
-  const stuIds = [...new Set(data.map(a => a.student_user_id))];
+  const stuIds = [...new Set(data.map(a => a.student_user_id).filter(Boolean))];
   const pm = await _getProfileMap(stuIds);
   const statColors = { active:'#4ade80', in_progress:'#f59e0b', completed:'#a5b4fc', revoked:'#f87171' };
 

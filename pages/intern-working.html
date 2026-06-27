@@ -188,7 +188,8 @@ img{-webkit-user-drag:none}
       </a>
       <div class="iw-hdr">
         <div>
-          <h1 id="iw-title">Working</h1>
+          <h1 id="iw-title">My Workstation</h1>
+          <span id="iw-proj-name" style="font-size:.78rem;color:var(--txt3);font-weight:600;display:block;margin-top:.15rem"></span>
           <div class="iw-pills">
             <span class="iw-pill iw-pill-v" id="iw-domain-pill">Internship</span>
             <span class="iw-pill iw-pill-e" id="iw-status-pill">Active</span>
@@ -384,7 +385,6 @@ img{-webkit-user-drag:none}
           <label class="iw-chk-item"><input type="checkbox" checked value="modules"> Module Progress</label>
           <label class="iw-chk-item"><input type="checkbox" checked value="submissions"> Submissions</label>
           <label class="iw-chk-item"><input type="checkbox" checked value="breaks"> Break Duration</label>
-          <label class="iw-chk-item"><input type="checkbox" value="app_usage"> App Usage (Admin Only)</label>
           <label class="iw-chk-item"><input type="checkbox" checked value="git"> Git Activity</label>
         </div>
         <div class="iw-fg" style="margin-top:.8rem"><label>Export Format</label>
@@ -411,6 +411,18 @@ let _user=null,_intId=null,_enrollment=null,_session=null,_assignments=[],_timer
 function C(){return window.supabaseConfig?.client}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function toast(m,t='ok',d=3500){const el=document.getElementById('iw-toast');el.textContent=m;el.className='show '+t;clearTimeout(el._t);el._t=setTimeout(()=>{el.className=''},d)}
+async function withRetry(fn,maxRetries=3,delayMs=1000){
+  for(let i=1;i<=maxRetries;i++){
+    try{return await fn();}catch(e){
+      if(i===maxRetries)throw e;
+      await new Promise(r=>setTimeout(r,delayMs*i));
+      console.warn(`Retry ${i}/${maxRetries}:`,e.message);
+    }
+  }
+}
+async function logAccess(action,details){
+  try{await C().from('notifications').insert({user_id:_user?.id,title:'Access: '+action,message:details||'',type:'security',link:location.href});}catch{}
+}
 function fmtMins(m){const h=Math.floor(m/60);return h>0?h+'h '+(m%60)+'m':m+'m'}
 
 /* ── Auth ── */
@@ -428,6 +440,7 @@ async function initPage(){
   if(!_intId){showGate('No Internship Selected','Go to the internships page.','Browse Internships','/pages/internship.html');return}
   document.getElementById('iw-gate').style.display='none';
   document.getElementById('iw-main').style.display='';
+  logAccess('Page Load','Workstation page accessed');
   await loadAll();
 }
 
@@ -456,7 +469,8 @@ async function loadAll(){
   // Internship details
   const{data:proj}=await c.from('internship_projects').select('project_name,domain,tech_stack,duration_weeks').eq('id',_intId).single();
   document.title=(proj?.project_name||'Working')+' — SkillUpNow';
-  document.getElementById('iw-title').textContent=proj?.project_name||'Working';
+  document.getElementById('iw-title').textContent='My Workstation';
+  document.getElementById('iw-proj-name').textContent=proj?.project_name||'';
   document.getElementById('iw-domain-pill').textContent=proj?.domain||'Internship';
 
   await Promise.all([loadSession(),loadStats(),loadSubmissions(),loadActivityLog()]);
@@ -502,35 +516,53 @@ function showCompleted(){
   if(_session?.total_work_mins){document.getElementById('iw-done-summary').textContent='Worked '+fmtMins(_session.total_work_mins)+' today'}
 }
 
+let _startBusy=false;
 async function startWork(){
-  const c=C();if(!_enrollment)return;
-  const{count}=await c.from('intern_work_sessions').select('id',{count:'exact',head:true}).eq('enrollment_id',_enrollment.id);
-  if(count>=50){toast('Maximum 50 work days reached.','err');return}
-  const dayNum=(count||0)+1;
-  const{data,error}=await c.from('intern_work_sessions').insert({
-    enrollment_id:_enrollment.id,student_user_id:_user.id,
-    start_time:new Date().toISOString(),status:'active',day_number:dayNum
-  }).select().single();
-  if(error){toast('Failed: '+error.message,'err');return}
-  _session=data;
-  document.getElementById('iw-day-pill').style.display='';
-  document.getElementById('iw-day-pill').textContent='Day '+dayNum;
-  showWorking();startTimer();startAppTracking();
-  logNotification('Work Started','Started work session — Day '+dayNum);
-  toast('Work session started!','ok');
+  if(_startBusy)return;_startBusy=true;
+  const btn=document.getElementById('iw-start-btn');
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  try{
+    const c=C();if(!_enrollment){_startBusy=false;return;}
+    const{count}=await c.from('intern_work_sessions').select('id',{count:'exact',head:true}).eq('enrollment_id',_enrollment.id);
+    if(count>=50){toast('Maximum 50 work days reached.','err');return}
+    const dayNum=(count||0)+1;
+    const{data,error}=await c.from('intern_work_sessions').insert({
+      enrollment_id:_enrollment.id,student_user_id:_user.id,
+      start_time:new Date().toISOString(),status:'active',day_number:dayNum
+    }).select().single();
+    if(error){toast('Failed: '+error.message,'err');return}
+    _session=data;
+    if(_session&&_session.status==='active'&&!_session.start_time){
+      _session.start_time=new Date().toISOString();
+      await c.from('intern_work_sessions').update({start_time:_session.start_time}).eq('id',_session.id);
+    }
+    document.getElementById('iw-day-pill').style.display='';
+    document.getElementById('iw-day-pill').textContent='Day '+dayNum;
+    showWorking();startTimer();startAppTracking();
+    logNotification('Work Started','Started work session — Day '+dayNum);
+    toast('Work session started!','ok');
+  }catch(e){toast('Start failed: '+(e.message||'Unknown error'),'err');}
+  finally{_startBusy=false;if(btn){btn.disabled=false;btn.style.opacity='';}}
 }
 
+let _endBusy=false;
 async function endWork(){
-  if(!_session)return;
-  const c=C();const now=new Date().toISOString();
-  const mins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
-  await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:mins}).eq('id',_session.id);
-  _session.status='completed';_session.total_work_mins=mins;
-  clearInterval(_timerInt);clearInterval(_appTrackInt);
-  showCompleted();
-  logNotification('Work Ended','Completed work session — '+fmtMins(mins));
-  toast('Work day completed!','ok');
-  await loadStats();renderAttendance();
+  if(_endBusy||!_session)return;_endBusy=true;
+  const btn=document.querySelector('.iw-end-btn');
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  try{
+    const c=C();const now=new Date().toISOString();
+    const mins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
+    const{error}=await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:mins}).eq('id',_session.id);
+    if(error){toast('End failed: '+error.message,'err');return;}
+    _session.status='completed';_session.total_work_mins=mins;
+    clearInterval(_timerInt);clearInterval(_appTrackInt);
+    showCompleted();
+    logNotification('Work Ended','Completed work session — '+fmtMins(mins));
+    toast('Work day completed!','ok');
+    await loadStats();renderAttendance();
+  }catch(e){toast('End failed: '+(e.message||'Unknown error'),'err');}
+  finally{_endBusy=false;if(btn){btn.disabled=false;btn.style.opacity='';}}
 }
 
 function startTimer(){
@@ -624,7 +656,7 @@ function renderModules(){
   const list=document.getElementById('iw-mods-list');
   document.getElementById('iw-mod-count').textContent=_assignments.length+' module'+(_assignments.length!==1?'s':'');
   if(!_assignments.length){list.innerHTML='<div class="iw-empty">No modules assigned.</div>';return}
-  list.innerHTML=_assignments.map(a=>{
+  list.innerHTML=_assignments.map((a,idx)=>{
     const m=a.intern_program_modules||{};
     const sc=a.status==='completed'?'s-done':(a.status==='in_progress'?'s-progress':'s-active');
     const ico=a.status==='completed'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>':(a.status==='in_progress'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>');
@@ -633,7 +665,7 @@ function renderModules(){
     return `<div class="iw-mod">
       <div class="iw-mod-ico ${sc}">${ico}</div>
       <div class="iw-mod-body">
-        <div class="iw-mod-name">${esc(m.module_name||'Module')}</div>
+        <div class="iw-mod-name"><span style="color:var(--txt3);font-weight:600;margin-right:.3rem">${idx+1}.</span>${esc(m.module_name||'Module')}</div>
         ${m.description?`<div class="iw-mod-desc">${esc(m.description)}</div>`:''}
         <div class="iw-mod-meta">${dl?`<span>Due: ${dl}</span>`:''}${gl?`<a href="${esc(gl)}" target="_blank">Git Repo</a>`:''}</div>
       </div>
@@ -647,14 +679,20 @@ function renderModules(){
 }
 
 async function doStartMod(id){
-  await C().from('intern_program_assignments').update({status:'in_progress'}).eq('id',id);
-  const a=_assignments.find(x=>x.id===id);if(a)a.status='in_progress';
+  const a=_assignments.find(x=>x.id===id);
+  if(!a||a.status!=='active'){toast('Module cannot be started (status: '+(a?.status||'unknown')+')','err');return;}
+  const{error}=await C().from('intern_program_assignments').update({status:'in_progress'}).eq('id',id).eq('status','active');
+  if(error){toast('Failed to start module','err');return;}
+  a.status='in_progress';
   logNotification('Module Started','Started working on a module');
   toast('Module started!','ok');renderModules();loadStats();
 }
 async function doCompleteMod(id){
-  await C().from('intern_program_assignments').update({status:'completed'}).eq('id',id);
-  const a=_assignments.find(x=>x.id===id);if(a)a.status='completed';
+  const a=_assignments.find(x=>x.id===id);
+  if(!a||a.status!=='in_progress'){toast('Module cannot be completed (status: '+(a?.status||'unknown')+')','err');return;}
+  const{error}=await C().from('intern_program_assignments').update({status:'completed'}).eq('id',id).eq('status','in_progress');
+  if(error){toast('Failed to complete module','err');return;}
+  a.status='completed';
   logNotification('Module Completed','Completed a module');
   toast('Module completed!','ok');renderModules();loadStats();
 }
@@ -726,11 +764,17 @@ function _pickFile(input,type){
   document.getElementById('iw-drop-'+type).classList.add('has');
 }
 
+let _submitBusy=false;
 async function submitWork(){
+  if(_submitBusy)return;
   const title=document.getElementById('iw-sub-title').value.trim();
   if(!title){toast('Title is required','err');return}
   if(!_files.ss){toast('Screenshot is required','err');return}
   if(!_enrollment){toast('No enrollment found','err');return}
+  _submitBusy=true;
+  const submitBtn=document.querySelector('.iw-modal .iw-sm-btn, .iw-modal button[onclick*="submitWork"]');
+  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Submitting...';}
+  try{
   const c=C();const ts=Date.now();const uid=_user.id;
 
   // Upload files
@@ -770,13 +814,26 @@ async function submitWork(){
   });
 
   logNotification('Work Submitted','Submitted: '+title);
+
+  // Auto-complete the current in_progress module
+  const inProgressMod=_assignments.find(a=>a.status==='in_progress');
+  if(inProgressMod){
+    const{error:modErr}=await c.from('intern_program_assignments').update({status:'completed'}).eq('id',inProgressMod.id).eq('status','in_progress');
+    if(!modErr){
+      inProgressMod.status='completed';
+      logNotification('Module Auto-Completed','Module completed after submission: '+(inProgressMod.intern_program_modules?.module_name||'Module'));
+    }
+  }
+
   closeSubmitModal();toast('Work submitted successfully!','ok');
   document.getElementById('iw-sub-title').value='';document.getElementById('iw-sub-desc').value='';
   document.getElementById('iw-sub-commit').value='';document.getElementById('iw-sub-comments').value='';
   document.getElementById('iw-fn-ss').textContent='';document.getElementById('iw-fn-rpt').textContent='';
   document.getElementById('iw-drop-ss').classList.remove('has');document.getElementById('iw-drop-rpt').classList.remove('has');
   _files={ss:null,rpt:null};
-  await loadSubmissions();await loadStats();
+  await loadSubmissions();await loadStats();renderModules();
+  }catch(e){toast('Submission error: '+(e.message||'Unknown'),'err');}
+  finally{_submitBusy=false;if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='Submit';}}
 }
 
 /* ══════ ACTIVITY LOG ══════ */

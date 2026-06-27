@@ -1165,7 +1165,8 @@
     const c = _client();
     const { error } = await c.from('intern_program_assignments')
       .update({ status: 'in_progress' })
-      .eq('id', assignmentId);
+      .eq('id', assignmentId)
+      .eq('status', 'active');
     if (error) { toast('Failed: ' + error.message, 'err'); return; }
     toast('Module started! Good luck.', 'ok');
     loadProgramModules();
@@ -1175,7 +1176,8 @@
     const c = _client();
     const { error } = await c.from('intern_program_assignments')
       .update({ status: 'completed' })
-      .eq('id', assignmentId);
+      .eq('id', assignmentId)
+      .eq('status', 'in_progress');
     if (error) { toast('Failed: ' + error.message, 'err'); return; }
     showPopup('Module Completed!', 'Great work! Your progress has been saved.');
     loadProgramModules();
