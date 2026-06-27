@@ -13,68 +13,89 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-:root{--iw-v:#7c3aed;--iw-v2:#6d28d9;--iw-e:#10b981;--iw-g:#f59e0b;--iw-c:#06b6d4;--iw-r:#f43f5e;--iw-rd:18px;--iw-rd2:12px}
+:root{--iw-v:#7c3aed;--iw-v2:#6d28d9;--iw-e:#10b981;--iw-g:#f59e0b;--iw-c:#06b6d4;--iw-r:#f43f5e;--iw-rd:22px;--iw-rd2:14px;--glass:rgba(255,255,255,.06);--glass-border:rgba(255,255,255,.12);--glass-shadow:0 8px 32px rgba(0,0,0,.08)}
 img{-webkit-user-drag:none}
 @keyframes iwUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 @keyframes iwPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4)}70%{box-shadow:0 0 0 12px rgba(16,185,129,0)}}
 @keyframes iwSpin{to{transform:rotate(360deg)}}
-@keyframes iwPop{0%{transform:scale(0);opacity:0}50%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes iwPop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes iwSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .iw-page{min-height:100vh;padding-bottom:3rem}
 .iw-wrap{max-width:1200px;margin:0 auto;padding:0 1.25rem}
 
+/* ── Custom Confirm Popup ── */
+#iw-confirm-overlay{position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:1rem}
+#iw-confirm-overlay.open{display:flex}
+#iw-confirm-box{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(124,58,237,.15);border-radius:24px;padding:2rem 2.2rem 1.6rem;max-width:400px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.18),0 0 0 1px rgba(255,255,255,.2) inset;animation:iwPop .3s cubic-bezier(.22,1,.36,1) both;text-align:center}
+[data-theme="dark"] #iw-confirm-box{background:rgba(30,20,50,.88)}
+#iw-confirm-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(16,185,129,.12));display:flex;align-items:center;justify-content:center;margin:0 auto .8rem;border:2px solid rgba(124,58,237,.2)}
+#iw-confirm-msg{font-size:.92rem;font-weight:700;color:var(--txt);line-height:1.5;margin-bottom:1.4rem}
+.iw-confirm-btns{display:flex;gap:.7rem;justify-content:center}
+.iw-confirm-btns button{padding:.6rem 1.6rem;border-radius:14px;font-size:.84rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+#iw-confirm-ok{background:linear-gradient(135deg,var(--iw-v),var(--iw-v2));color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.3)}
+#iw-confirm-ok:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.4)}
+#iw-confirm-cancel{background:rgba(124,58,237,.06);color:var(--iw-v);border:1.5px solid rgba(124,58,237,.18)}
+#iw-confirm-cancel:hover{background:rgba(124,58,237,.12)}
+
 /* Toast */
-#iw-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);padding:.7rem 1.6rem;border-radius:14px;font-size:.84rem;font-weight:700;z-index:9999;pointer-events:none;opacity:0;transition:all .35s cubic-bezier(.22,1,.36,1);font-family:inherit;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#iw-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);padding:.75rem 1.8rem;border-radius:18px;font-size:.84rem;font-weight:700;z-index:19999;pointer-events:none;opacity:0;transition:all .35s cubic-bezier(.22,1,.36,1);font-family:inherit;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 #iw-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-#iw-toast.ok{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
-#iw-toast.err{background:linear-gradient(135deg,#f43f5e,#dc2626);color:#fff}
+#iw-toast.ok{background:rgba(16,185,129,.88);color:#fff;box-shadow:0 8px 30px rgba(16,185,129,.3)}
+#iw-toast.err{background:rgba(244,63,94,.88);color:#fff;box-shadow:0 8px 30px rgba(244,63,94,.3)}
 
 /* Auth gate */
-.iw-gate{text-align:center;padding:5rem 2rem;max-width:460px;margin:4rem auto;background:var(--bg2);border:1.5px solid var(--border);border-radius:24px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+.iw-gate{text-align:center;padding:5rem 2rem;max-width:460px;margin:4rem auto;background:rgba(255,255,255,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:28px;box-shadow:var(--glass-shadow)}
+[data-theme="dark"] .iw-gate{background:rgba(30,20,50,.6)}
 .iw-gate h2{font-size:1.35rem;font-weight:900;margin-bottom:.5rem}
 .iw-gate p{color:var(--txt3);margin-bottom:1.5rem;font-size:.88rem}
-.iw-gate-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 2rem;border-radius:14px;font-size:.9rem;font-weight:700;background:linear-gradient(135deg,var(--v1),var(--v2));color:#fff;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(124,92,252,.35);transition:transform .25s,box-shadow .25s}
+.iw-gate-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 2rem;border-radius:16px;font-size:.9rem;font-weight:700;background:linear-gradient(135deg,var(--v1),var(--v2));color:#fff;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(124,92,252,.35);transition:transform .25s,box-shadow .25s}
 .iw-gate-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(124,92,252,.5)}
 
 /* Back link */
 .iw-back{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;color:var(--txt3);text-decoration:none;margin-bottom:.5rem;transition:color .2s}
 .iw-back:hover{color:var(--iw-v)}
 
-/* Header — timer & start button in one row */
+/* Header */
 .iw-hdr{padding:1.5rem 0 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;animation:iwUp .5s ease both}
 .iw-hdr h1{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;letter-spacing:-.03em;background:linear-gradient(135deg,var(--txt) 0%,var(--iw-v) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .iw-pills{display:flex;gap:.4rem;flex-wrap:wrap}
-.iw-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .75rem;border-radius:999px;font-size:.7rem;font-weight:700}
-.iw-pill-v{background:rgba(124,58,237,.1);color:var(--iw-v);border:1px solid rgba(124,58,237,.25)}
-.iw-pill-e{background:rgba(16,185,129,.1);color:var(--iw-e);border:1px solid rgba(16,185,129,.25)}
-.iw-pill-g{background:rgba(245,158,11,.1);color:var(--iw-g);border:1px solid rgba(245,158,11,.25)}
+.iw-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .85rem;border-radius:999px;font-size:.7rem;font-weight:700;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.iw-pill-v{background:rgba(124,58,237,.08);color:var(--iw-v);border:1px solid rgba(124,58,237,.2)}
+.iw-pill-e{background:rgba(16,185,129,.08);color:var(--iw-e);border:1px solid rgba(16,185,129,.2)}
+.iw-pill-g{background:rgba(245,158,11,.08);color:var(--iw-g);border:1px solid rgba(245,158,11,.2)}
 
-/* ── LAYOUT: Two-column ── */
+/* ── LAYOUT ── */
 .iw-layout{display:grid;grid-template-columns:1fr 340px;gap:1.2rem;align-items:start}
 @media(max-width:900px){.iw-layout{grid-template-columns:1fr}}
 
-/* ── Section card ── */
-.iw-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--iw-rd);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);animation:iwUp .45s ease both;margin-bottom:1rem}
-.iw-card-hdr{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.85rem 1.15rem;border-bottom:1px solid var(--border)}
+/* ── Glass Card ── */
+.iw-card{background:rgba(255,255,255,.55);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.18);border-radius:var(--iw-rd);overflow:hidden;box-shadow:var(--glass-shadow);animation:iwUp .45s ease both;margin-bottom:1rem}
+[data-theme="dark"] .iw-card{background:rgba(30,20,50,.45);border-color:rgba(255,255,255,.08)}
+.iw-card-hdr{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.85rem 1.15rem;border-bottom:1px solid rgba(255,255,255,.1)}
 .iw-card-hdr h2{font-size:.9rem;font-weight:900;display:flex;align-items:center;gap:.45rem}
 .iw-card-body{padding:1rem 1.15rem}
 
-/* ── Timer banner (top-level, spans full width) ── */
-.iw-timer-banner{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--iw-rd);padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1.2rem;flex-wrap:wrap;animation:iwUp .4s ease both}
+/* ── Timer banner ── */
+.iw-timer-banner{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.18);border-radius:var(--iw-rd);padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1.2rem;flex-wrap:wrap;animation:iwUp .4s ease both;box-shadow:var(--glass-shadow)}
+[data-theme="dark"] .iw-timer-banner{background:rgba(30,20,50,.45);border-color:rgba(255,255,255,.08)}
 .iw-timer-left{display:flex;align-items:center;gap:1rem}
 .iw-timer{font-size:2.4rem;font-weight:900;letter-spacing:.02em;color:var(--txt);font-variant-numeric:tabular-nums}
 .iw-timer-sub{font-size:.76rem;color:var(--txt3);font-weight:600}
 .iw-timer-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--iw-e);margin-right:.4rem;animation:iwPulse 1.5s infinite}
 .iw-timer-dot.off{background:var(--txt3);animation:none}
 .iw-timer-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
-.iw-start-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 2rem;border-radius:14px;font-size:.9rem;font-weight:800;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-e),#059669);box-shadow:0 4px 18px rgba(16,185,129,.35);transition:transform .25s,box-shadow .25s}
+.iw-start-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 2rem;border-radius:16px;font-size:.9rem;font-weight:800;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-e),#059669);box-shadow:0 4px 18px rgba(16,185,129,.35);transition:all .25s}
 .iw-start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(16,185,129,.5)}
-.iw-end-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.4rem;border-radius:12px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-r),#dc2626);box-shadow:0 3px 12px rgba(244,63,94,.3);transition:transform .2s}
+.iw-end-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.4rem;border-radius:14px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-r),#dc2626);box-shadow:0 3px 12px rgba(244,63,94,.3);transition:all .2s}
 .iw-end-btn:hover{transform:scale(1.04)}
 
-/* ── Break controls (inline with timer) ── */
+/* ── Break controls ── */
 .iw-brk-controls{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.iw-brk-select{padding:.4rem .7rem;border-radius:10px;font-size:.75rem;font-weight:700;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);font-family:inherit;cursor:pointer;outline:none}
-.iw-brk-btn{padding:.4rem 1rem;border-radius:10px;font-size:.75rem;font-weight:700;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);cursor:pointer;font-family:inherit;transition:all .2s}
+.iw-brk-select,.iw-brk-btn,select,#iw-log-filter,#iw-brk-type{padding:.45rem .85rem;border-radius:14px;font-size:.76rem;font-weight:700;border:1px solid rgba(124,58,237,.15);background:rgba(255,255,255,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--txt2);font-family:inherit;cursor:pointer;outline:none;transition:all .2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237c3aed' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .6rem center;padding-right:1.8rem}
+[data-theme="dark"] .iw-brk-select,[data-theme="dark"] .iw-brk-btn,[data-theme="dark"] select,[data-theme="dark"] #iw-log-filter,[data-theme="dark"] #iw-brk-type{background:rgba(30,20,50,.5);border-color:rgba(255,255,255,.1)}
+.iw-brk-select:hover,.iw-brk-btn:hover,select:hover{border-color:rgba(124,58,237,.3)}
+.iw-brk-select:focus,select:focus{border-color:var(--iw-v);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.iw-brk-btn{background-image:none;padding-right:.85rem}
 .iw-brk-btn.on{border-color:var(--iw-g);background:rgba(245,158,11,.1);color:var(--iw-g)}
 .iw-brk-btn:disabled{opacity:.4;cursor:not-allowed}
 .iw-brk-log{font-size:.68rem;color:var(--txt3)}
@@ -83,51 +104,56 @@ img{-webkit-user-drag:none}
 /* ── Stats row ── */
 .iw-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem}
 @media(max-width:640px){.iw-stats{grid-template-columns:repeat(2,1fr)}}
-.iw-stat{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--iw-rd2);padding:.8rem;text-align:center;animation:iwUp .45s ease both}
+.iw-stat{background:rgba(255,255,255,.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:var(--iw-rd);padding:.9rem;text-align:center;animation:iwUp .45s ease both;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+[data-theme="dark"] .iw-stat{background:rgba(30,20,50,.35);border-color:rgba(255,255,255,.06)}
 .iw-stat-v{font-size:1.4rem;font-weight:900}
 .iw-stat-l{font-size:.65rem;font-weight:700;color:var(--txt3);margin-top:.1rem;text-transform:uppercase;letter-spacing:.04em}
 
 /* ── Progress bar ── */
-.iw-prog{background:var(--panel);border:1px solid var(--border);border-radius:var(--iw-rd2);padding:.8rem 1rem;margin-bottom:1rem;animation:iwUp .45s ease .05s both}
+.iw-prog{background:rgba(255,255,255,.4);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:var(--iw-rd);padding:.8rem 1rem;margin-bottom:1rem;animation:iwUp .45s ease .05s both}
+[data-theme="dark"] .iw-prog{background:rgba(30,20,50,.3);border-color:rgba(255,255,255,.06)}
 .iw-prog-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
 .iw-prog-lbl{font-size:.76rem;font-weight:700;color:var(--txt2)}
 .iw-prog-pct{font-size:.8rem;font-weight:900;color:var(--iw-v)}
-.iw-prog-bar{height:7px;background:var(--panel2);border-radius:7px;overflow:hidden}
+.iw-prog-bar{height:7px;background:rgba(124,58,237,.08);border-radius:7px;overflow:hidden}
 .iw-prog-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--iw-v),var(--iw-e));transition:width .6s cubic-bezier(.22,1,.36,1)}
 
 /* ── Modules ── */
 .iw-mods{display:flex;flex-direction:column;gap:.6rem}
-.iw-mod{display:flex;align-items:flex-start;gap:.7rem;padding:.8rem .9rem;border-radius:var(--iw-rd2);background:var(--panel);border:1px solid var(--border);transition:border-color .2s,box-shadow .2s}
-.iw-mod:hover{border-color:rgba(124,58,237,.25);box-shadow:0 4px 14px rgba(124,58,237,.05)}
-.iw-mod-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.iw-mod-ico.s-active{background:rgba(16,185,129,.12);color:#10b981}
-.iw-mod-ico.s-progress{background:rgba(245,158,11,.12);color:#f59e0b}
-.iw-mod-ico.s-done{background:rgba(124,58,237,.12);color:#a78bfa}
+.iw-mod{display:flex;align-items:flex-start;gap:.7rem;padding:.8rem .9rem;border-radius:var(--iw-rd2);background:rgba(255,255,255,.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.12);transition:all .25s}
+[data-theme="dark"] .iw-mod{background:rgba(30,20,50,.25);border-color:rgba(255,255,255,.06)}
+.iw-mod:hover{border-color:rgba(124,58,237,.25);box-shadow:0 6px 20px rgba(124,58,237,.08);transform:translateY(-1px)}
+.iw-mod-ico{width:34px;height:34px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.iw-mod-ico.s-active{background:rgba(16,185,129,.1);color:#10b981}
+.iw-mod-ico.s-progress{background:rgba(245,158,11,.1);color:#f59e0b}
+.iw-mod-ico.s-done{background:rgba(124,58,237,.1);color:#a78bfa}
 .iw-mod-body{flex:1;min-width:0}
 .iw-mod-name{font-size:.84rem;font-weight:800;color:var(--txt);margin-bottom:.1rem}
 .iw-mod-desc{font-size:.74rem;color:var(--txt3);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .iw-mod-meta{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.3rem;font-size:.68rem;color:var(--txt3);font-weight:600}
 .iw-mod-meta a{color:var(--iw-v);text-decoration:underline}
 .iw-mod-side{display:flex;flex-direction:column;gap:.3rem;align-items:flex-end;flex-shrink:0}
-.iw-badge{padding:.18rem .55rem;border-radius:999px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
-.iw-badge.s-active{background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.22)}
-.iw-badge.s-progress{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.22)}
-.iw-badge.s-done{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.22)}
-.iw-sm-btn{padding:.28rem .7rem;border-radius:8px;font-size:.68rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;white-space:nowrap;transition:transform .18s}
+.iw-badge{padding:.2rem .6rem;border-radius:999px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;backdrop-filter:blur(4px)}
+.iw-badge.s-active{background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.18)}
+.iw-badge.s-progress{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.18)}
+.iw-badge.s-done{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.18)}
+.iw-sm-btn{padding:.3rem .75rem;border-radius:12px;font-size:.68rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;white-space:nowrap;transition:all .2s}
 .iw-sm-btn:hover{transform:scale(1.05)}
-.iw-sm-btn.start{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 2px 8px rgba(16,185,129,.3)}
-.iw-sm-btn.done{background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 2px 8px rgba(124,58,237,.3)}
+.iw-sm-btn.start{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 2px 10px rgba(16,185,129,.25)}
+.iw-sm-btn.done{background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 2px 10px rgba(124,58,237,.25)}
 
 /* ── Git section ── */
-.iw-git-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:var(--iw-rd2);background:var(--panel);border:1px solid var(--border);margin-bottom:.45rem}
+.iw-git-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:var(--iw-rd2);background:rgba(255,255,255,.3);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);margin-bottom:.45rem}
+[data-theme="dark"] .iw-git-item{background:rgba(30,20,50,.2);border-color:rgba(255,255,255,.06)}
 .iw-git-url{flex:1;font-size:.76rem;font-weight:600;color:var(--iw-v);text-decoration:underline;word-break:break-all}
-.iw-git-copy{padding:.25rem .55rem;border-radius:8px;font-size:.66rem;font-weight:700;background:rgba(124,58,237,.08);color:var(--iw-v);border:1px solid rgba(124,58,237,.18);cursor:pointer;font-family:inherit;transition:background .2s}
-.iw-git-copy:hover{background:rgba(124,58,237,.15)}
+.iw-git-copy{padding:.28rem .6rem;border-radius:10px;font-size:.66rem;font-weight:700;background:rgba(124,58,237,.06);color:var(--iw-v);border:1px solid rgba(124,58,237,.15);cursor:pointer;font-family:inherit;transition:all .2s}
+.iw-git-copy:hover{background:rgba(124,58,237,.12)}
 
-/* ── Clean Calendar Attendance ── */
+/* ── Calendar ── */
 .iw-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
-.iw-cal-nav button{background:none;border:1px solid var(--border);border-radius:8px;padding:.2rem .5rem;cursor:pointer;color:var(--txt2);font-size:.72rem;font-weight:700;font-family:inherit;transition:background .2s}
-.iw-cal-nav button:hover{background:var(--panel)}
+.iw-cal-nav button{background:rgba(255,255,255,.4);border:1px solid rgba(124,58,237,.12);border-radius:10px;padding:.25rem .6rem;cursor:pointer;color:var(--txt2);font-size:.72rem;font-weight:700;font-family:inherit;transition:all .2s;backdrop-filter:blur(4px)}
+[data-theme="dark"] .iw-cal-nav button{background:rgba(30,20,50,.3);border-color:rgba(255,255,255,.08)}
+.iw-cal-nav button:hover{border-color:var(--iw-v);background:rgba(124,58,237,.06)}
 .iw-cal-month{font-size:.78rem;font-weight:800;color:var(--txt)}
 .iw-att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
 .iw-att-hdr{font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center;padding:.3rem 0}
@@ -143,61 +169,65 @@ img{-webkit-user-drag:none}
 .iw-att-day.leave{color:#a855f7;font-weight:700}
 .iw-att-day.holiday{color:#ef4444;font-weight:700}
 /* Day detail popup */
-.iw-day-detail{position:fixed;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;width:200px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:10000;font-size:.7rem;display:none;text-align:left}
+.iw-day-detail{position:fixed;background:rgba(255,255,255,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(124,58,237,.12);border-radius:16px;padding:.7rem .9rem;width:210px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:10000;font-size:.7rem;display:none;text-align:left}
+[data-theme="dark"] .iw-day-detail{background:rgba(30,20,50,.88);border-color:rgba(255,255,255,.1)}
 .iw-day-detail.show{display:block}
-.iw-day-detail::after{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--border)}
+.iw-day-detail::after{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:rgba(124,58,237,.12)}
 .iw-day-detail h4{font-size:.72rem;font-weight:800;margin-bottom:.35rem;color:var(--txt)}
 .iw-day-detail .iw-dd-row{display:flex;justify-content:space-between;padding:.15rem 0;font-size:.66rem}
 .iw-day-detail .iw-dd-label{color:var(--txt3)}
 .iw-day-detail .iw-dd-val{font-weight:700;color:var(--txt)}
 .iw-day-detail .iw-dd-val.green{color:#10b981}
-/* Attendance log table */
+/* Attendance log */
 .iw-att-log{margin-top:.8rem;max-height:200px;overflow-y:auto}
 .iw-att-log table{width:100%;border-collapse:collapse;font-size:.68rem}
-.iw-att-log th{text-align:left;padding:.3rem .4rem;font-weight:700;color:var(--txt2);border-bottom:2px solid var(--border);font-size:.6rem;text-transform:uppercase;letter-spacing:.04em}
-.iw-att-log td{padding:.3rem .4rem;border-bottom:1px solid var(--border);color:var(--txt)}
-.iw-att-log .att-status{padding:.1rem .4rem;border-radius:999px;font-size:.58rem;font-weight:700}
-.iw-att-log .att-present{background:rgba(16,185,129,.12);color:#10b981}
-.iw-att-log .att-absent{background:rgba(244,63,94,.1);color:#f43f5e}
-.iw-att-log .att-late{background:rgba(245,158,11,.1);color:#f59e0b}
-.iw-att-log .att-completed{background:rgba(124,58,237,.1);color:#a78bfa}
+.iw-att-log th{text-align:left;padding:.3rem .4rem;font-weight:700;color:var(--txt2);border-bottom:2px solid rgba(124,58,237,.1);font-size:.6rem;text-transform:uppercase;letter-spacing:.04em}
+.iw-att-log td{padding:.3rem .4rem;border-bottom:1px solid rgba(124,58,237,.05);color:var(--txt)}
+.iw-att-log .att-status{padding:.12rem .45rem;border-radius:999px;font-size:.58rem;font-weight:700}
+.iw-att-log .att-present{background:rgba(16,185,129,.1);color:#10b981}
+.iw-att-log .att-absent{background:rgba(244,63,94,.08);color:#f43f5e}
+.iw-att-log .att-late{background:rgba(245,158,11,.08);color:#f59e0b}
+.iw-att-log .att-completed{background:rgba(124,58,237,.08);color:#a78bfa}
 
 /* ── Activity log ── */
 .iw-log{max-height:280px;overflow-y:auto}
-.iw-log-item{display:flex;align-items:flex-start;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.74rem}
+.iw-log-item{display:flex;align-items:flex-start;gap:.5rem;padding:.45rem 0;border-bottom:1px solid rgba(124,58,237,.05);font-size:.74rem}
 .iw-log-item:last-child{border-bottom:none}
 .iw-log-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
 .iw-log-time{font-size:.65rem;color:var(--txt3);font-weight:600;white-space:nowrap}
 
-/* ── Submit modal ── */
-.iw-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+/* ── Modals (glass) ── */
+.iw-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:1rem}
 .iw-overlay.open{display:flex}
-.iw-modal{background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:iwPop .35s ease both}
-.iw-modal-hdr{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.iw-modal{background:rgba(255,255,255,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(124,58,237,.1);border-radius:24px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.2);animation:iwPop .3s cubic-bezier(.22,1,.36,1) both}
+[data-theme="dark"] .iw-modal{background:rgba(30,20,50,.9);border-color:rgba(255,255,255,.08)}
+.iw-modal-hdr{padding:1.2rem 1.4rem;border-bottom:1px solid rgba(124,58,237,.08);display:flex;align-items:center;justify-content:space-between}
 .iw-modal-hdr h3{font-size:1rem;font-weight:900}
-.iw-modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--panel);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--txt3);transition:background .2s}
-.iw-modal-close:hover{background:var(--panel2)}
+.iw-modal-close{width:32px;height:32px;border-radius:10px;border:1px solid rgba(124,58,237,.1);background:rgba(124,58,237,.04);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--txt3);transition:all .2s}
+.iw-modal-close:hover{background:rgba(124,58,237,.1)}
 .iw-modal-body{padding:1.2rem 1.4rem}
 .iw-fg{margin-bottom:.9rem}
 .iw-fg label{display:block;font-size:.76rem;font-weight:700;color:var(--txt2);margin-bottom:.3rem}
-.iw-fg input,.iw-fg textarea,.iw-fg select{width:100%;padding:.55rem .8rem;border-radius:var(--iw-rd2);border:1.5px solid var(--border);background:var(--bg);color:var(--txt);font-family:inherit;font-size:.84rem;outline:none;transition:border-color .2s;box-sizing:border-box}
-.iw-fg input:focus,.iw-fg textarea:focus{border-color:var(--iw-v)}
+.iw-fg input,.iw-fg textarea,.iw-fg select{width:100%;padding:.6rem .85rem;border-radius:var(--iw-rd2);border:1px solid rgba(124,58,237,.12);background:rgba(255,255,255,.5);backdrop-filter:blur(4px);color:var(--txt);font-family:inherit;font-size:.84rem;outline:none;transition:all .2s;box-sizing:border-box}
+[data-theme="dark"] .iw-fg input,[data-theme="dark"] .iw-fg textarea,[data-theme="dark"] .iw-fg select{background:rgba(30,20,50,.4);border-color:rgba(255,255,255,.08)}
+.iw-fg input:focus,.iw-fg textarea:focus,.iw-fg select:focus{border-color:var(--iw-v);box-shadow:0 0 0 3px rgba(124,58,237,.08)}
 .iw-fg textarea{min-height:70px;resize:vertical}
-.iw-drop{border:2px dashed var(--border);border-radius:var(--iw-rd2);padding:1.2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--panel)}
-.iw-drop:hover{border-color:var(--iw-v);background:rgba(124,58,237,.03)}
+.iw-drop{border:2px dashed rgba(124,58,237,.15);border-radius:var(--iw-rd2);padding:1.2rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(124,58,237,.02)}
+.iw-drop:hover{border-color:var(--iw-v);background:rgba(124,58,237,.04)}
 .iw-drop.has{border-color:var(--iw-e);background:rgba(16,185,129,.04)}
 .iw-drop p{font-size:.78rem;color:var(--txt3);margin-top:.3rem}
 .iw-drop .fname{font-size:.72rem;color:var(--iw-e);font-weight:700;margin-top:.3rem}
 .iw-modal-foot{display:flex;gap:.6rem;padding:0 1.4rem 1.2rem}
-.iw-btn-primary{flex:1;padding:.65rem;border-radius:var(--iw-rd2);font-size:.85rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-v),var(--iw-v2));box-shadow:0 4px 14px rgba(124,58,237,.3);transition:transform .2s}
-.iw-btn-primary:hover{transform:translateY(-2px)}
-.iw-btn-secondary{padding:.65rem 1.2rem;border-radius:var(--iw-rd2);font-size:.85rem;font-weight:700;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);cursor:pointer;font-family:inherit;transition:background .2s}
-.iw-btn-secondary:hover{background:var(--panel2)}
+.iw-btn-primary{flex:1;padding:.65rem;border-radius:var(--iw-rd2);font-size:.85rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-v),var(--iw-v2));box-shadow:0 4px 14px rgba(124,58,237,.3);transition:all .2s}
+.iw-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.35)}
+.iw-btn-secondary{padding:.65rem 1.2rem;border-radius:var(--iw-rd2);font-size:.85rem;font-weight:700;border:1px solid rgba(124,58,237,.15);background:rgba(124,58,237,.04);color:var(--txt2);cursor:pointer;font-family:inherit;transition:all .2s}
+.iw-btn-secondary:hover{background:rgba(124,58,237,.08)}
 
 /* ── Report share modal ── */
 .iw-chk-list{display:flex;flex-direction:column;gap:.35rem;max-height:250px;overflow-y:auto}
-.iw-chk-item{display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border-radius:8px;background:var(--panel);border:1px solid var(--border);font-size:.78rem;font-weight:600;cursor:pointer;transition:background .15s}
-.iw-chk-item:hover{background:var(--panel2)}
+.iw-chk-item{display:flex;align-items:center;gap:.5rem;padding:.45rem .65rem;border-radius:12px;background:rgba(255,255,255,.3);backdrop-filter:blur(4px);border:1px solid rgba(124,58,237,.08);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s}
+[data-theme="dark"] .iw-chk-item{background:rgba(30,20,50,.2);border-color:rgba(255,255,255,.06)}
+.iw-chk-item:hover{background:rgba(124,58,237,.06);border-color:rgba(124,58,237,.15)}
 .iw-chk-item input[type=checkbox]{accent-color:var(--iw-v);width:15px;height:15px}
 
 .iw-empty{text-align:center;padding:1.5rem .8rem;color:var(--txt3);font-size:.82rem;font-weight:600}
@@ -208,6 +238,20 @@ img{-webkit-user-drag:none}
 <body class="iw-page">
   <nav></nav>
   <div id="iw-toast" role="alert" aria-live="polite"></div>
+
+  <!-- Custom Confirm Popup -->
+  <div id="iw-confirm-overlay" onclick="if(event.target===this)_iwConfirmResolve(false)">
+    <div id="iw-confirm-box">
+      <div id="iw-confirm-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--iw-v)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div id="iw-confirm-msg">Are you sure?</div>
+      <div class="iw-confirm-btns">
+        <button id="iw-confirm-cancel" onclick="_iwConfirmResolve(false)">Cancel</button>
+        <button id="iw-confirm-ok" onclick="_iwConfirmResolve(true)">Confirm</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Auth gate -->
   <div id="iw-gate" class="iw-gate">
@@ -484,6 +528,21 @@ let _user=null,_intId=null,_enrollment=null,_session=null,_assignments=[],_timer
 function C(){return window.supabaseConfig?.client}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function toast(m,t='ok',d=3500){const el=document.getElementById('iw-toast');el.textContent=m;el.className='show '+t;clearTimeout(el._t);el._t=setTimeout(()=>{el.className=''},d)}
+
+let _iwConfirmResolve=null;
+function iwConfirm(msg,okText='Confirm',cancelText='Cancel'){
+  return new Promise(resolve=>{
+    document.getElementById('iw-confirm-msg').textContent=msg;
+    document.getElementById('iw-confirm-ok').textContent=okText;
+    document.getElementById('iw-confirm-cancel').textContent=cancelText;
+    document.getElementById('iw-confirm-overlay').classList.add('open');
+    _iwConfirmResolve=(val)=>{
+      document.getElementById('iw-confirm-overlay').classList.remove('open');
+      _iwConfirmResolve=null;
+      resolve(val);
+    };
+  });
+}
 async function withRetry(fn,maxRetries=3,delayMs=1000){
   for(let i=1;i<=maxRetries;i++){
     try{return await fn();}catch(e){
@@ -691,7 +750,7 @@ async function startWork(){
         const netWork=existing.net_work_mins||existing.total_work_mins||0;
         if(netWork<480){
           // Allow re-opening: less than 8h target, resume session
-          if(!confirm(`You've worked ${fmtMins(netWork)} of the 8h target. Resume this session?`)){_session=existing;showCompleted();return;}
+          if(!await iwConfirm(`You've worked ${fmtMins(netWork)} of the 8h target. Resume this session?`,'Resume','Cancel')){_session=existing;showCompleted();return;}
           const{error:resumeErr}=await c.from('intern_work_sessions').update({status:'active',end_time:null}).eq('id',existing.id);
           if(resumeErr){toast('Failed to resume: '+resumeErr.message,'err');_session=existing;showCompleted();return;}
           existing.status='active';existing.end_time=null;
@@ -749,7 +808,7 @@ async function startWork(){
 let _endBusy=false;
 async function endWork(){
   if(_endBusy||!_session)return;
-  if(!confirm('Are you sure you want to end today\'s work session?'))return;
+  if(!await iwConfirm('Are you sure you want to end today\'s work session?','End Session','Cancel'))return;
   _endBusy=true;
   const btn=document.querySelector('.iw-end-btn');
   if(btn){btn.disabled=true;btn.style.opacity='.6';}
@@ -773,7 +832,7 @@ async function endWork(){
       if(error)throw error;
     });
     _session.status='completed';_session.total_work_mins=totalMins;_session.total_break_mins=breakMins;_session.net_work_mins=netMins;
-    clearInterval(_timerInt);clearInterval(_appTrackInt);
+    clearInterval(_timerInt);clearInterval(_appTrackInt);_stopScreenCapture();
     showCompleted();
     const pctOfTarget=Math.round((netMins/targetMins)*100);
     const targetMsg=netMins>=targetMins?`Target 8h ACHIEVED (${fmtMins(netMins)})`:`Net: ${fmtMins(netMins)} / 8h target (${pctOfTarget}%)`;
@@ -807,31 +866,30 @@ async function toggleBreakWithType(){
   const activeBreak=breaks.find(b=>b&&!b.break_end);
 
   if(activeBreak){
-    if(!confirm(`End ${BRK_LABELS[activeBreak.break_type]||'Break'}?`))return;
+    if(!await iwConfirm(`End ${BRK_LABELS[activeBreak.break_type]||'Break'}?`,'End Break','Continue'))return;
     const now=new Date().toISOString();
+    const{error}=await c.from('intern_breaks').update({break_end:now}).eq('id',activeBreak.id);
+    if(error){toast('Failed to end break: '+error.message,'err');return}
     let mins=Math.round((new Date(now)-new Date(activeBreak.break_start))/60000);
     const maxForType=BRK_MAX_MINS[activeBreak.break_type]||30;
-    if(mins>maxForType){
-      toast(`Break capped at ${maxForType}m (was ${mins}m). Excess time not counted.`,'err');
-      mins=maxForType;
-    }
-    const{error}=await c.from('intern_breaks').update({break_end:now,duration_mins:mins}).eq('id',activeBreak.id);
-    if(error){toast('Failed to end break: '+error.message,'err');return}
+    if(mins>maxForType) mins=maxForType;
     activeBreak.break_end=now;
     activeBreak.duration_mins=mins;
     logNotification('Break Ended',`${BRK_LABELS[activeBreak.break_type]||'Break'} ended — ${mins}m`);
     toast(`${BRK_LABELS[activeBreak.break_type]||'Break'} ended (${mins}m)`,'ok');
     loadActivityLog();
   } else {
+    // Count ALL breaks (completed + active), not just completed — DB constraint allows max 2
+    if(breaks.length>=2){toast('Maximum 2 breaks per day','err');return}
     const completedBreaks=breaks.filter(b=>b&&b.break_end);
-    // Validate total break time hasn't exceeded 120 min
     const totalBrkSoFar=completedBreaks.reduce((s,b)=>s+(b.duration_mins||0),0);
     if(totalBrkSoFar>=BRK_TOTAL_MAX){toast(`Total break limit reached (${fmtMins(BRK_TOTAL_MAX)} max)`,'err');return}
     const breakType=document.getElementById('iw-brk-type').value;
     const maxForType=BRK_MAX_MINS[breakType]||30;
     const remainingBreakTime=BRK_TOTAL_MAX-totalBrkSoFar;
     if(remainingBreakTime<5){toast(`Only ${remainingBreakTime}m of break time remaining`,'err');return}
-    const breakNum=completedBreaks.length+1;
+    // break_number must be 1 or 2 (DB constraint)
+    const breakNum=breaks.length+1;
     const{data,error}=await c.from('intern_breaks').insert({session_id:_session.id,student_user_id:_user.id,break_number:breakNum,break_start:new Date().toISOString(),break_type:breakType}).select().single();
     if(error){toast('Break failed: '+error.message,'err');return}
     _brkState[breakNum]=data;
@@ -869,29 +927,293 @@ function updateBreakUI(){
 
 /* ══════ APP TRACKING ══════ */
 const _aiToolPatterns=['chatgpt','claude','copilot','gemini','bard','perplexity','phind','cursor','github copilot','tabnine','codewhisperer','v0.dev'];
-function _detectAiTool(title){
-  const t=(title||'').toLowerCase();
-  return _aiToolPatterns.find(p=>t.includes(p))||null;
+/* ══════ COMPREHENSIVE APP & ACTIVITY TRACKING ══════ */
+let _detectedBrowser=null,_detectedOS=null,_trackState={focused:true,idle:false,lastActivity:Date.now(),awayStart:null,totalAwaySecs:0,mouseClicks:0,keyPresses:0,scrolls:0,copyCount:0,pasteCount:0,lastTitle:'',titleChanges:[]};
+
+async function _initBrowserDetect(){
+  const ua=navigator.userAgent;
+  try{if(navigator.brave&&await navigator.brave.isBrave()){_detectedBrowser='Brave';}}catch{}
+  if(!_detectedBrowser){
+    if(ua.includes('Edg/'))_detectedBrowser='Edge';
+    else if(ua.includes('OPR/')||ua.includes('Opera'))_detectedBrowser='Opera';
+    else if(ua.includes('Vivaldi'))_detectedBrowser='Vivaldi';
+    else if(ua.includes('Firefox'))_detectedBrowser='Firefox';
+    else if(ua.includes('Safari')&&!ua.includes('Chrome'))_detectedBrowser='Safari';
+    else if(ua.includes('Chrome'))_detectedBrowser='Chrome';
+    else _detectedBrowser='Browser';
+  }
+  if(ua.includes('Windows'))_detectedOS='Windows';
+  else if(ua.includes('Mac'))_detectedOS='macOS';
+  else if(ua.includes('Linux'))_detectedOS='Linux';
+  else if(ua.includes('Android'))_detectedOS='Android';
+  else if(ua.includes('iPhone')||ua.includes('iPad'))_detectedOS='iOS';
+  else _detectedOS='Unknown';
 }
-function startAppTracking(){
-  clearInterval(_appTrackInt);
-  _appTrackInt=setInterval(async()=>{
-    if(!_session||document.visibilityState!=='visible')return;
-    const ua=navigator.userAgent;let app='Browser';
-    if(ua.includes('Chrome')&&!ua.includes('Edg'))app='Chrome';
-    else if(ua.includes('Firefox'))app='Firefox';
-    else if(ua.includes('Safari')&&!ua.includes('Chrome'))app='Safari';
-    else if(ua.includes('Edg'))app='Edge';
-    const title=document.title;
-    const aiTool=_detectAiTool(title);
-    try{
-      const record={session_id:_session.id,student_user_id:_user.id,app_name:app,window_title:title,active_seconds:30};
-      await C().from('intern_app_usage').insert(record);
-      if(aiTool){
-        await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:'AI: '+aiTool,window_title:title,active_seconds:30});
+_initBrowserDetect();
+
+const _appPatterns=[
+  {m:['visual studio code','vs code','vscode'],n:'VS Code',c:'IDE'},
+  {m:['sublime text'],n:'Sublime Text',c:'IDE'},
+  {m:['intellij','webstorm','pycharm','phpstorm','rider','clion','goland','rubymine','datagrip'],n:'JetBrains IDE',c:'IDE'},
+  {m:['atom editor'],n:'Atom',c:'IDE'},
+  {m:['vim','neovim','nvim'],n:'Vim/Neovim',c:'IDE'},
+  {m:['replit'],n:'Replit',c:'IDE'},
+  {m:['codesandbox'],n:'CodeSandbox',c:'IDE'},
+  {m:['stackblitz'],n:'StackBlitz',c:'IDE'},
+  {m:['codepen'],n:'CodePen',c:'IDE'},
+  {m:['github.com/','github -'],n:'GitHub',c:'Dev Tool'},
+  {m:['gitlab'],n:'GitLab',c:'Dev Tool'},
+  {m:['bitbucket'],n:'Bitbucket',c:'Dev Tool'},
+  {m:['stackoverflow','stack overflow'],n:'StackOverflow',c:'Dev Tool'},
+  {m:['npmjs.com','npm -'],n:'npm',c:'Dev Tool'},
+  {m:['docker'],n:'Docker',c:'Dev Tool'},
+  {m:['postman'],n:'Postman',c:'Dev Tool'},
+  {m:['insomnia'],n:'Insomnia',c:'Dev Tool'},
+  {m:['swagger','openapi'],n:'Swagger/API Docs',c:'Dev Tool'},
+  {m:['vercel.com'],n:'Vercel',c:'Deployment'},
+  {m:['netlify'],n:'Netlify',c:'Deployment'},
+  {m:['render.com'],n:'Render',c:'Deployment'},
+  {m:['railway.app'],n:'Railway',c:'Deployment'},
+  {m:['supabase'],n:'Supabase',c:'Database'},
+  {m:['firebase'],n:'Firebase',c:'Database'},
+  {m:['mongodb','mongo atlas'],n:'MongoDB',c:'Database'},
+  {m:['pgadmin','postgresql'],n:'PostgreSQL',c:'Database'},
+  {m:['mysql','phpmyadmin'],n:'MySQL',c:'Database'},
+  {m:['figma'],n:'Figma',c:'Design'},
+  {m:['canva'],n:'Canva',c:'Design'},
+  {m:['adobe xd','photoshop','illustrator'],n:'Adobe Creative',c:'Design'},
+  {m:['sketch'],n:'Sketch',c:'Design'},
+  {m:['notion'],n:'Notion',c:'Productivity'},
+  {m:['trello'],n:'Trello',c:'Productivity'},
+  {m:['jira'],n:'Jira',c:'Productivity'},
+  {m:['asana'],n:'Asana',c:'Productivity'},
+  {m:['linear.app'],n:'Linear',c:'Productivity'},
+  {m:['slack'],n:'Slack',c:'Communication'},
+  {m:['discord'],n:'Discord',c:'Communication'},
+  {m:['teams.microsoft','microsoft teams'],n:'MS Teams',c:'Communication'},
+  {m:['zoom.us','zoom meeting'],n:'Zoom',c:'Communication'},
+  {m:['google meet','meet.google'],n:'Google Meet',c:'Communication'},
+  {m:['whatsapp'],n:'WhatsApp',c:'Communication'},
+  {m:['mail.google','gmail'],n:'Gmail',c:'Communication'},
+  {m:['outlook'],n:'Outlook',c:'Communication'},
+  {m:['youtube.com','- youtube'],n:'YouTube',c:'Media'},
+  {m:['udemy'],n:'Udemy',c:'Learning'},
+  {m:['coursera'],n:'Coursera',c:'Learning'},
+  {m:['freecodecamp'],n:'freeCodeCamp',c:'Learning'},
+  {m:['leetcode'],n:'LeetCode',c:'Learning'},
+  {m:['hackerrank'],n:'HackerRank',c:'Learning'},
+  {m:['w3schools'],n:'W3Schools',c:'Learning'},
+  {m:['mdn web docs','developer.mozilla'],n:'MDN Docs',c:'Learning'},
+  {m:['docs.google','google docs'],n:'Google Docs',c:'Productivity'},
+  {m:['sheets.google','google sheets'],n:'Google Sheets',c:'Productivity'},
+  {m:['drive.google','google drive'],n:'Google Drive',c:'Productivity'},
+  {m:['docs.microsoft','word online'],n:'MS Word Online',c:'Productivity'},
+  {m:['google.com/search','google search','- google'],n:'Google Search',c:'Search'},
+  {m:['bing.com'],n:'Bing Search',c:'Search'},
+  {m:['localhost','127.0.0.1','0.0.0.0'],n:'Localhost Dev',c:'Dev Tool'},
+  {m:['terminal','powershell','cmd.exe','bash','command prompt'],n:'Terminal/Shell',c:'Dev Tool'},
+  {m:['facebook.com'],n:'Facebook',c:'Social'},
+  {m:['instagram.com'],n:'Instagram',c:'Social'},
+  {m:['twitter.com','x.com'],n:'X/Twitter',c:'Social'},
+  {m:['linkedin.com'],n:'LinkedIn',c:'Social'},
+  {m:['reddit.com'],n:'Reddit',c:'Social'},
+  {m:['netflix','primevideo','hotstar','disney+'],n:'Streaming',c:'Media'},
+  {m:['spotify'],n:'Spotify',c:'Media'},
+  {m:['chatgpt','openai.com'],n:'ChatGPT',c:'AI Tool'},
+  {m:['claude.ai','anthropic'],n:'Claude AI',c:'AI Tool'},
+  {m:['copilot'],n:'GitHub Copilot',c:'AI Tool'},
+  {m:['gemini','bard'],n:'Google Gemini',c:'AI Tool'},
+  {m:['perplexity'],n:'Perplexity AI',c:'AI Tool'},
+  {m:['phind'],n:'Phind',c:'AI Tool'},
+  {m:['cursor'],n:'Cursor IDE',c:'AI Tool'},
+  {m:['v0.dev'],n:'v0.dev',c:'AI Tool'},
+  {m:['tabnine'],n:'Tabnine',c:'AI Tool'},
+  {m:['codewhisperer'],n:'CodeWhisperer',c:'AI Tool'}
+];
+
+function _detectAppsFromTitle(title){
+  const t=(title||'').toLowerCase();
+  const found=[];
+  for(const p of _appPatterns){
+    if(p.m.some(k=>t.includes(k))){found.push({name:p.n,category:p.c})}
+  }
+  return found;
+}
+
+function _getUrlHost(){
+  try{
+    const refs=[location.href,document.referrer].filter(Boolean);
+    const hosts=[];
+    refs.forEach(r=>{try{hosts.push(new URL(r).hostname)}catch{}});
+    return hosts;
+  }catch{return[]}
+}
+
+function _initActivityListeners(){
+  const bump=()=>{_trackState.lastActivity=Date.now();_trackState.idle=false};
+  document.addEventListener('mousemove',bump,{passive:true});
+  document.addEventListener('keydown',()=>{bump();_trackState.keyPresses++},{passive:true});
+  document.addEventListener('click',()=>{bump();_trackState.mouseClicks++},{passive:true});
+  document.addEventListener('scroll',()=>{bump();_trackState.scrolls++},{passive:true});
+  document.addEventListener('touchstart',bump,{passive:true});
+  document.addEventListener('copy',()=>{_trackState.copyCount++},{passive:true});
+  document.addEventListener('paste',()=>{_trackState.pasteCount++},{passive:true});
+
+  document.addEventListener('visibilitychange',()=>{
+    if(!_session)return;
+    if(document.visibilityState==='hidden'){
+      _trackState.focused=false;
+      _trackState.awayStart=Date.now();
+      _recordTrack('Tab: Away','Switched away from browser tab');
+    } else {
+      _trackState.focused=true;
+      if(_trackState.awayStart){
+        const awaySecs=Math.round((Date.now()-_trackState.awayStart)/1000);
+        _trackState.totalAwaySecs+=awaySecs;
+        _trackState.awayStart=null;
+        if(awaySecs>5) _recordTrack('Tab: Returned',`Returned after ${awaySecs>60?Math.round(awaySecs/60)+'m':awaySecs+'s'} away`);
       }
-    }catch{}
-  },30000);
+    }
+  });
+
+  window.addEventListener('focus',()=>{_trackState.focused=true});
+  window.addEventListener('blur',()=>{_trackState.focused=false});
+
+  const titleObs=new MutationObserver(()=>{
+    const newTitle=document.title;
+    if(newTitle!==_trackState.lastTitle){
+      _trackState.titleChanges.push({from:_trackState.lastTitle,to:newTitle,at:Date.now()});
+      _trackState.lastTitle=newTitle;
+    }
+  });
+  titleObs.observe(document.querySelector('title')||document.head,{childList:true,subtree:true,characterData:true});
+}
+
+async function _recordTrack(appName,windowTitle){
+  if(!_session)return;
+  try{await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:appName,window_title:windowTitle||'',active_seconds:0})}catch{}
+}
+
+/* ── Screen Capture for real-time tracking ── */
+let _screenStream=null,_screenVideo=null,_screenCanvas=null,_screenCtx=null,_captureInt=null;
+const CAPTURE_INTERVAL=120000; // screenshot every 2 minutes
+
+async function _startScreenCapture(){
+  try{
+    _screenStream=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always',displaySurface:'monitor'},audio:false});
+    _screenVideo=document.createElement('video');
+    _screenVideo.srcObject=_screenStream;
+    _screenVideo.setAttribute('playsinline','');
+    await _screenVideo.play();
+    _screenCanvas=document.createElement('canvas');
+    _screenCtx=_screenCanvas.getContext('2d');
+    _screenStream.getVideoTracks()[0].addEventListener('ended',()=>{
+      _screenStream=null;toast('Screen sharing stopped. Tracking continues without screenshots.','err');
+      clearInterval(_captureInt);
+    });
+    _captureInt=setInterval(_captureScreenshot,CAPTURE_INTERVAL);
+    setTimeout(_captureScreenshot,3000);
+    _recordTrack('Screen Capture','Screen sharing enabled — real-time tracking active');
+    toast('Screen tracking active','ok');
+    return true;
+  }catch(e){
+    console.warn('Screen capture denied:',e.message);
+    _recordTrack('Screen Capture Denied','Student declined screen sharing permission');
+    return false;
+  }
+}
+
+async function _captureScreenshot(){
+  if(!_screenStream||!_screenVideo||!_session)return;
+  try{
+    const vw=_screenVideo.videoWidth,vh=_screenVideo.videoHeight;
+    if(!vw||!vh)return;
+    const scale=Math.min(1280/vw,720/vh,1);
+    _screenCanvas.width=Math.round(vw*scale);
+    _screenCanvas.height=Math.round(vh*scale);
+    _screenCtx.drawImage(_screenVideo,0,0,_screenCanvas.width,_screenCanvas.height);
+    const blob=await new Promise(r=>_screenCanvas.toBlob(r,'image/jpeg',0.6));
+    if(!blob||blob.size<1000)return;
+    const ts=Date.now();
+    const path=`${_user.id}/${_session.id}/screen-${ts}.jpg`;
+    const{error}=await C().storage.from('intern-submissions').upload(path,blob,{contentType:'image/jpeg',upsert:true});
+    if(!error){
+      const url=C().storage.from('intern-submissions').getPublicUrl(path).data.publicUrl;
+      await C().from('intern_app_usage').insert({
+        session_id:_session.id,student_user_id:_user.id,
+        app_name:'Screenshot',window_title:url,active_seconds:0
+      });
+    }
+  }catch(e){console.warn('Screenshot failed:',e.message)}
+}
+
+function _stopScreenCapture(){
+  if(_screenStream){_screenStream.getTracks().forEach(t=>t.stop());_screenStream=null}
+  if(_screenVideo){_screenVideo.pause();_screenVideo.srcObject=null;_screenVideo=null}
+  clearInterval(_captureInt);
+}
+
+/* ── Main tracking start ── */
+async function startAppTracking(){
+  clearInterval(_appTrackInt);
+  _initActivityListeners();
+  _trackState.lastTitle=document.title;
+
+  // Request screen capture for real-time monitoring
+  await _startScreenCapture();
+
+  // Periodic activity + app detection tracking (every 15 seconds)
+  _appTrackInt=setInterval(async()=>{
+    if(!_session)return;
+    const now=Date.now();
+    const idleSecs=Math.round((now-_trackState.lastActivity)/1000);
+    if(idleSecs>180)_trackState.idle=true;
+
+    const title=document.title;
+    const browser=_detectedBrowser||'Browser';
+    const isVisible=document.visibilityState==='visible';
+    const records=[];
+
+    if(isVisible&&!_trackState.idle){
+      records.push({session_id:_session.id,student_user_id:_user.id,app_name:browser,window_title:title,active_seconds:15});
+      const detected=_detectAppsFromTitle(title);
+      const urlHosts=_getUrlHost();
+      urlHosts.forEach(h=>{
+        const hostApps=_detectAppsFromTitle(h);
+        hostApps.forEach(a=>{if(!detected.find(d=>d.name===a.name))detected.push(a)});
+      });
+      detected.forEach(app=>{
+        records.push({session_id:_session.id,student_user_id:_user.id,app_name:app.name,window_title:`[${app.category}] ${title}`,active_seconds:15});
+      });
+    } else if(!isVisible){
+      records.push({session_id:_session.id,student_user_id:_user.id,app_name:'Away: Other App',window_title:'User in another application',active_seconds:15});
+    } else if(_trackState.idle){
+      records.push({session_id:_session.id,student_user_id:_user.id,app_name:'Idle',window_title:`No activity for ${Math.round(idleSecs/60)}m`,active_seconds:15});
+    }
+
+    if(_trackState.mouseClicks>0||_trackState.keyPresses>0||_trackState.scrolls>0){
+      records.push({session_id:_session.id,student_user_id:_user.id,
+        app_name:'User Activity',
+        window_title:`Clicks:${_trackState.mouseClicks} Keys:${_trackState.keyPresses} Scrolls:${_trackState.scrolls} | OS:${_detectedOS} | ${browser}`,
+        active_seconds:15
+      });
+      _trackState.mouseClicks=0;_trackState.keyPresses=0;_trackState.scrolls=0;
+    }
+
+    // Track copy/paste events that accumulated
+    if(_trackState.copyCount>0||_trackState.pasteCount>0){
+      records.push({session_id:_session.id,student_user_id:_user.id,
+        app_name:'Clipboard',
+        window_title:`Copy:${_trackState.copyCount} Paste:${_trackState.pasteCount}`,
+        active_seconds:0
+      });
+      _trackState.copyCount=0;_trackState.pasteCount=0;
+    }
+
+    if(records.length){
+      try{await C().from('intern_app_usage').insert(records)}catch{}
+    }
+  },15000);
 }
 
 /* ══════ STATS ══════ */
@@ -1068,7 +1390,7 @@ function renderCalendar(){
     if(att?.calendar_status==='leave'||att?.status==='leave') cls+=' leave';
     else if(att?.calendar_status==='holiday'||att?.status==='holiday'||isSunday&&!sess) cls+=' holiday';
     const dot=sess?'<div class="iw-att-dot"></div>':'';
-    const clickAttr=sess?` onclick="showDayDetail('${ds}',event)" style="cursor:pointer"`:'';
+    const clickAttr=sess?` onclick="toggleDayDetail('${ds}',event)" style="cursor:pointer"`:'';
     html+=`<div class="${cls}" title="${ds}"${clickAttr}>${d}${dot}</div>`;
   }
 
@@ -1081,8 +1403,17 @@ function renderCalendar(){
   grid.innerHTML=html;
 }
 
-function showDayDetail(dateStr,event){
+let _openDayPopup=null;
+function toggleDayDetail(dateStr,event){
+  event.stopPropagation();
+  // Toggle: if same date popup is open, close it
+  if(_openDayPopup&&_openDayPopup.dataset.date===dateStr){
+    _openDayPopup.remove();_openDayPopup=null;return;
+  }
+  // Close any existing popup
   document.querySelectorAll('.iw-day-detail').forEach(el=>el.remove());
+  _openDayPopup=null;
+
   const sess=_attData.sessions[dateStr];
   const att=_attData.attendance[dateStr];
   if(!sess)return;
@@ -1093,15 +1424,19 @@ function showDayDetail(dateStr,event){
   const breakMins=(sess.intern_breaks||[]).reduce((s,b)=>s+(b.duration_mins||0),0);
   const status=sess.status==='completed'?'Completed':(sess.status==='active'?'Active':'Auto-Closed');
   const statusCls=sess.status==='completed'?'green':'';
-
   const dateFmt=new Date(dateStr+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+  const breakDetails=(sess.intern_breaks||[]).map(b=>`<div class="iw-dd-row"><span class="iw-dd-label">${BRK_LABELS[b.break_type]||'Break '+b.break_number}</span><span class="iw-dd-val">${b.duration_mins||'?'}m</span></div>`).join('');
 
   const popup=document.createElement('div');
   popup.className='iw-day-detail show';
-  const breakDetails=(sess.intern_breaks||[]).map(b=>`<div class="iw-dd-row"><span class="iw-dd-label">${BRK_LABELS[b.break_type]||'Break '+b.break_number}</span><span class="iw-dd-val">${b.duration_mins||'?'}m</span></div>`).join('');
-
+  popup.dataset.date=dateStr;
   popup.innerHTML=`
-    <h4>${dateFmt} — Day ${sess.day_number||'—'}</h4>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem">
+      <h4 style="margin:0">${dateFmt} — Day ${sess.day_number||'—'}</h4>
+      <button onclick="exportDayReport('${dateStr}')" title="Download day report" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--iw-v);display:flex;align-items:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+    </div>
     <div class="iw-dd-row"><span class="iw-dd-label">Login</span><span class="iw-dd-val green">${loginTime}</span></div>
     <div class="iw-dd-row"><span class="iw-dd-label">Logout</span><span class="iw-dd-val ${statusCls}">${logoutTime}</span></div>
     <div class="iw-dd-row"><span class="iw-dd-label">Total Time</span><span class="iw-dd-val">${fmtMins(workMins)}</span></div>
@@ -1112,25 +1447,39 @@ function showDayDetail(dateStr,event){
     ${att?.notes?`<div style="margin-top:.3rem;font-size:.62rem;color:var(--txt3)">Note: ${esc(att.notes)}</div>`:''}
   `;
 
-  // Append to body with position:fixed, positioned below the clicked cell
   const target=event.currentTarget;
   const rect=target.getBoundingClientRect();
   document.body.appendChild(popup);
-  // Position below the cell, centered horizontally
-  let popLeft=rect.left+rect.width/2-100; // 100 = half of popup width (200px)
+  let popLeft=rect.left+rect.width/2-105;
   let popTop=rect.bottom+6;
-  // Clamp to viewport edges
   if(popLeft<8) popLeft=8;
-  if(popLeft+200>window.innerWidth-8) popLeft=window.innerWidth-208;
-  if(popTop+popup.offsetHeight>window.innerHeight-8){
-    // If no room below, show above
-    popTop=rect.top-popup.offsetHeight-6;
-  }
+  if(popLeft+210>window.innerWidth-8) popLeft=window.innerWidth-218;
+  if(popTop+popup.offsetHeight>window.innerHeight-8) popTop=rect.top-popup.offsetHeight-6;
   popup.style.left=popLeft+'px';
   popup.style.top=popTop+'px';
+  _openDayPopup=popup;
 
-  const closePopup=(e)=>{if(!popup.contains(e.target)&&e.target!==target){popup.remove();document.removeEventListener('click',closePopup)}};
+  const closePopup=(e)=>{if(!popup.contains(e.target)&&!target.contains(e.target)){popup.remove();_openDayPopup=null;document.removeEventListener('click',closePopup)}};
   setTimeout(()=>document.addEventListener('click',closePopup),10);
+}
+
+function exportDayReport(dateStr){
+  const sess=_attData.sessions[dateStr];
+  if(!sess)return;
+  const name=_user.user_metadata?.full_name||_user.email?.split('@')[0]||'Student';
+  const loginTime=sess.start_time?new Date(sess.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+  const logoutTime=sess.end_time?new Date(sess.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+  const workMins=sess.total_work_mins||0;
+  const breakMins=(sess.intern_breaks||[]).reduce((s,b)=>s+(b.duration_mins||0),0);
+  const netMins=Math.max(0,workMins-breakMins);
+  let csv=`Day Report — ${dateStr}\nStudent,${name}\n\nField,Value\n`;
+  csv+=`Date,${dateStr}\nDay,${sess.day_number||'—'}\nLogin,${loginTime}\nLogout,${logoutTime}\n`;
+  csv+=`Total Work,${workMins}m\nTotal Breaks,${breakMins}m\nNet Work,${netMins}m\nStatus,${sess.status}\n\n`;
+  csv+='Break #,Type,Duration\n';
+  (sess.intern_breaks||[]).forEach(b=>{csv+=`${b.break_number},${BRK_LABELS[b.break_type]||'Break'},${b.duration_mins||0}m\n`});
+  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=`Day-${sess.day_number||dateStr}-Report.csv`;a.click();
+  toast('Day report downloaded!','ok');
 }
 
 function renderAttendanceLog(){

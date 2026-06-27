@@ -11916,12 +11916,65 @@ function renderStudentDetail(){
         </tr>`;
       }).join('')}</tbody></table></div>`:'<p style="color:var(--txt3);font-size:.82rem">No sessions.</p>'}
 
-    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">App Usage</h4>
-    ${appEntries.length?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${appEntries.map(([app,secs])=>
-      `<div style="padding:.4rem .7rem;background:var(--panel);border:1px solid var(--border);border-radius:8px;font-size:.76rem">
-        <span style="font-weight:700">${_adm_esc(app)}</span>
-        <span style="color:var(--v1);font-weight:600;margin-left:.3rem">${fmtSecs(secs)}</span>
-      </div>`).join('')}</div>`:'<p style="color:var(--txt3);font-size:.82rem">No app usage data.</p>'}
+    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">Real-Time Screenshots</h4>
+    ${(()=>{
+      const screenshots=filtApp.filter(a=>a.app_name==='Screenshot'&&a.window_title);
+      return screenshots.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem;margin-bottom:1rem">${screenshots.slice(0,20).map(s=>{
+        const t=new Date(s.recorded_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+        return `<div style="border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--panel)">
+          <a href="${_adm_esc(s.window_title)}" target="_blank"><img src="${_adm_esc(s.window_title)}" style="width:100%;height:80px;object-fit:cover;display:block" loading="lazy"></a>
+          <div style="padding:.2rem .4rem;font-size:.6rem;color:var(--txt3);text-align:center;font-weight:600">${t}</div>
+        </div>`;
+      }).join('')}</div>`:'<p style="color:var(--txt3);font-size:.82rem">No screenshots captured. Screen sharing may not have been enabled.</p>';
+    })()}
+
+    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">User Activity Summary</h4>
+    ${(()=>{
+      const actRecs=filtApp.filter(a=>a.app_name==='User Activity');
+      let totalClicks=0,totalKeys=0,totalScrolls=0;
+      actRecs.forEach(a=>{
+        const m=a.window_title?.match(/Clicks:(\d+)\s+Keys:(\d+)\s+Scrolls:(\d+)/);
+        if(m){totalClicks+=parseInt(m[1]);totalKeys+=parseInt(m[2]);totalScrolls+=parseInt(m[3])}
+      });
+      const clipRecs=filtApp.filter(a=>a.app_name==='Clipboard');
+      let totalCopy=0,totalPaste=0;
+      clipRecs.forEach(a=>{
+        const m=a.window_title?.match(/Copy:(\d+)\s+Paste:(\d+)/);
+        if(m){totalCopy+=parseInt(m[1]);totalPaste+=parseInt(m[2])}
+      });
+      const awayRecs=filtApp.filter(a=>a.app_name==='Away: Other App').length;
+      const idleRecs=filtApp.filter(a=>a.app_name==='Idle').length;
+      return (totalClicks||totalKeys||awayRecs)?`<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div style="padding:.4rem .7rem;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:10px;font-size:.74rem"><strong>${totalClicks}</strong> clicks</div>
+        <div style="padding:.4rem .7rem;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;font-size:.74rem"><strong>${totalKeys}</strong> keypresses</div>
+        <div style="padding:.4rem .7rem;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:10px;font-size:.74rem"><strong>${totalScrolls}</strong> scrolls</div>
+        ${totalCopy?`<div style="padding:.4rem .7rem;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.15);border-radius:10px;font-size:.74rem"><strong>${totalCopy}</strong> copy / <strong>${totalPaste}</strong> paste</div>`:''}
+        <div style="padding:.4rem .7rem;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.15);border-radius:10px;font-size:.74rem"><strong>${awayRecs}</strong> app switches</div>
+        <div style="padding:.4rem .7rem;background:rgba(100,100,100,.06);border:1px solid rgba(100,100,100,.15);border-radius:10px;font-size:.74rem"><strong>${idleRecs}</strong> idle periods</div>
+      </div>`:'<p style="color:var(--txt3);font-size:.82rem">No activity metrics recorded.</p>';
+    })()}
+
+    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">App & Website Usage</h4>
+    ${(()=>{
+      const skipApps=new Set(['Screenshot','User Activity','Clipboard','Away: Other App','Idle','Tab: Away','Tab: Returned','Screen Capture','Screen Capture Denied']);
+      const filteredEntries=appEntries.filter(([app])=>!skipApps.has(app));
+      const catMap={};
+      filteredEntries.forEach(([app,secs])=>{
+        let cat='Browser';
+        const found=filtApp.find(a=>a.app_name===app&&a.window_title?.startsWith('['));
+        if(found){const m=found.window_title.match(/^\[([^\]]+)\]/);if(m)cat=m[1]}
+        if(!catMap[cat])catMap[cat]=[];
+        catMap[cat].push({app,secs});
+      });
+      const cats=Object.entries(catMap).sort((a,b)=>b[1].reduce((s,x)=>s+x.secs,0)-a[1].reduce((s,x)=>s+x.secs,0));
+      return cats.length?cats.map(([cat,apps])=>`
+        <div style="margin-bottom:.5rem">
+          <div style="font-size:.68rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.2rem">${_adm_esc(cat)}</div>
+          <div style="display:flex;gap:.3rem;flex-wrap:wrap">${apps.sort((a,b)=>b.secs-a.secs).map(a=>
+            `<span style="padding:.3rem .6rem;background:var(--panel);border:1px solid var(--border);border-radius:10px;font-size:.72rem;font-weight:600">${_adm_esc(a.app)} <span style="color:var(--v1);font-weight:700">${fmtSecs(a.secs)}</span></span>`
+          ).join('')}</div>
+        </div>`).join(''):'<p style="color:var(--txt3);font-size:.82rem">No app usage data.</p>';
+    })()}
 
     <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">Module Progress</h4>
     ${(progAssign||[]).length?`<ul style="list-style:none;padding:0;margin:0 0 1rem">${(progAssign||[]).map((a,i)=>
