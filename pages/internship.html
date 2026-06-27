@@ -692,8 +692,8 @@
             <span class="itn-stat-v" id="stat-free">—</span>
             <span class="itn-stat-l">Learner Perks</span>
           </div>
-          <!-- Paid -->
-          <div class="itn-stat" style="animation-delay:.32s">
+          <!-- Paid / Working -->
+          <div class="itn-stat" id="stat-paid-card" style="animation-delay:.32s" onclick="document.getElementById('itn-paid-section')?.scrollIntoView({behavior:'smooth',block:'start'})">
             <div class="itn-stat-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle class="si-pulse" cx="12" cy="12" r="10" stroke="rgba(251,191,36,.9)" stroke-width="1.8" fill="rgba(251,191,36,.06)"/>
@@ -701,7 +701,7 @@
               </svg>
             </div>
             <span class="itn-stat-v" id="stat-paid">—</span>
-            <span class="itn-stat-l">Paid</span>
+            <span class="itn-stat-l" id="stat-paid-label">Paid</span>
           </div>
         </div>
       </div>
@@ -783,6 +783,124 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
               </button>
             </div>
+          </div>
+        </section>
+
+        <!-- ── MY TASKS / WORKING (only for assigned users) ── -->
+        <section id="itn-working-section" style="display:none">
+          <div class="itn-sec-hdr" style="--itn-hdr-c:#7c3aed">
+            <div class="itn-sec-hdr-left">
+              <div class="itn-sec-icon" style="color:#7c3aed">
+                <svg class="itn-sec-ico" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect class="si-bob" x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".08"/>
+                  <path class="si-pulse" d="M11 15l3 3 7-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <line x1="4" y1="12" x2="28" y2="12" stroke="currentColor" stroke-width="1" stroke-opacity=".3"/>
+                  <circle cx="9" cy="9" r="1.2" fill="currentColor" fill-opacity=".5"/>
+                  <circle cx="13" cy="9" r="1.2" fill="currentColor" fill-opacity=".5"/>
+                  <circle cx="17" cy="9" r="1.2" fill="currentColor" fill-opacity=".5"/>
+                </svg>
+              </div>
+              <div>
+                <div class="itn-sec-title">Working</div>
+                <div class="itn-sec-sub">Your assigned internship modules &amp; tasks</div>
+              </div>
+            </div>
+            <span class="itn-sec-count" id="itn-count-working" style="--itn-hdr-c:#7c3aed">0</span>
+          </div>
+
+          <style>
+            .itn-work-grid {
+              display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1.4rem;
+            }
+            @media(max-width:640px) { .itn-work-grid { grid-template-columns:1fr; } }
+
+            .itn-work-card {
+              position:relative; border-radius:20px; overflow:hidden;
+              background:linear-gradient(160deg,rgba(124,58,237,.08) 0%,var(--bg2) 50%,rgba(16,185,129,.04) 100%);
+              border:1.5px solid rgba(124,58,237,.25);
+              box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 6px 28px rgba(0,0,0,.12);
+              display:flex; flex-direction:column;
+              opacity:0; transform:translateY(24px);
+              transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,border-color .3s;
+            }
+            .itn-work-card.itn-in { opacity:1; transform:none; animation:itnCardIn .55s cubic-bezier(.22,1,.36,1) both; }
+            .itn-work-card::before {
+              content:''; position:absolute; top:0; left:0; right:0; height:3px; z-index:2;
+              background:linear-gradient(90deg,#7c3aed 0%,#a78bfa 40%,#10b981 75%,#06b6d4 100%);
+              border-radius:20px 20px 0 0;
+            }
+            .itn-work-card:hover {
+              transform:translateY(-8px) scale(1.012);
+              border-color:rgba(124,58,237,.5);
+              box-shadow:0 2px 0 rgba(255,255,255,.08) inset,0 24px 56px rgba(0,0,0,.18),0 0 40px rgba(124,58,237,.08);
+            }
+
+            .itn-wc-header { padding:1.4rem 1.4rem .6rem; display:flex; align-items:flex-start; justify-content:space-between; gap:.7rem; }
+            .itn-wc-title { font-size:1.05rem; font-weight:900; color:var(--txt); line-height:1.28; letter-spacing:-.015em; }
+            .itn-wc-domain { font-size:.76rem; color:var(--txt3); font-weight:600; margin-top:.2rem; }
+            .itn-wc-badge {
+              flex-shrink:0; display:inline-flex; align-items:center; gap:.3rem;
+              padding:.22rem .68rem; border-radius:999px; font-size:.64rem; font-weight:800; letter-spacing:.05em;
+              text-transform:uppercase;
+            }
+            .itn-wc-badge-active   { background:rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+            .itn-wc-badge-progress { background:rgba(245,158,11,.12); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
+            .itn-wc-badge-done     { background:rgba(124,58,237,.12); color:#a78bfa;  border:1px solid rgba(124,58,237,.3); }
+
+            .itn-wc-stats {
+              display:flex; gap:.5rem; padding:.2rem 1.4rem .8rem; flex-wrap:wrap;
+            }
+            .itn-wc-stat {
+              display:inline-flex; align-items:center; gap:.35rem;
+              padding:.25rem .7rem; border-radius:10px; font-size:.72rem; font-weight:700;
+              background:var(--panel); border:1px solid var(--border);
+            }
+            .itn-wc-stat svg { flex-shrink:0; }
+
+            .itn-wc-modules { padding:0 1.4rem .6rem; }
+            .itn-wc-mod-title { font-size:.68rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--txt3); margin-bottom:.45rem; }
+            .itn-wc-mod-list { display:flex; flex-direction:column; gap:.3rem; }
+            .itn-wc-mod {
+              display:flex; align-items:center; gap:.5rem; padding:.4rem .6rem; border-radius:8px;
+              background:var(--panel); font-size:.78rem; color:var(--txt2);
+            }
+            .itn-wc-mod-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+            .itn-wc-mod-dot.active   { background:#10b981; box-shadow:0 0 6px rgba(16,185,129,.5); }
+            .itn-wc-mod-dot.progress { background:#f59e0b; box-shadow:0 0 6px rgba(245,158,11,.5); }
+            .itn-wc-mod-dot.done     { background:#a78bfa; box-shadow:0 0 6px rgba(124,58,237,.4); }
+
+            .itn-wc-tags { display:flex; flex-wrap:nowrap; gap:.25rem; padding:0 1.4rem .6rem; overflow-x:auto; scrollbar-width:none; }
+            .itn-wc-tags::-webkit-scrollbar { display:none; }
+            .itn-wc-tag { padding:.16rem .55rem; border-radius:999px; font-size:.62rem; font-weight:700; background:rgba(124,58,237,.08); color:#a78bfa; border:1px solid rgba(124,58,237,.18); white-space:nowrap; }
+
+            .itn-wc-action { padding:.8rem 1.4rem 1.3rem; margin-top:auto; }
+            .itn-wc-btn {
+              display:flex; align-items:center; justify-content:center; gap:.5rem;
+              width:100%; padding:.7rem 1rem; border-radius:12px;
+              font-size:.85rem; font-weight:700; cursor:pointer; font-family:inherit;
+              position:relative; overflow:hidden;
+              background:linear-gradient(135deg,#7c3aed,#6d28d9);
+              color:#fff; border:none;
+              box-shadow:0 4px 16px rgba(124,58,237,.35);
+              transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s;
+            }
+            .itn-wc-btn::after {
+              content:''; position:absolute; top:0; left:-100%; width:55%; height:100%;
+              background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+              transition:left .48s ease; pointer-events:none;
+            }
+            .itn-wc-btn:hover::after { left:150%; }
+            .itn-wc-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(124,58,237,.48); }
+            .itn-wc-btn:active { transform:scale(.97); }
+
+            .itn-wc-empty {
+              grid-column:1/-1; text-align:center; padding:3rem 1rem;
+              color:var(--txt3); font-size:.9rem; font-weight:600;
+            }
+          </style>
+
+          <div class="itn-work-grid" id="itn-working-grid">
+            <div class="itn-wc-empty">Loading your tasks…</div>
           </div>
         </section>
 
@@ -1156,6 +1274,126 @@
 
   function renderPaidSectionState() {
     loadAllInternships();
+    loadMyWorkingInternships();
+  }
+
+  /* ── MY TASKS / WORKING section ── */
+  async function loadMyWorkingInternships() {
+    const section = document.getElementById('itn-working-section');
+    const grid    = document.getElementById('itn-working-grid');
+    const countEl = document.getElementById('itn-count-working');
+    const statLabel = document.getElementById('stat-paid-label');
+    const statCard  = document.getElementById('stat-paid-card');
+
+    if (!currentUser) { section.style.display = 'none'; return; }
+
+    const client = window.supabaseConfig?.client;
+    if (!client) return;
+
+    const { data: assignments, error } = await client
+      .from('intern_program_assignments')
+      .select('*, intern_program_modules(module_name, description, deadline, git_push_link, order_num), internship_projects(id, project_name, domain, tech_stack, duration_weeks, description)')
+      .eq('student_user_id', currentUser.id)
+      .neq('status', 'revoked')
+      .order('assigned_at', { ascending: false });
+
+    if (error || !assignments?.length) {
+      section.style.display = 'none';
+      return;
+    }
+
+    // Show the section & update stat
+    section.style.display = '';
+    statLabel.textContent = 'Working';
+    statCard.onclick = () => section.scrollIntoView({ behavior:'smooth', block:'start' });
+
+    // Group assignments by internship
+    const grouped = {};
+    assignments.forEach(a => {
+      const iid = a.internship_id;
+      if (!grouped[iid]) {
+        grouped[iid] = {
+          internship: a.internship_projects || {},
+          internship_id: iid,
+          modules: []
+        };
+      }
+      grouped[iid].modules.push(a);
+    });
+
+    const groups = Object.values(grouped);
+    countEl.textContent = groups.length;
+    document.getElementById('stat-paid').textContent = groups.length;
+
+    if (!groups.length) {
+      grid.innerHTML = '<div class="itn-wc-empty">No active internship assignments. Check back soon.</div>';
+      return;
+    }
+
+    grid.innerHTML = groups.map(g => {
+      const p = g.internship;
+      const mods = g.modules;
+      const active    = mods.filter(m => m.status === 'active').length;
+      const inProg    = mods.filter(m => m.status === 'in_progress').length;
+      const completed = mods.filter(m => m.status === 'completed').length;
+      const total     = mods.length;
+      const pct       = total ? Math.round((completed / total) * 100) : 0;
+
+      const badgeClass = inProg > 0 ? 'itn-wc-badge-progress' : (completed === total && total > 0 ? 'itn-wc-badge-done' : 'itn-wc-badge-active');
+      const badgeText  = inProg > 0 ? 'In Progress' : (completed === total && total > 0 ? 'Completed' : 'Active');
+
+      const tags = (p.tech_stack || []).slice(0,5).map(t => `<span class="itn-wc-tag">${_itnEsc(t)}</span>`).join('');
+
+      const modList = mods.slice(0,4).map(m => {
+        const mod = m.intern_program_modules || {};
+        const dotCls = m.status === 'completed' ? 'done' : (m.status === 'in_progress' ? 'progress' : 'active');
+        return `<div class="itn-wc-mod"><span class="itn-wc-mod-dot ${dotCls}"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_itnEsc(mod.module_name||'Module')}</span><span style="font-size:.65rem;color:var(--txt3);font-weight:700">${m.status.replace('_',' ')}</span></div>`;
+      }).join('');
+      const moreCount = mods.length > 4 ? `<div style="font-size:.7rem;color:var(--txt3);padding:.2rem .6rem;font-weight:600">+${mods.length - 4} more</div>` : '';
+
+      return `
+        <div class="itn-work-card">
+          <div class="itn-wc-header">
+            <div>
+              <div class="itn-wc-title">${_itnEsc(p.project_name||'Internship')}</div>
+              <div class="itn-wc-domain">${p.domain ? _itnEsc(p.domain) + ' · ' : ''}${p.duration_weeks ? p.duration_weeks + ' Weeks' : 'Internship'}</div>
+            </div>
+            <span class="itn-wc-badge ${badgeClass}">${badgeText}</span>
+          </div>
+
+          <div class="itn-wc-stats">
+            <span class="itn-wc-stat" style="color:#10b981">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.5 6.5l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06L7 8.94l3.47-3.47a.75.75 0 0 1 1.06 1.06z"/></svg>
+              ${completed}/${total} done
+            </span>
+            <span class="itn-wc-stat" style="color:#f59e0b">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm.5 4v4.25l3 1.75-.5.87L7.5 9V4h1z"/></svg>
+              ${inProg} active
+            </span>
+            <span class="itn-wc-stat" style="color:#a78bfa">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h12v1H2zM2 7.5h12v1H2zM2 11h8v1H2z"/></svg>
+              ${pct}%
+            </span>
+          </div>
+
+          <div class="itn-wc-modules">
+            <div class="itn-wc-mod-title">Modules</div>
+            <div class="itn-wc-mod-list">${modList}${moreCount}</div>
+          </div>
+
+          ${tags ? `<div class="itn-wc-tags">${tags}</div>` : ''}
+
+          <div class="itn-wc-action">
+            <button class="itn-wc-btn" onclick="window.location.href='/pages/intern-working.html?id=${_itnEsc(g.internship_id)}'">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Open Workspace
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const cards = grid.querySelectorAll('.itn-work-card');
+    cards.forEach((c, i) => setTimeout(() => c.classList.add('itn-in'), 80 + i * 100));
   }
 
   /* ── Scroll to apply form ── */
@@ -1728,6 +1966,7 @@
   document.addEventListener('DOMContentLoaded', async function() {
     await initAuth();
     loadAllInternships();
+    loadMyWorkingInternships();
   });
   </script>
 </body>

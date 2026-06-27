@@ -85,8 +85,8 @@ CREATE INDEX IF NOT EXISTS idx_ipa_status     ON public.intern_program_assignmen
 -- GRANTS
 -- ============================================================
 
-GRANT SELECT ON public.intern_program_modules TO authenticated;
-GRANT SELECT, UPDATE ON public.intern_program_assignments TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.intern_program_modules TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.intern_program_assignments TO authenticated;
 
 GRANT ALL ON public.intern_program_modules      TO service_role;
 GRANT ALL ON public.intern_program_assignments   TO service_role;
