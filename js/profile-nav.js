@@ -502,12 +502,36 @@ class ProfileNavigationManager {
         @media(max-width:900px){
           .footer-inner { flex-wrap:wrap; gap:1.5rem 2rem; }
           .pn-f-logo { flex: 0 0 auto; }
-          .pn-f-contact { flex: 1 1 200px; }
-          .pn-f-platform { flex: 1 1 130px; }
-          .pn-f-company  { flex: 1 1 130px; }
+          .pn-f-contact { flex: 1 1 100%; order: 1; }
+          .pn-f-platform { flex: 1 1 calc(50% - 1rem); min-width: 0; order: 2; }
+          .pn-f-company  { flex: 1 1 calc(50% - 1rem); min-width: 0; order: 3; }
         }
-        @media(max-width:480px){
-          .footer-inner { flex-direction:column; gap:1.25rem; }
+        @media(max-width:640px){
+          .footer-inner { flex-wrap:wrap; gap:1.25rem 1.25rem; padding:1.8rem 4vw 1.3rem; }
+          .pn-f-logo { flex: 0 0 100%; order: 0; }
+          .pn-f-contact { flex: 0 0 100%; order: 1; }
+          .pn-f-platform,
+          .pn-f-company {
+            flex: 1 1 calc(50% - .625rem);
+            min-width: 0;
+            max-width: calc(50% - .625rem);
+          }
+          .pn-f-platform { order: 2; }
+          .pn-f-company  { order: 3; }
+        }
+        @media(max-width:400px){
+          .footer-inner { gap:1.1rem .75rem; padding:1.5rem 3.5vw 1.2rem; }
+          .pn-f-platform,
+          .pn-f-company {
+            flex: 1 1 calc(50% - .375rem);
+            max-width: calc(50% - .375rem);
+          }
+          .pn-f-platform .footer-col-links,
+          .pn-f-company .footer-col-links { gap:.32rem; }
+          .pn-f-platform .footer-link,
+          .pn-f-company .footer-link { font-size:.76rem; }
+          .pn-f-platform .footer-col-title,
+          .pn-f-company .footer-col-title { font-size:.68rem; }
         }
       </style>
 
@@ -583,7 +607,7 @@ class ProfileNavigationManager {
       </div>
 
       <div class="footer-bottom">
-        <p class="footer-copy">© <span class="site-year">2026</span>, SKILLUpnow Tech Pvt Ltd, Chennai. All rights reserved.</p>
+        <p class="footer-copy">© <span class="site-year">2026</span>, SkillUpNow Tech Pvt Ltd, Chennai. All rights reserved.</p>
         <div class="footer-socials">
           <a href="https://www.instagram.com/skillupnowofficial" class="footer-social-icon" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
