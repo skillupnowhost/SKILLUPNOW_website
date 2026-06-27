@@ -2353,6 +2353,8 @@
         <button class="itnm-sub-tab"        data-itnmtab="app-usage"    onclick="switchInternMgmtTab('app-usage')">👁 App Usage</button>
         <button class="itnm-sub-tab"        data-itnmtab="session-tasks" onclick="switchInternMgmtTab('session-tasks')">📋 Session Tasks</button>
         <button class="itnm-sub-tab"        data-itnmtab="detailed-report" onclick="switchInternMgmtTab('detailed-report')">📊 Detailed Report</button>
+        <button class="itnm-sub-tab"        data-itnmtab="program-modules" onclick="switchInternMgmtTab('program-modules')">📦 Intern Modules</button>
+        <button class="itnm-sub-tab"        data-itnmtab="program-assign"  onclick="switchInternMgmtTab('program-assign')">👤 Module Assign</button>
       </div>
 
       <!-- Internships List -->
@@ -2661,12 +2663,146 @@
         </div>
       </div>
 
+      <!-- ══ Intern Program Modules (reusable per internship) ══ -->
+      <div class="itnm-itab-pane" id="itnm-itab-program-modules">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Internship Modules</h3>
+            <div class="table-actions">
+              <select id="ipm-internship-filter" onchange="loadInternProgramModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
+                <option value="">All Internships</option>
+              </select>
+              <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)" onclick="openInternProgramModuleModal()">+ New Module</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Internship</th><th>Module</th><th>Description</th><th>Deadline</th><th>Git Push Link</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody id="ipm-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ══ Intern Module Assignments ══ -->
+      <div class="itnm-itab-pane" id="itnm-itab-program-assign">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Module Assignments</h3>
+            <div class="table-actions">
+              <select id="ipa-internship-filter" onchange="loadInternProgramAssignments()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:190px">
+                <option value="">All Internships</option>
+              </select>
+              <select id="ipa-status-filter" onchange="loadInternProgramAssignments()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="revoked">Revoked</option>
+              </select>
+              <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)" onclick="openInternProgramAssignModal()">+ Assign Module</button>
+            </div>
+          </div>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>Student</th><th>Internship</th><th>Module</th><th>Assigned</th><th>Status</th><th>Git Link</th><th>Notes</th><th>Actions</th></tr></thead>
+            <tbody id="ipa-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
     </div><!-- /section-internships-mgmt -->
 
   </div><!-- /content -->
 </main>
 
 <!-- ===== MODALS ===== -->
+
+<!-- Intern Program Module Modal (Create / Edit) -->
+<div class="modal-overlay" id="ipm-modal" onclick="if(event.target===this)closeModal('ipm-modal')">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-close" onclick="closeModal('ipm-modal')">✕</div>
+    <div class="modal-title" id="ipm-modal-title">New Internship Module</div>
+    <input type="hidden" id="ipm-id">
+    <div class="f-group">
+      <label>Internship *</label>
+      <select id="ipm-internship-sel" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— select internship —</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group" style="grid-column:1/-1">
+        <label>Module Name *</label>
+        <input type="text" id="ipm-name" placeholder="e.g. Database Design & Setup">
+      </div>
+      <div class="f-group">
+        <label>Deadline</label>
+        <input type="date" id="ipm-deadline">
+      </div>
+      <div class="f-group">
+        <label>Order</label>
+        <input type="number" id="ipm-order" value="0" min="0">
+      </div>
+      <div class="f-group" style="grid-column:1/-1">
+        <label>Git Push Link</label>
+        <input type="text" id="ipm-git-link" placeholder="e.g. https://github.com/org/repo">
+      </div>
+      <div class="f-group">
+        <label>Active</label>
+        <select id="ipm-active-sel">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Description</label>
+      <textarea id="ipm-desc" style="min-height:80px" placeholder="What students will do in this module…"></textarea>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveInternProgramModule()">Save Module</button>
+      <button class="btn-secondary" onclick="closeModal('ipm-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Intern Program Assignment Modal -->
+<div class="modal-overlay" id="ipa-modal" onclick="if(event.target===this)closeModal('ipa-modal')">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-close" onclick="closeModal('ipa-modal')">✕</div>
+    <div class="modal-title" id="ipa-modal-title">Assign Module to Student</div>
+    <input type="hidden" id="ipa-id">
+    <div class="f-group">
+      <label>Internship *</label>
+      <select id="ipa-internship-sel" onchange="_loadIpaModules()" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— select internship —</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label>Module *</label>
+      <select id="ipa-module-sel" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— select module —</option>
+      </select>
+    </div>
+    <div class="f-group" style="position:relative">
+      <label>Student * <small style="color:var(--txt4);font-weight:400">— type name or email</small></label>
+      <input type="text" id="ipa-student-search" placeholder="Search by name or email…"
+        oninput="_ipaUserSearch(this.value)"
+        onfocus="if(this.value.length>=2)_ipaUserSearch(this.value)"
+        autocomplete="off"
+        style="width:100%;background:var(--bg2);border:1px solid rgba(245,158,11,.25);border-radius:8px;color:var(--txt);padding:.45rem .75rem;font-size:.85rem;outline:none;font-family:inherit;box-sizing:border-box">
+      <input type="hidden" id="ipa-student-id">
+      <div id="ipa-user-dd"
+        style="display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:9999;background:var(--bg2);border:1px solid rgba(245,158,11,.3);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:230px;overflow-y:auto">
+      </div>
+    </div>
+    <div class="f-group">
+      <label>Notes (optional)</label>
+      <input type="text" id="ipa-notes" placeholder="Any special instructions…">
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveInternProgramAssignment()">Assign</button>
+      <button class="btn-secondary" onclick="closeModal('ipa-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- Intern Session Task Modal -->
 <div class="modal-overlay" id="intern-session-task-modal" onclick="if(event.target===this)closeModal('intern-session-task-modal')">
@@ -8779,6 +8915,8 @@ function switchInternMgmtTab(tab) {
   if (tab === 'app-usage')     { _populateStudentFilter('itnm-au-student-filter'); loadAppUsage(); }
   if (tab === 'session-tasks') { _populateStudentFilter('itnm-st-student-filter'); loadInternSessionTasks(); }
   if (tab === 'detailed-report') { _populateStudentFilter('dr-student-select'); }
+  if (tab === 'program-modules') { _populateInternshipFilter('ipm-internship-filter'); loadInternProgramModules(); }
+  if (tab === 'program-assign')  { _populateInternshipFilter('ipa-internship-filter'); loadInternProgramAssignments(); }
 }
 
 async function loadAdminInternships() {
@@ -11371,6 +11509,305 @@ async function exportDetailedReport(){
   const pm=await _getProfileMap([studentId]);
   const {data:enrol}=await db.client.from('internship_enrollments').select('*,internship_projects(project_name)').eq('student_user_id',studentId).eq('approval_status','approved').maybeSingle();
   generateStudentReport(enrol?.id,pm[studentId]||'Student',enrol?.internship_projects?.project_name||'Internship');
+}
+
+/* ============================================================
+   INTERNSHIP PROGRAM MODULES — mirrors project_modules CRUD
+   ============================================================ */
+
+async function _populateInternshipFilter(selectId, placeholder) {
+  const { data } = await db.client.from('internship_projects')
+    .select('id,project_name')
+    .eq('project_type', 'internship')
+    .eq('is_active', true)
+    .order('project_name');
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  const cur = el.value;
+  el.innerHTML = `<option value="">${placeholder || 'All Internships'}</option>` +
+    (data||[]).map(p => `<option value="${p.id}"${p.id===cur?' selected':''}>${_adm_esc(p.project_name)}</option>`).join('');
+}
+
+async function loadInternProgramModules() {
+  const tbody = document.getElementById('ipm-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  const internF = document.getElementById('ipm-internship-filter')?.value;
+
+  let q = db.client.from('intern_program_modules')
+    .select('*, internship_projects(project_name)')
+    .order('order_num').order('created_at', { ascending: false });
+  if (internF) q = q.eq('internship_id', internF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No modules yet. Click "+ New Module" to add one.</td></tr>'; return; }
+
+  tbody.innerHTML = data.map(m => `<tr>
+    <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
+    <td><strong>${_adm_esc(m.module_name)}</strong></td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_adm_esc(m.description||'—')}</td>
+    <td>${m.deadline ? new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+    <td>${m.git_push_link ? `<a href="${_adm_esc(m.git_push_link)}" target="_blank" style="color:var(--v1);font-size:.78rem;text-decoration:underline">${_adm_esc(m.git_push_link.replace(/^https?:\/\/(www\.)?/,'').slice(0,30))}…</a>` : '—'}</td>
+    <td><span class="badge" style="background:${m.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${m.is_active?'#4ade80':'#f87171'}">${m.is_active?'Active':'Inactive'}</span></td>
+    <td>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editInternProgramModule('${m.id}')">Edit</button>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteInternProgramModule('${m.id}','${_adm_esc(m.module_name)}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function openInternProgramModuleModal(existingId) {
+  await _populateInternshipFilter('ipm-internship-sel', '— select internship —');
+  document.getElementById('ipm-id').value = existingId || '';
+  document.getElementById('ipm-modal-title').textContent = existingId ? 'Edit Internship Module' : 'New Internship Module';
+  if (!existingId) {
+    ['ipm-name','ipm-desc','ipm-git-link'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('ipm-deadline').value = '';
+    document.getElementById('ipm-order').value = '0';
+    document.getElementById('ipm-active-sel').value = 'true';
+    document.getElementById('ipm-internship-sel').value = '';
+  }
+  openModal('ipm-modal');
+}
+
+async function editInternProgramModule(id) {
+  const { data: m } = await db.client.from('intern_program_modules').select('*').eq('id',id).single();
+  if (!m) return;
+  document.getElementById('ipm-id').value             = m.id;
+  document.getElementById('ipm-internship-sel').value = m.internship_id;
+  document.getElementById('ipm-name').value           = m.module_name;
+  document.getElementById('ipm-desc').value           = m.description||'';
+  document.getElementById('ipm-deadline').value       = m.deadline||'';
+  document.getElementById('ipm-order').value          = m.order_num;
+  document.getElementById('ipm-git-link').value       = m.git_push_link||'';
+  document.getElementById('ipm-active-sel').value     = String(m.is_active);
+  document.getElementById('ipm-modal-title').textContent = 'Edit Internship Module';
+  await _populateInternshipFilter('ipm-internship-sel', '— select internship —');
+  document.getElementById('ipm-internship-sel').value = m.internship_id;
+  openModal('ipm-modal');
+}
+
+async function saveInternProgramModule() {
+  const id        = document.getElementById('ipm-id').value;
+  const internId  = document.getElementById('ipm-internship-sel').value;
+  const name      = document.getElementById('ipm-name').value.trim();
+  const desc      = document.getElementById('ipm-desc').value.trim();
+  const deadline  = document.getElementById('ipm-deadline').value || null;
+  const order     = parseInt(document.getElementById('ipm-order').value,10) || 0;
+  const gitLink   = document.getElementById('ipm-git-link').value.trim() || null;
+  const active    = document.getElementById('ipm-active-sel').value === 'true';
+
+  if (!internId || !name) { _showAdminToast('Internship and module name are required.','error'); return; }
+  const { data: adm } = await db.client.auth.getUser();
+  const payload = {
+    internship_id: internId, module_name: name, description: desc,
+    deadline, order_num: order, git_push_link: gitLink, is_active: active,
+    created_by: adm?.user?.id || null
+  };
+
+  const { error } = id
+    ? await db.client.from('intern_program_modules').update(payload).eq('id', id)
+    : await db.client.from('intern_program_modules').insert(payload);
+  if (error) { _showAdminToast('Save failed: '+error.message,'error'); return; }
+  _showAdminToast(id ? 'Module updated!' : 'Module created!','success');
+  closeModal('ipm-modal');
+  loadInternProgramModules();
+}
+
+async function deleteInternProgramModule(id, name) {
+  if (!confirm(`Delete module "${name}"?`)) return;
+  const { error } = await db.client.from('intern_program_modules').delete().eq('id', id);
+  if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
+  _showAdminToast('Module deleted.','success');
+  loadInternProgramModules();
+}
+
+/* ============================================================
+   INTERNSHIP PROGRAM ASSIGNMENTS — mirrors project_assignments
+   ============================================================ */
+
+async function loadInternProgramAssignments() {
+  const tbody = document.getElementById('ipa-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+  const internF = document.getElementById('ipa-internship-filter')?.value;
+  const statF   = document.getElementById('ipa-status-filter')?.value;
+
+  let q = db.client.from('intern_program_assignments')
+    .select('*, internship_projects(project_name), intern_program_modules(module_name, git_push_link)')
+    .order('assigned_at', { ascending: false });
+  if (internF) q = q.eq('internship_id', internF);
+  if (statF)   q = q.eq('status', statF);
+
+  const { data, error } = await q;
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No assignments yet.</td></tr>'; return; }
+
+  const stuIds = [...new Set(data.map(a => a.student_user_id))];
+  const pm = await _getProfileMap(stuIds);
+  const statColors = { active:'#4ade80', in_progress:'#f59e0b', completed:'#a5b4fc', revoked:'#f87171' };
+
+  tbody.innerHTML = data.map(a => {
+    const sc = statColors[a.status]||'#fff';
+    const dt = new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const gitLink = a.git_push_link || a.intern_program_modules?.git_push_link || '';
+    return `<tr>
+      <td>${_adm_esc(pm[a.student_user_id]||'—')}</td>
+      <td>${_adm_esc(a.internship_projects?.project_name||'—')}</td>
+      <td>${_adm_esc(a.intern_program_modules?.module_name||'All Modules')}</td>
+      <td>${dt}</td>
+      <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}44">${a.status.replace('_',' ')}</span></td>
+      <td>${gitLink ? `<a href="${_adm_esc(gitLink)}" target="_blank" style="color:var(--v1);font-size:.76rem;text-decoration:underline">Link</a>` : '—'}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;font-size:.78rem;color:var(--txt2)">${_adm_esc(a.notes||'—')}</td>
+      <td>
+        ${a.status==='active'?`<button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;color:#f87171" onclick="revokeInternProgramAssignment('${a.id}')">Revoke</button>`:''}
+        <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem;margin-left:.25rem" onclick="deleteInternProgramAssignment('${a.id}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function _loadIpaModules() {
+  const internId = document.getElementById('ipa-internship-sel').value;
+  const sel = document.getElementById('ipa-module-sel');
+  sel.innerHTML = '<option value="">— select module —</option>';
+  if (!internId) return;
+  const { data } = await db.client.from('intern_program_modules')
+    .select('id,module_name').eq('internship_id', internId).eq('is_active', true).order('order_num');
+  (data||[]).forEach(m => { sel.innerHTML += `<option value="${m.id}">${_adm_esc(m.module_name)}</option>`; });
+}
+
+let _ipaSearchTimer;
+async function _ipaUserSearch(val) {
+  clearTimeout(_ipaSearchTimer);
+  const dd = document.getElementById('ipa-user-dd');
+  if (!dd) return;
+  if (!val || val.length < 2) { dd.style.display = 'none'; return; }
+  _ipaSearchTimer = setTimeout(async () => {
+    const { data } = await db.client
+      .from('user_profiles')
+      .select('user_id, full_name, email')
+      .or(`full_name.ilike.%${val}%,email.ilike.%${val}%`)
+      .limit(15);
+    if (!data?.length) {
+      dd.innerHTML = `<div style="padding:.75rem 1rem;color:var(--txt4);font-size:.82rem">No users found for "${_adm_esc(val)}"</div>`;
+      dd.style.display = 'block'; return;
+    }
+    dd.innerHTML = data.map(u => `
+      <div onclick="_pickIpaUser('${u.user_id}','${_adm_esc(u.full_name||'')}','${_adm_esc(u.email||'')}')"
+        style="padding:.6rem 1rem;cursor:pointer;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid rgba(245,158,11,.12);transition:background .15s"
+        onmouseover="this.style.background='rgba(245,158,11,.1)'" onmouseout="this.style.background=''">
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.88rem;flex-shrink:0">
+          ${_adm_esc((u.full_name||u.email||'?')[0].toUpperCase())}
+        </div>
+        <div style="min-width:0">
+          <div style="font-weight:600;font-size:.83rem;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_adm_esc(u.full_name||'—')}</div>
+          <div style="font-size:.72rem;color:var(--txt4)">${_adm_esc(u.email||'')}</div>
+        </div>
+      </div>`).join('');
+    dd.style.display = 'block';
+  }, 280);
+}
+
+function _pickIpaUser(userId, name, email) {
+  document.getElementById('ipa-student-search').value = name ? `${name} (${email})` : email;
+  document.getElementById('ipa-student-id').value = userId;
+  const dd = document.getElementById('ipa-user-dd');
+  if (dd) dd.style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#ipa-user-dd') && !e.target.closest('#ipa-student-search')) {
+    const dd = document.getElementById('ipa-user-dd');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
+async function openInternProgramAssignModal() {
+  await _populateInternshipFilter('ipa-internship-sel', '— select internship —');
+  document.getElementById('ipa-id').value              = '';
+  document.getElementById('ipa-student-id').value      = '';
+  document.getElementById('ipa-student-search').value  = '';
+  const dd = document.getElementById('ipa-user-dd');
+  if (dd) dd.style.display = 'none';
+  document.getElementById('ipa-notes').value           = '';
+  document.getElementById('ipa-internship-sel').value  = '';
+  document.getElementById('ipa-module-sel').innerHTML   = '<option value="">— select module —</option>';
+  document.getElementById('ipa-modal-title').textContent = 'Assign Module to Student';
+  openModal('ipa-modal');
+}
+
+async function saveInternProgramAssignment() {
+  const internId = document.getElementById('ipa-internship-sel').value;
+  const modId    = document.getElementById('ipa-module-sel').value || null;
+  const stuId    = document.getElementById('ipa-student-id').value.trim();
+  const notes    = document.getElementById('ipa-notes').value.trim();
+
+  if (!internId || !modId || !stuId) { _showAdminToast('Internship, module, and student are required.','error'); return; }
+
+  const { data: adm } = await db.client.auth.getUser();
+
+  const { data: modData } = await db.client.from('intern_program_modules')
+    .select('git_push_link').eq('id', modId).single();
+
+  const payload = {
+    internship_id: internId, module_id: modId, student_user_id: stuId,
+    assigned_by: adm.user.id, notes, status: 'active',
+    git_push_link: modData?.git_push_link || null
+  };
+
+  const { error } = await db.client.from('intern_program_assignments').insert(payload);
+  if (error) { _showAdminToast('Assignment failed: '+error.message,'error'); return; }
+
+  // Send in-app notification
+  const { data: intern } = await db.client.from('internship_projects').select('project_name').eq('id', internId).single();
+  const { data: mod } = await db.client.from('intern_program_modules').select('module_name').eq('id', modId).single();
+  const notifTitle = 'New Module Assigned';
+  const notifMsg = `You have been assigned the module "${mod?.module_name || 'Module'}" for the internship "${intern?.project_name || 'Internship'}". Log in to your dashboard to start working.`;
+  await db.client.from('notifications').insert({
+    user_id: stuId, title: notifTitle, message: notifMsg, type: 'info',
+    link: '/pages/intern-dashboard.html'
+  });
+
+  // Send email notification
+  try {
+    const { data: stuProf } = await db.client.from('user_profiles').select('full_name,email').eq('user_id', stuId).single();
+    if (stuProf?.email) {
+      await fetch('/api/notify-module-assignment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentName: stuProf.full_name || 'Student',
+          studentEmail: stuProf.email,
+          moduleName: mod?.module_name || 'Module',
+          internshipName: intern?.project_name || 'Internship',
+          deadline: modData?.deadline || null,
+          gitPushLink: modData?.git_push_link || null
+        })
+      });
+    }
+  } catch (emailErr) {
+    console.warn('Email notification skipped:', emailErr.message);
+  }
+
+  _showAdminToast('Module assigned! Student has been notified.','success');
+  closeModal('ipa-modal');
+  loadInternProgramAssignments();
+}
+
+async function revokeInternProgramAssignment(id) {
+  if (!confirm('Revoke this assignment?')) return;
+  const { error } = await db.client.from('intern_program_assignments').update({ status: 'revoked' }).eq('id', id);
+  if (error) { _showAdminToast('Failed: '+error.message,'error'); return; }
+  _showAdminToast('Assignment revoked.','success');
+  loadInternProgramAssignments();
+}
+
+async function deleteInternProgramAssignment(id) {
+  if (!confirm('Delete this assignment record?')) return;
+  const { error } = await db.client.from('intern_program_assignments').delete().eq('id', id);
+  if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
+  _showAdminToast('Deleted.','success');
+  loadInternProgramAssignments();
 }
 </script>
 

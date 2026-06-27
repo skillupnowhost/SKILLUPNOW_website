@@ -489,6 +489,19 @@
           </div>
         </div>
 
+        <!-- ═══ ASSIGNED INTERNSHIP MODULES ═══ -->
+        <div class="id-section" style="animation-delay:.23s">
+          <div class="id-sec-hdr">
+            <h2>Assigned Modules</h2>
+            <span id="id-program-mod-count" style="font-size:.75rem;font-weight:700;color:var(--id-violet)">0 assigned</span>
+          </div>
+          <div class="id-sec-body">
+            <div class="id-modules" id="id-program-modules-list">
+              <div class="id-mod-empty">No internship modules assigned yet. Your admin will assign modules soon.</div>
+            </div>
+          </div>
+        </div>
+
         <!-- ═══ SUBMIT WORK ═══ -->
         <div class="id-section" style="animation-delay:.25s">
           <div class="id-sec-hdr">
@@ -720,6 +733,7 @@
       loadWorkSession(),
       loadStats(),
       loadModules(),
+      loadProgramModules(),
       loadGitPermission(),
       loadAttendance()
     ]);
@@ -967,11 +981,11 @@
     ).length;
     document.getElementById('id-week-count').textContent = weekDays;
 
-    const { count: modCount } = await c
-      .from('intern_modules')
-      .select('id', { count: 'exact', head: true })
-      .eq('enrollment_id', _enrollment.id);
-    document.getElementById('id-modules-count').textContent = modCount || 0;
+    const [{ count: modCount }, { count: progModCount }] = await Promise.all([
+      c.from('intern_modules').select('id', { count: 'exact', head: true }).eq('enrollment_id', _enrollment.id),
+      c.from('intern_program_assignments').select('id', { count: 'exact', head: true }).eq('student_user_id', _user.id).neq('status', 'revoked')
+    ]);
+    document.getElementById('id-modules-count').textContent = (modCount || 0) + (progModCount || 0);
 
     const { count: subCount } = await c
       .from('intern_submissions')
@@ -1090,6 +1104,81 @@
     await c.from('intern_session_tasks').update(update).eq('id', taskId);
     toast('Task: ' + newStatus.replace('_', ' '), 'ok');
     loadSessionTasks();
+  }
+
+  /* ── Assigned Internship Modules (from intern_program_assignments) ── */
+  async function loadProgramModules() {
+    const c = _client();
+    const { data } = await c
+      .from('intern_program_assignments')
+      .select('*, intern_program_modules(module_name, description, deadline, git_push_link, order_num), internship_projects(project_name)')
+      .eq('student_user_id', _user.id)
+      .neq('status', 'revoked')
+      .order('assigned_at', { ascending: false });
+
+    const list = document.getElementById('id-program-modules-list');
+    const countEl = document.getElementById('id-program-mod-count');
+
+    if (!data || !data.length) {
+      list.innerHTML = '<div class="id-mod-empty">No internship modules assigned yet. Your admin will assign modules soon.</div>';
+      countEl.textContent = '0 assigned';
+      return;
+    }
+    countEl.textContent = data.length + ' assigned';
+
+    const statusIcons = {
+      active: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+      in_progress: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+      completed: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+      revoked: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    };
+    const statusLabels = { active: 'Assigned', in_progress: 'In Progress', completed: 'Completed', revoked: 'Revoked' };
+    const statusColors = { active: 'assigned', in_progress: 'in_progress', completed: 'completed', revoked: 'reviewed' };
+
+    list.innerHTML = data.map(a => {
+      const mod = a.intern_program_modules || {};
+      const gitLink = a.git_push_link || mod.git_push_link || '';
+      const canStart = a.status === 'active';
+      const canComplete = a.status === 'in_progress';
+      return `
+        <div class="id-module" style="flex-wrap:wrap;gap:.6rem">
+          <div class="id-module-status ${statusColors[a.status] || 'assigned'}">${statusIcons[a.status] || ''}</div>
+          <div class="id-mod-info" style="flex:1;min-width:0">
+            <div class="id-mod-title">${esc(mod.module_name || 'Module')}</div>
+            ${mod.description ? `<div class="id-mod-desc">${esc(mod.description)}</div>` : ''}
+            <div class="id-mod-due" style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center">
+              ${mod.deadline ? 'Deadline: ' + new Date(mod.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : ''}
+              ${a.internship_projects?.project_name ? '<span style="color:var(--id-violet);font-weight:600;font-size:.72rem">'+esc(a.internship_projects.project_name)+'</span>' : ''}
+            </div>
+            ${gitLink ? `<div style="margin-top:.4rem"><a href="${esc(gitLink)}" target="_blank" rel="noopener" style="color:var(--id-violet);font-size:.78rem;font-weight:600;text-decoration:underline;display:inline-flex;align-items:center;gap:.3rem"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg> Git Repository</a></div>` : ''}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
+            <span class="id-mod-badge ${statusColors[a.status] || 'assigned'}">${statusLabels[a.status] || a.status}</span>
+            ${canStart ? `<button onclick="startProgramModule('${a.id}')" style="padding:.35rem .9rem;border-radius:8px;font-size:.72rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--id-emerald),#06b6d4);border:none;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(16,185,129,.3);transition:transform .2s" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform=''">Start Working</button>` : ''}
+            ${canComplete ? `<button onclick="completeProgramModule('${a.id}')" style="padding:.35rem .9rem;border-radius:8px;font-size:.72rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--id-violet),#a78bfa);border:none;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(124,58,237,.3);transition:transform .2s" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform=''">Mark Complete</button>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  async function startProgramModule(assignmentId) {
+    const c = _client();
+    const { error } = await c.from('intern_program_assignments')
+      .update({ status: 'in_progress' })
+      .eq('id', assignmentId);
+    if (error) { toast('Failed: ' + error.message, 'err'); return; }
+    toast('Module started! Good luck.', 'ok');
+    loadProgramModules();
+  }
+
+  async function completeProgramModule(assignmentId) {
+    const c = _client();
+    const { error } = await c.from('intern_program_assignments')
+      .update({ status: 'completed' })
+      .eq('id', assignmentId);
+    if (error) { toast('Failed: ' + error.message, 'err'); return; }
+    showPopup('Module Completed!', 'Great work! Your progress has been saved.');
+    loadProgramModules();
   }
 
   /* ── Git Permission ── */
