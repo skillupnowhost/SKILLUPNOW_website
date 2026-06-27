@@ -101,6 +101,26 @@ img{-webkit-user-drag:none}
 .iw-brk-log{font-size:.68rem;color:var(--txt3)}
 @media(max-width:640px){.iw-timer-banner{flex-direction:column;text-align:center}.iw-timer-right{justify-content:center}}
 
+/* ── Live Working Stats ── */
+.iw-live-bar{display:none;grid-template-columns:repeat(6,1fr);gap:.5rem;margin-bottom:1rem;animation:iwUp .4s ease .1s both}
+.iw-live-bar.active{display:grid}
+@media(max-width:900px){.iw-live-bar{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.iw-live-bar{grid-template-columns:repeat(2,1fr)}}
+.iw-live-stat{background:rgba(255,255,255,.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:.6rem .7rem;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+[data-theme="dark"] .iw-live-stat{background:rgba(30,20,50,.35);border-color:rgba(255,255,255,.06)}
+.iw-live-stat .iw-ls-val{font-size:1.1rem;font-weight:900;font-variant-numeric:tabular-nums}
+.iw-live-stat .iw-ls-lbl{font-size:.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;margin-top:.1rem}
+.iw-live-stat.overtime .iw-ls-val{color:#10b981}
+.iw-live-stat.deficit .iw-ls-val{color:#f59e0b}
+/* Break active overlay */
+.iw-timer-dot.break-active{background:var(--iw-g)!important;animation:iwPulse 1s infinite!important}
+.iw-brk-live{display:none;align-items:center;gap:.5rem;padding:.3rem .8rem;border-radius:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);font-size:.76rem;font-weight:700;color:var(--iw-g);animation:iwPulse 2s infinite}
+.iw-brk-live.active{display:inline-flex}
+.iw-brk-live-timer{font-variant-numeric:tabular-nums;font-size:.8rem;font-weight:900}
+/* Target progress mini bar */
+.iw-target-bar{height:4px;background:rgba(124,58,237,.08);border-radius:4px;overflow:hidden;margin-top:.3rem;width:100%}
+.iw-target-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--iw-v),var(--iw-e));transition:width .5s ease}
+
 /* ── Stats row ── */
 .iw-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem}
 @media(max-width:640px){.iw-stats{grid-template-columns:repeat(2,1fr)}}
@@ -319,6 +339,7 @@ img{-webkit-user-drag:none}
           <div>
             <div class="iw-timer"><span class="iw-timer-dot" id="iw-timer-dot"></span><span id="iw-timer-val">00:00:00</span></div>
             <div class="iw-timer-sub" id="iw-started-at"></div>
+            <div class="iw-brk-live" id="iw-brk-live"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> On Break: <span class="iw-brk-live-timer" id="iw-brk-live-timer">0:00</span></div>
           </div>
         </div>
         <div id="iw-working-controls" style="display:none" class="iw-timer-right">
@@ -351,6 +372,20 @@ img{-webkit-user-drag:none}
             Start New Day
           </button>
         </div>
+      </div>
+
+      <!-- ── LIVE WORKING STATS BAR ── -->
+      <div class="iw-live-bar" id="iw-live-bar">
+        <div class="iw-live-stat"><div class="iw-ls-val" id="iw-ls-session" style="color:var(--txt)">0:00</div><div class="iw-ls-lbl">Total Session</div></div>
+        <div class="iw-live-stat"><div class="iw-ls-val" id="iw-ls-active" style="color:var(--iw-e)">0:00</div><div class="iw-ls-lbl">Active Work</div></div>
+        <div class="iw-live-stat"><div class="iw-ls-val" id="iw-ls-breaks" style="color:var(--iw-g)">0:00</div><div class="iw-ls-lbl">Break Time</div></div>
+        <div class="iw-live-stat"><div class="iw-ls-val" id="iw-ls-idle" style="color:var(--iw-r)">0:00</div><div class="iw-ls-lbl">Idle / Gap</div></div>
+        <div class="iw-live-stat" id="iw-ls-target-box">
+          <div class="iw-ls-val" id="iw-ls-target" style="color:var(--iw-v)">8h 0m</div>
+          <div class="iw-ls-lbl" id="iw-ls-target-lbl">Remaining</div>
+          <div class="iw-target-bar"><div class="iw-target-fill" id="iw-ls-target-fill" style="width:0%"></div></div>
+        </div>
+        <div class="iw-live-stat"><div class="iw-ls-val" id="iw-ls-pct" style="color:var(--iw-c)">0%</div><div class="iw-ls-lbl">Target Progress</div></div>
       </div>
 
       <!-- ── TWO-COLUMN LAYOUT ── -->
@@ -529,6 +564,7 @@ img{-webkit-user-drag:none}
    INTERN WORKING PAGE — Complete Workspace
 ══════════════════════════════════════════════════ */
 let _user=null,_intId=null,_enrollment=null,_session=null,_assignments=[],_timerInt=null,_brkState=[],_files={ss:null,rpt:null},_appTrackInt=null;
+let _gapMins=0; // accumulated gap minutes (time between end→resume)
 function C(){return window.supabaseConfig?.client}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function toast(m,t='ok',d=3500){const el=document.getElementById('iw-toast');el.textContent=m;el.className='show '+t;clearTimeout(el._t);el._t=setTimeout(()=>{el.className=''},d)}
@@ -694,6 +730,7 @@ function showWorking(){
   document.getElementById('iw-sess-status').textContent='Working';
   document.getElementById('iw-sess-status').style.color='var(--iw-e)';
   if(_session?.start_time){document.getElementById('iw-started-at').textContent='Started '+new Date(_session.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}
+  const lsBar=document.getElementById('iw-live-bar');if(lsBar)lsBar.classList.add('active');
 }
 
 function showCompleted(){
@@ -705,13 +742,20 @@ function showCompleted(){
   document.getElementById('iw-completed-action').style.display='flex';
   const totalMins=_session?.total_work_mins||0;
   const breakMins=_session?.total_break_mins||_brkState.reduce((s,b)=>s+(b.duration_mins||0),0);
-  const netMins=Math.max(0,totalMins-breakMins);
+  const gapMins=_session?.gap_mins||0;
+  const netMins=_session?.net_work_mins||Math.max(0,totalMins-breakMins-gapMins);
+  const targetMins=480;
   if(totalMins>0){
-    document.getElementById('iw-done-summary').textContent=`Total: ${fmtMins(totalMins)} | Breaks: ${fmtMins(breakMins)} | Net Work: ${fmtMins(netMins)} / 8h`;
+    const isOvertime=netMins>=targetMins;
+    const overtimeOrRemain=isOvertime?`Overtime: +${fmtMins(netMins-targetMins)}`:`Remaining: ${fmtMins(targetMins-netMins)}`;
+    let summary=`Session: ${fmtMins(totalMins)} | Breaks: ${fmtMins(breakMins)}`;
+    if(gapMins>0)summary+=` | Gaps: ${fmtMins(gapMins)}`;
+    summary+=` | Active Work: ${fmtMins(netMins)} / 8h | ${overtimeOrRemain}`;
+    document.getElementById('iw-done-summary').textContent=summary;
   }
   // Allow resume if under 8h target; fully disable if 8h met or exceeded
   const restartBtn=document.getElementById('iw-restart-btn');
-  const sessNetMins=_session?.net_work_mins||Math.max(0,(totalMins||0)-(breakMins||0));
+  const sessNetMins=netMins;
   if(_session?.session_date===localDate()){
     if(sessNetMins<480){
       restartBtn.disabled=false;restartBtn.style.opacity='';
@@ -744,9 +788,17 @@ async function startWork(){
     if(existing){
       if(existing.status==='active'){
         _session=existing;
+        _gapMins=existing.gap_mins||0;
+        _brkState=[];
+        (existing.intern_breaks||[]).forEach(b=>{
+          _brkState.push(b);
+          if(b.break_start&&b.break_end&&!b.duration_mins){
+            b.duration_mins=Math.round((new Date(b.break_end)-new Date(b.break_start))/60000);
+          }
+        });
         document.getElementById('iw-day-pill').style.display='';
         document.getElementById('iw-day-pill').textContent='Day '+existing.day_number;
-        showWorking();startTimer();startAppTracking();
+        showWorking();startTimer();startAppTracking();updateBreakUI();
         toast('Resuming existing session!','ok');
         return;
       }
@@ -755,9 +807,16 @@ async function startWork(){
         if(netWork<480){
           // Allow re-opening: less than 8h target, resume session
           if(!await iwConfirm(`You've worked ${fmtMins(netWork)} of the 8h target. Resume this session?`,'Resume','Cancel')){_session=existing;showCompleted();return;}
-          const{error:resumeErr}=await c.from('intern_work_sessions').update({status:'active',end_time:null}).eq('id',existing.id);
+
+          // Calculate gap time (time between end_time and now)
+          const resumeGap=existing.end_time?Math.max(0,Math.round((Date.now()-new Date(existing.end_time).getTime())/60000)):0;
+          const prevGap=existing.gap_mins||0;
+          const totalGap=prevGap+resumeGap;
+          _gapMins=totalGap;
+
+          const{error:resumeErr}=await c.from('intern_work_sessions').update({status:'active',end_time:null,gap_mins:totalGap}).eq('id',existing.id);
           if(resumeErr){toast('Failed to resume: '+resumeErr.message,'err');_session=existing;showCompleted();return;}
-          existing.status='active';existing.end_time=null;
+          existing.status='active';existing.end_time=null;existing.gap_mins=totalGap;
           _session=existing;
           _brkState=[];
           (existing.intern_breaks||[]).forEach(b=>{
@@ -769,8 +828,8 @@ async function startWork(){
           document.getElementById('iw-day-pill').style.display='';
           document.getElementById('iw-day-pill').textContent='Day '+existing.day_number;
           showWorking();startTimer();startAppTracking();updateBreakUI();
-          logNotification('Session Resumed',`Resumed work session — Day ${existing.day_number} (${fmtMins(netWork)} worked so far)`);
-          toast('Session resumed! Keep going to reach your 8h target.','ok');
+          logNotification('Session Resumed',`Resumed work session — Day ${existing.day_number} (${fmtMins(netWork)} worked, ${fmtMins(resumeGap)} gap)`);
+          toast(`Session resumed! Gap: ${fmtMins(resumeGap)}. Keep going to reach your 8h target.`,'ok');
           loadActivityLog();
           return;
         }
@@ -781,11 +840,12 @@ async function startWork(){
 
     const{count}=await c.from('intern_work_sessions').select('id',{count:'exact',head:true}).eq('enrollment_id',_enrollment.id);
     if(count>=50){toast('Maximum 50 work days reached.','err');return;}
+    _gapMins=0;
     const dayNum=(count||0)+1;
     const{data,error}=await c.from('intern_work_sessions').insert({
       enrollment_id:_enrollment.id,student_user_id:_user.id,
       session_date:today,
-      start_time:new Date().toISOString(),status:'active',day_number:dayNum
+      start_time:new Date().toISOString(),status:'active',day_number:dayNum,gap_mins:0
     }).select().single();
     if(error){
       if(error.code==='23505'){
@@ -827,23 +887,36 @@ async function endWork(){
       activeBreak.break_end=now;activeBreak.duration_mins=brkDur;
     }
 
-    const totalMins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
+    // Accurate working hours calculation:
+    // Total Session = now - start_time
+    // Break Time = sum of all break durations
+    // Gap Time = accumulated idle gaps from resume cycles
+    // Actual Working Hours = Total Session - Break Time - Gap Time
+    const totalSessionMins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
     const breakMins=_brkState.reduce((s,b)=>s+(b.duration_mins||0),0);
-    const netMins=Math.max(0,totalMins-breakMins);
+    const gapMins=_gapMins||_session.gap_mins||0;
+    const netMins=Math.max(0,totalSessionMins-breakMins-gapMins);
     const targetMins=480; // 8 hours
     await withRetry(async()=>{
       const{error}=await c.from('intern_work_sessions').update({
         end_time:now,status:'completed',
-        total_work_mins:totalMins,total_break_mins:breakMins,net_work_mins:netMins
+        total_work_mins:totalSessionMins,total_break_mins:breakMins,net_work_mins:netMins,gap_mins:gapMins
       }).eq('id',_session.id);
       if(error)throw error;
     });
-    _session.status='completed';_session.total_work_mins=totalMins;_session.total_break_mins=breakMins;_session.net_work_mins=netMins;
+    _session.status='completed';_session.total_work_mins=totalSessionMins;_session.total_break_mins=breakMins;_session.net_work_mins=netMins;_session.gap_mins=gapMins;
     clearInterval(_timerInt);clearInterval(_appTrackInt);
+
+    // Hide live stats bar
+    const lsBar=document.getElementById('iw-live-bar');
+    if(lsBar)lsBar.classList.remove('active');
+
     showCompleted();
     const pctOfTarget=Math.round((netMins/targetMins)*100);
-    const targetMsg=netMins>=targetMins?`Target 8h ACHIEVED (${fmtMins(netMins)})`:`Net: ${fmtMins(netMins)} / 8h target (${pctOfTarget}%)`;
-    logNotification('Work Ended',`Session completed — Total: ${fmtMins(totalMins)}, Breaks: ${fmtMins(breakMins)}, ${targetMsg}`);
+    const isOvertime=netMins>=targetMins;
+    const overtimeMins=netMins-targetMins;
+    const targetMsg=isOvertime?`Target 8h ACHIEVED! Overtime: ${fmtMins(overtimeMins)}`:`Net Work: ${fmtMins(netMins)} / 8h target (${pctOfTarget}%)`;
+    logNotification('Work Ended',`Session completed — Total Session: ${fmtMins(totalSessionMins)}, Breaks: ${fmtMins(breakMins)}, Gaps: ${fmtMins(gapMins)}, ${targetMsg}`);
     logAccess('Session End',`Day completed — ${targetMsg}`);
     toast(`Day complete! ${targetMsg}`,'ok',5000);
     const todayEnd=localDate();
@@ -856,8 +929,97 @@ async function endWork(){
 
 function startTimer(){
   clearInterval(_timerInt);
-  const start=new Date(_session.start_time).getTime();
-  const update=()=>{const d=Date.now()-start;const s=Math.floor(d/1000);const h=String(Math.floor(s/3600)).padStart(2,'0');const m=String(Math.floor((s%3600)/60)).padStart(2,'0');const ss=String(s%60).padStart(2,'0');document.getElementById('iw-timer-val').textContent=h+':'+m+':'+ss};
+  const startMs=new Date(_session.start_time).getTime();
+  const TARGET_MINS=480;
+
+  function _fmtHMS(totalSecs){
+    const s=Math.max(0,Math.floor(totalSecs));
+    return String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor((s%3600)/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  }
+  function _fmtShort(mins){
+    const m=Math.max(0,Math.round(mins));
+    return Math.floor(m/60)>0?Math.floor(m/60)+'h '+m%60+'m':m+'m';
+  }
+
+  const update=()=>{
+    const now=Date.now();
+    const totalElapsedSecs=Math.floor((now-startMs)/1000);
+
+    // Calculate completed break time
+    let completedBrkSecs=0;
+    let activeBrkSecs=0;
+    const breaks=_brkState||[];
+    breaks.forEach(b=>{
+      if(!b)return;
+      if(b.break_end){
+        completedBrkSecs+=(b.duration_mins||0)*60;
+      } else if(b.break_start){
+        activeBrkSecs=Math.floor((now-new Date(b.break_start).getTime())/1000);
+      }
+    });
+    const totalBrkSecs=completedBrkSecs+activeBrkSecs;
+    const gapSecs=(_gapMins||0)*60;
+    const activeWorkSecs=Math.max(0,totalElapsedSecs-totalBrkSecs-gapSecs);
+    const isOnBreak=activeBrkSecs>0;
+
+    // Main timer: show NET active work time
+    document.getElementById('iw-timer-val').textContent=_fmtHMS(activeWorkSecs);
+
+    // Timer dot: green=working, amber=on break
+    const dot=document.getElementById('iw-timer-dot');
+    if(isOnBreak){
+      dot.className='iw-timer-dot break-active';
+    }else{
+      dot.className='iw-timer-dot';
+    }
+
+    // Break live indicator
+    const brkLive=document.getElementById('iw-brk-live');
+    const brkLiveTimer=document.getElementById('iw-brk-live-timer');
+    if(isOnBreak){
+      brkLive.classList.add('active');
+      brkLiveTimer.textContent=Math.floor(activeBrkSecs/60)+':'+String(activeBrkSecs%60).padStart(2,'0');
+    }else{
+      brkLive.classList.remove('active');
+    }
+
+    // Live stats bar
+    const lsBar=document.getElementById('iw-live-bar');
+    if(lsBar){
+      lsBar.classList.add('active');
+      const sessionEl=document.getElementById('iw-ls-session');
+      const activeEl=document.getElementById('iw-ls-active');
+      const breaksEl=document.getElementById('iw-ls-breaks');
+      const idleEl=document.getElementById('iw-ls-idle');
+      const targetEl=document.getElementById('iw-ls-target');
+      const targetLbl=document.getElementById('iw-ls-target-lbl');
+      const targetFill=document.getElementById('iw-ls-target-fill');
+      const pctEl=document.getElementById('iw-ls-pct');
+      const targetBox=document.getElementById('iw-ls-target-box');
+
+      if(sessionEl)sessionEl.textContent=_fmtShort(Math.floor(totalElapsedSecs/60));
+      if(activeEl)activeEl.textContent=_fmtShort(Math.floor(activeWorkSecs/60));
+      if(breaksEl)breaksEl.textContent=_fmtShort(Math.floor(totalBrkSecs/60));
+      if(idleEl)idleEl.textContent=_fmtShort(Math.floor(gapSecs/60));
+
+      const activeWorkMins=Math.floor(activeWorkSecs/60);
+      const pct=Math.min(100,Math.round((activeWorkMins/TARGET_MINS)*100));
+      if(pctEl)pctEl.textContent=pct+'%';
+      if(targetFill)targetFill.style.width=pct+'%';
+
+      if(activeWorkMins>=TARGET_MINS){
+        const overtime=activeWorkMins-TARGET_MINS;
+        if(targetEl)targetEl.textContent='+'+_fmtShort(overtime);
+        if(targetLbl)targetLbl.textContent='Overtime';
+        if(targetBox)targetBox.className='iw-live-stat overtime';
+      }else{
+        const remaining=TARGET_MINS-activeWorkMins;
+        if(targetEl)targetEl.textContent=_fmtShort(remaining);
+        if(targetLbl)targetLbl.textContent='Remaining';
+        if(targetBox)targetBox.className='iw-live-stat deficit';
+      }
+    }
+  };
   update();_timerInt=setInterval(update,1000);
 }
 
@@ -1329,7 +1491,7 @@ async function loadAttendanceData(){
   if(!_enrollment)return;
   const c=C();
   const[{data:sessions},{data:attendance}]=await Promise.all([
-    c.from('intern_work_sessions').select('session_date,day_number,status,start_time,end_time,total_work_mins,ip_address,network_info,intern_breaks(break_number,break_type,break_start,break_end,duration_mins)')
+    c.from('intern_work_sessions').select('session_date,day_number,status,start_time,end_time,total_work_mins,gap_mins,ip_address,network_info,intern_breaks(break_number,break_type,break_start,break_end,duration_mins)')
       .eq('enrollment_id',_enrollment.id).order('session_date'),
     c.from('internship_attendance').select('attendance_date,status,check_in_time,check_out_time,notes')
       .eq('enrollment_id',_enrollment.id).order('attendance_date')
@@ -1428,10 +1590,12 @@ function toggleDayDetail(dateStr,event){
     </div>
     <div class="iw-dd-row"><span class="iw-dd-label">Login</span><span class="iw-dd-val green">${loginTime}</span></div>
     <div class="iw-dd-row"><span class="iw-dd-label">Logout</span><span class="iw-dd-val ${statusCls}">${logoutTime}</span></div>
-    <div class="iw-dd-row"><span class="iw-dd-label">Total Time</span><span class="iw-dd-val">${fmtMins(workMins)}</span></div>
+    <div class="iw-dd-row"><span class="iw-dd-label">Total Session</span><span class="iw-dd-val">${fmtMins(workMins)}</span></div>
     <div class="iw-dd-row"><span class="iw-dd-label">Break Time</span><span class="iw-dd-val">${fmtMins(breakMins)}</span></div>
     ${breakDetails}
-    <div class="iw-dd-row"><span class="iw-dd-label">Net Work</span><span class="iw-dd-val green">${fmtMins(Math.max(0,workMins-breakMins))} / 8h</span></div>
+    ${(sess.gap_mins||0)>0?`<div class="iw-dd-row"><span class="iw-dd-label">Idle/Gap</span><span class="iw-dd-val" style="color:var(--iw-r)">${fmtMins(sess.gap_mins)}</span></div>`:''}
+    <div class="iw-dd-row" style="border-top:1px solid rgba(124,58,237,.12);padding-top:.2rem;margin-top:.1rem"><span class="iw-dd-label" style="font-weight:700">Active Work</span><span class="iw-dd-val green" style="font-size:.8rem">${fmtMins(Math.max(0,workMins-breakMins-(sess.gap_mins||0)))} / 8h</span></div>
+    ${(()=>{const aw=Math.max(0,workMins-breakMins-(sess.gap_mins||0));return aw>=480?`<div class="iw-dd-row"><span class="iw-dd-label">Overtime</span><span class="iw-dd-val" style="color:#10b981">+${fmtMins(aw-480)}</span></div>`:`<div class="iw-dd-row"><span class="iw-dd-label">Remaining</span><span class="iw-dd-val" style="color:var(--iw-g)">${fmtMins(480-aw)}</span></div>`;})()}
     ${sess.ip_address?`<div class="iw-dd-row"><span class="iw-dd-label">IP Address</span><span class="iw-dd-val" style="font-size:.6rem">${esc(sess.ip_address)}</span></div>`:''}
     ${sess.network_info?`<div class="iw-dd-row"><span class="iw-dd-label">Network</span><span class="iw-dd-val" style="font-size:.55rem;word-break:break-all">${esc(sess.network_info)}</span></div>`:''}
     <div class="iw-dd-row"><span class="iw-dd-label">Status</span><span class="iw-dd-val">${status}</span></div>
@@ -1477,18 +1641,20 @@ function renderAttendanceLog(){
   const el=document.getElementById('iw-att-log');
   const entries=Object.entries(_attData.sessions).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,10);
   if(!entries.length){el.innerHTML='<p style="font-size:.72rem;color:var(--txt3);text-align:center;padding:.5rem">No attendance records yet.</p>';return}
-  let html='<table><thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Work</th><th>Breaks</th><th>Status</th></tr></thead><tbody>';
+  let html='<table><thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Active</th><th>Breaks</th><th>Target</th><th>Status</th></tr></thead><tbody>';
   entries.forEach(([date,s])=>{
     const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
     const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
     const totalMins=s.total_work_mins||0;
     const brkMins=(s.intern_breaks||[]).reduce((a,b)=>a+(b.duration_mins||0),0);
-    const netMins=Math.max(0,totalMins-brkMins);
-    const brkInfo=(s.intern_breaks||[]).map(b=>(BRK_LABELS[b.break_type]||'Brk').split(' ')[0]+':'+(b.duration_mins!=null?b.duration_mins:0)+'m').join(', ')||'N/A';
+    const gapM=s.gap_mins||0;
+    const netMins=Math.max(0,totalMins-brkMins-gapM);
+    const tgtPct=Math.min(100,Math.round((netMins/480)*100));
+    const tgtClr=tgtPct>=100?'#10b981':(tgtPct>=50?'var(--iw-v)':'var(--iw-g)');
     const sc=s.status==='completed'?'att-completed':(s.status==='active'?'att-present':'att-late');
     const sl=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
     const df=new Date(date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
-    html+=`<tr><td>${df}</td><td style="color:#10b981;font-weight:600">${login}</td><td style="color:var(--iw-v);font-weight:600">${logout}</td><td>${fmtMins(netMins)}</td><td style="font-size:.6rem">${brkInfo}</td><td><span class="att-status ${sc}">${sl}</span></td></tr>`;
+    html+=`<tr><td>${df}</td><td style="color:#10b981;font-weight:600">${login}</td><td style="color:var(--iw-v);font-weight:600">${logout}</td><td style="font-weight:700">${fmtMins(netMins)}</td><td style="font-size:.6rem">${fmtMins(brkMins)}</td><td style="font-weight:700;color:${tgtClr}">${tgtPct}%</td><td><span class="att-status ${sc}">${sl}</span></td></tr>`;
   });
   html+='</tbody></table>';
   el.innerHTML=html;

@@ -2598,8 +2598,8 @@
             <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .5rem" onclick="clearTrackingSelection()">Clear</button>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th style="width:32px"><input type="checkbox" id="itnm-trk-select-all" onchange="toggleAllTrackingRows(this.checked)" title="Select all"></th><th>Student</th><th>Date</th><th>Day #</th><th>Start</th><th>End</th><th>Work Mins</th><th>Breaks</th><th>Total Break</th><th>IP Address</th><th>Network</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="itnm-trk-tbody"><tr><td colspan="13" class="table-empty">Loading…</td></tr></tbody>
+            <thead><tr><th style="width:32px"><input type="checkbox" id="itnm-trk-select-all" onchange="toggleAllTrackingRows(this.checked)" title="Select all"></th><th>Student</th><th>Date</th><th>Day #</th><th>Start</th><th>End</th><th>Session</th><th>Breaks</th><th>Gaps</th><th>Active Work</th><th>Target</th><th>IP Address</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-trk-tbody"><tr><td colspan="14" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -11066,7 +11066,7 @@ async function _getProfileMap(userIds) {
 async function loadInternTracking() {
   const tbody = document.getElementById('itnm-trk-tbody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="13" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="14" class="table-empty">Loading…</td></tr>';
   const selAll=document.getElementById('itnm-trk-select-all');if(selAll)selAll.checked=false;
   updateTrackingBulkBar();
 
@@ -11081,8 +11081,8 @@ async function loadInternTracking() {
   if (dateF) q = q.eq('session_date', dateF);
 
   const { data, error } = await q;
-  if (error) { tbody.innerHTML = `<tr><td colspan="13" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="13" class="table-empty">No work sessions recorded yet.</td></tr>'; return; }
+  if (error) { tbody.innerHTML = `<tr><td colspan="14" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="14" class="table-empty">No work sessions recorded yet.</td></tr>'; return; }
 
   const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id).filter(Boolean))]);
   const statusBadge = { active:'badge-green', completed:'badge-blue', auto_closed:'badge-yellow' };
@@ -11093,6 +11093,11 @@ async function loadInternTracking() {
     const allBreaks=(s.intern_breaks||[]).sort((a,b)=>a.break_number-b.break_number);
     const brkSummary=allBreaks.length?allBreaks.map(b=>`${BRK_LBL[b.break_type]||'Brk'}:${b.duration_mins!=null?b.duration_mins:0}m`).join(', '):'N/A';
     const totalBrk=allBreaks.reduce((sum,b)=>sum+(b.duration_mins||0),0);
+    const gapM=s.gap_mins||0;
+    const netWork=Math.max(0,(s.total_work_mins||0)-totalBrk-gapM);
+    const targetPct=Math.min(100,Math.round((netWork/480)*100));
+    const targetClr=targetPct>=100?'#10b981':(targetPct>=50?'var(--v1)':'#f59e0b');
+    const targetLabel=netWork>=480?'Done'+(netWork>480?' +'+Math.round(netWork-480)+'m':''):(targetPct+'%');
     return `<tr data-session-id="${s.id}">
       <td><input type="checkbox" class="itnm-trk-cb" value="${s.id}" onchange="updateTrackingBulkBar()"></td>
       <td><a href="#" onclick="openStudentDetail('${s.student_user_id}');return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(pm[s.student_user_id]||'—')}</a></td>
@@ -11100,11 +11105,12 @@ async function loadInternTracking() {
       <td>${s.day_number}</td>
       <td>${fmtTime(s.start_time)}</td>
       <td>${fmtTime(s.end_time)}</td>
-      <td>${s.total_work_mins||0}</td>
-      <td style="font-size:.72rem;max-width:180px">${brkSummary}</td>
-      <td style="font-weight:700">${totalBrk}m</td>
-      <td style="font-size:.68rem;max-width:110px;word-break:break-all">${s.ip_address||'N/A'}</td>
-      <td style="font-size:.62rem;max-width:140px;word-break:break-all">${s.network_info?_adm_esc(s.network_info.substring(0,60)):'N/A'}</td>
+      <td>${s.total_work_mins||0}m</td>
+      <td style="font-size:.72rem;max-width:140px" title="${brkSummary}">${totalBrk}m</td>
+      <td>${gapM}m</td>
+      <td style="font-weight:700;color:var(--v1)">${netWork}m</td>
+      <td style="font-weight:700;color:${targetClr}">${targetLabel}</td>
+      <td style="font-size:.68rem;max-width:100px;word-break:break-all">${s.ip_address||'N/A'}</td>
       <td><span class="${statusBadge[s.status]||'badge-gray'}">${s.status}</span></td>
       <td class="action-btns"><button class="action-btn danger" style="font-size:.7rem;padding:.2rem .4rem" onclick="deleteSingleSession('${s.id}')">Delete</button></td>
     </tr>`;
@@ -11945,7 +11951,10 @@ async function loadDetailedReport(){
   const totalBreakMins=(sessions||[]).reduce((s,x)=>{
     return s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
   },0);
-  const netCodingMins=totalWorkMins-totalBreakMins;
+  const totalGapMins=(sessions||[]).reduce((s,x)=>s+(x.gap_mins||0),0);
+  const netCodingMins=Math.max(0,totalWorkMins-totalBreakMins-totalGapMins);
+  const targetTotalMins=totalDays*480;
+  const isOverTarget=netCodingMins>=targetTotalMins&&targetTotalMins>0;
   const completedMods=(mods||[]).filter(m=>m.status==='completed'||m.status==='reviewed').length;
   const completedProg=(progAssign||[]).filter(a=>a.status==='completed').length;
 
@@ -12006,8 +12015,11 @@ async function loadDetailedReport(){
       <div class="dr-stat"><span class="dr-stat-label">Total Days Worked</span><span class="dr-stat-val">${totalDays} / 50</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Total Work Time</span><span class="dr-stat-val">${fmtMins(totalWorkMins)}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Total Break Time</span><span class="dr-stat-val">${fmtMins(totalBreakMins)}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Net Coding Time</span><span class="dr-stat-val" style="color:var(--v1)">${fmtMins(netCodingMins)}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Avg Work / Day</span><span class="dr-stat-val">${totalDays?fmtMins(Math.round(totalWorkMins/totalDays)):'—'}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Total Gap/Idle Time</span><span class="dr-stat-val" style="color:#f43f5e">${fmtMins(totalGapMins)}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Active Working Time</span><span class="dr-stat-val" style="color:var(--v1);font-size:1rem">${fmtMins(netCodingMins)}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Avg Active Work / Day</span><span class="dr-stat-val">${totalDays?fmtMins(Math.round(netCodingMins/totalDays)):'—'}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Target (8h/day)</span><span class="dr-stat-val">${fmtMins(targetTotalMins)}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">${isOverTarget?'Overtime':'Hours Remaining'}</span><span class="dr-stat-val" style="color:${isOverTarget?'#10b981':'#f59e0b'}">${isOverTarget?'+'+fmtMins(netCodingMins-targetTotalMins):fmtMins(Math.max(0,targetTotalMins-netCodingMins))}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Modules Assigned</span><span class="dr-stat-val">${(mods||[]).length + (progAssign||[]).length}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Modules Completed</span><span class="dr-stat-val">${completedMods + completedProg}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Submissions</span><span class="dr-stat-val">${(subs||[]).length}</span></div>
@@ -12442,29 +12454,43 @@ function renderStudentDetail(){
 
   const totalWork=filtSess.reduce((s,x)=>s+(x.total_work_mins||0),0);
   const totalBrk=filtSess.reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
-  const netWork=Math.max(0,totalWork-totalBrk);
+  const totalGap=filtSess.reduce((s,x)=>s+(x.gap_mins||0),0);
+  const netWork=Math.max(0,totalWork-totalBrk-totalGap);
+  const targetMins=filtSess.length*480;
+  const targetPct=targetMins>0?Math.min(100,Math.round((netWork/targetMins)*100)):0;
+  const isOvertime=netWork>=targetMins&&targetMins>0;
+  const overtimeOrRemain=isOvertime?'+'+fmtMins(netWork-targetMins):fmtMins(Math.max(0,targetMins-netWork));
+  const overtimeLabel=isOvertime?'Overtime':'Remaining';
 
   const appMap={};
   filtApp.forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
   const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]);
 
   el.innerHTML=`
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1rem">
-      <div style="text-align:center;padding:.6rem;background:rgba(16,185,129,.08);border-radius:10px;border:1px solid rgba(16,185,129,.2)">
-        <div style="font-size:1.1rem;font-weight:900;color:#10b981">${filtSess.length}</div>
-        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Days</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;margin-bottom:1rem">
+      <div style="text-align:center;padding:.5rem;background:rgba(16,185,129,.08);border-radius:10px;border:1px solid rgba(16,185,129,.2)">
+        <div style="font-size:1rem;font-weight:900;color:#10b981">${filtSess.length}</div>
+        <div style="font-size:.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Days</div>
       </div>
-      <div style="text-align:center;padding:.6rem;background:rgba(124,58,237,.08);border-radius:10px;border:1px solid rgba(124,58,237,.2)">
-        <div style="font-size:1.1rem;font-weight:900;color:var(--v1)">${fmtMins(totalWork)}</div>
-        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Work</div>
+      <div style="text-align:center;padding:.5rem;background:rgba(100,100,100,.06);border-radius:10px;border:1px solid rgba(100,100,100,.15)">
+        <div style="font-size:1rem;font-weight:900;color:var(--txt2)">${fmtMins(totalWork)}</div>
+        <div style="font-size:.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Session</div>
       </div>
-      <div style="text-align:center;padding:.6rem;background:rgba(245,158,11,.08);border-radius:10px;border:1px solid rgba(245,158,11,.2)">
-        <div style="font-size:1.1rem;font-weight:900;color:#f59e0b">${fmtMins(totalBrk)}</div>
-        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Breaks</div>
+      <div style="text-align:center;padding:.5rem;background:rgba(245,158,11,.08);border-radius:10px;border:1px solid rgba(245,158,11,.2)">
+        <div style="font-size:1rem;font-weight:900;color:#f59e0b">${fmtMins(totalBrk)}</div>
+        <div style="font-size:.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Breaks</div>
       </div>
-      <div style="text-align:center;padding:.6rem;background:rgba(6,182,212,.08);border-radius:10px;border:1px solid rgba(6,182,212,.2)">
-        <div style="font-size:1.1rem;font-weight:900;color:#06b6d4">${fmtMins(netWork)}</div>
-        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Net</div>
+      <div style="text-align:center;padding:.5rem;background:rgba(244,63,94,.06);border-radius:10px;border:1px solid rgba(244,63,94,.15)">
+        <div style="font-size:1rem;font-weight:900;color:#f43f5e">${fmtMins(totalGap)}</div>
+        <div style="font-size:.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Gaps</div>
+      </div>
+      <div style="text-align:center;padding:.5rem;background:rgba(124,58,237,.08);border-radius:10px;border:1px solid rgba(124,58,237,.2)">
+        <div style="font-size:1rem;font-weight:900;color:var(--v1)">${fmtMins(netWork)}</div>
+        <div style="font-size:.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Active Work</div>
+      </div>
+      <div style="text-align:center;padding:.5rem;background:rgba(6,182,212,.08);border-radius:10px;border:1px solid rgba(6,182,212,.2)">
+        <div style="font-size:1rem;font-weight:900;color:${isOvertime?'#10b981':'#06b6d4'}">${overtimeOrRemain}</div>
+        <div style="font-size:.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase">${overtimeLabel} (${targetPct}%)</div>
       </div>
     </div>
 
@@ -12472,24 +12498,27 @@ function renderStudentDetail(){
     ${filtSess.length?`<div style="overflow-x:auto;margin-bottom:1rem"><table style="width:100%;font-size:.76rem;border-collapse:collapse">
       <thead><tr style="background:var(--panel);border-bottom:2px solid var(--border)">
         <th style="text-align:left;padding:.4rem .5rem">Date</th><th>Day</th><th>Login</th><th>Logout</th>
-        <th>Work</th><th>Breaks</th><th>Net</th><th>IP</th><th>Network</th><th>Status</th><th>Export</th>
+        <th>Session</th><th>Breaks</th><th>Gaps</th><th>Active Work</th><th>Target</th><th>IP</th><th>Status</th><th>Export</th>
       </tr></thead>
       <tbody>${filtSess.map(s=>{
         const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
-        const net=Math.max(0,(s.total_work_mins||0)-brk);
+        const gapM=s.gap_mins||0;
+        const net=Math.max(0,(s.total_work_mins||0)-brk-gapM);
+        const tgtPct=Math.min(100,Math.round((net/480)*100));
+        const tgtClr=tgtPct>=100?'#10b981':(tgtPct>=50?'var(--v1)':'#f59e0b');
         const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
         const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-        const brkDetail=(s.intern_breaks||[]).map(br=>(br.break_type||'brk').split('_')[0]+':'+(br.duration_mins!=null?br.duration_mins:0)+'m').join(', ')||'N/A';
         return `<tr style="border-bottom:1px solid var(--border)">
           <td style="padding:.35rem .5rem">${s.session_date}</td>
           <td style="text-align:center">${s.day_number||'—'}</td>
           <td style="text-align:center;color:#10b981;font-weight:600">${login}</td>
           <td style="text-align:center;color:var(--v1);font-weight:600">${logout}</td>
           <td style="text-align:center">${s.total_work_mins||0}m</td>
-          <td style="text-align:center;font-size:.7rem">${brkDetail}</td>
+          <td style="text-align:center">${brk}m</td>
+          <td style="text-align:center;color:#f43f5e">${gapM}m</td>
           <td style="text-align:center;font-weight:700;color:var(--v1)">${net}m</td>
+          <td style="text-align:center;font-weight:700;color:${tgtClr}">${tgtPct}%</td>
           <td style="text-align:center;font-size:.65rem">${s.ip_address||'N/A'}</td>
-          <td style="text-align:center;font-size:.6rem;max-width:100px;word-break:break-all">${s.network_info?_adm_esc((s.network_info||'').substring(0,40)):'N/A'}</td>
           <td style="text-align:center"><span class="${{active:'badge-green',completed:'badge-blue',auto_closed:'badge-yellow'}[s.status]||'badge-gray'}">${s.status}</span></td>
           <td style="text-align:center">
             <button onclick="exportAdminDayReport('${s.session_date}','pdf')" title="Download PDF" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--v1);font-size:.72rem;font-weight:700">PDF</button>
