@@ -517,6 +517,19 @@ async function loadAll(){
     _enrollment=anyStatusEnrol?.[0]||null;
   }
 
+  // Fallback: if no enrollment but student has module assignments, auto-create enrollment
+  if(!_enrollment){
+    const{data:hasAssignments}=await c.from('intern_program_assignments')
+      .select('id').eq('student_user_id',_user.id).eq('internship_id',_intId).neq('status','revoked').limit(1);
+    if(hasAssignments&&hasAssignments.length>0){
+      const{data:newEnrol}=await c.from('internship_enrollments').insert({
+        student_user_id:_user.id,project_id:_intId,
+        approval_status:'approved',enrolled_at:new Date().toISOString()
+      }).select().single();
+      _enrollment=newEnrol;
+    }
+  }
+
   if(!_enrollment){
     showGate('Access Denied','You are not enrolled in this internship. Please apply first or contact admin.','Browse Internships','/pages/internship.html');
     return;

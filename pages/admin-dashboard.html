@@ -11680,6 +11680,16 @@ async function saveInternProgramAssignment() {
   }
   if (lastErr) { _showAdminToast('Assignment failed after retries: '+lastErr.message,'error'); return; }
 
+  // Auto-create enrollment if student doesn't have one for this internship
+  const { data: existingEnrol } = await db.client.from('internship_enrollments')
+    .select('id').eq('student_user_id', stuId).eq('project_id', internId).limit(1);
+  if (!existingEnrol || existingEnrol.length === 0) {
+    await db.client.from('internship_enrollments').insert({
+      student_user_id: stuId, project_id: internId,
+      approval_status: 'approved', enrolled_at: new Date().toISOString()
+    });
+  }
+
   // Send in-app notification
   const { data: intern } = await db.client.from('internship_projects').select('project_name').eq('id', internId).single();
   const { data: mod } = await db.client.from('intern_program_modules').select('module_name').eq('id', modId).single();
