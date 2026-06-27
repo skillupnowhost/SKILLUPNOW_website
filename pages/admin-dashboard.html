@@ -397,6 +397,76 @@
     .f-group textarea { resize: vertical; min-height: 76px; }
     .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.1rem; flex-wrap: wrap; }
 
+    /* ── GENERIC ADMIN MODAL (replaces alert/confirm/prompt) ── */
+    #_adminModal-overlay .modal-box { max-width:460px; text-align:center; }
+    .adm-modal-icon {
+      width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 1rem;
+    }
+    .adm-modal-icon.info    { background:rgba(124,92,252,.12); color:#7c5cfc; }
+    .adm-modal-icon.confirm { background:rgba(245,158,11,.12); color:#f59e0b; }
+    .adm-modal-icon.danger  { background:rgba(239,68,68,.12);  color:#ef4444; }
+    .adm-modal-icon.prompt  { background:rgba(56,189,248,.12); color:#38bdf8; }
+    .adm-modal-msg {
+      font-size:.84rem; color:var(--txt3); line-height:1.7; margin-bottom:.75rem;
+      white-space:pre-line; text-align:center; max-height:40vh; overflow-y:auto;
+    }
+    .adm-modal-input {
+      width:100%; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--r2);
+      padding:.56rem .78rem; color:var(--txt); font-size:.88rem; font-weight:600;
+      outline:none; font-family:inherit; transition:border-color .18s, box-shadow .18s;
+      margin-top:.4rem; margin-bottom:.5rem;
+    }
+    .adm-modal-input:focus {
+      border-color:var(--border2);
+      box-shadow:0 0 0 3px color-mix(in srgb, var(--v1) 8%, transparent);
+    }
+    .adm-modal-input-label { display:block; font-size:.73rem; font-weight:600; color:var(--txt3); text-align:left; margin-top:.5rem; }
+
+    /* ── ENROLLMENT GROUPED VIEW ── */
+    .enroll-group-card {
+      border:1px solid var(--border); border-radius:var(--r); margin-bottom:.75rem;
+      background:var(--bg2); overflow:hidden; box-shadow:var(--shadow-card);
+    }
+    .enroll-group-header {
+      padding:.7rem 1rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+      background:color-mix(in srgb, var(--v1) 4%, transparent); transition:background .18s; user-select:none;
+    }
+    .enroll-group-header:hover { background:color-mix(in srgb, var(--v1) 8%, transparent); }
+    .enroll-group-header h4 { font-size:.88rem; font-weight:700; color:var(--txt2); margin:0; display:flex; align-items:center; gap:.5rem; }
+    .enroll-group-header .group-count {
+      background:var(--grad); color:#fff; font-size:.65rem; font-weight:700;
+      padding:.1rem .45rem; border-radius:999px; min-width:20px; text-align:center;
+    }
+    .enroll-group-header .group-chevron { transition:transform .25s; color:var(--txt4); font-size:.8rem; }
+    .enroll-group-card.open .group-chevron { transform:rotate(180deg); }
+    .enroll-group-body { display:none; border-top:1px solid var(--border); }
+    .enroll-group-card.open .enroll-group-body { display:block; }
+    .enroll-course-subgroup { padding:.5rem .8rem; border-bottom:1px solid color-mix(in srgb, var(--border) 50%, transparent); }
+    .enroll-course-subgroup:last-child { border-bottom:none; }
+    .enroll-course-subgroup h5 {
+      font-size:.78rem; font-weight:600; color:var(--v1); margin:0 0 .4rem; padding:.25rem .5rem;
+      background:color-mix(in srgb, var(--v1) 6%, transparent); border-radius:6px; display:inline-block;
+    }
+    .enroll-view-toggle {
+      border:1px solid var(--border2); background:color-mix(in srgb, var(--v1) 6%, transparent);
+      color:var(--v1); border-radius:8px; padding:.35rem .75rem; font-size:.78rem; font-weight:600;
+      cursor:pointer; font-family:inherit; transition:all .18s;
+    }
+    .enroll-view-toggle:hover { background:color-mix(in srgb, var(--v1) 12%, transparent); }
+
+    /* ── BULK SELECT ── */
+    .bulk-check { width:16px; height:16px; accent-color:var(--v1); cursor:pointer; vertical-align:middle; }
+    .bulk-bar {
+      position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
+      background:var(--bg2); border:1.5px solid var(--border2); border-radius:var(--r);
+      padding:.65rem 1.2rem; display:flex; align-items:center; gap:.75rem;
+      box-shadow:0 12px 40px rgba(0,0,0,.18); z-index:500; font-size:.82rem; font-weight:600;
+      transition:all .25s; max-width:90vw; flex-wrap:wrap;
+    }
+    .bulk-bar.hidden { display:none; }
+    .bulk-count { color:var(--v1); font-weight:700; white-space:nowrap; }
+
     /* ── REPORTS ── */
     .report-filters {
       display: flex; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 1.1rem;
@@ -886,8 +956,8 @@
         </div>
         <div id="user-sync-banner" style="display:none;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.3);border-radius:10px;padding:.6rem 1rem;font-size:.82rem;color:#c4b5fd;margin-bottom:.75rem;"></div>
         <div class="table-scroll"><table class="data-table">
-          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Enrolled</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="user-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          <thead><tr><th style="width:32px;"><input type="checkbox" class="bulk-check" onchange="toggleSelectAll('user-tbody',this.checked,'users')"></th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Enrolled</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="user-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -908,8 +978,8 @@
           </div>
         </div>
         <div class="table-scroll"><table class="data-table">
-          <thead><tr><th>Name</th><th>Email</th><th>Qualifications</th><th>Expertise</th><th>Experience</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="mentor-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+          <thead><tr><th style="width:32px;"><input type="checkbox" class="bulk-check" onchange="toggleSelectAll('mentor-tbody',this.checked,'mentors')"></th><th>Name</th><th>Email</th><th>Qualifications</th><th>Expertise</th><th>Experience</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="mentor-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -923,6 +993,12 @@
             <input type="text" id="enroll-user-search" placeholder="Search by name / email…"
               style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);min-width:160px;outline:none;"
               oninput="filterTable('enrollment-tbody',this.value,[0,1])">
+            <select id="enroll-category-filter" onchange="loadEnrollments()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+              <option value="">All Categories</option>
+            </select>
+            <select id="enroll-course-filter" onchange="loadEnrollments()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+              <option value="">All Courses</option>
+            </select>
             <select id="enroll-status-filter" onchange="loadEnrollments()">
               <option value="">All Status</option>
               <option value="active">Active</option>
@@ -930,14 +1006,18 @@
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
+            <button class="enroll-view-toggle" id="enroll-view-toggle" onclick="toggleEnrollmentView()">☰ Grouped View</button>
             <button class="btn-secondary" onclick="exportTable('enrollments')">⬇ Export</button>
             <button class="btn-primary" onclick="openAdminEnrollModal()">+ Enroll User</button>
           </div>
         </div>
-        <div class="table-scroll"><table class="data-table">
-          <thead><tr><th>User</th><th>Course</th><th>Type</th><th>Total Fee</th><th>Paid</th><th>Balance</th><th>Access</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="enrollment-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
-        </table></div>
+        <div id="enrollment-flat-view">
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th>User</th><th>Course</th><th>Category</th><th>Type</th><th>Total Fee</th><th>Paid</th><th>Balance</th><th>Access</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="enrollment-tbody"><tr><td colspan="10" class="table-empty">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+        <div id="enrollment-grouped-view" style="display:none;"></div>
       </div>
     </div>
 
@@ -1003,8 +1083,8 @@
           </div>
         </div>
         <div class="table-scroll"><table class="data-table">
-          <thead><tr><th>Invoice</th><th>User</th><th>Course</th><th>Amount</th><th>Method</th><th>Gateway Ref</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="payment-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
+          <thead><tr><th style="width:32px;"><input type="checkbox" class="bulk-check" onchange="toggleSelectAll('payment-tbody',this.checked,'payments')"></th><th>Invoice</th><th>User</th><th>Course</th><th>Amount</th><th>Method</th><th>Gateway Ref</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="payment-tbody"><tr><td colspan="10" class="table-empty">Loading…</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -4002,7 +4082,7 @@ async function notifyInterestedUsers(courseId, courseTitle) {
   if (error) { _showAdminToast('Error: ' + error.message, 'error'); return; }
   if (!interested?.length) { _showAdminToast('No unnotified interested users for this course.', 'info'); return; }
 
-  const confirmed = confirm(`Send 10% early-access discount email to ${interested.length} interested user(s) for "${courseTitle}"?`);
+  const confirmed = await _adminModal({title:'Confirm',message:`Send 10% early-access discount email to ${interested.length} interested user(s) for "${courseTitle}"?`,type:'confirm'});
   if (!confirmed) return;
 
   // Fetch pricing for 10% discount message
@@ -4060,10 +4140,10 @@ async function notifyInterestedUsers(courseId, courseTitle) {
   loadInterested();
 }
 
-function inlineEditPrice(courseId, pricingId, salePrice, listPrice) {
-  const newSale = prompt('Enter new sale price (₹):', salePrice);
+async function inlineEditPrice(courseId, pricingId, salePrice, listPrice) {
+  const newSale = await _adminModal({title:'Input',message:'Enter new sale price (₹):',type:'prompt',inputDefault:String(salePrice)});
   if (newSale === null) return;
-  const newList = prompt('Enter list/strike-through price (₹):', listPrice || salePrice);
+  const newList = await _adminModal({title:'Input',message:'Enter list/strike-through price (₹):',type:'prompt',inputDefault:String(listPrice || salePrice)});
   if (newList === null) return;
   const saleNum = parseFloat(newSale);
   const listNum = parseFloat(newList) || saleNum;
@@ -4160,6 +4240,7 @@ async function loadUsers() {
   const rows = users || [];
   document.getElementById('user-tbody').innerHTML = rows.map(u => `
     <tr>
+      <td><input type="checkbox" class="bulk-check row-check" data-id="${u.user_id}" onchange="updateBulkBar('users')"></td>
       <td style="font-weight:600">${u.full_name || '—'}</td>
       <td style="font-size:.82rem">${u.email}</td>
       <td>${u.phone ? `<span style="font-family:monospace;font-size:.82rem">${u.phone}</span>` : '<span style="color:rgba(200,191,255,.3)">—</span>'}</td>
@@ -4172,7 +4253,7 @@ async function loadUsers() {
         <button class="action-btn" style="background:rgba(124,92,252,.18);color:#c4b5fd;border-color:rgba(124,92,252,.35);" onclick="openAdminEnrollModal('${u.user_id}')">+ Enroll</button>
         <button class="action-btn danger" onclick="deleteUser('${u.user_id}', ${JSON.stringify(u.full_name || u.email || 'this user').replace(/"/g,'&quot;')})">Delete</button>
       </div></td>
-    </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No users</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="9" class="table-empty">No users</td></tr>';
   // Update sidebar badge
   const ubadge = document.getElementById('users-badge');
   if (ubadge) ubadge.textContent = rows.length;
@@ -4208,8 +4289,8 @@ async function adminEnrollUser() {
   const payMode  = document.getElementById('ae-paymode').value;
   const notes    = document.getElementById('ae-notes').value.trim();
 
-  if (!userId)   { alert('Please select a user.'); return; }
-  if (!courseId) { alert('Please select a course.'); return; }
+  if (!userId)   { await _adminModal({ title:'Validation', message:'Please select a user.', type:'info' }); return; }
+  if (!courseId) { await _adminModal({ title:'Validation', message:'Please select a course.', type:'info' }); return; }
 
   const btn = document.getElementById('ae-submit-btn');
   btn.disabled = true; btn.textContent = 'Processing…';
@@ -4360,6 +4441,7 @@ async function loadMentors() {
   const ratingMap = await fetchMentorRatingMap((data || []).map(item => item.user_id));
   document.getElementById('mentor-tbody').innerHTML = (data || []).map(m => `
     <tr>
+      <td><input type="checkbox" class="bulk-check row-check" data-id="${m.user_id}" onchange="updateBulkBar('mentors')"></td>
       <td>${profileMap[m.user_id]?.full_name || '—'}</td>
       <td>${profileMap[m.user_id]?.email || '—'}</td>
       <td>${m.qualifications}</td>
@@ -4372,8 +4454,9 @@ async function loadMentors() {
         ${m.status === 'rejected' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">↺ Re-approve</button>` : ''}
         ${m.status === 'approved' ? `<button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">✗ Revoke</button>` : ''}
         <button class="action-btn" onclick="viewMentor('${m.user_id}')">View</button>
+        <button class="action-btn danger" onclick="deleteUser('${m.user_id}', '${(profileMap[m.user_id]?.full_name || profileMap[m.user_id]?.email || 'this mentor').replace(/'/g, '')}')">Delete</button>
       </div></td>
-    </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No mentors</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="9" class="table-empty">No mentors</td></tr>';
 
   const opts = (data || []).filter(m => m.status === 'approved').map(m => `<option value="${m.user_id}">${profileMap[m.user_id]?.full_name || m.user_id}</option>`).join('');
   ['c-mentor', 'b-mentor'].forEach(id => {
@@ -4390,75 +4473,141 @@ async function loadMentors() {
   }
 }
 
+let _enrollViewMode = 'flat';
+function toggleEnrollmentView() {
+  _enrollViewMode = _enrollViewMode === 'flat' ? 'grouped' : 'flat';
+  document.getElementById('enroll-view-toggle').textContent = _enrollViewMode === 'flat' ? '☰ Grouped View' : '☷ Table View';
+  loadEnrollments();
+}
+
+function _enrollRowHtml(e, p, showCategory) {
+  const name  = p.full_name || p.email || (e.student_user_id||'').slice(0,8)+'…';
+  const email = p.email || '';
+  const payType = e.paid_amount >= e.net_amount ? 'Full' : e.paid_amount > 0 ? 'Partial' : 'Pending';
+  const hasAccess = s => s === 'active';
+  const accessHtml = hasAccess(e.access_status)
+    ? '<span class="badge badge-green">Active</span>'
+    : `<span class="badge badge-yellow">${e.access_status||'Pending'}</span>`;
+  const safe = encodeURIComponent(JSON.stringify({
+    id: e.id, enrollment_status: e.enrollment_status,
+    access_status: e.access_status, net_amount: e.net_amount,
+    paid_amount: e.paid_amount, due_amount: e.due_amount,
+    progress_percentage: e.progress_percentage, notes: e.notes,
+  }));
+  const paidPct = e.net_amount > 0 ? Math.min(100, Math.round((e.paid_amount / e.net_amount) * 100)) : 0;
+  const balanceColor = e.due_amount > 0 ? '#f87171' : '#4ade80';
+  const catCell = showCategory ? `<td>${e.courses?.course_categories?.name || 'Uncategorized'}</td>` : '';
+  return `<tr>
+    <td><div style="font-weight:600;font-size:.85rem;">${name}</div><div style="font-size:.74rem;color:var(--txt4);">${email}</div></td>
+    <td>${e.courses?.title||'—'}</td>
+    ${catCell}
+    <td><span style="font-size:.72rem;background:rgba(124,92,252,.12);padding:.15rem .45rem;border-radius:50px;">${payType}</span></td>
+    <td>${fmtCurr(e.net_amount)}</td>
+    <td><div>${fmtCurr(e.paid_amount)}</div><div style="height:4px;background:rgba(124,92,252,.15);border-radius:4px;margin-top:3px;width:60px;"><div style="height:100%;width:${paidPct}%;background:${paidPct===100?'#4ade80':'#7c5cfc'};border-radius:4px;"></div></div></td>
+    <td><span style="color:${balanceColor};font-weight:${e.due_amount>0?'700':'400'}">${fmtCurr(e.due_amount)}</span></td>
+    <td>${accessHtml}</td>
+    <td>${statusBadge(e.enrollment_status)}</td>
+    <td><div class="action-btns">
+      <button class="action-btn" onclick="editEnrollmentById('${safe}')">Edit</button>
+      ${e.due_amount > 0 ? `<button class="action-btn" style="background:rgba(124,92,252,.15);color:#a78bfa;border-color:rgba(124,92,252,.3);font-size:.72rem" onclick="recordPartialPayment('${e.id}',${e.due_amount})">+ Pay</button>` : ''}
+      ${!hasAccess(e.access_status) && e.enrollment_status !== 'cancelled' ? `<button class="action-btn" style="background:rgba(74,222,128,.15);color:#4ade80;border-color:rgba(74,222,128,.3);" onclick="grantAccess('${e.id}')">Grant</button>` : ''}
+      ${hasAccess(e.access_status) ? `<button class="action-btn danger" style="font-size:.72rem;padding:.25rem .55rem;" onclick="revokeAccess('${e.id}')">Revoke</button>` : ''}
+      ${e.enrollment_status !== 'cancelled' ? `<button class="action-btn danger" style="font-size:.72rem;padding:.25rem .55rem;" onclick="unenrollStudent('${e.id}', '${(p.full_name||p.email||'').replace(/'/g,'')}', '${(e.courses?.title||'').replace(/'/g,'')}')">Unenroll</button>` : `<span style="font-size:.7rem;color:var(--txt4);padding:.25rem .4rem;">Unenrolled</span>`}
+    </div></td>
+  </tr>`;
+}
+
 async function loadEnrollments() {
   const tbody = document.getElementById('enrollment-tbody');
-  tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="10" class="table-empty">Loading…</td></tr>';
 
   const statusFilter = document.getElementById('enroll-status-filter').value;
-  let q = db.client.from('enrollments').select('*, courses(title), course_pricing(pricing_type)');
+  const categoryFilter = document.getElementById('enroll-category-filter')?.value || '';
+  const courseFilter = document.getElementById('enroll-course-filter')?.value || '';
+
+  let q = db.client.from('enrollments').select('*, courses(id, title, course_categories(id, name)), course_pricing(pricing_type)');
   if (statusFilter) q = q.eq('enrollment_status', statusFilter);
+  if (courseFilter) q = q.eq('course_id', courseFilter);
   const { data, error } = await q.order('created_at', { ascending: false }).limit(200);
 
   if (error) {
-    tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171;">Query error: ${error.message}</td></tr>`;
-    return;
-  }
-  if (!data?.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No enrollments found</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="10" class="table-empty" style="color:#f87171;">Query error: ${error.message}</td></tr>`;
     return;
   }
 
-  // Step 2 — fetch user profiles for all enrolled students
-  const userIds = [...new Set(data.map(e => e.student_user_id).filter(Boolean))];
+  let filtered = data || [];
+  if (categoryFilter) {
+    filtered = filtered.filter(e => e.courses?.course_categories?.id === categoryFilter);
+  }
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="table-empty">No enrollments found</td></tr>';
+    document.getElementById('enrollment-grouped-view').innerHTML = '<div class="table-empty" style="padding:2rem;text-align:center;">No enrollments found</div>';
+    return;
+  }
+
+  const userIds = [...new Set(filtered.map(e => e.student_user_id).filter(Boolean))];
   const { data: profiles } = await db.client.from('user_profiles')
     .select('user_id, full_name, email').in('user_id', userIds);
   const profileMap = Object.fromEntries((profiles||[]).map(p => [p.user_id, p]));
 
-  const hasAccess = s => s === 'active';
+  // Populate category and course filter dropdowns
+  const categories = [...new Map((data||[]).filter(e => e.courses?.course_categories)
+    .map(e => [e.courses.course_categories.id, e.courses.course_categories])).values()];
+  const catSelect = document.getElementById('enroll-category-filter');
+  if (catSelect) {
+    const curCat = catSelect.value;
+    catSelect.innerHTML = '<option value="">All Categories</option>' +
+      categories.map(c => `<option value="${c.id}" ${c.id===curCat?'selected':''}>${c.name}</option>`).join('');
+  }
+  const courses = [...new Map((data||[]).filter(e => e.courses)
+    .map(e => [e.courses.id, e.courses])).values()];
+  const crsSelect = document.getElementById('enroll-course-filter');
+  if (crsSelect) {
+    const curCrs = crsSelect.value;
+    crsSelect.innerHTML = '<option value="">All Courses</option>' +
+      courses.map(c => `<option value="${c.id}" ${c.id===curCrs?'selected':''}>${c.title}</option>`).join('');
+  }
 
-  tbody.innerHTML = data.map(e => {
-    const p = profileMap[e.student_user_id] || {};
-    const name  = p.full_name || p.email || (e.student_user_id||'').slice(0,8)+'…';
-    const email = p.email || '';
-    const payType = e.paid_amount >= e.net_amount ? 'Full'
-                  : e.paid_amount > 0             ? 'Partial' : 'Pending';
-    const accessHtml = hasAccess(e.access_status)
-      ? '<span class="badge badge-green">Active</span>'
-      : `<span class="badge badge-yellow">${e.access_status||'Pending'}</span>`;
-    const safe = encodeURIComponent(JSON.stringify({
-      id: e.id, enrollment_status: e.enrollment_status,
-      access_status: e.access_status, net_amount: e.net_amount,
-      paid_amount: e.paid_amount, due_amount: e.due_amount,
-      progress_percentage: e.progress_percentage, notes: e.notes,
-    }));
-    const paidPct = e.net_amount > 0 ? Math.min(100, Math.round((e.paid_amount / e.net_amount) * 100)) : 0;
-    const balanceColor = e.due_amount > 0 ? '#f87171' : '#4ade80';
-    return `<tr>
-      <td>
-        <div style="font-weight:600;font-size:.85rem;">${name}</div>
-        <div style="font-size:.74rem;color:var(--txt4);">${email}</div>
-      </td>
-      <td>${e.courses?.title||'—'}</td>
-      <td><span style="font-size:.72rem;background:rgba(124,92,252,.12);padding:.15rem .45rem;border-radius:50px;">${payType}</span></td>
-      <td>${fmtCurr(e.net_amount)}</td>
-      <td>
-        <div>${fmtCurr(e.paid_amount)}</div>
-        <div style="height:4px;background:rgba(124,92,252,.15);border-radius:4px;margin-top:3px;width:60px;">
-          <div style="height:100%;width:${paidPct}%;background:${paidPct===100?'#4ade80':'#7c5cfc'};border-radius:4px;"></div>
-        </div>
-      </td>
-      <td><span style="color:${balanceColor};font-weight:${e.due_amount>0?'700':'400'}">${fmtCurr(e.due_amount)}</span></td>
-      <td>${accessHtml}</td>
-      <td>${statusBadge(e.enrollment_status)}</td>
-      <td><div class="action-btns">
-        <button class="action-btn" onclick="editEnrollmentById('${safe}')">Edit</button>
-        ${e.due_amount > 0 ? `<button class="action-btn" style="background:rgba(124,92,252,.15);color:#a78bfa;border-color:rgba(124,92,252,.3);font-size:.72rem" onclick="recordPartialPayment('${e.id}',${e.due_amount})">+ Pay</button>` : ''}
-        ${!hasAccess(e.access_status) && e.enrollment_status !== 'cancelled' ? `<button class="action-btn" style="background:rgba(74,222,128,.15);color:#4ade80;border-color:rgba(74,222,128,.3);" onclick="grantAccess('${e.id}')">Grant</button>` : ''}
-        ${hasAccess(e.access_status) ? `<button class="action-btn danger" style="font-size:.72rem;padding:.25rem .55rem;" onclick="revokeAccess('${e.id}')">Revoke</button>` : ''}
-        ${e.enrollment_status !== 'cancelled' ? `<button class="action-btn danger" style="font-size:.72rem;padding:.25rem .55rem;" onclick="unenrollStudent('${e.id}', '${(p.full_name||p.email||'').replace(/'/g,'')}', '${(e.courses?.title||'').replace(/'/g,'')}')">Unenroll</button>` : `<span style="font-size:.7rem;color:var(--txt4);padding:.25rem .4rem;">Unenrolled</span>`}
-      </div></td>
-    </tr>`;
+  // Flat view
+  tbody.innerHTML = filtered.map(e => _enrollRowHtml(e, profileMap[e.student_user_id] || {}, true)).join('');
+
+  // Grouped view
+  const grouped = {};
+  filtered.forEach(e => {
+    const catName = e.courses?.course_categories?.name || 'Uncategorized';
+    const courseTitle = e.courses?.title || 'Unknown Course';
+    if (!grouped[catName]) grouped[catName] = {};
+    if (!grouped[catName][courseTitle]) grouped[catName][courseTitle] = [];
+    grouped[catName][courseTitle].push(e);
+  });
+
+  const groupedHtml = Object.entries(grouped).map(([catName, courses]) => {
+    const totalInCat = Object.values(courses).reduce((s, arr) => s + arr.length, 0);
+    const courseHtml = Object.entries(courses).map(([courseTitle, enrollments]) => {
+      const rows = enrollments.map(e => _enrollRowHtml(e, profileMap[e.student_user_id] || {}, false)).join('');
+      return `<div class="enroll-course-subgroup">
+        <h5>${courseTitle} <span style="font-size:.65rem;color:var(--txt4);font-weight:400;margin-left:.3rem;">(${enrollments.length})</span></h5>
+        <div class="table-scroll"><table class="data-table" style="margin:0;">
+          <thead><tr><th>User</th><th>Course</th><th>Type</th><th>Total Fee</th><th>Paid</th><th>Balance</th><th>Access</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+      </div>`;
+    }).join('');
+    return `<div class="enroll-group-card open">
+      <div class="enroll-group-header" onclick="this.parentElement.classList.toggle('open')">
+        <h4>${catName} <span class="group-count">${totalInCat}</span></h4>
+        <span class="group-chevron">▾</span>
+      </div>
+      <div class="enroll-group-body">${courseHtml}</div>
+    </div>`;
   }).join('');
+
+  document.getElementById('enrollment-grouped-view').innerHTML = groupedHtml;
+
+  // Toggle views
+  document.getElementById('enrollment-flat-view').style.display = _enrollViewMode === 'flat' ? '' : 'none';
+  document.getElementById('enrollment-grouped-view').style.display = _enrollViewMode === 'grouped' ? '' : 'none';
 }
 
 // ── Safe enrollment update (plain UPDATE — requires v28 SQL fix) ──
@@ -4468,7 +4617,7 @@ async function _safeEnrollUpdate(enrollId, updates) {
 }
 
 async function grantAccess(enrollId) {
-  if (!confirm('Grant course access to this student?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Grant course access to this student?',type:'confirm'}))) return;
   try {
     await _safeEnrollUpdate(enrollId, {
       enrollment_status: 'active', access_status: 'active',
@@ -4480,7 +4629,7 @@ async function grantAccess(enrollId) {
 }
 
 async function recordPartialPayment(enrollId, dueAmount) {
-  const amtStr = prompt(`Record partial payment\nBalance due: ₹${Number(dueAmount).toLocaleString('en-IN')}\n\nEnter amount received (₹):`);
+  const amtStr = await _adminModal({title:'Input',message:`Record partial payment\nBalance due: ₹${Number(dueAmount).toLocaleString('en-IN')}\n\nEnter amount received (₹):`,type:'prompt'});
   if (amtStr === null) return;
   const amt = parseFloat(amtStr);
   if (isNaN(amt) || amt <= 0) { _showAdminToast('Invalid amount', 'error'); return; }
@@ -4520,10 +4669,34 @@ async function recordPartialPayment(enrollId, dueAmount) {
     return;
   }
 
+  // Sync pending payment_schedules for EMI enrollments
+  const { data: pendingSchedules } = await db.client
+    .from('payment_schedules')
+    .select('id, amount_due, late_fee_amount')
+    .eq('enrollment_id', enrollId)
+    .eq('schedule_status', 'pending')
+    .order('installment_number', { ascending: true })
+    .limit(5);
+  if (pendingSchedules?.length) {
+    let remaining = amt;
+    for (const sched of pendingSchedules) {
+      if (remaining <= 0) break;
+      const schedTotal = Number(sched.amount_due) + Number(sched.late_fee_amount || 0);
+      const allocate = Math.min(remaining, schedTotal);
+      await db.client.from('payment_schedules').update({
+        amount_paid: allocate,
+        schedule_status: allocate >= schedTotal ? 'paid' : 'pending',
+        updated_at: new Date().toISOString()
+      }).eq('id', sched.id);
+      remaining -= allocate;
+    }
+  }
+
   _showAdminToast(`✓ Payment of ₹${Number(amt).toLocaleString('en-IN')} recorded. Balance: ₹${Number(newDue).toLocaleString('en-IN')}`, 'success');
   loadEnrollments();
   loadPayments();
-  loadDashboard(); // refresh dashboard stats in real time
+  loadEmi();
+  loadDashboard();
 }
 
 function editEnrollmentById(safeEncoded) {
@@ -4612,7 +4785,7 @@ async function loadPayments() {
     db.client.from('payments').select('payment_status, amount').limit(500),
     (() => {
       let q = db.client.from('payments')
-        .select('*, invoices(invoice_number), student_profiles(user_profiles!student_profiles_user_id_fkey(full_name, email, phone)), enrollments(courses(title))');
+        .select('*, invoices(invoice_number), student_profiles!payments_student_user_id_fkey(user_profiles!student_profiles_user_id_fkey(full_name, email, phone)), enrollments!payments_enrollment_id_fkey(courses(title))');
       if (statusFilter) q = q.eq('payment_status', statusFilter);
       return q.order('paid_at', { ascending: false }).limit(100);
     })()
@@ -4642,6 +4815,7 @@ async function loadPayments() {
     const userName = p.student_profiles?.user_profiles?.full_name || '—';
     const userEmail = p.student_profiles?.user_profiles?.email || '';
     return `<tr>
+      <td><input type="checkbox" class="bulk-check row-check" data-id="${p.id}" onchange="updateBulkBar('payments')"></td>
       <td>${invCell}</td>
       <td>
         <div style="font-weight:600;font-size:.85rem">${userName}</div>
@@ -4673,7 +4847,7 @@ async function generateInvoice(paymentId) {
 }
 
 async function confirmPayment(paymentId) {
-  if (!confirm('Confirm this payment as completed? This will activate enrollment and send email notification.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Confirm this payment as completed? This will activate enrollment and send email notification.',type:'confirm'}))) return;
 
   // Fetch payment details for enrollment update and email
   const { data: payment, error: fetchErr } = await db.client.from('payments')
@@ -5096,10 +5270,7 @@ async function saveReviewEdit() {
   const rating = parseInt(document.getElementById('review-edit-rating').value, 10) || null;
   const subject = document.getElementById('review-edit-subject').value.trim() || null;
   const comment = document.getElementById('review-edit-comment').value.trim();
-  if (!comment) {
-    alert('Please enter review/comment text before saving.');
-    return;
-  }
+  if (!comment) { await _adminModal({title:'Error',message:'Please enter review/comment text before saving.',type:'info'}); return; }
 
   let response;
   if (_currentReviewEdit.source === 'review') {
@@ -5108,10 +5279,7 @@ async function saveReviewEdit() {
     response = await db.client.from('feedback').update({ rating, subject, message: comment }).eq('id', _currentReviewEdit.id);
   }
 
-  if (response.error) {
-    alert('Failed to save changes: ' + response.error.message);
-    return;
-  }
+  if (response.error) { await _adminModal({title:'Error',message:'Failed to save changes: ' + response.error.message,type:'info'}); return; }
 
   closeReviewEditModal();
   loadReviews();
@@ -5223,23 +5391,19 @@ async function loadFeedback() {
     </tr>`).join('') : '<tr><td colspan="7" class="table-empty">No feedback found</td></tr>';
 }
 
-function viewFeedback(id) {
+async function viewFeedback(id) {
   const f = _feedbackAll.find(x => x.id === id);
   if (!f) return;
-  alert(
-    `Feedback from ${f.full_name || 'Unknown'}\n` +
-    `Email: ${f.email || '—'}\n` +
-    `Phone: ${f.phone_number || '—'}\n` +
-    `Type: ${(f.feedback_type||'general').replace(/_/g,' ')}\n` +
-    `Status: ${f.status || 'open'}\n\n` +
-    `Subject: ${f.subject || '—'}\n\n` +
-    `Message:\n${f.message || '(no message)'}\n`
-  );
+  await _adminModal({
+    title: `Feedback from ${f.full_name || 'Unknown'}`,
+    message: `Email: ${f.email || '—'}\nPhone: ${f.phone_number || '—'}\nType: ${(f.feedback_type||'general').replace(/_/g,' ')}\nStatus: ${f.status || 'open'}\n\nSubject: ${f.subject || '—'}\n\nMessage:\n${f.message || '(no message)'}`,
+    type: 'info'
+  });
 }
 
 async function markFeedbackStatus(id, status) {
   const { error } = await db.client.from('feedback').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
-  if (error) { alert('Update failed: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Update failed: ' + error.message,type:'info'}); return; }
   loadFeedback();
 }
 
@@ -5273,7 +5437,7 @@ async function updateInquiry(newStatus) {
   const payload  = { status: newStatus, priority, updated_at: new Date().toISOString() };
   if (notes) payload.resolution_notes = notes;
   const { error } = await db.client.from('inquiries').update(payload).eq('id', _currentInqId);
-  if (error) { alert('Update failed: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Update failed: ' + error.message,type:'info'}); return; }
   closeInqModal();
   loadInquiries();
 }
@@ -5285,7 +5449,7 @@ async function quickResolve(id) {
 
 async function deleteInquiry() {
   if (!_currentInqId) return;
-  if (!confirm('Delete this enquiry permanently?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this enquiry permanently?',type:'danger'}))) return;
   await db.client.from('inquiries').delete().eq('id', _currentInqId);
   closeInqModal();
   loadInquiries();
@@ -5377,13 +5541,13 @@ async function loadInterested() {
 }
 
 async function deleteInterest(id) {
-  if (!confirm('Remove this interest record?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Remove this interest record?',type:'danger'}))) return;
   await db.client.from('course_interests').delete().eq('id', id);
   loadInterested();
 }
 
-function exportInterestCSV() {
-  if (!_interestData.length) { alert('No data to export.'); return; }
+async function exportInterestCSV() {
+  if (!_interestData.length) { await _adminModal({title:'Error',message:'No data to export.',type:'info'}); return; }
   const rows = [['Course', 'Name', 'Email', 'Logged In', 'Date', 'Notified', 'Discount Code']];
   _interestData.forEach(r => {
     rows.push([
@@ -5452,7 +5616,7 @@ async function loadClientRequirements() {
 async function viewCreq(id) {
   _creqCurrentId = id;
   const { data, error } = await db.client.from('project_requirements').select('*').eq('id', id).single();
-  if (error || !data) { alert('Could not load requirement.'); return; }
+  if (error || !data) { await _adminModal({title:'Error',message:'Could not load requirement.',type:'info'}); return; }
   document.getElementById('creq-detail-title').textContent = data.project_title || 'Client Requirement';
   document.getElementById('creq-status-update').value = data.status || 'pending';
   document.getElementById('creq-detail-body').innerHTML = `
@@ -5474,16 +5638,16 @@ async function updateCreqStatus() {
   if (!_creqCurrentId) return;
   const newStatus = document.getElementById('creq-status-update').value;
   const { error } = await db.client.from('project_requirements').update({ status: newStatus }).eq('id', _creqCurrentId);
-  if (error) { alert('Update failed: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Update failed: ' + error.message,type:'info'}); return; }
   _showAdminToast('Status updated.', 'success');
   document.getElementById('creq-detail-modal').classList.remove('open');
   loadClientRequirements();
 }
 
 async function deleteCreq(id) {
-  if (!confirm('Delete this client requirement? This cannot be undone.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this client requirement? This cannot be undone.',type:'danger'}))) return;
   const { error } = await db.client.from('project_requirements').delete().eq('id', id);
-  if (error) { alert('Delete failed: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Delete failed: ' + error.message,type:'info'}); return; }
   loadClientRequirements();
 }
 
@@ -5640,7 +5804,7 @@ async function saveHoliday() {
 }
 
 async function deleteHoliday(id) {
-  if (!confirm('Delete this holiday?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this holiday?',type:'danger'}))) return;
   const { error } = await db.client.from('holidays').delete().eq('id', id);
   if (error) { _showAdminToast('Error: ' + error.message, 'error'); return; }
   _showAdminToast('Holiday deleted', 'success');
@@ -5651,7 +5815,7 @@ async function sendHolidayNotify(id) {
   const h = _holidayData.find(x => x.id === id);
   if (!h) return;
 
-  const confirmed = confirm(`Send holiday notification for "${h.holiday_name}" (${h.holiday_date}) to all students?`);
+  const confirmed = await _adminModal({title:'Confirm',message:`Send holiday notification for "${h.holiday_name}" (${h.holiday_date}) to all students?`,type:'confirm'});
   if (!confirmed) return;
 
   // Fetch all active student emails
@@ -5737,7 +5901,7 @@ async function saveHoliday() {
 }
 
 async function deleteHoliday(id) {
-  if (!confirm('Delete this holiday?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this holiday?',type:'danger'}))) return;
   const { error } = await db.client.from('holidays').delete().eq('id', id);
   if (error) {
     _showAdminToast('Error: ' + error.message, 'error');
@@ -5751,7 +5915,7 @@ async function sendHolidayNotify(id) {
   const h = _holidayData.find(x => x.id === id);
   if (!h) return;
 
-  const confirmed = confirm(`Send holiday notification for "${h.holiday_name}" (${h.holiday_date}) to all students?`);
+  const confirmed = await _adminModal({title:'Confirm',message:`Send holiday notification for "${h.holiday_name}" (${h.holiday_date}) to all students?`,type:'confirm'});
   if (!confirmed) return;
 
   const { data: students, error: sErr } = await db.client
@@ -5829,7 +5993,7 @@ async function confirmRejectMentor() {
 }
 
 async function approveMentor(id, status, rejectionReason = null) {
-  if (status === 'approved' && !confirm('Approve this mentor? They will gain access to the Mentor Dashboard.')) return;
+  if (status === 'approved' && !(await _adminModal({title:'Confirm',message:'Approve this mentor? They will gain access to the Mentor Dashboard.',type:'confirm'}))) return;
   const adminId = adminUser?.id || null;
   // Use SECURITY DEFINER RPC to bypass RLS
   const rpcName = status === 'approved' ? 'admin_approve_mentor' : 'admin_reject_mentor';
@@ -5869,23 +6033,23 @@ async function approveMentor(id, status, rejectionReason = null) {
 
 async function approveReview(id) {
   const { error } = await db.client.from('reviews').update({ is_approved: true }).eq('id', id);
-  if (error) { alert('Failed to approve review: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Failed to approve review: ' + error.message,type:'info'}); return; }
   _showAdminToast('✓ Review approved and now visible publicly.', 'success');
   loadReviews();
 }
 
 async function deleteReview(id) {
-  if (!confirm('Delete this review? This cannot be undone.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this review? This cannot be undone.',type:'danger'}))) return;
   const { error } = await db.client.from('reviews').delete().eq('id', id);
-  if (error) { alert('Failed to delete review: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Failed to delete review: ' + error.message,type:'info'}); return; }
   loadReviews();
 }
 
 
 async function deleteFeedbackRow(id) {
-  if (!confirm('Delete this feedback entry?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this feedback entry?',type:'danger'}))) return;
   const { error } = await db.client.from('feedback').delete().eq('id', id);
-  if (error) { alert('Failed to delete feedback: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Failed to delete feedback: ' + error.message,type:'info'}); return; }
   loadReviews();
 }
 
@@ -5901,7 +6065,7 @@ async function toggleCoursePublish(id, currentStatus) {
 }
 
 async function deleteCourse(id) {
-  if (!confirm('Delete this course? This cannot be undone.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this course? This cannot be undone.',type:'danger'}))) return;
   await db.client.from('courses').delete().eq('id', id);
   loadCourses();
 }
@@ -5909,10 +6073,10 @@ async function deleteCourse(id) {
 async function saveCourse() {
   const id = document.getElementById('course-id').value;
   const titleVal = document.getElementById('c-name').value.trim();
-  if (!titleVal) { alert('Course name is required.'); return; }
+  if (!titleVal) { await _adminModal({title:'Error',message:'Course name is required.',type:'info'}); return; }
   const categoryId = document.getElementById('c-category').value || null;
-  if (!categoryId) { alert('Category is required.'); return; }
-  if (!adminUser?.id) { alert('Admin session not found. Please log in again.'); return; }
+  if (!categoryId) { await _adminModal({title:'Error',message:'Category is required.',type:'info'}); return; }
+  if (!adminUser?.id) { await _adminModal({title:'Error',message:'Admin session not found. Please log in again.',type:'info'}); return; }
   const months = parseInt(document.getElementById('c-months').value) || null;
   const isPublished = document.getElementById('c-published').value === 'true';
   const visibilityVal = document.getElementById('c-visibility')?.value || 'public';
@@ -5936,15 +6100,12 @@ async function saveCourse() {
   if (!id) {
     const { data: existing } = await db.client.from('courses')
       .select('id').ilike('title', titleVal).limit(1);
-    if (existing?.length) {
-      alert(`A course named "${titleVal}" already exists. Please use a different name.`);
-      return;
-    }
+    if (existing?.length) { await _adminModal({title:'Error',message:`A course named "${titleVal}" already exists. Please use a different name.`,type:'info'}); return; }
   }
   const { data: saved, error } = id
     ? await db.client.from('courses').update(payload).eq('id', id).select('id').single()
     : await db.client.from('courses').insert(payload).select('id').single();
-  if (error) { alert('Error saving course: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error saving course: ' + error.message,type:'info'}); return; }
   // Save pricing if a price was entered
   const priceVal = parseFloat(document.getElementById('c-price').value);
   if (!isNaN(priceVal) && priceVal > 0 && saved?.id) {
@@ -5966,11 +6127,11 @@ async function saveCourse() {
       .eq('course_id', saved.id)
       .eq('pricing_name', 'Standard')
       .maybeSingle();
-    if (pricingLookupError) { alert('Error saving course pricing: ' + pricingLookupError.message); return; }
+    if (pricingLookupError) { await _adminModal({title:'Error',message:'Error saving course pricing: ' + pricingLookupError.message,type:'info'}); return; }
     const { error: pricingSaveError } = existingPricing?.id
       ? await db.client.from('course_pricing').update(pricingPayload).eq('id', existingPricing.id)
       : await db.client.from('course_pricing').insert(pricingPayload);
-    if (pricingSaveError) { alert('Error saving course pricing: ' + pricingSaveError.message); return; }
+    if (pricingSaveError) { await _adminModal({title:'Error',message:'Error saving course pricing: ' + pricingSaveError.message,type:'info'}); return; }
   }
   closeModal('course-modal');
   await Promise.all([loadCourses(), loadCategories()]);
@@ -6031,8 +6192,8 @@ function _catIconAutoDetect() {
 async function saveCategory() {
   const id = document.getElementById('cat-id').value;
   const nameVal = document.getElementById('cat-name').value.trim();
-  if (!nameVal) { alert('Category name is required.'); return; }
-  if (!adminUser?.id) { alert('Admin session not found. Please log in again.'); return; }
+  if (!nameVal) { await _adminModal({title:'Error',message:'Category name is required.',type:'info'}); return; }
+  if (!adminUser?.id) { await _adminModal({title:'Error',message:'Admin session not found. Please log in again.',type:'info'}); return; }
   const slugVal = document.getElementById('cat-slug').value.trim()
     || nameVal.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const payload = {
@@ -6050,15 +6211,12 @@ async function saveCategory() {
   if (!id) {
     const { data: existing } = await db.client.from('course_categories')
       .select('id').ilike('name', nameVal).limit(1);
-    if (existing?.length) {
-      alert(`A category named "${nameVal}" already exists.`);
-      return;
-    }
+    if (existing?.length) { await _adminModal({title:'Error',message:`A category named "${nameVal}" already exists.`,type:'info'}); return; }
   }
   const { error } = id
     ? await db.client.from('course_categories').update(payload).eq('id', id)
     : await db.client.from('course_categories').insert(payload);
-  if (error) { alert('Error saving category: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error saving category: ' + error.message,type:'info'}); return; }
   closeModal('category-modal');
   await Promise.all([loadCategories(), loadCourses()]);
 }
@@ -6230,7 +6388,7 @@ async function saveRecording() {
 }
 
 async function completeSchedule(id) {
-  if (!confirm('Mark this class as completed and notify students?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Mark this class as completed and notify students?',type:'confirm'}))) return;
   const { error } = await db.client.from('class_sessions').update({
     session_status: 'completed',
     notification_status: 'pending'
@@ -6244,12 +6402,48 @@ async function completeSchedule(id) {
 }
 
 async function markEmiPaid(id) {
-  await db.client.from('payment_schedules').update({ schedule_status: 'paid', amount_paid: 0, updated_at: new Date().toISOString() }).eq('id', id);
-  loadEmi();
+  const { data: sched, error: fetchErr } = await db.client
+    .from('payment_schedules')
+    .select('*, enrollments(student_user_id, course_id, paid_amount, net_amount, due_amount)')
+    .eq('id', id).maybeSingle();
+  if (fetchErr || !sched) { _showAdminToast('Could not load EMI schedule', 'error'); return; }
+
+  const payAmount = Number(sched.amount_due) + Number(sched.late_fee_amount || 0);
+
+  await db.client.from('payment_schedules').update({
+    schedule_status: 'paid',
+    amount_paid: payAmount,
+    updated_at: new Date().toISOString()
+  }).eq('id', id);
+
+  const enr = sched.enrollments;
+  if (enr) {
+    await db.client.from('payments').insert({
+      student_user_id: enr.student_user_id,
+      enrollment_id: sched.enrollment_id,
+      course_id: enr.course_id,
+      payment_schedule_id: id,
+      amount: payAmount,
+      payment_method: 'cash',
+      payment_gateway: 'manual',
+      payment_status: 'completed',
+      paid_at: new Date().toISOString(),
+      transaction_reference: 'ADMIN-EMI-' + Date.now(),
+    });
+    const newPaid = Number(enr.paid_amount) + payAmount;
+    const newDue = Math.max(0, Number(enr.net_amount) - newPaid);
+    await _safeEnrollUpdate(sched.enrollment_id, {
+      paid_amount: newPaid, due_amount: newDue,
+      access_status: newDue <= 0 ? 'active' : enr.due_amount > 0 ? 'restricted' : 'active',
+    });
+  }
+
+  _showAdminToast(`✓ EMI #${sched.installment_number} marked paid (${fmtCurr(payAmount)})`, 'success');
+  loadEmi(); loadPayments(); loadDashboard();
 }
 
 async function cancelSchedule(id) {
-  if (!confirm('Cancel this class?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Cancel this class?',type:'confirm'}))) return;
   await db.client.from('class_sessions').update({
     session_status: 'cancelled',
     notification_status: 'cancelled'
@@ -6269,7 +6463,7 @@ async function updateFormStatus(id, status) {
 }
 
 async function downloadReport() {
-  alert('PDF report download would be triggered here via a print/PDF generation function.');
+  await _adminModal({title:'Notice',message:'PDF report download would be triggered here via a print/PDF generation function.',type:'info'});
 }
 
 function downloadInvoice(id) {
@@ -6411,8 +6605,8 @@ async function saveSiteForm() {
   const order    = parseInt(document.getElementById('sf-order').value) || 0;
   const active   = document.getElementById('sf-status').value === 'true';
 
-  if (!title) { alert('Form title is required.'); return; }
-  if (!form_url) { alert('Form URL is required.'); return; }
+  if (!title) { await _adminModal({title:'Error',message:'Form title is required.',type:'info'}); return; }
+  if (!form_url) { await _adminModal({title:'Error',message:'Form URL is required.',type:'info'}); return; }
 
   const btn = document.querySelector('.sf-modal-save');
   btn.disabled = true; btn.textContent = 'Saving…';
@@ -6439,16 +6633,16 @@ async function saveSiteForm() {
       'success'
     );
   } catch(e) {
-    alert('Save failed: ' + e.message);
+    await _adminModal({title:'Error',message:'Save failed: ' + e.message,type:'info'});
   } finally {
     btn.disabled = false; btn.textContent = 'Save Form Link';
   }
 }
 
 async function deleteSiteForm(id, title) {
-  if (!confirm(`Delete "${title}"?\nThis will remove it from the public forms page.`)) return;
+  if (!(await _adminModal({title:'Confirm',message:`Delete "${title}"?\nThis will remove it from the public forms page.`,type:'confirm'}))) return;
   const { error } = await db.client.from('site_forms').delete().eq('id', id);
-  if (error) { alert('Delete failed: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Delete failed: ' + error.message,type:'info'}); return; }
   loadSiteFormLinks();
   _showAdminToast('Form link deleted.', 'error');
 }
@@ -6467,6 +6661,220 @@ function _showAdminToast(msg, type = 'success', duration = 3500) {
   document.body.appendChild(t);
   requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)'; });
   setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(-8px)'; setTimeout(() => t.remove(), 350); }, duration);
+}
+
+let _adminModalResolve = null;
+const _adminModalIcons = {
+  info:    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  confirm: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  danger:  '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  prompt:  '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+};
+
+function _adminModal({ title = '', message = '', type = 'info', confirmText, cancelText, inputLabel, inputDefault = '' } = {}) {
+  return new Promise(resolve => {
+    _adminModalResolve = resolve;
+    const iconEl = document.getElementById('_adminModal-icon');
+    const titleEl = document.getElementById('_adminModal-title');
+    const msgEl = document.getElementById('_adminModal-msg');
+    const inputWrap = document.getElementById('_adminModal-input-wrap');
+    const inputEl = document.getElementById('_adminModal-input');
+    const inputLblEl = document.getElementById('_adminModal-input-label');
+    const cancelBtn = document.getElementById('_adminModal-cancel-btn');
+    const okBtn = document.getElementById('_adminModal-ok-btn');
+
+    iconEl.className = 'adm-modal-icon ' + type;
+    iconEl.innerHTML = _adminModalIcons[type] || _adminModalIcons.info;
+    titleEl.textContent = title || { info:'Notice', confirm:'Confirm', danger:'Warning', prompt:'Input Required' }[type] || 'Notice';
+    msgEl.textContent = message;
+
+    if (type === 'prompt') {
+      inputWrap.style.display = '';
+      inputLblEl.textContent = inputLabel || '';
+      inputLblEl.style.display = inputLabel ? '' : 'none';
+      inputEl.value = inputDefault;
+      setTimeout(() => inputEl.focus(), 150);
+    } else {
+      inputWrap.style.display = 'none';
+    }
+
+    if (type === 'info') {
+      cancelBtn.style.display = 'none';
+      okBtn.textContent = confirmText || 'OK';
+      okBtn.style.background = 'var(--grad)';
+      okBtn.style.boxShadow = '';
+    } else if (type === 'danger') {
+      cancelBtn.style.display = '';
+      cancelBtn.textContent = cancelText || 'Cancel';
+      okBtn.textContent = confirmText || 'Yes, Proceed';
+      okBtn.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
+      okBtn.style.boxShadow = '0 2px 8px rgba(239,68,68,.35)';
+    } else if (type === 'prompt') {
+      cancelBtn.style.display = '';
+      cancelBtn.textContent = cancelText || 'Cancel';
+      okBtn.textContent = confirmText || 'Submit';
+      okBtn.style.background = 'var(--grad)';
+      okBtn.style.boxShadow = '';
+    } else {
+      cancelBtn.style.display = '';
+      cancelBtn.textContent = cancelText || 'Cancel';
+      okBtn.textContent = confirmText || 'Confirm';
+      okBtn.style.background = 'var(--grad)';
+      okBtn.style.boxShadow = '';
+    }
+
+    okBtn.onclick = () => {
+      closeModal('_adminModal-overlay');
+      if (type === 'prompt') resolve(inputEl.value);
+      else resolve(true);
+      _adminModalResolve = null;
+    };
+    openModal('_adminModal-overlay');
+  });
+}
+
+function _adminModalDismiss() {
+  closeModal('_adminModal-overlay');
+  if (_adminModalResolve) {
+    const type = document.getElementById('_adminModal-input-wrap').style.display !== 'none' ? 'prompt' : 'other';
+    _adminModalResolve(type === 'prompt' ? null : false);
+    _adminModalResolve = null;
+  }
+}
+
+// ── BULK SELECTION & OPERATIONS ─────────────────────────────
+let _bulkSection = null;
+
+function toggleSelectAll(tbodyId, checked, section) {
+  _bulkSection = section;
+  document.querySelectorAll(`#${tbodyId} .row-check`).forEach(cb => { cb.checked = checked; });
+  updateBulkBar(section);
+}
+
+function updateBulkBar(section) {
+  _bulkSection = section;
+  const tbodyMap = { users:'user-tbody', mentors:'mentor-tbody', enrollments:'enrollment-tbody', payments:'payment-tbody' };
+  const tbodyId = tbodyMap[section];
+  if (!tbodyId) return;
+  const checks = [...document.querySelectorAll(`#${tbodyId} .row-check:checked`)];
+  const bar = document.getElementById('bulk-action-bar');
+  const count = checks.length;
+  if (count > 0) {
+    bar.classList.remove('hidden');
+    document.getElementById('bulk-count').textContent = `${count} selected`;
+    const statusBtn = document.getElementById('bulk-status-btn');
+    const deleteBtn = document.getElementById('bulk-delete-btn');
+    statusBtn.style.display = (section === 'users' || section === 'enrollments' || section === 'mentors') ? '' : 'none';
+    deleteBtn.textContent = section === 'enrollments' ? 'Unenroll Selected' : 'Delete Selected';
+  } else {
+    bar.classList.add('hidden');
+  }
+}
+
+function getSelectedIds() {
+  const tbodyMap = { users:'user-tbody', mentors:'mentor-tbody', enrollments:'enrollment-tbody', payments:'payment-tbody' };
+  const tbodyId = tbodyMap[_bulkSection];
+  if (!tbodyId) return [];
+  return [...document.querySelectorAll(`#${tbodyId} .row-check:checked`)].map(cb => cb.dataset.id);
+}
+
+async function bulkDelete() {
+  const ids = getSelectedIds();
+  if (!ids.length) return;
+  const section = _bulkSection;
+
+  if (section === 'enrollments') {
+    if (!(await _adminModal({title:'Unenroll Selected',message:`Cancel ${ids.length} enrollment(s)?\n\nThis will set them to cancelled status and revoke access.\nPayment records are preserved.`,type:'danger',confirmText:'Yes, Unenroll All'}))) return;
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      const { error } = await db.client.from('enrollments').update({
+        enrollment_status: 'cancelled', access_status: 'revoked', updated_at: new Date().toISOString()
+      }).eq('id', id);
+      if (error) fail++; else ok++;
+    }
+    _showAdminToast(`✓ ${ok} unenrolled${fail ? `, ${fail} failed` : ''}`, ok ? 'success' : 'error');
+    clearBulkSelection(); loadEnrollments(); loadDashboard();
+  } else if (section === 'users' || section === 'mentors') {
+    if (!(await _adminModal({title:'Delete Selected',message:`Permanently delete ${ids.length} user(s) and all their data?\n\nThis cannot be undone.`,type:'danger',confirmText:'Yes, Delete All'}))) return;
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      const { error } = await db.client.rpc('admin_delete_user', { target_user_id: id });
+      if (error) fail++; else ok++;
+    }
+    _showAdminToast(`✓ ${ok} deleted${fail ? `, ${fail} failed` : ''}`, ok ? 'success' : 'error');
+    clearBulkSelection();
+    if (section === 'users') loadUsers(); else loadMentors();
+    loadDashboard();
+  } else if (section === 'payments') {
+    if (!(await _adminModal({title:'Delete Payments',message:`Delete ${ids.length} payment record(s)?\n\nThis will reverse enrollment balances.`,type:'danger',confirmText:'Yes, Delete All'}))) return;
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      const { error } = await db.client.from('payments').delete().eq('id', id);
+      if (error) fail++; else ok++;
+    }
+    _showAdminToast(`✓ ${ok} deleted${fail ? `, ${fail} failed` : ''}`, ok ? 'success' : 'error');
+    clearBulkSelection(); loadPayments(); loadDashboard();
+  }
+}
+
+async function bulkStatusChange() {
+  const ids = getSelectedIds();
+  if (!ids.length) return;
+  const section = _bulkSection;
+
+  if (section === 'enrollments') {
+    const newStatus = await _adminModal({title:'Change Enrollment Status',message:'Enter new status (active, pending, completed, cancelled):',type:'prompt',inputLabel:'New status',inputDefault:'active'});
+    if (!newStatus) return;
+    const valid = ['active','pending','completed','cancelled'];
+    if (!valid.includes(newStatus.toLowerCase())) { _showAdminToast('Invalid status. Use: ' + valid.join(', '), 'error'); return; }
+    let ok = 0;
+    for (const id of ids) {
+      const updates = { enrollment_status: newStatus.toLowerCase(), updated_at: new Date().toISOString() };
+      if (newStatus === 'active') updates.access_status = 'active';
+      if (newStatus === 'cancelled') updates.access_status = 'revoked';
+      const { error } = await db.client.from('enrollments').update(updates).eq('id', id);
+      if (!error) ok++;
+    }
+    _showAdminToast(`✓ ${ok} enrollment(s) updated to ${newStatus}`, 'success');
+    clearBulkSelection(); loadEnrollments();
+  } else if (section === 'mentors') {
+    const newStatus = await _adminModal({title:'Change Mentor Status',message:'Enter new status (approved, pending, rejected, suspended):',type:'prompt',inputLabel:'New status',inputDefault:'approved'});
+    if (!newStatus) return;
+    const valid = ['approved','pending','rejected','suspended'];
+    if (!valid.includes(newStatus.toLowerCase())) { _showAdminToast('Invalid status. Use: ' + valid.join(', '), 'error'); return; }
+    let ok = 0;
+    for (const id of ids) {
+      const { error } = await db.client.from('mentor_profiles').update({ status: newStatus.toLowerCase() }).eq('user_id', id);
+      if (!error) ok++;
+    }
+    _showAdminToast(`✓ ${ok} mentor(s) updated to ${newStatus}`, 'success');
+    clearBulkSelection(); loadMentors();
+  }
+}
+
+function bulkExport() {
+  const ids = new Set(getSelectedIds());
+  if (!ids.size) return;
+  const tbodyMap = { users:'user-tbody', mentors:'mentor-tbody', enrollments:'enrollment-tbody', payments:'payment-tbody' };
+  const tbody = document.getElementById(tbodyMap[_bulkSection]);
+  if (!tbody) return;
+  const rows = [...tbody.querySelectorAll('tr')].filter(tr => {
+    const cb = tr.querySelector('.row-check');
+    return cb && ids.has(cb.dataset.id);
+  });
+  const csv = rows.map(r => [...r.querySelectorAll('td')].slice(1).map(td => '"' + td.textContent.replace(/"/g,'""').trim() + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
+  a.download = _bulkSection + '-selected-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  _showAdminToast(`✓ Exported ${rows.length} rows`, 'success');
+}
+
+function clearBulkSelection() {
+  document.querySelectorAll('.row-check').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('thead .bulk-check').forEach(cb => { cb.checked = false; });
+  document.getElementById('bulk-action-bar').classList.add('hidden');
+  _bulkSection = null;
 }
 
 async function renderFormTypes() {
@@ -6557,13 +6965,13 @@ function generateQr(canvas, url, size) {
   });
 }
 
-function copyQrUrl() {
+async function copyQrUrl() {
   if (!_qrCurrentUrl) return;
   navigator.clipboard.writeText(_qrCurrentUrl).then(() => {
     const btn = event.target; const orig = btn.textContent;
     btn.textContent = '✅ Copied!';
     setTimeout(() => { btn.textContent = orig; }, 2000);
-  }).catch(() => { prompt('Copy this link:', _qrCurrentUrl); });
+  }).catch(() => { await _adminModal({title:'Copy Link',message:_qrCurrentUrl,type:'prompt',inputDefault:_qrCurrentUrl,inputLabel:'Copy this link:'}); });
 }
 
 async function downloadQr() {
@@ -6675,13 +7083,13 @@ async function loadFormReports() {
     </tr>`).join('') : '<tr><td colspan="5" class="table-empty">No data</td></tr>';
 }
 
-function exportFormsCsv() {
+async function exportFormsCsv() {
   const rows = [];
   document.querySelectorAll('#form-tbody tr').forEach(tr => {
     const cells = [...tr.querySelectorAll('td')].map(td => '"' + td.textContent.replace(/"/g,'""') + '"');
     if (cells.length > 1) rows.push(cells.join(','));
   });
-  if (!rows.length) { alert('No data to export.'); return; }
+  if (!rows.length) { await _adminModal({title:'Error',message:'No data to export.',type:'info'}); return; }
   const csv = 'Type,Name,Email,Course,Submitted,Status,Actions\n' + rows.join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const link = document.createElement('a');
@@ -6690,24 +7098,23 @@ function exportFormsCsv() {
   link.click();
 }
 
-function viewFormData(id) {
-  db.client.from('form_submissions').select('*').eq('id', id).single().then(({ data }) => {
-    if (!data) { alert('Record not found.'); return; }
-    const d = data.form_data || data.submission_data || {};
-    let txt = 'Form Submission Details\n' + '─'.repeat(40) + '\n';
-    txt += 'Type: ' + data.form_type + '\n';
-    txt += 'Status: ' + (data.status || 'pending') + '\n';
-    txt += 'Submitted: ' + new Date(data.created_at).toLocaleString('en-IN') + '\n\n';
-    txt += 'Form Data:\n';
-    Object.entries(d).forEach(([k, v]) => { txt += '  ' + k + ': ' + v + '\n'; });
-    alert(txt);
-  });
+async function viewFormData(id) {
+  const { data } = await db.client.from('form_submissions').select('*').eq('id', id).single();
+  if (!data) { await _adminModal({title:'Error',message:'Record not found.',type:'info'}); return; }
+  const d = data.form_data || data.submission_data || {};
+  let txt = 'Form Submission Details\n' + '─'.repeat(40) + '\n';
+  txt += 'Type: ' + data.form_type + '\n';
+  txt += 'Status: ' + (data.status || 'pending') + '\n';
+  txt += 'Submitted: ' + new Date(data.created_at).toLocaleString('en-IN') + '\n\n';
+  txt += 'Form Data:\n';
+  Object.entries(d).forEach(([k, v]) => { txt += '  ' + k + ': ' + v + '\n'; });
+  await _adminModal({title:'Details',message:txt,type:'info'});
 }
 
 // ===== EDIT COURSE =====
 async function editCourse(id) {
   const { data: c, error } = await db.client.from('courses').select('*').eq('id', id).single();
-  if (error) { alert('Failed to load course: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Failed to load course: ' + error.message,type:'info'}); return; }
   const { data: pricing } = await db.client.from('course_pricing').select('*').eq('course_id', id).eq('is_active', true).maybeSingle();
   document.getElementById('course-id').value = c.id;
   document.getElementById('c-name').value = c.title || '';
@@ -6754,9 +7161,9 @@ async function editCategory(id) {
 }
 
 async function deleteCategory(id) {
-  if (!confirm('Delete this category? Courses in this category will have no category.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this category? Courses in this category will have no category.',type:'danger'}))) return;
   const { error } = await db.client.from('course_categories').delete().eq('id', id);
-  if (error) { alert('Error: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error: ' + error.message,type:'info'}); return; }
   loadCategories();
 }
 
@@ -6946,7 +7353,7 @@ async function addStudentToBatch(userId, name) {
 }
 
 async function removeStudentFromBatch(enrollmentId) {
-  if (!confirm('Remove this student from the batch?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Remove this student from the batch?',type:'danger'}))) return;
   const { error } = await db.client.from('enrollments')
     .update({ batch_id: null, enrollment_status: 'pending' }).eq('id', enrollmentId);
   if (error) { _showAdminToast('Error removing student: ' + error.message, 'error'); return; }
@@ -7049,7 +7456,7 @@ async function viewUser(id) {
 // ── Enrollment action wrappers for user-modal context ─────────
 // Each runs the DB operation then refreshes the open user view.
 async function _muGrantAccess(enrollId) {
-  if (!confirm('Grant course access to this student?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Grant course access to this student?',type:'confirm'}))) return;
   try {
     await _safeEnrollUpdate(enrollId, {
       enrollment_status: 'active', access_status: 'active',
@@ -7062,7 +7469,7 @@ async function _muGrantAccess(enrollId) {
 }
 
 async function _muRevokeAccess(enrollId) {
-  if (!confirm('Revoke course access? Student will lose access immediately.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Revoke course access? Student will lose access immediately.',type:'confirm'}))) return;
   try {
     await _safeEnrollUpdate(enrollId, { access_status: 'revoked', enrollment_status: 'blocked' });
     _showAdminToast('✓ Access revoked', 'success');
@@ -7072,7 +7479,7 @@ async function _muRevokeAccess(enrollId) {
 }
 
 async function _muRecordPayment(enrollId, dueAmount) {
-  const amtStr = prompt(`Record payment\nBalance due: ₹${Number(dueAmount).toLocaleString('en-IN')}\n\nEnter amount received (₹):`);
+  const amtStr = await _adminModal({title:'Input',message:`Record payment\nBalance due: ₹${Number(dueAmount).toLocaleString('en-IN')}\n\nEnter amount received (₹):`,type:'prompt'});
   if (amtStr === null) return;
   const amt = parseFloat(amtStr);
   if (isNaN(amt) || amt <= 0) { _showAdminToast('Invalid amount', 'error'); return; }
@@ -7093,15 +7500,40 @@ async function _muRecordPayment(enrollId, dueAmount) {
     amount: amt, payment_method: 'cash', payment_gateway: 'manual', payment_status: 'completed',
     paid_at: new Date().toISOString(), transaction_reference: 'ADMIN-PAY-' + Date.now(),
   });
+  // Sync pending payment_schedules for EMI enrollments
+  const { data: pendingScheds } = await db.client
+    .from('payment_schedules').select('id, amount_due, late_fee_amount')
+    .eq('enrollment_id', enrollId).eq('schedule_status', 'pending')
+    .order('installment_number', { ascending: true }).limit(5);
+  if (pendingScheds?.length) {
+    let remaining = amt;
+    for (const sched of pendingScheds) {
+      if (remaining <= 0) break;
+      const schedTotal = Number(sched.amount_due) + Number(sched.late_fee_amount || 0);
+      const allocate = Math.min(remaining, schedTotal);
+      await db.client.from('payment_schedules').update({
+        amount_paid: allocate, schedule_status: allocate >= schedTotal ? 'paid' : 'pending',
+        updated_at: new Date().toISOString()
+      }).eq('id', sched.id);
+      remaining -= allocate;
+    }
+  }
   _showAdminToast(`✓ ₹${Number(amt).toLocaleString('en-IN')} recorded. Balance: ₹${Number(newDue).toLocaleString('en-IN')}`, 'success');
   if (_viewingUserId) viewUser(_viewingUserId);
-  loadEnrollments(); loadPayments(); loadDashboard();
+  loadEnrollments(); loadPayments(); loadEmi(); loadDashboard();
 }
 
 async function _muUnenroll(enrollId, studentName, courseTitle) {
   const label = [studentName, courseTitle].filter(Boolean).join(' from ');
-  if (!confirm(`Remove enrollment${label ? ' of ' + label : ''}?\n\nThis permanently deletes the enrollment record and removes course access. Payment records are kept.\n\nThis cannot be undone.`)) return;
-  const { error } = await db.client.from('enrollments').delete().eq('id', enrollId);
+  if (!(await _adminModal({title:'Unenroll Student',message:`Cancel enrollment${label ? ' of ' + label : ''}?\n\nThis will cancel the enrollment and revoke course access.\nPayment records and enrollment history are preserved.`,type:'danger',confirmText:'Yes, Unenroll'}))) return;
+  const { data: enr } = await db.client.from('enrollments').select('notes').eq('id', enrollId).maybeSingle();
+  const existingNotes = enr?.notes || '';
+  const { error } = await db.client.from('enrollments').update({
+    enrollment_status: 'cancelled',
+    access_status: 'revoked',
+    updated_at: new Date().toISOString(),
+    notes: (existingNotes ? existingNotes + '\n' : '') + `Unenrolled by admin on ${new Date().toLocaleDateString('en-IN')}`
+  }).eq('id', enrollId);
   if (error) { _showAdminToast('Unenroll failed: ' + error.message, 'error'); return; }
   _showAdminToast(`✓ ${studentName || 'Student'} unenrolled from ${courseTitle || 'course'}`, 'success');
   if (_viewingUserId) viewUser(_viewingUserId);
@@ -7207,15 +7639,18 @@ async function viewFormData(id) {
 
 // ===== ADD LATE FEE =====
 async function addLateFee(id) {
-  const feeAmt = parseFloat(prompt('Enter late fee amount (₹):') || '0');
-  if (!feeAmt || isNaN(feeAmt)) return;
+  const feeStr = await _adminModal({title:'Add Late Fee',message:'Enter late fee amount:',type:'prompt',inputLabel:'Late fee (₹)'});
+  if (feeStr === null) return;
+  const feeAmt = parseFloat(feeStr);
+  if (!feeAmt || isNaN(feeAmt) || feeAmt <= 0) { _showAdminToast('Invalid amount', 'error'); return; }
   await db.client.from('payment_schedules').update({ late_fee_amount: feeAmt }).eq('id', id);
+  _showAdminToast(`✓ Late fee of ${fmtCurr(feeAmt)} added`, 'success');
   loadEmi();
 }
 
 // ===== REFUND PAYMENT =====
 async function refundPayment(id) {
-  if (!confirm('Mark this payment as refunded? This cannot be undone.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Mark this payment as refunded? This cannot be undone.',type:'confirm'}))) return;
   await db.client.from('payments').update({ payment_status: 'refunded' }).eq('id', id);
   loadPayments();
 }
@@ -7279,7 +7714,7 @@ async function _executeDeletePayment() {
 
 // ===== REVOKE ACCESS =====
 async function revokeAccess(enrollId) {
-  if (!confirm('Revoke course access for this student? They will no longer be able to view course content.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Revoke course access for this student? They will no longer be able to view course content.',type:'confirm'}))) return;
   try {
     await _safeEnrollUpdate(enrollId, { access_status: 'revoked', enrollment_status: 'blocked' });
     _showAdminToast('✓ Access revoked', 'success');
@@ -7293,19 +7728,26 @@ async function revokeAccess(enrollId) {
 // Payment history in the payments table is kept for accounting.
 async function unenrollStudent(enrollId, studentName, courseTitle) {
   const label = [studentName, courseTitle].filter(Boolean).join(' from ');
-  if (!confirm(`Remove enrollment${label ? ' of ' + label : ''}?\n\nThis will:\n  • Permanently delete the enrollment record\n  • Remove course access immediately\n  • Remove the course from the student's dashboard\n  • Keep payment records for accounting\n\nThis cannot be undone.`)) return;
+  if (!(await _adminModal({title:'Unenroll Student',message:`Cancel enrollment${label ? ' of ' + label : ''}?\n\nThis will:\n  • Cancel the enrollment and revoke course access\n  • Remove the course from the student's dashboard\n  • Keep payment records and enrollment history\n\nYou can re-enroll the student later if needed.`,type:'danger',confirmText:'Yes, Unenroll'}))) return;
 
-  const { error } = await db.client.from('enrollments').delete().eq('id', enrollId);
+  const { data: enr } = await db.client.from('enrollments').select('notes').eq('id', enrollId).maybeSingle();
+  const existingNotes = enr?.notes || '';
+  const { error } = await db.client.from('enrollments').update({
+    enrollment_status: 'cancelled',
+    access_status: 'revoked',
+    updated_at: new Date().toISOString(),
+    notes: (existingNotes ? existingNotes + '\n' : '') + `Unenrolled by admin on ${new Date().toLocaleDateString('en-IN')}`
+  }).eq('id', enrollId);
 
   if (error) { _showAdminToast('Unenroll failed: ' + error.message, 'error'); return; }
-  _showAdminToast(`✓ ${studentName || 'Student'} removed from${courseTitle ? ' ' + courseTitle : ' enrollment'}. Record deleted.`, 'success');
+  _showAdminToast(`✓ ${studentName || 'Student'} unenrolled from${courseTitle ? ' ' + courseTitle : ' course'}`, 'success');
   loadEnrollments();
   loadDashboard();
 }
 
 // ===== DELETE RECORDING =====
 async function deleteRecording(id) {
-  if (!confirm('Delete this recording?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this recording?',type:'danger'}))) return;
   await db.client.from('live_recordings').delete().eq('id', id);
   loadRecordings();
 }
@@ -7437,9 +7879,9 @@ async function editPricing(id) {
 async function savePricing() {
   const id = document.getElementById('pricing-id').value;
   const courseId = document.getElementById('pr-course').value;
-  if (!courseId) { alert('Please select a course.'); return; }
+  if (!courseId) { await _adminModal({title:'Error',message:'Please select a course.',type:'info'}); return; }
   const listPrice = parseFloat(document.getElementById('pr-list').value);
-  if (!listPrice || isNaN(listPrice)) { alert('List price is required.'); return; }
+  if (!listPrice || isNaN(listPrice)) { await _adminModal({title:'Error',message:'List price is required.',type:'info'}); return; }
   const saleVal = document.getElementById('pr-sale').value;
   const payload = {
     course_id: courseId,
@@ -7453,13 +7895,13 @@ async function savePricing() {
   const { error } = id
     ? await db.client.from('course_pricing').update(payload).eq('id', id)
     : await db.client.from('course_pricing').insert(payload);
-  if (error) { alert('Error: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error: ' + error.message,type:'info'}); return; }
   closeModal('pricing-modal');
   loadPricing();
 }
 
 async function deletePricing(id) {
-  if (!confirm('Remove this pricing plan?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Remove this pricing plan?',type:'danger'}))) return;
   await db.client.from('course_pricing').delete().eq('id', id);
   loadPricing();
 }
@@ -7518,9 +7960,9 @@ async function saveDiscount() {
   const id = document.getElementById('disc-id').value;
   const code = document.getElementById('disc-code').value.trim().toUpperCase();
   const name = document.getElementById('disc-name').value.trim();
-  if (!name || !code) { alert('Campaign name and coupon code are required.'); return; }
+  if (!name || !code) { await _adminModal({title:'Error',message:'Campaign name and coupon code are required.',type:'info'}); return; }
   const discVal = parseFloat(document.getElementById('disc-value').value);
-  if (!discVal || isNaN(discVal)) { alert('Discount value is required.'); return; }
+  if (!discVal || isNaN(discVal)) { await _adminModal({title:'Error',message:'Discount value is required.',type:'info'}); return; }
   const payload = {
     campaign_name: name,
     coupon_code: code,
@@ -7539,21 +7981,18 @@ async function saveDiscount() {
   if (!id) {
     const { data: existing } = await db.client.from('discount_campaigns')
       .select('id').eq('coupon_code', code).limit(1);
-    if (existing?.length) {
-      alert(`Coupon code "${code}" already exists. Please use a unique code.`);
-      return;
-    }
+    if (existing?.length) { await _adminModal({title:'Error',message:`Coupon code "${code}" already exists. Please use a unique code.`,type:'info'}); return; }
   }
   const { error } = id
     ? await db.client.from('discount_campaigns').update(payload).eq('id', id)
     : await db.client.from('discount_campaigns').insert(payload);
-  if (error) { alert('Error: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error: ' + error.message,type:'info'}); return; }
   closeModal('discount-modal');
   loadDiscounts();
 }
 
 async function deleteDiscount(id) {
-  if (!confirm('Delete this discount campaign?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this discount campaign?',type:'danger'}))) return;
   await db.client.from('discount_campaigns').delete().eq('id', id);
   loadDiscounts();
 }
@@ -7696,8 +8135,8 @@ function filterRefCodes(q) {
   ));
 }
 
-function exportRefCodes() {
-  if (!_allRefCodes.length) { alert('No codes to export.'); return; }
+async function exportRefCodes() {
+  if (!_allRefCodes.length) { await _adminModal({title:'Error',message:'No codes to export.',type:'info'}); return; }
   const headers = ['Code','Description','Referrer','Pts→Referrer','Pts→Referee','Uses','MaxUses','Expires','Status'];
   const rows = _allRefCodes.map(c => [
     c.code, c.description || '', c._referrer?.email || '',
@@ -7773,11 +8212,8 @@ async function saveRefCode() {
   const expiresAt   = expiresRaw ? new Date(expiresRaw).toISOString() : null;
   const isActive    = document.getElementById('rfc-active').value === 'true';
 
-  if (!rawCode) { alert('Code is required.'); return; }
-  if (!/^[A-Z0-9_-]{2,30}$/.test(rawCode)) {
-    alert('Code must be 2–30 characters: uppercase letters, numbers, hyphens or underscores.');
-    return;
-  }
+  if (!rawCode) { await _adminModal({title:'Error',message:'Code is required.',type:'info'}); return; }
+  if (!/^[A-Z0-9_-]{2,30}$/.test(rawCode)) { await _adminModal({title:'Error',message:'Code must be 2–30 characters: uppercase letters, numbers, hyphens or underscores.',type:'info'}); return; }
 
   const session = JSON.parse(sessionStorage.getItem('admin_session') || '{}');
   const payload = {
@@ -7792,8 +8228,8 @@ async function saveRefCode() {
     : await db.client.from('referral_codes').insert(payload);
 
   if (error) {
-    if (error.code === '23505') alert(`Code "${rawCode}" already exists. Please use a different code.`);
-    else alert('Error saving referral code: ' + error.message);
+    if (error.code === '23505') await _adminModal({title:'Error',message:`Code "${rawCode}" already exists. Please use a different code.`,type:'info'});
+    else await _adminModal({title:'Error',message:'Error saving referral code: ' + error.message,type:'info'});
     return;
   }
 
@@ -7804,23 +8240,23 @@ async function saveRefCode() {
 async function toggleRefCode(id, currentActive) {
   const { error } = await db.client.from('referral_codes')
     .update({ is_active: !currentActive }).eq('id', id);
-  if (error) { alert('Error updating code: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error updating code: ' + error.message,type:'info'}); return; }
   loadReferrals();
 }
 
 async function deleteRefCode(id, code) {
-  if (!confirm(`Delete referral code "${code}"?\n\nThis cannot be undone. Referral logs using this code will remain.`)) return;
+  if (!(await _adminModal({title:'Confirm',message:`Delete referral code "${code}"?\n\nThis cannot be undone. Referral logs using this code will remain.`,type:'confirm'}))) return;
   const { error } = await db.client.from('referral_codes').delete().eq('id', id);
-  if (error) { alert('Error deleting code: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error deleting code: ' + error.message,type:'info'}); return; }
   loadReferrals();
 }
 
 async function resetRefCodeUses() {
   const id = document.getElementById('rfc-id').value;
   if (!id) return;
-  if (!confirm('Reset the use count for this code to 0?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Reset the use count for this code to 0?',type:'confirm'}))) return;
   const { error } = await db.client.from('referral_codes').update({ use_count: 0 }).eq('id', id);
-  if (error) { alert('Error resetting uses: ' + error.message); return; }
+  if (error) { await _adminModal({title:'Error',message:'Error resetting uses: ' + error.message,type:'info'}); return; }
   document.getElementById('rfc-use-count').textContent = '0';
   loadReferrals();
 }
@@ -8637,7 +9073,7 @@ async function saveSchedule() {
 }
 
 async function completeSchedule(id) {
-  if (!confirm('Mark this class as completed and notify students?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Mark this class as completed and notify students?',type:'confirm'}))) return;
   const { error } = await db.client.from('class_sessions').update({
     session_status: 'completed',
     notification_status: 'pending'
@@ -8652,7 +9088,7 @@ async function completeSchedule(id) {
 }
 
 async function cancelSchedule(id) {
-  if (!confirm('Cancel this class?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Cancel this class?',type:'confirm'}))) return;
   const { error } = await db.client.from('class_sessions').update({
     session_status: 'cancelled',
     notification_status: 'pending'
@@ -8993,7 +9429,7 @@ async function saveInternProj() {
 }
 
 async function deleteInternProj(id, name) {
-  if (!confirm(`Delete project "${name}"? This will also remove all enrollments and reports.`)) return;
+  if (!(await _adminModal({title:'Confirm',message:`Delete project "${name}"? This will also remove all enrollments and reports.`,type:'confirm'}))) return;
   const { error } = await db.client.from('internship_projects').delete().eq('id',id);
   if (error) { _showAdminToast('Delete failed: ' + error.message,'error'); return; }
   _showAdminToast('Project deleted.','success');
@@ -9084,7 +9520,7 @@ async function saveModule() {
 }
 
 async function deleteModule(id, name) {
-  if (!confirm(`Delete module "${name}"?`)) return;
+  if (!(await _adminModal({title:'Confirm',message:`Delete module "${name}"?`,type:'confirm'}))) return;
   const { error } = await db.client.from('project_modules').delete().eq('id',id);
   if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
   _showAdminToast('Module deleted.','success');
@@ -9189,7 +9625,7 @@ async function saveAssignment() {
 }
 
 async function revokeAssignment(id) {
-  if (!confirm('Revoke this assignment?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Revoke this assignment?',type:'confirm'}))) return;
   const { error } = await db.client.from('project_assignments').update({ status:'revoked' }).eq('id',id);
   if (error) { _showAdminToast('Failed: '+error.message,'error'); return; }
   _showAdminToast('Assignment revoked.','success');
@@ -9197,7 +9633,7 @@ async function revokeAssignment(id) {
 }
 
 async function deleteAssignment(id) {
-  if (!confirm('Delete this assignment record?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this assignment record?',type:'danger'}))) return;
   const { error } = await db.client.from('project_assignments').delete().eq('id',id);
   if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
   _showAdminToast('Deleted.','success');
@@ -9407,7 +9843,7 @@ async function saveGitRepo() {
 }
 
 async function deleteGitRepo(id) {
-  if (!confirm('Delete this repository? All student git access records will also be removed.')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this repository? All student git access records will also be removed.',type:'danger'}))) return;
   const { error } = await db.client.from('project_git_repos').delete().eq('id',id);
   if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
   _showAdminToast('Repository deleted.','success');
@@ -9488,7 +9924,7 @@ async function saveGitAccess() {
 }
 
 async function revokeGitAccess(id) {
-  if (!confirm('Revoke this git access?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Revoke this git access?',type:'confirm'}))) return;
   const { error } = await db.client.from('project_git_access').update({ is_active:false, revoked_at: new Date().toISOString() }).eq('id',id);
   if (error) { _showAdminToast('Failed: '+error.message,'error'); return; }
   _showAdminToast('Access revoked.','success');
@@ -9831,7 +10267,7 @@ async function loadInternStudents() {
 }
 
 async function approveEnrol(enrollId, studentName) {
-  if (!confirm(`Approve internship for "${studentName}"?`)) return;
+  if (!(await _adminModal({title:'Confirm',message:`Approve internship for "${studentName}"?`,type:'confirm'}))) return;
   const { data: { user } } = await db.client.auth.getUser();
   const { error } = await db.client.from('internship_enrollments').update({
     approval_status: 'approved',
@@ -9849,14 +10285,14 @@ async function approveEnrol(enrollId, studentName) {
   if (enrolData) {
     const { data: prof } = await db.client.from('user_profiles')
       .select('full_name, email').eq('user_id', enrolData.student_user_id).single();
-    if (prof && confirm(`Assign "${studentName}" to a module now?`)) {
+    if (prof && (await _adminModal({title:'Confirm',message:`Assign "${studentName}" to a module now?`,type:'confirm'}))) {
       openAssignModalFor(prof.email || '', prof.full_name || studentName);
     }
   }
 }
 
 async function rejectEnrol(enrollId) {
-  const reason = prompt('Rejection reason (optional):');
+  const reason = await _adminModal({title:'Input',message:'Rejection reason (optional):',type:'prompt'});
   if (reason === null) return;
   const { error } = await db.client.from('internship_enrollments').update({
     approval_status: 'rejected',
@@ -10795,7 +11231,7 @@ async function saveInternModule() {
 }
 
 async function deleteInternModule(modId) {
-  if (!confirm('Delete this module?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this module?',type:'danger'}))) return;
   const { error } = await db.client.from('intern_modules').delete().eq('id', modId);
   if (error) { _showAdminToast('Delete failed: ' + error.message, 'error'); return; }
   _showAdminToast('Module deleted.', 'success');
@@ -10912,7 +11348,7 @@ async function saveGitPermission() {
 }
 
 async function revokeGitPerm(permId) {
-  if (!confirm('Revoke this push permission?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Revoke this push permission?',type:'confirm'}))) return;
   const { error } = await db.client.from('intern_git_permissions')
     .update({ is_active: false, revoked_at: new Date().toISOString() })
     .eq('id', permId);
@@ -11607,7 +12043,7 @@ async function saveInternProgramModule() {
 }
 
 async function deleteInternProgramModule(id, name) {
-  if (!confirm(`Delete module "${name}"?`)) return;
+  if (!(await _adminModal({title:'Confirm',message:`Delete module "${name}"?`,type:'confirm'}))) return;
   const { error } = await db.client.from('intern_program_modules').delete().eq('id', id);
   if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
   _showAdminToast('Module deleted.','success');
@@ -11805,7 +12241,7 @@ async function saveInternProgramAssignment() {
 }
 
 async function revokeInternProgramAssignment(id) {
-  if (!confirm('Revoke this assignment?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Revoke this assignment?',type:'confirm'}))) return;
   const { error } = await db.client.from('intern_program_assignments').update({ status: 'revoked' }).eq('id', id);
   if (error) { _showAdminToast('Failed: '+error.message,'error'); return; }
   _showAdminToast('Assignment revoked.','success');
@@ -11813,7 +12249,7 @@ async function revokeInternProgramAssignment(id) {
 }
 
 async function deleteInternProgramAssignment(id) {
-  if (!confirm('Delete this assignment record?')) return;
+  if (!(await _adminModal({title:'Confirm',message:'Delete this assignment record?',type:'danger'}))) return;
   const { error } = await db.client.from('intern_program_assignments').delete().eq('id', id);
   if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
   _showAdminToast('Deleted.','success');
@@ -12510,6 +12946,33 @@ function exportStudentDetail(fmt){
     <div class="modal-actions" style="justify-content:center;">
       <button class="btn-secondary" onclick="closeModal('confirm-delete-payment-modal')">Cancel</button>
       <button class="btn-primary" id="confirm-delete-pay-btn" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 2px 8px rgba(239,68,68,.35);" onclick="_executeDeletePayment()">Yes, Delete Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BULK ACTION BAR ===== -->
+<div class="bulk-bar hidden" id="bulk-action-bar">
+  <span class="bulk-count" id="bulk-count">0 selected</span>
+  <button class="btn-secondary" style="font-size:.78rem;padding:.35rem .75rem;" onclick="bulkExport()">⬇ Export</button>
+  <button class="btn-primary" style="font-size:.78rem;padding:.35rem .75rem;" id="bulk-status-btn" onclick="bulkStatusChange()">Change Status</button>
+  <button class="btn-primary" style="font-size:.78rem;padding:.35rem .75rem;background:linear-gradient(135deg,#ef4444,#dc2626);" id="bulk-delete-btn" onclick="bulkDelete()">Delete Selected</button>
+  <button class="btn-secondary" style="font-size:.75rem;padding:.3rem .6rem;" onclick="clearBulkSelection()">✕</button>
+</div>
+
+<!-- ===== GENERIC ADMIN MODAL (alert/confirm/prompt replacement) ===== -->
+<div class="modal-overlay" id="_adminModal-overlay" onclick="if(event.target===this)_adminModalDismiss()">
+  <div class="modal-box" style="max-width:460px;text-align:center;">
+    <button class="modal-close" onclick="_adminModalDismiss()">✕</button>
+    <div id="_adminModal-icon" class="adm-modal-icon"></div>
+    <div class="modal-title" id="_adminModal-title"></div>
+    <div class="adm-modal-msg" id="_adminModal-msg"></div>
+    <div id="_adminModal-input-wrap" style="display:none;">
+      <label class="adm-modal-input-label" id="_adminModal-input-label"></label>
+      <input type="text" class="adm-modal-input" id="_adminModal-input" onkeydown="if(event.key==='Enter')document.getElementById('_adminModal-ok-btn').click()">
+    </div>
+    <div class="modal-actions" style="justify-content:center;" id="_adminModal-actions">
+      <button class="btn-secondary" id="_adminModal-cancel-btn" onclick="_adminModalDismiss()">Cancel</button>
+      <button class="btn-primary" id="_adminModal-ok-btn">OK</button>
     </div>
   </div>
 </div>
