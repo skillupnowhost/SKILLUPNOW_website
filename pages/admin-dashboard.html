@@ -2576,7 +2576,7 @@
         <div class="table-card">
           <div class="table-header">
             <h3>Work Session Tracking</h3>
-            <div class="table-actions">
+            <div class="table-actions" style="flex-wrap:wrap;gap:.4rem">
               <select id="itnm-trk-student-filter" onchange="loadInternTracking()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
                 <option value="">All Students</option>
               </select>
@@ -2585,9 +2585,21 @@
               <button class="btn-secondary" onclick="exportTrackingPDF()">⬇ PDF</button>
             </div>
           </div>
+          <div id="itnm-trk-bulk-bar" style="display:none;padding:.5rem .8rem;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.2);border-radius:10px;margin:0 .5rem .5rem;align-items:center;gap:.6rem;flex-wrap:wrap">
+            <span style="font-size:.78rem;font-weight:700;color:var(--txt2)" id="itnm-trk-sel-count">0 selected</span>
+            <select id="itnm-trk-bulk-action" style="font-size:.76rem;padding:.3rem .6rem;border-radius:8px;border:1px solid rgba(244,63,94,.25);background:var(--bg2);color:var(--txt);font-family:inherit">
+              <option value="">Select Action…</option>
+              <option value="delete_app_usage">Delete App Usage</option>
+              <option value="delete_breaks">Delete Breaks</option>
+              <option value="delete_all">Delete Session + All Data</option>
+            </select>
+            <input type="text" id="itnm-trk-bulk-reason" placeholder="Reason (optional)" style="font-size:.76rem;padding:.3rem .6rem;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--txt);flex:1;min-width:120px;font-family:inherit">
+            <button class="btn-secondary" style="background:rgba(244,63,94,.1);color:#f43f5e;border-color:rgba(244,63,94,.3);font-size:.76rem;padding:.3rem .8rem" onclick="executeBulkTrackingAction()">Apply</button>
+            <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .5rem" onclick="clearTrackingSelection()">Clear</button>
+          </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Student</th><th>Date</th><th>Day #</th><th>Start</th><th>End</th><th>Work Mins</th><th>Breaks</th><th>Total Break</th><th>Status</th></tr></thead>
-            <tbody id="itnm-trk-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
+            <thead><tr><th style="width:32px"><input type="checkbox" id="itnm-trk-select-all" onchange="toggleAllTrackingRows(this.checked)" title="Select all"></th><th>Student</th><th>Date</th><th>Day #</th><th>Start</th><th>End</th><th>Work Mins</th><th>Breaks</th><th>Total Break</th><th>IP Address</th><th>Network</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-trk-tbody"><tr><td colspan="13" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -10590,7 +10602,7 @@ async function generateStudentReport(enrollId, studentName, projectName, teamNam
     db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id', enrollId).order('session_date',{ascending:true})
   ]);
   const { data: appUsage } = enrol?.student_user_id
-    ? await db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at').eq('student_user_id', enrol.student_user_id)
+    ? await db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at,ip_address,category').eq('student_user_id', enrol.student_user_id)
     : { data: [] };
 
   const present = (atd||[]).filter(a=>['present','late'].includes(a.status)).length;
@@ -10613,99 +10625,115 @@ async function generateStudentReport(enrollId, studentName, projectName, teamNam
 
   const doc = new jsPDF({ unit:'mm', format:'a4' });
   const pw  = doc.internal.pageSize.getWidth();
+  const phR = doc.internal.pageSize.getHeight();
+  const rml=4,rmr=4,rcw=pw-rml-rmr;
 
-  doc.setFillColor(124,92,252); doc.rect(0,0,pw,30,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont('helvetica','bold');
-  doc.text('SkillUpNow', pw/2, 12, { align:'center' });
-  doc.setFontSize(9); doc.setFont('helvetica','normal');
-  doc.text('Internship Progress Report', pw/2, 19, { align:'center' });
-  doc.setFontSize(7);
-  doc.text('ADMIN COPY — CONFIDENTIAL', 14, 26);
-  doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, pw-14, 26, { align:'right' });
+  doc.setFillColor(30,15,60); doc.rect(0,0,pw,30,'F');
+  doc.setFillColor(124,58,237);doc.rect(0,30,pw,1,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(15); doc.setFont('helvetica','bold');
+  doc.text('Skill-Up Now Private Limited', pw/2, 11, { align:'center' });
+  doc.setFontSize(9); doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
+  doc.text('Internship Progress Report — Admin Copy', pw/2, 19, { align:'center' });
+  doc.setFontSize(6.5);doc.setTextColor(180,170,220);
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}  |  CONFIDENTIAL`, pw/2, 26, { align:'center' });
 
-  let y = 40;
-  doc.setTextColor(20,10,50); doc.setFontSize(9.5); doc.setFont('helvetica','bold');
-  doc.text('Student & Project Information', 14, y); y += 6;
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text(`Student:   ${studentName}`, 14, y); y += 5;
-  doc.text(`Project:   ${proj?.project_name||projectName}`, 14, y); y += 5;
-  if (teamNames) { doc.text(`Team:      ${teamNames}`, 14, y); y += 5; }
-  doc.text(`Client:    ${proj?.client_name||'—'}  |  Country: ${proj?.country||'—'}`, 14, y); y += 5;
-  doc.text(`Duration:  ${proj?.duration_weeks||'—'} weeks`, 14, y); y += 5;
-  if (enrol?.approved_at) doc.text(`Approved:  ${new Date(enrol.approved_at).toLocaleDateString('en-IN')}`, 14, y), y += 5;
-  if (enrol?.start_date)  doc.text(`Period:    ${enrol.start_date} to ${enrol.end_date||'ongoing'}`, 14, y), y += 5;
+  let y = 35;
+  doc.setFillColor(248,247,255);doc.rect(rml,y,rcw,24,'F');
+  doc.setDrawColor(200,190,240);doc.setLineWidth(0.2);doc.rect(rml,y,rcw,24,'S');
+  doc.setTextColor(20,10,50); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  doc.text('Student:',rml+4,y+5);doc.text('Project:',rml+4,y+10);doc.text('Client:',rml+4,y+15);doc.text('Duration:',rml+4,y+20);
+  doc.text('Team:',pw/2+2,y+5);doc.text('Period:',pw/2+2,y+10);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);doc.setTextColor(40);
+  doc.text(studentName,rml+28,y+5);
+  doc.text(proj?.project_name||projectName,rml+28,y+10);
+  doc.text((proj?.client_name||'—')+'  |  '+(proj?.country||'—'),rml+28,y+15);
+  doc.text((proj?.duration_weeks||'—')+' weeks',rml+28,y+20);
+  if(teamNames)doc.text(teamNames.substring(0,40),pw/2+18,y+5);
+  if(enrol?.start_date)doc.text(enrol.start_date+' to '+(enrol.end_date||'ongoing'),pw/2+18,y+10);
+  y+=28;
 
-  y += 4; doc.setDrawColor(200,190,255); doc.line(14, y, pw-14, y); y += 6;
+  const totalWMins=(wSessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+  const totalBMins=(wSessions||[]).reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
+  const netCMins=Math.max(0,totalWMins-totalBMins);
+  const sgap=2,sboxW=(rcw-sgap*4)/5;
+  const sData=[
+    {l:'Days',v:(wSessions||[]).length,c:[16,185,129]},
+    {l:'Work',v:Math.floor(totalWMins/60)+'h '+totalWMins%60+'m',c:[124,58,237]},
+    {l:'Breaks',v:Math.floor(totalBMins/60)+'h '+totalBMins%60+'m',c:[245,158,11]},
+    {l:'Net Code',v:Math.floor(netCMins/60)+'h '+netCMins%60+'m',c:[6,182,212]},
+    {l:'Attend',v:pct+'%',c:[99,102,241]}
+  ];
+  sData.forEach((st,i)=>{
+    const sx=rml+i*(sboxW+sgap);
+    doc.setFillColor(st.c[0],st.c[1],st.c[2]);doc.roundedRect(sx,y,sboxW,12,2,2,'F');
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(255);
+    doc.text(String(st.v),sx+sboxW/2,y+5.5,{align:'center'});
+    doc.setFontSize(5.5);doc.text(st.l,sx+sboxW/2,y+9.5,{align:'center'});
+  });
+  y+=16;
 
-  doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
-  doc.text('Summary Statistics', 14, y); y += 6;
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text(`Total Reports Submitted: ${(rpts||[]).length}`, 14, y); y += 5;
-  doc.text(`Total Hours Logged:      ${totalH.toFixed(1)}h`, 14, y); y += 5;
-  doc.text(`Days Worked (Sessions):  ${(wSessions||[]).length}`, 14, y); y += 5;
-  doc.text(`Days Present:            ${present} / ${total}  (${pct}%)`, 14, y); y += 5;
-  if (wSessions?.length) {
-    const totalWMins=(wSessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
-    const totalBMins=(wSessions||[]).reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
-    doc.text(`Total Work Time:         ${Math.floor(totalWMins/60)}h ${totalWMins%60}m`, 14, y); y += 5;
-    doc.text(`Total Break Time:        ${Math.floor(totalBMins/60)}h ${totalBMins%60}m`, 14, y); y += 5;
-    doc.text(`Net Coding Time:         ${Math.floor((totalWMins-totalBMins)/60)}h ${(totalWMins-totalBMins)%60}m`, 14, y); y += 5;
+  if (appEntries.length||aiEntries.length) {
+    doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(50);
+    if(appEntries.length){doc.text('Top Apps: '+appEntries.slice(0,5).map(([a,s])=>a+' ('+Math.floor(s/60)+'m)').join(', '),rml+4,y);y+=4.5}
+    if(aiEntries.length){doc.text('AI Tools: '+aiEntries.map(([t,s])=>t+' ('+Math.floor(s/60)+'m)').join(', '),rml+4,y);y+=4.5}
+    y+=2;
   }
-  if (appEntries.length) {
-    y += 3; doc.text(`Top Apps:                ${appEntries.slice(0,5).map(([a,s])=>a+' ('+Math.floor(s/60)+'m)').join(', ')}`, 14, y); y += 5;
-  }
-  if (aiEntries.length) {
-    doc.text(`AI Tools Used:           ${aiEntries.map(([t,s])=>t+' ('+Math.floor(s/60)+'m)').join(', ')}`, 14, y); y += 5;
-  }
-  y += 3;
 
   // Work Sessions with Login/Logout
   if ((wSessions||[]).length) {
-    doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
-    doc.text('Work Sessions (Login / Logout)', 14, y); y += 6;
-    const wsCols = [14, 36, 58, 82, 106, 130, 155];
-    doc.setFillColor(210,200,255); doc.rect(12,y-4,pw-24,6,'F');
-    doc.setFontSize(7); doc.setFont('helvetica','bold');
-    ['Date','Day','Login','Logout','Work','Break','Status'].forEach((h,i) => doc.text(h, wsCols[i], y));
-    y += 5; doc.setFont('helvetica','normal');
-    for (const ws of (wSessions||[])) {
-      if (y > 268) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text('Work Sessions (Login / Logout)', rml+2, y); y += 5;
+    const wsCols = [rml+1, rml+24, rml+36, rml+54, rml+72, rml+86, rml+100, rml+130, rml+168];
+    doc.setFillColor(124,58,237); doc.rect(rml,y-3.5,rcw,5.5,'F');
+    doc.setFontSize(6.5); doc.setFont('helvetica','bold');doc.setTextColor(255);
+    ['Date','Day','Login','Logout','Work','Break','Net','IP Address','Status'].forEach((h,i) => doc.text(h, wsCols[i], y));
+    y += 4.5; doc.setFont('helvetica','normal');doc.setTextColor(40);
+    for (let wsi=0;wsi<(wSessions||[]).length;wsi++) {
+      const ws=(wSessions||[])[wsi];
+      if (y > phR-12) { doc.addPage(); y = 8; }
+      if(wsi%2===0){doc.setFillColor(248,247,255);doc.rect(rml,y-3,rcw,4.5,'F')}
       const login = ws.start_time ? new Date(ws.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) : '—';
       const logout = ws.end_time ? new Date(ws.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) : '—';
       const brk = (ws.intern_breaks||[]).reduce((b,br) => b + (br.duration_mins||0), 0);
+      const netW=Math.max(0,(ws.total_work_mins||0)-brk);
+      doc.setFontSize(6.5);
       doc.text(ws.session_date||'', wsCols[0], y);
-      doc.text(String(ws.day_number||''), wsCols[1], y);
-      doc.text(login, wsCols[2], y);
-      doc.text(logout, wsCols[3], y);
+      doc.text('Day '+(ws.day_number||''), wsCols[1], y);
+      doc.setTextColor(16,185,129);doc.text(login, wsCols[2], y);
+      doc.setTextColor(124,58,237);doc.text(logout, wsCols[3], y);
+      doc.setTextColor(40);
       doc.text((ws.total_work_mins||0)+'m', wsCols[4], y);
       doc.text(brk+'m', wsCols[5], y);
-      doc.text(ws.status==='completed'?'Done':(ws.status==='active'?'Active':'Closed'), wsCols[6], y);
-      y += 4.5; doc.setDrawColor(225,220,245); doc.line(12,y-1,pw-12,y-1);
+      doc.setFont('helvetica','bold');doc.text(netW+'m', wsCols[6], y);doc.setFont('helvetica','normal');
+      doc.setFontSize(5.5);doc.text((ws.ip_address||'N/A').substring(0,20), wsCols[7], y);
+      doc.setFontSize(6.5);doc.text(ws.status==='completed'?'Done':(ws.status==='active'?'Active':'Closed'), wsCols[8], y);
+      y += 4.5; doc.setDrawColor(235,230,250); doc.line(rml,y-1,pw-rmr,y-1);
     }
-    y += 6;
+    y += 4;
   }
 
-  doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
-  doc.text('Daily Reports', 14, y); y += 6;
-  const cols = [14, 36, 52, 108, 147];
-  doc.setFillColor(210,200,255); doc.rect(12,y-4,pw-24,6,'F');
-  doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9);doc.setTextColor(124,58,237);
+  doc.text('Daily Reports', rml+2, y); y += 5;
+  const cols = [rml+1, rml+24, rml+40, rml+110, rml+160];
+  doc.setFillColor(124,58,237); doc.rect(rml,y-3.5,rcw,5.5,'F');
+  doc.setFontSize(6.5); doc.setFont('helvetica','bold');doc.setTextColor(255);
   ['Date','Hours','Summary','Challenges','Status'].forEach((h,i) => doc.text(h, cols[i], y));
-  y += 5; doc.setFont('helvetica','normal');
-  for (const r of (rpts||[])) {
-    if (y > 268) { doc.addPage(); y = 20; }
+  y += 4.5; doc.setFont('helvetica','normal');doc.setTextColor(40);
+  for (let ri=0;ri<(rpts||[]).length;ri++) {
+    const r=(rpts||[])[ri];
+    if (y > phR-12) { doc.addPage(); y = 8; }
+    if(ri%2===0){doc.setFillColor(248,247,255);doc.rect(rml,y-3,rcw,4.5,'F')}
+    doc.setFontSize(6.5);
     doc.text(r.report_date||'', cols[0], y);
     doc.text(String(r.hours_worked||0), cols[1], y);
-    doc.text(((r.work_summary||'').slice(0,50)+(r.work_summary?.length>50?'…':'')), cols[2], y);
-    doc.text(((r.challenges||'—').slice(0,32)+((r.challenges?.length||0)>32?'…':'')), cols[3], y);
+    doc.text(((r.work_summary||'').slice(0,55)+(r.work_summary?.length>55?'…':'')), cols[2], y);
+    doc.text(((r.challenges||'—').slice(0,35)+((r.challenges?.length||0)>35?'…':'')), cols[3], y);
     doc.text(r.report_status||'', cols[4], y);
-    y += 5; doc.setDrawColor(225,220,245); doc.line(12,y-1,pw-12,y-1);
+    y += 4.5; doc.setDrawColor(235,230,250); doc.line(rml,y-1,pw-rmr,y-1);
   }
 
-  if (y > 260) { doc.addPage(); y = 20; }
-  y += 5;
-  doc.setFontSize(7); doc.setTextColor(120,100,180);
-  doc.text('SkillUpNow · skillupnow.in · Confidential', pw/2, doc.internal.pageSize.getHeight()-10, { align:'center' });
+  doc.setFontSize(6); doc.setTextColor(140);
+  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com  |  Confidential', pw/2, phR-4, { align:'center' });
 
   doc.save(`intern-report-${studentName.replace(/\s+/g,'-')}-admin.pdf`);
   _showAdminToast('PDF generated!','success');
@@ -11038,7 +11066,9 @@ async function _getProfileMap(userIds) {
 async function loadInternTracking() {
   const tbody = document.getElementById('itnm-trk-tbody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="13" class="table-empty">Loading…</td></tr>';
+  const selAll=document.getElementById('itnm-trk-select-all');if(selAll)selAll.checked=false;
+  updateTrackingBulkBar();
 
   let q = db.client.from('intern_work_sessions')
     .select('*, intern_breaks(*)')
@@ -11051,8 +11081,8 @@ async function loadInternTracking() {
   if (dateF) q = q.eq('session_date', dateF);
 
   const { data, error } = await q;
-  if (error) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No work sessions recorded yet.</td></tr>'; return; }
+  if (error) { tbody.innerHTML = `<tr><td colspan="13" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="13" class="table-empty">No work sessions recorded yet.</td></tr>'; return; }
 
   const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id).filter(Boolean))]);
   const statusBadge = { active:'badge-green', completed:'badge-blue', auto_closed:'badge-yellow' };
@@ -11061,9 +11091,10 @@ async function loadInternTracking() {
   tbody.innerHTML = data.map(s => {
     const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
     const allBreaks=(s.intern_breaks||[]).sort((a,b)=>a.break_number-b.break_number);
-    const brkSummary=allBreaks.length?allBreaks.map(b=>`${BRK_LBL[b.break_type]||'Brk'}:${b.duration_mins||'?'}m`).join(', '):'—';
+    const brkSummary=allBreaks.length?allBreaks.map(b=>`${BRK_LBL[b.break_type]||'Brk'}:${b.duration_mins!=null?b.duration_mins:0}m`).join(', '):'N/A';
     const totalBrk=allBreaks.reduce((sum,b)=>sum+(b.duration_mins||0),0);
-    return `<tr>
+    return `<tr data-session-id="${s.id}">
+      <td><input type="checkbox" class="itnm-trk-cb" value="${s.id}" onchange="updateTrackingBulkBar()"></td>
       <td><a href="#" onclick="openStudentDetail('${s.student_user_id}');return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(pm[s.student_user_id]||'—')}</a></td>
       <td>${s.session_date}</td>
       <td>${s.day_number}</td>
@@ -11072,9 +11103,71 @@ async function loadInternTracking() {
       <td>${s.total_work_mins||0}</td>
       <td style="font-size:.72rem;max-width:180px">${brkSummary}</td>
       <td style="font-weight:700">${totalBrk}m</td>
+      <td style="font-size:.68rem;max-width:110px;word-break:break-all">${s.ip_address||'N/A'}</td>
+      <td style="font-size:.62rem;max-width:140px;word-break:break-all">${s.network_info?_adm_esc(s.network_info.substring(0,60)):'N/A'}</td>
       <td><span class="${statusBadge[s.status]||'badge-gray'}">${s.status}</span></td>
+      <td class="action-btns"><button class="action-btn danger" style="font-size:.7rem;padding:.2rem .4rem" onclick="deleteSingleSession('${s.id}')">Delete</button></td>
     </tr>`;
   }).join('');
+}
+
+/* ── Tracking Bulk Selection ── */
+function toggleAllTrackingRows(checked){
+  document.querySelectorAll('.itnm-trk-cb').forEach(cb=>{cb.checked=checked});
+  updateTrackingBulkBar();
+}
+function updateTrackingBulkBar(){
+  const cbs=[...document.querySelectorAll('.itnm-trk-cb:checked')];
+  const bar=document.getElementById('itnm-trk-bulk-bar');
+  const cnt=document.getElementById('itnm-trk-sel-count');
+  if(cbs.length>0){bar.style.display='flex';cnt.textContent=cbs.length+' selected'}
+  else{bar.style.display='none'}
+}
+function clearTrackingSelection(){
+  document.querySelectorAll('.itnm-trk-cb').forEach(cb=>{cb.checked=false});
+  const selAll=document.getElementById('itnm-trk-select-all');if(selAll)selAll.checked=false;
+  updateTrackingBulkBar();
+}
+
+async function deleteSingleSession(sessionId){
+  if(!(await _adminModal({title:'Delete Session',message:'Delete this work session and all associated data (breaks, app usage)? This cannot be undone.',type:'danger'})))return;
+  try{
+    const{data,error}=await db.client.rpc('admin_remove_tracking',{p_session_id:sessionId,p_removal_type:'all_day',p_reason:'Admin manual delete'});
+    if(error)throw error;
+    await db.client.from('intern_work_sessions').delete().eq('id',sessionId);
+    _showAdminToast('Session deleted successfully.','success');
+    loadInternTracking();
+  }catch(e){_showAdminToast('Delete failed: '+(e.message||'Unknown error'),'error')}
+}
+
+async function executeBulkTrackingAction(){
+  const cbs=[...document.querySelectorAll('.itnm-trk-cb:checked')];
+  if(!cbs.length){_showAdminToast('No sessions selected.','error');return}
+  const action=document.getElementById('itnm-trk-bulk-action')?.value;
+  if(!action){_showAdminToast('Please select an action.','error');return}
+  const reason=document.getElementById('itnm-trk-bulk-reason')?.value?.trim()||'Bulk admin action';
+  const actionLabels={delete_app_usage:'delete app usage for',delete_breaks:'delete breaks for',delete_all:'permanently delete'};
+  if(!(await _adminModal({title:'Confirm Bulk Action',message:`${actionLabels[action]||'process'} ${cbs.length} session(s)? This cannot be undone.\n\nReason: ${reason}`,type:'danger'})))return;
+
+  let success=0,fail=0;
+  for(const cb of cbs){
+    const sid=cb.value;
+    try{
+      if(action==='delete_all'){
+        await db.client.rpc('admin_remove_tracking',{p_session_id:sid,p_removal_type:'all_day',p_reason:reason});
+        await db.client.from('intern_work_sessions').delete().eq('id',sid);
+      }else if(action==='delete_app_usage'){
+        await db.client.rpc('admin_remove_tracking',{p_session_id:sid,p_removal_type:'app_usage',p_reason:reason});
+      }else if(action==='delete_breaks'){
+        await db.client.from('intern_breaks').delete().eq('session_id',sid);
+        await db.client.rpc('admin_remove_tracking',{p_session_id:sid,p_removal_type:'break',p_reason:reason});
+      }
+      success++;
+    }catch(e){fail++}
+  }
+  _showAdminToast(`Bulk action complete: ${success} succeeded, ${fail} failed.`,fail>0?'error':'success');
+  clearTrackingSelection();
+  loadInternTracking();
 }
 
 function exportTrackingCSV() {
@@ -11088,26 +11181,59 @@ function exportTrackingPDF(){
   if(!table)return;
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const pw=297,ml=12,mr=12,cw=pw-ml-mr;let y=15;
-  doc.setFillColor(30,15,60);doc.rect(0,0,pw,24,'F');
-  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
-  doc.text('Work Session Tracking Report',pw/2,14,{align:'center'});
-  y=30;
+  const pw=297,ph=210,ml=4,mr=4,cw=pw-ml-mr;let y=0;
+
+  doc.setFillColor(30,15,60);doc.rect(0,0,pw,22,'F');
+  doc.setFillColor(124,58,237);doc.rect(0,22,pw,1,'F');
+  doc.setFontSize(13);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('Work Session Tracking Report',pw/2,10,{align:'center'});
+  doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
+  doc.text(`Skill-Up Now Private Limited  |  Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`,pw/2,17,{align:'center'});
+  y=26;
+
   const rows=table.querySelectorAll('tbody tr');
-  const headers=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());
-  const colW=Math.floor(cw/headers.length);
-  doc.setFontSize(7.5);doc.setFont('helvetica','bold');
-  doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1,1,'F');
+  const allHeaders=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());
+  const headers=allHeaders.filter(h=>h!==''&&h!=='Actions');
+  const colWidths=[55,22,14,22,22,18,45,20,30,30,18];
+  const totalW=colWidths.reduce((s,w)=>s+w,0);
+  const scale=cw/totalW;
+  const scaledW=colWidths.map(w=>Math.round(w*scale));
+
+  doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+  doc.setFillColor(124,58,237);doc.rect(ml,y-3,cw,5.5,'F');
   doc.setTextColor(255);
-  headers.forEach((h,i)=>doc.text(h,ml+i*colW+2,y));
-  y+=5;doc.setFont('helvetica','normal');doc.setTextColor(50);
+  let cx=ml+1;
+  headers.forEach((h,i)=>{if(i<scaledW.length){doc.text(h,cx,y);cx+=scaledW[i]}});
+  y+=4.5;
+  doc.setFont('helvetica','normal');doc.setTextColor(40);
+
+  let rowIdx=0;
   rows.forEach(tr=>{
-    if(y>195){doc.addPage();y=15}
-    const cells=[...tr.querySelectorAll('td')];
-    doc.setFontSize(7);
-    cells.forEach((td,i)=>doc.text((td.textContent||'').trim().substring(0,20),ml+i*colW+2,y));
-    y+=4.5;doc.setDrawColor(230);doc.line(ml,y-1,pw-mr,y-1);
+    if(y>ph-10){
+      doc.setFontSize(6);doc.setTextColor(140);
+      doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
+      doc.addPage();y=8;rowIdx=0;
+    }
+    const cells=[...tr.querySelectorAll('td')].filter((_,i)=>i>0);
+    const bgR=rowIdx%2===0?248:255,bgG=rowIdx%2===0?247:255,bgB=rowIdx%2===0?255:255;
+    doc.setFillColor(bgR,bgG,bgB);doc.rect(ml,y-3,cw,4.5,'F');
+    doc.setFontSize(6);
+    cx=ml+1;
+    cells.forEach((td,i)=>{
+      if(i<scaledW.length){
+        const txt=(td.textContent||'').trim();
+        const maxChars=Math.floor(scaledW[i]/1.8);
+        doc.text(txt.substring(0,maxChars),cx,y);
+        cx+=scaledW[i];
+      }
+    });
+    y+=4.5;
+    doc.setDrawColor(230,225,245);doc.line(ml,y-1,pw-mr,y-1);
+    rowIdx++;
   });
+
+  doc.setFontSize(6);doc.setTextColor(140);
+  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
   doc.save('intern-tracking.pdf');
   _showAdminToast('Tracking PDF exported!','success');
 }
@@ -11808,7 +11934,7 @@ async function loadDetailedReport(){
     db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:true}),
     db.client.from('intern_modules').select('*').eq('student_user_id',studentId).order('day_number',{ascending:true}),
     db.client.from('intern_submissions').select('*').eq('student_user_id',studentId).order('submitted_at',{ascending:false}),
-    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at').eq('student_user_id',studentId),
+    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at,ip_address,category').eq('student_user_id',studentId),
     db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name,git_push_link)').eq('student_user_id',studentId).order('assigned_at',{ascending:true})
   ]);
   const pm=await _getProfileMap([studentId]);
@@ -11896,6 +12022,7 @@ async function loadDetailedReport(){
           <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Work</th>
           <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Break</th>
           <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Net Coding</th>
+          <th style="text-align:center;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">IP Address</th>
         </tr></thead>
         <tbody>${(sessions||[]).map(s=>{
           const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
@@ -11909,6 +12036,7 @@ async function loadDetailedReport(){
             <td style="text-align:right;padding:.4rem .5rem">${s.total_work_mins||0}m</td>
             <td style="text-align:right;padding:.4rem .5rem">${brk}m</td>
             <td style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--v1)">${net}m</td>
+            <td style="text-align:center;padding:.4rem .5rem;font-size:.7rem">${s.ip_address||'N/A'}</td>
           </tr>`;
         }).join('')}</tbody>
       </table></div>`:'<p style="color:var(--txt3);font-size:.82rem">No work sessions recorded.</p>'}
@@ -12278,7 +12406,7 @@ async function openStudentDetail(studentId){
 
   const[{data:sessions},{data:appUsage},{data:subs},{data:progAssign},pm]=await Promise.all([
     db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:true}),
-    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at').eq('student_user_id',studentId).order('recorded_at',{ascending:false}).limit(500),
+    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at,ip_address,category').eq('student_user_id',studentId).order('recorded_at',{ascending:false}).limit(500),
     db.client.from('intern_submissions').select('*').eq('student_user_id',studentId).order('submitted_at',{ascending:false}),
     db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name)').eq('student_user_id',studentId).neq('status','revoked'),
     _getProfileMap([studentId])
@@ -12344,14 +12472,14 @@ function renderStudentDetail(){
     ${filtSess.length?`<div style="overflow-x:auto;margin-bottom:1rem"><table style="width:100%;font-size:.76rem;border-collapse:collapse">
       <thead><tr style="background:var(--panel);border-bottom:2px solid var(--border)">
         <th style="text-align:left;padding:.4rem .5rem">Date</th><th>Day</th><th>Login</th><th>Logout</th>
-        <th>Work</th><th>Breaks</th><th>Net</th><th>Status</th>
+        <th>Work</th><th>Breaks</th><th>Net</th><th>IP</th><th>Network</th><th>Status</th><th>Export</th>
       </tr></thead>
       <tbody>${filtSess.map(s=>{
         const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
         const net=Math.max(0,(s.total_work_mins||0)-brk);
         const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
         const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-        const brkDetail=(s.intern_breaks||[]).map(br=>(br.break_type||'brk').split('_')[0]+':'+(br.duration_mins||'?')+'m').join(', ')||'—';
+        const brkDetail=(s.intern_breaks||[]).map(br=>(br.break_type||'brk').split('_')[0]+':'+(br.duration_mins!=null?br.duration_mins:0)+'m').join(', ')||'N/A';
         return `<tr style="border-bottom:1px solid var(--border)">
           <td style="padding:.35rem .5rem">${s.session_date}</td>
           <td style="text-align:center">${s.day_number||'—'}</td>
@@ -12360,7 +12488,13 @@ function renderStudentDetail(){
           <td style="text-align:center">${s.total_work_mins||0}m</td>
           <td style="text-align:center;font-size:.7rem">${brkDetail}</td>
           <td style="text-align:center;font-weight:700;color:var(--v1)">${net}m</td>
+          <td style="text-align:center;font-size:.65rem">${s.ip_address||'N/A'}</td>
+          <td style="text-align:center;font-size:.6rem;max-width:100px;word-break:break-all">${s.network_info?_adm_esc((s.network_info||'').substring(0,40)):'N/A'}</td>
           <td style="text-align:center"><span class="${{active:'badge-green',completed:'badge-blue',auto_closed:'badge-yellow'}[s.status]||'badge-gray'}">${s.status}</span></td>
+          <td style="text-align:center">
+            <button onclick="exportAdminDayReport('${s.session_date}','pdf')" title="Download PDF" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--v1);font-size:.72rem;font-weight:700">PDF</button>
+            <button onclick="exportAdminDayReport('${s.session_date}','csv')" title="Download CSV" style="background:none;border:none;cursor:pointer;padding:2px;color:#10b981;font-size:.72rem;font-weight:700">CSV</button>
+          </td>
         </tr>`;
       }).join('')}</tbody></table></div>`:'<p style="color:var(--txt3);font-size:.82rem">No sessions.</p>'}
 
@@ -12451,12 +12585,12 @@ function exportStudentDetail(fmt){
   if(fmt==='csv'||fmt==='xlsx'){
     let csv='Student Detail Report\n';
     csv+=`Student,${name}\nGenerated,${new Date().toLocaleString('en-IN')}\n\n`;
-    csv+='Date,Day,Login,Logout,Work (min),Break (min),Net (min),Status\n';
+    csv+='Date,Day,Login,Logout,Work (min),Break (min),Net (min),IP Address,Network Info,Status\n';
     filtSess.forEach(s=>{
       const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
       const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
       const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
-      csv+=`${s.session_date},Day ${s.day_number},${login},${logout},${s.total_work_mins||0},${brk},${Math.max(0,(s.total_work_mins||0)-brk)},${s.status}\n`;
+      csv+=`${s.session_date},Day ${s.day_number},${login},${logout},${s.total_work_mins||0},${brk},${Math.max(0,(s.total_work_mins||0)-brk)},"${s.ip_address||'N/A'}","${(s.network_info||'N/A').replace(/"/g,"'")}",${s.status}\n`;
     });
     csv+='\nApp Usage\nApp,Time (seconds)\n';
     const appMap={};filtApp.forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
@@ -12469,60 +12603,200 @@ function exportStudentDetail(fmt){
 
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const pw=210,ml=18,mr=18,cw=pw-ml-mr;let y=15;
+  const pw=210,ph=297,ml=4,mr=4,cw=pw-ml-mr;let y=0;
 
   doc.setFillColor(30,15,60);doc.rect(0,0,pw,30,'F');
-  doc.setFillColor(124,58,237);doc.rect(0,30,pw,1.5,'F');
+  doc.setFillColor(124,58,237);doc.rect(0,30,pw,1,'F');
   doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
-  doc.text('Student Performance Report',pw/2,14,{align:'center'});
+  doc.text('Student Performance Report',pw/2,12,{align:'center'});
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
-  doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}`,pw/2,22,{align:'center'});
-  y=38;
+  doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}`,pw/2,20,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(180,170,220);
+  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877',pw/2,26,{align:'center'});
+  y=35;
 
   const totalWork=filtSess.reduce((s,x)=>s+(x.total_work_mins||0),0);
   const totalBrk=filtSess.reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
+  const netWork=Math.max(0,totalWork-totalBrk);
+
+  const gap=2,statW=(cw-gap*3)/4;
+  const statData=[{l:'Days',v:filtSess.length,c:[16,185,129]},{l:'Work',v:fmtMins(totalWork),c:[124,58,237]},{l:'Breaks',v:fmtMins(totalBrk),c:[245,158,11]},{l:'Net',v:fmtMins(netWork),c:[6,182,212]}];
+  statData.forEach((st,i)=>{
+    const sx=ml+i*(statW+gap);
+    doc.setFillColor(st.c[0],st.c[1],st.c[2]);doc.roundedRect(sx,y,statW,12,2,2,'F');
+    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(255);
+    doc.text(String(st.v),sx+statW/2,y+5.5,{align:'center'});
+    doc.setFontSize(6);doc.text(st.l,sx+statW/2,y+9.5,{align:'center'});
+  });
+  y+=17;
 
   doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
-  doc.text('Attendance Log',pw/2,y,{align:'center'});y+=6;
+  doc.text('Attendance Log',ml+2,y);y+=5;
 
   if(filtSess.length){
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');
-    const cols=[ml,ml+22,ml+36,ml+56,ml+76,ml+94,ml+112,ml+140];
-    doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1.5,1.5,'F');
+    doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+    const cols=[ml+1,ml+23,ml+36,ml+54,ml+72,ml+86,ml+100,ml+122,ml+160];
+    doc.setFillColor(124,58,237);doc.rect(ml,y-3,cw,5.5,'F');
     doc.setTextColor(255);
-    ['Date','Day','Login','Logout','Work','Break','Net','Status'].forEach((h,i)=>doc.text(h,cols[i]+1,y));
-    y+=5;doc.setFont('helvetica','normal');doc.setTextColor(50);
-    filtSess.forEach(s=>{
-      if(y>275){doc.addPage();y=15}
+    ['Date','Day','Login','Logout','Work','Break','Net','IP Address','Status'].forEach((h,i)=>{if(cols[i])doc.text(h,cols[i],y)});
+    y+=4.5;doc.setFont('helvetica','normal');doc.setTextColor(40);
+    filtSess.forEach((s,idx)=>{
+      if(y>ph-14){
+        doc.setFontSize(6);doc.setTextColor(140);doc.text('Skill-Up Now Private Limited  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
+        doc.addPage();y=8;
+      }
+      if(idx%2===0){doc.setFillColor(248,247,255);doc.rect(ml,y-3,cw,4.5,'F')}
       const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
       const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
       const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-      doc.setFontSize(7);
-      doc.text(s.session_date||'—',cols[0]+1,y);doc.text('Day '+(s.day_number||''),cols[1]+1,y);
-      doc.setTextColor(16,185,129);doc.text(login,cols[2]+1,y);
-      doc.setTextColor(124,58,237);doc.text(logout,cols[3]+1,y);
-      doc.setTextColor(50);doc.text((s.total_work_mins||0)+'m',cols[4]+1,y);
-      doc.text(brk+'m',cols[5]+1,y);doc.text(Math.max(0,(s.total_work_mins||0)-brk)+'m',cols[6]+1,y);
-      doc.text(s.status||'—',cols[7]+1,y);
-      y+=4.5;doc.setDrawColor(230);doc.line(ml,y-1,pw-mr,y-1);
+      doc.setFontSize(6.5);
+      doc.setTextColor(40);doc.text(s.session_date||'—',cols[0],y);
+      doc.text('Day '+(s.day_number||''),cols[1],y);
+      doc.setTextColor(16,185,129);doc.text(login,cols[2],y);
+      doc.setTextColor(124,58,237);doc.text(logout,cols[3],y);
+      doc.setTextColor(40);doc.text((s.total_work_mins||0)+'m',cols[4],y);
+      doc.text(brk+'m',cols[5],y);
+      doc.setFont('helvetica','bold');doc.text(Math.max(0,(s.total_work_mins||0)-brk)+'m',cols[6],y);doc.setFont('helvetica','normal');
+      doc.setFontSize(5.5);doc.text((s.ip_address||'N/A').substring(0,18),cols[7],y);
+      doc.setFontSize(6.5);doc.text(s.status||'—',cols[8],y);
+      y+=4.5;doc.setDrawColor(235,230,250);doc.line(ml,y-1,pw-mr,y-1);
     });
-    y+=6;
+    y+=4;
   }
 
-  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
-  doc.text('App Usage',pw/2,y,{align:'center'});y+=6;
-  const appMap={};filtApp.forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
+  const skipApps=new Set(['Screenshot','User Activity','Clipboard','Away: Other App','Idle','Tab: Away','Tab: Returned','Screen Capture','Screen Capture Denied']);
+  const appMap={};filtApp.filter(a=>!skipApps.has(a.app_name)).forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
   const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]);
+
   if(appEntries.length){
-    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(50);
-    appEntries.forEach(([app,secs])=>{
-      if(y>280){doc.addPage();y=15}
-      doc.text(`${app}: ${Math.floor(secs/60)}m ${secs%60}s`,ml+2,y);y+=4.5;
+    if(y>ph-30){doc.addPage();y=8}
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
+    doc.text('App Usage',ml+2,y);y+=5;
+    doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+    doc.setFillColor(124,58,237);doc.rect(ml,y-3,cw,5.5,'F');
+    doc.setTextColor(255);
+    doc.text('Application',ml+2,y);doc.text('Time',ml+cw-30,y);
+    y+=4.5;doc.setFont('helvetica','normal');doc.setTextColor(40);
+    appEntries.forEach(([app,secs],idx)=>{
+      if(y>ph-14){doc.addPage();y=8}
+      if(idx%2===0){doc.setFillColor(248,247,255);doc.rect(ml,y-3,cw,4.5,'F')}
+      doc.setFontSize(6.5);
+      doc.text(app.substring(0,50),ml+2,y);
+      doc.text(Math.floor(secs/60)+'m '+secs%60+'s',ml+cw-30,y);
+      y+=4.5;doc.setDrawColor(235);doc.line(ml,y-1,pw-mr,y-1);
     });
   }
 
+  doc.setFontSize(6);doc.setTextColor(140);
+  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
   doc.save(`Student-Report-${name.replace(/\s+/g,'_')}.pdf`);
   _showAdminToast('PDF exported!','success');
+}
+
+function exportAdminDayReport(dateStr,fmt){
+  const{sessions,appUsage,name}=_sdCache;
+  if(!sessions)return;
+  const sess=sessions.find(s=>s.session_date===dateStr);
+  if(!sess){_showAdminToast('No session found for '+dateStr,'error');return}
+  const BRK_LBL={morning_break:'Morning Break',lunch_break:'Lunch Break',evening_break:'Evening Break',tea_break:'Tea Break',personal_break:'Personal Break',general:'Break'};
+  const fmtMins=m=>`${Math.floor(m/60)}h ${m%60}m`;
+  const loginTime=sess.start_time?new Date(sess.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+  const logoutTime=sess.end_time?new Date(sess.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+  const workMins=sess.total_work_mins||0;
+  const breakMins=(sess.intern_breaks||[]).reduce((s,b)=>s+(b.duration_mins||0),0);
+  const netMins=Math.max(0,workMins-breakMins);
+  const dayApps=(appUsage||[]).filter(a=>{const d=a.recorded_at?new Date(a.recorded_at).toISOString().slice(0,10):'';return d===dateStr});
+  const skipApps=new Set(['Screenshot','User Activity','Clipboard','Away: Other App','Idle','Tab: Away','Tab: Returned','Screen Capture','Screen Capture Denied']);
+  const appMap={};dayApps.filter(a=>!skipApps.has(a.app_name)).forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
+  const actRecs=dayApps.filter(a=>a.app_name==='User Activity');
+  let totalClicks=0,totalKeys=0,totalScrolls=0;
+  actRecs.forEach(a=>{const m=a.window_title?.match(/Clicks:(\d+)\s+Keys:(\d+)\s+Scrolls:(\d+)/);if(m){totalClicks+=parseInt(m[1]);totalKeys+=parseInt(m[2]);totalScrolls+=parseInt(m[3])}});
+
+  if(fmt==='csv'){
+    let csv=`"Skill-Up Now Private Limited"\n"Day Report — ${name}"\n\n`;
+    csv+='Field,Value\n';
+    csv+=`Date,"${dateStr}"\nDay,"${sess.day_number||'—'}"\nLogin,"${loginTime}"\nLogout,"${logoutTime}"\n`;
+    csv+=`Total Work,"${workMins}m"\nTotal Breaks,"${breakMins}m"\nNet Work,"${netMins}m"\n`;
+    csv+=`IP Address,"${sess.ip_address||'N/A'}"\nNetwork Info,"${sess.network_info||'N/A'}"\nStatus,"${sess.status}"\n`;
+    csv+=`Activity,"Clicks:${totalClicks} Keys:${totalKeys} Scrolls:${totalScrolls}"\n\n`;
+    csv+='Break #,Type,Duration\n';
+    (sess.intern_breaks||[]).forEach(b=>{csv+=`${b.break_number},"${BRK_LBL[b.break_type]||'Break'}",${b.duration_mins!=null?b.duration_mins:0}m\n`});
+    csv+='\nApp Usage\nApp,Time\n';
+    Object.entries(appMap).sort((a,b)=>b[1]-a[1]).forEach(([app,secs])=>{csv+=`"${app}","${Math.floor(secs/60)}m ${secs%60}s"\n`});
+    const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=`Day-${sess.day_number||dateStr}-${name.replace(/\s+/g,'_')}.csv`;a.click();
+    _showAdminToast('Day CSV exported!','success');return;
+  }
+
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pw=210,ml=8,mr=8,cw=pw-ml-mr;let y=0;
+  doc.setFillColor(30,15,60);doc.rect(0,0,pw,32,'F');
+  doc.setFillColor(124,58,237);doc.rect(0,32,pw,1.5,'F');
+  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('Daily Work Report',pw/2,12,{align:'center'});
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
+  doc.text(`${name}  |  ${dateStr}  |  Day ${sess.day_number||'—'}`,pw/2,20,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(180,170,220);
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}`,pw/2,27,{align:'center'});
+  y=38;
+
+  const rows=[
+    ['Login Time',loginTime],['Logout Time',logoutTime],
+    ['Total Work',fmtMins(workMins)],['Total Breaks',fmtMins(breakMins)],['Net Work',fmtMins(netMins)],
+    ['IP Address',sess.ip_address||'N/A'],['Network',sess.network_info||'N/A'],
+    ['Status',sess.status],['Clicks/Keys/Scrolls',`${totalClicks} / ${totalKeys} / ${totalScrolls}`]
+  ];
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
+  doc.text('Session Summary',ml+2,y);y+=5;
+  rows.forEach(([label,val])=>{
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(100);
+    doc.text(label,ml+4,y);
+    doc.setFont('helvetica','normal');doc.setTextColor(40);
+    doc.text(String(val).substring(0,60),ml+50,y);
+    y+=5;doc.setDrawColor(235);doc.line(ml,y-1.5,pw-mr,y-1.5);
+  });
+  y+=4;
+
+  if((sess.intern_breaks||[]).length){
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
+    doc.text('Breaks',ml+2,y);y+=5;
+    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(255);
+    doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1,1,'F');
+    ['#','Type','Duration'].forEach((h,i)=>doc.text(h,ml+4+i*40,y));y+=5;
+    doc.setFont('helvetica','normal');doc.setTextColor(50);
+    (sess.intern_breaks||[]).forEach(b=>{
+      doc.setFontSize(7);
+      doc.text(String(b.break_number),ml+4,y);
+      doc.text(BRK_LBL[b.break_type]||'Break',ml+44,y);
+      doc.text((b.duration_mins!=null?b.duration_mins:0)+'m',ml+84,y);
+      y+=4.5;doc.setDrawColor(235);doc.line(ml,y-1,pw-mr,y-1);
+    });
+    y+=4;
+  }
+
+  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]);
+  if(appEntries.length){
+    if(y>250){doc.addPage();y=10}
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
+    doc.text('App Usage',ml+2,y);y+=5;
+    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(255);
+    doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1,1,'F');
+    ['Application','Time'].forEach((h,i)=>doc.text(h,ml+4+i*100,y));y+=5;
+    doc.setFont('helvetica','normal');doc.setTextColor(50);
+    appEntries.forEach(([app,secs])=>{
+      if(y>280){doc.addPage();y=10}
+      doc.setFontSize(7);
+      doc.text(app.substring(0,40),ml+4,y);
+      doc.text(Math.floor(secs/60)+'m '+secs%60+'s',ml+104,y);
+      y+=4.5;doc.setDrawColor(235);doc.line(ml,y-1,pw-mr,y-1);
+    });
+  }
+
+  doc.setFontSize(6.5);doc.setTextColor(140);doc.setFont('helvetica','normal');
+  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,290,{align:'center'});
+  doc.save(`Day-${sess.day_number||dateStr}-${name.replace(/\s+/g,'_')}.pdf`);
+  _showAdminToast('Day PDF exported!','success');
 }
 </script>
 

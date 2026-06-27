@@ -927,7 +927,7 @@ function updateBreakUI(){
 
   if(completedBreaks.length){
     logEl.style.display='';
-    logEl.innerHTML='<strong>Today\'s Breaks:</strong> '+completedBreaks.map(b=>`${BRK_LABELS[b.break_type]||'Break'}: ${b.duration_mins||'?'}m`).join(' · ')+` <span style="color:var(--iw-v);font-weight:700;margin-left:.4rem">(${fmtMins(totalBrkMins)} / ${fmtMins(BRK_TOTAL_MAX)})</span>`;
+    logEl.innerHTML='<strong>Today\'s Breaks:</strong> '+completedBreaks.map(b=>`${BRK_LABELS[b.break_type]||'Break'}: ${b.duration_mins!=null?b.duration_mins:0}m`).join(' · ')+` <span style="color:var(--iw-v);font-weight:700;margin-left:.4rem">(${fmtMins(totalBrkMins)} / ${fmtMins(BRK_TOTAL_MAX)})</span>`;
   } else {logEl.style.display='none';logEl.innerHTML=''}
 }
 
@@ -1100,14 +1100,45 @@ async function _recordTrack(appName,windowTitle){
   try{await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:appName,window_title:windowTitle||'',active_seconds:0,ip_address:_detectedIP||''})}catch{}
 }
 
-/* ── IP Address Detection ── */
+/* ── IP Address & Network Detection ── */
 let _detectedIP=null;
+let _networkInfo={ip:null,connection_type:null,downlink:null,rtt:null,effective_type:null,isp:null,city:null,region:null};
 async function _detectIP(){
   try{
     const r=await fetch('https://api.ipify.org?format=json');
     const d=await r.json();
     _detectedIP=d.ip||null;
+    _networkInfo.ip=_detectedIP;
   }catch{_detectedIP=null}
+  try{
+    const conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+    if(conn){
+      _networkInfo.connection_type=conn.type||null;
+      _networkInfo.effective_type=conn.effectiveType||null;
+      _networkInfo.downlink=conn.downlink||null;
+      _networkInfo.rtt=conn.rtt||null;
+    }
+  }catch{}
+  try{
+    if(_detectedIP){
+      const geo=await fetch('https://ipapi.co/'+_detectedIP+'/json/');
+      const gd=await geo.json();
+      _networkInfo.isp=gd.org||null;
+      _networkInfo.city=gd.city||null;
+      _networkInfo.region=gd.region||null;
+    }
+  }catch{}
+}
+function _getNetworkSummary(){
+  const parts=[];
+  if(_networkInfo.ip)parts.push('IP:'+_networkInfo.ip);
+  if(_networkInfo.connection_type)parts.push('Type:'+_networkInfo.connection_type);
+  if(_networkInfo.effective_type)parts.push('Speed:'+_networkInfo.effective_type);
+  if(_networkInfo.downlink)parts.push('Downlink:'+_networkInfo.downlink+'Mbps');
+  if(_networkInfo.rtt)parts.push('RTT:'+_networkInfo.rtt+'ms');
+  if(_networkInfo.isp)parts.push('ISP:'+_networkInfo.isp);
+  if(_networkInfo.city)parts.push('Location:'+_networkInfo.city+((_networkInfo.region)?', '+_networkInfo.region:''));
+  return parts.join(' | ')||'N/A';
 }
 
 /* ── Main tracking start ── */
@@ -1118,7 +1149,7 @@ async function startAppTracking(){
 
   await _detectIP();
   if(_detectedIP&&_session){
-    try{await C().from('intern_work_sessions').update({ip_address:_detectedIP}).eq('id',_session.id)}catch{}
+    try{await C().from('intern_work_sessions').update({ip_address:_detectedIP,network_info:_getNetworkSummary()}).eq('id',_session.id)}catch{}
   }
 
   _appTrackInt=setInterval(async()=>{
@@ -1298,7 +1329,7 @@ async function loadAttendanceData(){
   if(!_enrollment)return;
   const c=C();
   const[{data:sessions},{data:attendance}]=await Promise.all([
-    c.from('intern_work_sessions').select('session_date,day_number,status,start_time,end_time,total_work_mins,ip_address,intern_breaks(break_number,break_type,break_start,break_end,duration_mins)')
+    c.from('intern_work_sessions').select('session_date,day_number,status,start_time,end_time,total_work_mins,ip_address,network_info,intern_breaks(break_number,break_type,break_start,break_end,duration_mins)')
       .eq('enrollment_id',_enrollment.id).order('session_date'),
     c.from('internship_attendance').select('attendance_date,status,check_in_time,check_out_time,notes')
       .eq('enrollment_id',_enrollment.id).order('attendance_date')
@@ -1383,7 +1414,7 @@ function toggleDayDetail(dateStr,event){
   const status=sess.status==='completed'?'Completed':(sess.status==='active'?'Active':'Auto-Closed');
   const statusCls=sess.status==='completed'?'green':'';
   const dateFmt=new Date(dateStr+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
-  const breakDetails=(sess.intern_breaks||[]).map(b=>`<div class="iw-dd-row"><span class="iw-dd-label">${BRK_LABELS[b.break_type]||'Break '+b.break_number}</span><span class="iw-dd-val">${b.duration_mins||'?'}m</span></div>`).join('');
+  const breakDetails=(sess.intern_breaks||[]).map(b=>`<div class="iw-dd-row"><span class="iw-dd-label">${BRK_LABELS[b.break_type]||'Break '+b.break_number}</span><span class="iw-dd-val">${b.break_end?(b.duration_mins!=null?b.duration_mins:0)+'m':'Active'}</span></div>`).join('');
 
   const popup=document.createElement('div');
   popup.className='iw-day-detail show';
@@ -1402,6 +1433,7 @@ function toggleDayDetail(dateStr,event){
     ${breakDetails}
     <div class="iw-dd-row"><span class="iw-dd-label">Net Work</span><span class="iw-dd-val green">${fmtMins(Math.max(0,workMins-breakMins))} / 8h</span></div>
     ${sess.ip_address?`<div class="iw-dd-row"><span class="iw-dd-label">IP Address</span><span class="iw-dd-val" style="font-size:.6rem">${esc(sess.ip_address)}</span></div>`:''}
+    ${sess.network_info?`<div class="iw-dd-row"><span class="iw-dd-label">Network</span><span class="iw-dd-val" style="font-size:.55rem;word-break:break-all">${esc(sess.network_info)}</span></div>`:''}
     <div class="iw-dd-row"><span class="iw-dd-label">Status</span><span class="iw-dd-val">${status}</span></div>
     ${att?.notes?`<div style="margin-top:.3rem;font-size:.62rem;color:var(--txt3)">Note: ${esc(att.notes)}</div>`:''}
   `;
@@ -1452,7 +1484,7 @@ function renderAttendanceLog(){
     const totalMins=s.total_work_mins||0;
     const brkMins=(s.intern_breaks||[]).reduce((a,b)=>a+(b.duration_mins||0),0);
     const netMins=Math.max(0,totalMins-brkMins);
-    const brkInfo=(s.intern_breaks||[]).map(b=>(BRK_LABELS[b.break_type]||'Brk').split(' ')[0]+':'+(b.duration_mins||'?')+'m').join(', ')||'—';
+    const brkInfo=(s.intern_breaks||[]).map(b=>(BRK_LABELS[b.break_type]||'Brk').split(' ')[0]+':'+(b.duration_mins!=null?b.duration_mins:0)+'m').join(', ')||'N/A';
     const sc=s.status==='completed'?'att-completed':(s.status==='active'?'att-present':'att-late');
     const sl=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
     const df=new Date(date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
@@ -1599,7 +1631,7 @@ async function loadActivityLog(){
         syntheticEntries.push({title:'Break Started',message:`${BRK_LABELS[b.break_type]||'Break'} started`,created_at:b.break_start,_synthetic:true});
       }
       if(b.break_end){
-        syntheticEntries.push({title:'Break Ended',message:`${BRK_LABELS[b.break_type]||'Break'} ended — ${b.duration_mins||'?'}m`,created_at:b.break_end,_synthetic:true});
+        syntheticEntries.push({title:'Break Ended',message:`${BRK_LABELS[b.break_type]||'Break'} ended — ${b.duration_mins!=null?b.duration_mins:0}m`,created_at:b.break_end,_synthetic:true});
       }
     });
     if(_session.end_time&&_session.status==='completed'){
@@ -1623,7 +1655,7 @@ async function loadActivityLog(){
     const totalBrkMins=completedBreaks.reduce((s,b)=>s+(b.duration_mins||0),0);
     if(completedBreaks.length){
       brkLogEl.style.display='';
-      brkLogEl.innerHTML='<strong>Today\'s Breaks:</strong> '+completedBreaks.map(b=>`${BRK_LABELS[b.break_type]||'Break'}: ${b.duration_mins||'?'}m`).join(' · ')+` <span style="margin-left:.5rem;color:var(--iw-v);font-weight:700">(${fmtMins(totalBrkMins)} / ${fmtMins(BRK_TOTAL_MAX)} max)</span>`;
+      brkLogEl.innerHTML='<strong>Today\'s Breaks:</strong> '+completedBreaks.map(b=>`${BRK_LABELS[b.break_type]||'Break'}: ${b.duration_mins!=null?b.duration_mins:0}m`).join(' · ')+` <span style="margin-left:.5rem;color:var(--iw-v);font-weight:700">(${fmtMins(totalBrkMins)} / ${fmtMins(BRK_TOTAL_MAX)} max)</span>`;
     } else {brkLogEl.style.display='none'}
   } else {brkLogEl.style.display='none'}
 
@@ -1694,33 +1726,38 @@ function exportActivityLog(fmt){
 
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const pw=210,ml=18,mr=18,cw=pw-ml-mr;let y=20;
+  const pw=210,ph=297,alMl=4,alMr=4,alCw=pw-alMl-alMr;let y=0;
 
-  doc.setFillColor(124,58,237);doc.rect(0,0,pw,32,'F');
-  doc.setFontSize(16);doc.setFont('helvetica','bold');doc.setTextColor(255);
-  doc.text('Activity Log Report',pw/2,14,{align:'center'});
-  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(220,220,255);
-  doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}  |  Filter: ${filter}`,pw/2,22,{align:'center'});
-  y=40;
+  doc.setFillColor(124,58,237);doc.rect(0,0,pw,28,'F');
+  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('Activity Log Report',pw/2,11,{align:'center'});
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(220,220,255);
+  doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}  |  Filter: ${filter}`,pw/2,19,{align:'center'});
+  doc.setFontSize(6);doc.setTextColor(200,200,240);
+  doc.text('Skill-Up Now Private Limited',pw/2,24,{align:'center'});
+  y=32;
 
-  doc.setFontSize(8);doc.setFont('helvetica','bold');
-  const cols=[ml,ml+28,ml+48,ml+cw*0.55];
-  doc.setFillColor(245,245,250);doc.rect(ml,y-3,cw,6,'F');
+  doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+  const alCols=[alMl+1,alMl+26,alMl+46,alMl+alCw*0.48];
+  doc.setFillColor(248,247,255);doc.rect(alMl,y-3,alCw,5.5,'F');
   doc.setTextColor(80);
-  ['Date','Time','Activity','Details'].forEach((h,i)=>doc.text(h,cols[i],y));
-  y+=5;doc.setFont('helvetica','normal');doc.setTextColor(50);
+  ['Date','Time','Activity','Details'].forEach((h,i)=>doc.text(h,alCols[i],y));
+  y+=4.5;doc.setFont('helvetica','normal');doc.setTextColor(50);
 
-  filtered.forEach(n=>{
-    if(y>275){doc.addPage();y=15}
+  filtered.forEach((n,idx)=>{
+    if(y>ph-12){doc.addPage();y=8}
+    if(idx%2===0){doc.setFillColor(252,251,255);doc.rect(alMl,y-3,alCw,4.5,'F')}
     const dt=new Date(n.created_at);
-    doc.setFontSize(7.5);
-    doc.text(dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),cols[0],y);
-    doc.text(dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),cols[1],y);
-    doc.setFont('helvetica','bold');doc.text((n.title||'').substring(0,30),cols[2],y);
-    doc.setFont('helvetica','normal');doc.text((n.message||'').substring(0,50),cols[3],y);
-    y+=4;doc.setDrawColor(235);doc.line(ml,y-1,pw-mr,y-1);
+    doc.setFontSize(6.5);
+    doc.text(dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),alCols[0],y);
+    doc.text(dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),alCols[1],y);
+    doc.setFont('helvetica','bold');doc.text((n.title||'').substring(0,30),alCols[2],y);
+    doc.setFont('helvetica','normal');doc.text((n.message||'').substring(0,55),alCols[3],y);
+    y+=4.5;doc.setDrawColor(235,230,250);doc.line(alMl,y-1,pw-alMr,y-1);
   });
 
+  doc.setFontSize(6);doc.setTextColor(140);
+  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
   doc.save(`Activity-Log-${name.replace(/\s+/g,'_')}.pdf`);
   toast('Activity PDF exported!','ok');
 }
@@ -1762,14 +1799,14 @@ async function generateReport(){
     if(checks.includes('modules')){csv+=`Modules Total,${_assignments.length}\nModules Completed,${_assignments.filter(a=>a.status==='completed').length}\nModules In Progress,${_assignments.filter(a=>a.status==='in_progress').length}\n`}
     if(checks.includes('submissions'))csv+=`Total Submissions,${(subs||[]).length}\n`;
     if(checks.includes('attendance')&&(sessions||[]).length){
-      csv+='\nDate,Day,Login Time,Logout Time,Total Time (min),Break Time (min),Break Types,Net Work (min),IP Address,Status\n';
+      csv+='\nDate,Day,Login Time,Logout Time,Total Time (min),Break Time (min),Break Types,Net Work (min),IP Address,Network Info,Status\n';
       (sessions||[]).forEach(s=>{
         const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
         const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
         const brk=(s.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0);
-        const brkTypes=(s.intern_breaks||[]).map(br=>(BRK_LABELS[br.break_type]||'Break')+':'+( br.duration_mins||'?')+'m').join('; ');
+        const brkTypes=(s.intern_breaks||[]).map(br=>(BRK_LABELS[br.break_type]||'Break')+':'+(br.duration_mins!=null?br.duration_mins:0)+'m').join('; ');
         const net=Math.max(0,(s.total_work_mins||0)-brk);
-        csv+=`${s.session_date||''},Day ${s.day_number||''},${login},${logout},${s.total_work_mins||0},${brk},"${brkTypes}",${net},"${s.ip_address||''}",${s.status||''}\n`;
+        csv+=`${s.session_date||''},Day ${s.day_number||''},${login},${logout},${s.total_work_mins||0},${brk},"${brkTypes}",${net},"${s.ip_address||'N/A'}","${s.network_info||'N/A'}",${s.status||''}\n`;
       });
     }
     if(checks.includes('breaks')&&(sessions||[]).length){
@@ -1799,21 +1836,21 @@ async function generateReport(){
     toast('CSV exported!','ok');closeShareReport();return;
   }
 
-  // PDF via jsPDF — Modern Professional A4 format
+  // PDF via jsPDF — Edge-to-edge Professional A4 format
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const pw=210,ph=297,ml=18,mr=18,cw=pw-ml-mr;
-  let y=15;
+  const pw=210,ph=297,ml=4,mr=4,cw=pw-ml-mr;
+  let y=0;
 
   function addFooter(pageDoc,pageNum,totalPg){
-    const fy=ph-10;
-    pageDoc.setDrawColor(124,58,237);pageDoc.setLineWidth(0.3);pageDoc.line(ml,fy-2,pw-mr,fy-2);
-    pageDoc.setFontSize(7);pageDoc.setFont('helvetica','normal');pageDoc.setTextColor(140);
-    pageDoc.text(companyName+' · '+companyPhone+' · '+companyEmail,pw/2,fy+2,{align:'center'});
-    pageDoc.text(`Page ${pageNum} of ${totalPg}`,pw-mr,fy+2,{align:'right'});
+    const fy=ph-5;
+    pageDoc.setFillColor(30,15,60);pageDoc.rect(0,fy-4,pw,10,'F');
+    pageDoc.setFontSize(6);pageDoc.setFont('helvetica','normal');pageDoc.setTextColor(200,190,255);
+    pageDoc.text(companyName+' · '+companyPhone+' · '+companyEmail,pw/2,fy,{align:'center'});
+    pageDoc.text(`Page ${pageNum}/${totalPg}`,pw-mr-2,fy,{align:'right'});
   }
 
-  function checkPage(needed){if(y+needed>ph-18){doc.addPage();y=15;return true}return false}
+  function checkPage(needed){if(y+needed>ph-12){doc.addPage();y=6;return true}return false}
 
   function sectionTitle(text){
     checkPage(14);
@@ -1826,28 +1863,28 @@ async function generateReport(){
   }
 
   // ── HEADER ──
-  doc.setFillColor(30,15,60);doc.rect(0,0,pw,38,'F');
-  doc.setFillColor(124,58,237);doc.rect(0,38,pw,1.5,'F');
-  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(255);
-  doc.text(companyName,pw/2,16,{align:'center'});
+  doc.setFillColor(30,15,60);doc.rect(0,0,pw,34,'F');
+  doc.setFillColor(124,58,237);doc.rect(0,34,pw,1,'F');
+  doc.setFontSize(16);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text(companyName,pw/2,12,{align:'center'});
   doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
-  doc.text('Internship Performance Report',pw/2,24,{align:'center'});
-  doc.setFontSize(8);doc.setTextColor(180,170,220);
-  doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`,pw/2,31,{align:'center'});
-  y=47;
+  doc.text('Internship Performance Report',pw/2,20,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(180,170,220);
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`,pw/2,27,{align:'center'});
+  y=38;
 
   // ── STUDENT INFO ──
-  doc.setFillColor(248,247,255);doc.roundedRect(ml,y,cw,22,3,3,'F');
-  doc.setDrawColor(200,190,240);doc.setLineWidth(0.3);doc.roundedRect(ml,y,cw,22,3,3,'S');
-  const infoL=ml+6,infoR=pw/2+4;
-  doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(80);
-  doc.text('Student',infoL,y+7);doc.text('Project',infoL,y+14);
-  doc.text('Email',infoR,y+7);doc.text('Days Worked',infoR,y+14);
+  doc.setFillColor(248,247,255);doc.rect(ml,y,cw,18,'F');
+  doc.setDrawColor(200,190,240);doc.setLineWidth(0.2);doc.rect(ml,y,cw,18,'S');
+  const infoL=ml+4,infoR=pw/2+2;
+  doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(80);
+  doc.text('Student',infoL,y+6);doc.text('Project',infoL,y+12);
+  doc.text('Email',infoR,y+6);doc.text('Days Worked',infoR,y+12);
   doc.setFont('helvetica','normal');doc.setTextColor(40);
-  doc.text(name,infoL+26,y+7);doc.text(proj?.project_name||'—',infoL+26,y+14);
-  doc.text(_user.email||'—',infoR+26,y+7);
-  doc.text(`${(sessions||[]).length} / 50`,infoR+32,y+14);
-  y+=30;
+  doc.text(name,infoL+24,y+6);doc.text(proj?.project_name||'—',infoL+24,y+12);
+  doc.text(_user.email||'—',infoR+24,y+6);
+  doc.text(`${(sessions||[]).length} / 50`,infoR+30,y+12);
+  y+=22;
 
   // ── SUMMARY STATS ──
   const totalWrkMins=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
@@ -1875,38 +1912,41 @@ async function generateReport(){
   // ── ATTENDANCE TABLE ──
   if(checks.includes('attendance')&&(sessions||[]).length){
     sectionTitle('Attendance & Work Log');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');
-    const colW=[22,14,20,20,16,16,30,18,18];
-    const colX=[ml];for(let i=1;i<colW.length;i++)colX.push(colX[i-1]+colW[i-1]);
-    doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1.5,1.5,'F');
+    doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+    const colW=[24,12,20,20,16,16,38,30,26];
+    const totalCW=colW.reduce((s,w)=>s+w,0);const colScale=cw/totalCW;
+    const scaledColW=colW.map(w=>Math.round(w*colScale));
+    const colX=[ml];for(let i=1;i<scaledColW.length;i++)colX.push(colX[i-1]+scaledColW[i-1]);
+    doc.setFillColor(124,58,237);doc.rect(ml,y-3.5,cw,5.5,'F');
     doc.setTextColor(255);
-    ['Date','Day','Login','Logout','Work','Breaks','Break Types','IP','Status'].forEach((h,i)=>doc.text(h,colX[i]+2,y));
+    ['Date','Day','Login','Logout','Work','Breaks','Break Types','IP / Network','Status'].forEach((h,i)=>doc.text(h,colX[i]+1,y));
     y+=5;doc.setFont('helvetica','normal');
     let rowAlt=false;
     (sessions||[]).forEach(s=>{
-      checkPage(5.5);
-      if(rowAlt){doc.setFillColor(248,247,255);doc.rect(ml,y-3.5,cw,5,'F')}
+      checkPage(5);
+      if(rowAlt){doc.setFillColor(248,247,255);doc.rect(ml,y-3,cw,4.5,'F')}
       rowAlt=!rowAlt;
-      doc.setFontSize(7);doc.setTextColor(60);
-      doc.text(s.session_date||'—',colX[0]+2,y);
-      doc.text('D'+(s.day_number||''),colX[1]+2,y);
+      doc.setFontSize(6.5);doc.setTextColor(50);
+      doc.text(s.session_date||'—',colX[0]+1,y);
+      doc.text('D'+(s.day_number||''),colX[1]+1,y);
       doc.setTextColor(16,185,129);
-      doc.text(s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—',colX[2]+2,y);
+      doc.text(s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—',colX[2]+1,y);
       doc.setTextColor(124,58,237);
-      doc.text(s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—',colX[3]+2,y);
-      doc.setTextColor(60);
-      doc.text(s.total_work_mins?fmtMins(s.total_work_mins):'—',colX[4]+2,y);
+      doc.text(s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—',colX[3]+1,y);
+      doc.setTextColor(50);
+      doc.text(s.total_work_mins?fmtMins(s.total_work_mins):'—',colX[4]+1,y);
       const brk=(s.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0);
-      doc.text(fmtMins(brk),colX[5]+2,y);
+      doc.text(fmtMins(brk),colX[5]+1,y);
       doc.setFontSize(5.5);
-      const brkTypes=(s.intern_breaks||[]).map(br=>{const l=BRK_LABELS[br.break_type]||'Brk';return l.split(' ')[0]+':'+(br.duration_mins||'?')+'m'}).join(', ');
-      doc.text((brkTypes||'None').substring(0,28),colX[6]+2,y);
-      doc.setFontSize(6);
-      doc.text((s.ip_address||'—').substring(0,15),colX[7]+2,y);
-      doc.setFontSize(7);
+      const brkTypes=(s.intern_breaks||[]).map(br=>{const l=BRK_LABELS[br.break_type]||'Brk';return l.split(' ')[0]+':'+(br.duration_mins!=null?br.duration_mins:0)+'m'}).join(', ');
+      doc.text((brkTypes||'None').substring(0,32),colX[6]+1,y);
+      doc.setFontSize(5);
+      const ipNet=(s.ip_address||'N/A')+(s.network_info?' | '+s.network_info.split(' | ').slice(0,2).join(', '):'');
+      doc.text(ipNet.substring(0,28),colX[7]+1,y);
+      doc.setFontSize(6.5);
       const status=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
-      doc.text(status,colX[8]+2,y);
-      y+=5;doc.setDrawColor(230);doc.line(ml,y-1.5,pw-mr,y-1.5);
+      doc.text(status,colX[8]+1,y);
+      y+=4.5;doc.setDrawColor(235,230,250);doc.line(ml,y-1,pw-mr,y-1);
     });
     y+=5;
   }
@@ -1914,10 +1954,12 @@ async function generateReport(){
   // ── BREAK DETAIL TABLE ──
   if(checks.includes('breaks')){
     sectionTitle('Break Time Detail');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');
-    const bColW=[28,20,35,30,30,30];
-    const bColX=[ml];for(let i=1;i<bColW.length;i++)bColX.push(bColX[i-1]+bColW[i-1]);
-    doc.setFillColor(245,158,11);doc.roundedRect(ml,y-3.5,cw,6,1.5,1.5,'F');
+    doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+    const bColW=[30,20,38,32,32,30];
+    const bTotalW=bColW.reduce((s,w)=>s+w,0);const bScale=cw/bTotalW;
+    const sbColW=bColW.map(w=>Math.round(w*bScale));
+    const bColX=[ml];for(let i=1;i<sbColW.length;i++)bColX.push(bColX[i-1]+sbColW[i-1]);
+    doc.setFillColor(245,158,11);doc.rect(ml,y-3.5,cw,5.5,'F');
     doc.setTextColor(255);
     ['Date','Break #','Break Type','Start Time','End Time','Duration'].forEach((h,i)=>doc.text(h,bColX[i]+2,y));
     y+=5;doc.setFont('helvetica','normal');doc.setTextColor(60);
@@ -1999,28 +2041,30 @@ async function generateReport(){
       appSummary[a.app_name].secs+=a.active_seconds||0;
     });
     const sortedApps=Object.entries(appSummary).sort((a,b)=>b[1].secs-a[1].secs);
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');
-    const aColW=[50,30,30,64];
-    const aColX=[ml];for(let i=1;i<aColW.length;i++)aColX.push(aColX[i-1]+aColW[i-1]);
-    doc.setFillColor(6,182,212);doc.roundedRect(ml,y-3.5,cw,6,1.5,1.5,'F');
+    doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+    const aColW=[55,30,30,87];
+    const aTotalW=aColW.reduce((s,w)=>s+w,0);const aScale=cw/aTotalW;
+    const saColW=aColW.map(w=>Math.round(w*aScale));
+    const aColX=[ml];for(let i=1;i<saColW.length;i++)aColX.push(aColX[i-1]+saColW[i-1]);
+    doc.setFillColor(6,182,212);doc.rect(ml,y-3.5,cw,5.5,'F');
     doc.setTextColor(255);
-    ['App Name','Category','Time Used','IP Address'].forEach((h,i)=>doc.text(h,aColX[i]+2,y));
+    ['App Name','Category','Time Used','IP / Network'].forEach((h,i)=>doc.text(h,aColX[i]+1,y));
     y+=5;doc.setFont('helvetica','normal');doc.setTextColor(60);
     let aAlt=false;
     sortedApps.slice(0,30).forEach(([app,d])=>{
-      checkPage(5.5);
-      if(aAlt){doc.setFillColor(245,252,255);doc.rect(ml,y-3.5,cw,5,'F')}
+      checkPage(5);
+      if(aAlt){doc.setFillColor(245,252,255);doc.rect(ml,y-3,cw,4.5,'F')}
       aAlt=!aAlt;
-      doc.setFontSize(7);doc.setTextColor(50);
-      doc.text(app.substring(0,32),aColX[0]+2,y);
-      doc.text((d.cat||'—').substring(0,18),aColX[1]+2,y);
+      doc.setFontSize(6.5);doc.setTextColor(50);
+      doc.text(app.substring(0,35),aColX[0]+1,y);
+      doc.text((d.cat||'—').substring(0,18),aColX[1]+1,y);
       doc.setFont('helvetica','bold');
-      doc.text(fmtMins(Math.round(d.secs/60)),aColX[2]+2,y);
+      doc.text(fmtMins(Math.round(d.secs/60)),aColX[2]+1,y);
       doc.setFont('helvetica','normal');
+      doc.setFontSize(5.5);
+      doc.text((d.ip||'N/A').substring(0,50),aColX[3]+1,y);
       doc.setFontSize(6.5);
-      doc.text((d.ip||'—').substring(0,36),aColX[3]+2,y);
-      doc.setFontSize(7);
-      y+=5;doc.setDrawColor(230);doc.line(ml,y-1.5,pw-mr,y-1.5);
+      y+=4.5;doc.setDrawColor(235);doc.line(ml,y-1,pw-mr,y-1);
     });
     y+=5;
   }
