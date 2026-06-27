@@ -11,191 +11,161 @@
   <link rel="stylesheet" href="../css/responsive.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root {
-      --iw-violet: #7c3aed; --iw-violet2: #6d28d9;
-      --iw-emerald:#10b981; --iw-gold:   #f59e0b;
-      --iw-cyan:   #06b6d4; --iw-rose:   #f43f5e;
-      --iw-r: 18px; --iw-r2: 12px;
-    }
-    img { -webkit-user-drag:none; }
-    @keyframes iwSlideUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
-    @keyframes iwPulse   { 0%,100%{opacity:.4;transform:scale(.85)} 50%{opacity:1;transform:scale(1.08)} }
-    @keyframes iwSpin    { from{transform:rotate(0)} to{transform:rotate(360deg)} }
-    @keyframes iwPop     { 0%{transform:scale(0);opacity:0} 50%{transform:scale(1.12)} 100%{transform:scale(1);opacity:1} }
+:root{--iw-v:#7c3aed;--iw-v2:#6d28d9;--iw-e:#10b981;--iw-g:#f59e0b;--iw-c:#06b6d4;--iw-r:#f43f5e;--iw-rd:18px;--iw-rd2:12px}
+img{-webkit-user-drag:none}
+@keyframes iwUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes iwPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4)}70%{box-shadow:0 0 0 12px rgba(16,185,129,0)}}
+@keyframes iwSpin{to{transform:rotate(360deg)}}
+@keyframes iwPop{0%{transform:scale(0);opacity:0}50%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes iwShimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+.iw-page{min-height:100vh;padding-bottom:3rem}
+.iw-wrap{max-width:1200px;margin:0 auto;padding:0 1.25rem}
 
-    .iw-page { padding-bottom:4rem; min-height:100vh; }
-    .iw-container { max-width:1000px; margin:0 auto; padding:0 1.5rem; }
+/* Toast */
+#iw-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);padding:.7rem 1.6rem;border-radius:14px;font-size:.84rem;font-weight:700;z-index:9999;pointer-events:none;opacity:0;transition:all .35s cubic-bezier(.22,1,.36,1);font-family:inherit;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#iw-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+#iw-toast.ok{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+#iw-toast.err{background:linear-gradient(135deg,#f43f5e,#dc2626);color:#fff}
 
-    /* ── Auth gate ── */
-    .iw-gate {
-      text-align:center; padding:5rem 2rem; max-width:460px; margin:4rem auto;
-      background:var(--bg2); border:1.5px solid var(--border); border-radius:24px;
-      box-shadow:0 8px 40px rgba(0,0,0,.1);
-    }
-    .iw-gate h2 { font-size:1.4rem; font-weight:900; margin-bottom:.5rem; }
-    .iw-gate p { color:var(--txt3); margin-bottom:1.5rem; font-size:.9rem; }
-    .iw-gate-btn {
-      display:inline-flex; align-items:center; gap:.5rem;
-      padding:.8rem 2rem; border-radius:14px; font-size:.92rem; font-weight:700;
-      background:linear-gradient(135deg,var(--v1),var(--v2)); color:#fff;
-      border:none; cursor:pointer; font-family:inherit;
-      box-shadow:0 4px 18px rgba(124,92,252,.35); transition:transform .25s,box-shadow .25s;
-    }
-    .iw-gate-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(124,92,252,.5); }
+/* Auth gate */
+.iw-gate{text-align:center;padding:5rem 2rem;max-width:460px;margin:4rem auto;background:var(--bg2);border:1.5px solid var(--border);border-radius:24px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+.iw-gate h2{font-size:1.35rem;font-weight:900;margin-bottom:.5rem}
+.iw-gate p{color:var(--txt3);margin-bottom:1.5rem;font-size:.88rem}
+.iw-gate-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 2rem;border-radius:14px;font-size:.9rem;font-weight:700;background:linear-gradient(135deg,var(--v1),var(--v2));color:#fff;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(124,92,252,.35);transition:transform .25s,box-shadow .25s}
+.iw-gate-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(124,92,252,.5)}
 
-    /* ── Toast ── */
-    #iw-toast {
-      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(100px);
-      padding:.8rem 1.8rem; border-radius:14px; font-size:.85rem; font-weight:700;
-      z-index:9999; pointer-events:none; opacity:0; transition:all .35s cubic-bezier(.22,1,.36,1);
-      font-family:inherit; box-shadow:0 8px 30px rgba(0,0,0,.25);
-    }
-    #iw-toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
-    #iw-toast.ok  { background:linear-gradient(135deg,#10b981,#059669); color:#fff; }
-    #iw-toast.err { background:linear-gradient(135deg,#f43f5e,#dc2626); color:#fff; }
+/* Back link */
+.iw-back{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;color:var(--txt3);text-decoration:none;margin-bottom:.5rem;transition:color .2s}
+.iw-back:hover{color:var(--iw-v)}
 
-    /* ── Header ── */
-    .iw-header {
-      padding:2.5rem 0 1.5rem; display:flex; align-items:center;
-      justify-content:space-between; flex-wrap:wrap; gap:1rem;
-      animation:iwSlideUp .5s ease both;
-    }
-    .iw-header h1 {
-      font-size:clamp(1.4rem,3.5vw,1.9rem); font-weight:900; letter-spacing:-.03em;
-      background:linear-gradient(135deg,var(--txt) 0%,var(--iw-violet) 100%);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-    }
-    .iw-header-meta { display:flex; gap:.5rem; flex-wrap:wrap; }
-    .iw-pill {
-      display:inline-flex; align-items:center; gap:.3rem;
-      padding:.3rem .9rem; border-radius:999px; font-size:.72rem; font-weight:700;
-    }
-    .iw-pill-violet { background:rgba(124,58,237,.1); color:var(--iw-violet); border:1px solid rgba(124,58,237,.25); }
-    .iw-pill-emerald { background:rgba(16,185,129,.1); color:var(--iw-emerald); border:1px solid rgba(16,185,129,.25); }
+/* Header */
+.iw-hdr{padding:1.5rem 0 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;animation:iwUp .5s ease both}
+.iw-hdr h1{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;letter-spacing:-.03em;background:linear-gradient(135deg,var(--txt) 0%,var(--iw-v) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.iw-pills{display:flex;gap:.4rem;flex-wrap:wrap}
+.iw-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .75rem;border-radius:999px;font-size:.7rem;font-weight:700}
+.iw-pill-v{background:rgba(124,58,237,.1);color:var(--iw-v);border:1px solid rgba(124,58,237,.25)}
+.iw-pill-e{background:rgba(16,185,129,.1);color:var(--iw-e);border:1px solid rgba(16,185,129,.25)}
+.iw-pill-g{background:rgba(245,158,11,.1);color:var(--iw-g);border:1px solid rgba(245,158,11,.25)}
 
-    /* ── Back link ── */
-    .iw-back {
-      display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem; font-weight:700;
-      color:var(--txt3); text-decoration:none; margin-bottom:.5rem;
-      transition:color .2s;
-    }
-    .iw-back:hover { color:var(--iw-violet); }
+/* ── LAYOUT: Two-column ── */
+.iw-layout{display:grid;grid-template-columns:1fr 320px;gap:1.2rem;align-items:start}
+@media(max-width:900px){.iw-layout{grid-template-columns:1fr}}
 
-    /* ── Progress bar ── */
-    .iw-progress-wrap {
-      background:var(--panel); border:1px solid var(--border); border-radius:14px;
-      padding:1rem 1.2rem; margin-bottom:1.5rem;
-      animation:iwSlideUp .5s ease .1s both;
-    }
-    .iw-progress-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem; }
-    .iw-progress-label { font-size:.78rem; font-weight:700; color:var(--txt2); }
-    .iw-progress-pct { font-size:.82rem; font-weight:900; color:var(--iw-violet); }
-    .iw-progress-bar { height:8px; background:var(--panel2); border-radius:8px; overflow:hidden; }
-    .iw-progress-fill {
-      height:100%; border-radius:8px;
-      background:linear-gradient(90deg,var(--iw-violet),var(--iw-emerald));
-      transition:width .6s cubic-bezier(.22,1,.36,1);
-    }
+/* ── Section card ── */
+.iw-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--iw-rd);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);animation:iwUp .45s ease both;margin-bottom:1rem}
+.iw-card-hdr{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.85rem 1.15rem;border-bottom:1px solid var(--border)}
+.iw-card-hdr h2{font-size:.9rem;font-weight:900;display:flex;align-items:center;gap:.45rem}
+.iw-card-body{padding:1rem 1.15rem}
 
-    /* ── Stats row ── */
-    .iw-stats {
-      display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-      gap:.8rem; margin-bottom:1.5rem;
-    }
-    .iw-stat-card {
-      background:var(--bg2); border:1.5px solid var(--border); border-radius:var(--iw-r2);
-      padding:1rem; text-align:center; animation:iwSlideUp .5s ease both;
-    }
-    .iw-stat-val { font-size:1.5rem; font-weight:900; }
-    .iw-stat-lbl { font-size:.7rem; font-weight:700; color:var(--txt3); margin-top:.15rem; text-transform:uppercase; letter-spacing:.04em; }
+/* ── Live timer ── */
+.iw-timer-zone{text-align:center;padding:1.5rem 1rem}
+.iw-timer{font-size:2.6rem;font-weight:900;letter-spacing:.02em;color:var(--txt);font-variant-numeric:tabular-nums;margin-bottom:.3rem}
+.iw-timer-sub{font-size:.78rem;color:var(--txt3);font-weight:600}
+.iw-timer-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--iw-e);margin-right:.5rem;animation:iwPulse 1.5s infinite}
+.iw-timer-dot.off{background:var(--txt3);animation:none}
+.iw-start-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 2.2rem;border-radius:14px;font-size:.92rem;font-weight:800;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-e),#059669);box-shadow:0 4px 18px rgba(16,185,129,.35);transition:transform .25s,box-shadow .25s}
+.iw-start-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(16,185,129,.5)}
+.iw-end-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.8rem;border-radius:12px;font-size:.84rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-r),#dc2626);box-shadow:0 3px 12px rgba(244,63,94,.3);margin-top:.8rem;transition:transform .2s}
+.iw-end-btn:hover{transform:scale(1.04)}
+.iw-brk-row{display:flex;gap:.5rem;justify-content:center;margin-top:.8rem}
+.iw-brk-btn{padding:.4rem 1rem;border-radius:10px;font-size:.75rem;font-weight:700;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);cursor:pointer;font-family:inherit;transition:all .2s}
+.iw-brk-btn.on{border-color:var(--iw-g);background:rgba(245,158,11,.1);color:var(--iw-g)}
+.iw-brk-btn:disabled{opacity:.4;cursor:not-allowed}
 
-    /* ── Section ── */
-    .iw-section {
-      background:var(--bg2); border:1.5px solid var(--border); border-radius:var(--iw-r);
-      margin-bottom:1.2rem; overflow:hidden;
-      box-shadow:0 2px 12px rgba(0,0,0,.06);
-      animation:iwSlideUp .5s ease both;
-    }
-    .iw-sec-hdr {
-      display:flex; align-items:center; justify-content:space-between; gap:.8rem;
-      padding:1rem 1.3rem; border-bottom:1px solid var(--border);
-    }
-    .iw-sec-hdr h2 { font-size:.95rem; font-weight:900; }
-    .iw-sec-body { padding:1.2rem 1.3rem; }
+/* ── Stats row ── */
+.iw-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem}
+@media(max-width:640px){.iw-stats{grid-template-columns:repeat(2,1fr)}}
+.iw-stat{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--iw-rd2);padding:.8rem;text-align:center;animation:iwUp .45s ease both}
+.iw-stat-v{font-size:1.4rem;font-weight:900}
+.iw-stat-l{font-size:.65rem;font-weight:700;color:var(--txt3);margin-top:.1rem;text-transform:uppercase;letter-spacing:.04em}
 
-    /* ── Module cards ── */
-    .iw-modules { display:flex; flex-direction:column; gap:.7rem; }
-    .iw-mod {
-      display:flex; align-items:flex-start; gap:.8rem; padding:.9rem 1rem;
-      border-radius:var(--iw-r2); background:var(--panel); border:1px solid var(--border);
-      transition:border-color .2s, box-shadow .2s;
-    }
-    .iw-mod:hover { border-color:rgba(124,58,237,.3); box-shadow:0 4px 16px rgba(124,58,237,.06); }
-    .iw-mod-icon {
-      width:36px; height:36px; border-radius:10px; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .iw-mod-icon.active   { background:rgba(16,185,129,.12); color:#10b981; }
-    .iw-mod-icon.progress { background:rgba(245,158,11,.12); color:#f59e0b; }
-    .iw-mod-icon.done     { background:rgba(124,58,237,.12); color:#a78bfa; }
-    .iw-mod-info { flex:1; min-width:0; }
-    .iw-mod-name { font-size:.88rem; font-weight:800; color:var(--txt); margin-bottom:.15rem; }
-    .iw-mod-desc { font-size:.78rem; color:var(--txt3); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .iw-mod-meta { display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.4rem; font-size:.7rem; color:var(--txt3); font-weight:600; }
-    .iw-mod-actions { display:flex; flex-direction:column; gap:.35rem; align-items:flex-end; flex-shrink:0; }
-    .iw-mod-badge {
-      padding:.2rem .6rem; border-radius:999px; font-size:.65rem; font-weight:800;
-      text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
-    }
-    .iw-mod-badge.active   { background:rgba(16,185,129,.1); color:#10b981; border:1px solid rgba(16,185,129,.25); }
-    .iw-mod-badge.progress { background:rgba(245,158,11,.1); color:#f59e0b; border:1px solid rgba(245,158,11,.25); }
-    .iw-mod-badge.done     { background:rgba(124,58,237,.1); color:#a78bfa; border:1px solid rgba(124,58,237,.25); }
-    .iw-mod-btn {
-      padding:.3rem .75rem; border-radius:8px; font-size:.7rem; font-weight:700;
-      border:none; cursor:pointer; font-family:inherit; color:#fff; white-space:nowrap;
-      transition:transform .2s, box-shadow .2s;
-    }
-    .iw-mod-btn:hover { transform:scale(1.04); }
-    .iw-mod-btn-start  { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 2px 8px rgba(16,185,129,.3); }
-    .iw-mod-btn-done   { background:linear-gradient(135deg,#7c3aed,#6d28d9); box-shadow:0 2px 8px rgba(124,58,237,.3); }
+/* ── Progress bar ── */
+.iw-prog{background:var(--panel);border:1px solid var(--border);border-radius:var(--iw-rd2);padding:.8rem 1rem;margin-bottom:1rem;animation:iwUp .45s ease .05s both}
+.iw-prog-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+.iw-prog-lbl{font-size:.76rem;font-weight:700;color:var(--txt2)}
+.iw-prog-pct{font-size:.8rem;font-weight:900;color:var(--iw-v)}
+.iw-prog-bar{height:7px;background:var(--panel2);border-radius:7px;overflow:hidden}
+.iw-prog-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--iw-v),var(--iw-e));transition:width .6s cubic-bezier(.22,1,.36,1)}
 
-    /* ── Git section ── */
-    .iw-git-item {
-      display:flex; align-items:center; gap:.8rem; padding:.7rem .9rem;
-      border-radius:var(--iw-r2); background:var(--panel); border:1px solid var(--border);
-      margin-bottom:.5rem;
-    }
-    .iw-git-url {
-      flex:1; font-size:.78rem; font-weight:600; color:var(--iw-violet);
-      text-decoration:underline; word-break:break-all;
-    }
-    .iw-git-copy {
-      padding:.3rem .6rem; border-radius:8px; font-size:.68rem; font-weight:700;
-      background:rgba(124,58,237,.08); color:var(--iw-violet); border:1px solid rgba(124,58,237,.2);
-      cursor:pointer; font-family:inherit; white-space:nowrap; transition:background .2s;
-    }
-    .iw-git-copy:hover { background:rgba(124,58,237,.15); }
+/* ── Modules ── */
+.iw-mods{display:flex;flex-direction:column;gap:.6rem}
+.iw-mod{display:flex;align-items:flex-start;gap:.7rem;padding:.8rem .9rem;border-radius:var(--iw-rd2);background:var(--panel);border:1px solid var(--border);transition:border-color .2s,box-shadow .2s}
+.iw-mod:hover{border-color:rgba(124,58,237,.25);box-shadow:0 4px 14px rgba(124,58,237,.05)}
+.iw-mod-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.iw-mod-ico.s-active{background:rgba(16,185,129,.12);color:#10b981}
+.iw-mod-ico.s-progress{background:rgba(245,158,11,.12);color:#f59e0b}
+.iw-mod-ico.s-done{background:rgba(124,58,237,.12);color:#a78bfa}
+.iw-mod-body{flex:1;min-width:0}
+.iw-mod-name{font-size:.84rem;font-weight:800;color:var(--txt);margin-bottom:.1rem}
+.iw-mod-desc{font-size:.74rem;color:var(--txt3);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.iw-mod-meta{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.3rem;font-size:.68rem;color:var(--txt3);font-weight:600}
+.iw-mod-meta a{color:var(--iw-v);text-decoration:underline}
+.iw-mod-side{display:flex;flex-direction:column;gap:.3rem;align-items:flex-end;flex-shrink:0}
+.iw-badge{padding:.18rem .55rem;border-radius:999px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.iw-badge.s-active{background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.22)}
+.iw-badge.s-progress{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.22)}
+.iw-badge.s-done{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.22)}
+.iw-sm-btn{padding:.28rem .7rem;border-radius:8px;font-size:.68rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;white-space:nowrap;transition:transform .18s}
+.iw-sm-btn:hover{transform:scale(1.05)}
+.iw-sm-btn.start{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 2px 8px rgba(16,185,129,.3)}
+.iw-sm-btn.done{background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 2px 8px rgba(124,58,237,.3)}
 
-    /* ── Activity log ── */
-    .iw-log { max-height:260px; overflow-y:auto; }
-    .iw-log-item {
-      display:flex; align-items:flex-start; gap:.6rem; padding:.5rem 0;
-      border-bottom:1px solid var(--border); font-size:.78rem;
-    }
-    .iw-log-item:last-child { border-bottom:none; }
-    .iw-log-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:.35rem; }
-    .iw-log-time { font-size:.68rem; color:var(--txt3); font-weight:600; white-space:nowrap; margin-top:.05rem; }
+/* ── Git section ── */
+.iw-git-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:var(--iw-rd2);background:var(--panel);border:1px solid var(--border);margin-bottom:.45rem}
+.iw-git-url{flex:1;font-size:.76rem;font-weight:600;color:var(--iw-v);text-decoration:underline;word-break:break-all}
+.iw-git-copy{padding:.25rem .55rem;border-radius:8px;font-size:.66rem;font-weight:700;background:rgba(124,58,237,.08);color:var(--iw-v);border:1px solid rgba(124,58,237,.18);cursor:pointer;font-family:inherit;transition:background .2s}
+.iw-git-copy:hover{background:rgba(124,58,237,.15)}
 
-    .iw-empty { text-align:center; padding:2rem 1rem; color:var(--txt3); font-size:.85rem; font-weight:600; }
+/* ── Attendance panel (right side) ── */
+.iw-att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.iw-att-day{width:100%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;background:var(--panel);border:1px solid var(--border);color:var(--txt3);cursor:default;transition:all .2s}
+.iw-att-day.present{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.35);color:#10b981}
+.iw-att-day.today{border-color:var(--iw-v);box-shadow:0 0 0 2px rgba(124,58,237,.2)}
+.iw-att-day.absent{background:rgba(244,63,94,.08);border-color:rgba(244,63,94,.2);color:var(--iw-r)}
 
-    /* ── Responsive ── */
-    @media(max-width:640px) {
-      .iw-mod { flex-direction:column; }
-      .iw-mod-actions { flex-direction:row; align-items:center; width:100%; }
-      .iw-stats { grid-template-columns:repeat(2,1fr); }
-    }
+/* ── Activity log ── */
+.iw-log{max-height:280px;overflow-y:auto}
+.iw-log-item{display:flex;align-items:flex-start;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.74rem}
+.iw-log-item:last-child{border-bottom:none}
+.iw-log-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+.iw-log-time{font-size:.65rem;color:var(--txt3);font-weight:600;white-space:nowrap}
+
+/* ── Submit modal ── */
+.iw-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.iw-overlay.open{display:flex}
+.iw-modal{background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:iwPop .35s ease both}
+.iw-modal-hdr{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.iw-modal-hdr h3{font-size:1rem;font-weight:900}
+.iw-modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--panel);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--txt3);transition:background .2s}
+.iw-modal-close:hover{background:var(--panel2)}
+.iw-modal-body{padding:1.2rem 1.4rem}
+.iw-fg{margin-bottom:.9rem}
+.iw-fg label{display:block;font-size:.76rem;font-weight:700;color:var(--txt2);margin-bottom:.3rem}
+.iw-fg input,.iw-fg textarea,.iw-fg select{width:100%;padding:.55rem .8rem;border-radius:var(--iw-rd2);border:1.5px solid var(--border);background:var(--bg);color:var(--txt);font-family:inherit;font-size:.84rem;outline:none;transition:border-color .2s;box-sizing:border-box}
+.iw-fg input:focus,.iw-fg textarea:focus{border-color:var(--iw-v)}
+.iw-fg textarea{min-height:70px;resize:vertical}
+.iw-drop{border:2px dashed var(--border);border-radius:var(--iw-rd2);padding:1.2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--panel)}
+.iw-drop:hover{border-color:var(--iw-v);background:rgba(124,58,237,.03)}
+.iw-drop.has{border-color:var(--iw-e);background:rgba(16,185,129,.04)}
+.iw-drop p{font-size:.78rem;color:var(--txt3);margin-top:.3rem}
+.iw-drop .fname{font-size:.72rem;color:var(--iw-e);font-weight:700;margin-top:.3rem}
+.iw-modal-foot{display:flex;gap:.6rem;padding:0 1.4rem 1.2rem}
+.iw-btn-primary{flex:1;padding:.65rem;border-radius:var(--iw-rd2);font-size:.85rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--iw-v),var(--iw-v2));box-shadow:0 4px 14px rgba(124,58,237,.3);transition:transform .2s}
+.iw-btn-primary:hover{transform:translateY(-2px)}
+.iw-btn-secondary{padding:.65rem 1.2rem;border-radius:var(--iw-rd2);font-size:.85rem;font-weight:700;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);cursor:pointer;font-family:inherit;transition:background .2s}
+.iw-btn-secondary:hover{background:var(--panel2)}
+
+/* ── Report share modal ── */
+.iw-chk-list{display:flex;flex-direction:column;gap:.35rem;max-height:250px;overflow-y:auto}
+.iw-chk-item{display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border-radius:8px;background:var(--panel);border:1px solid var(--border);font-size:.78rem;font-weight:600;cursor:pointer;transition:background .15s}
+.iw-chk-item:hover{background:var(--panel2)}
+.iw-chk-item input[type=checkbox]{accent-color:var(--iw-v);width:15px;height:15px}
+
+.iw-empty{text-align:center;padding:1.5rem .8rem;color:var(--txt3);font-size:.82rem;font-weight:600}
+
+@media(max-width:640px){.iw-mod{flex-direction:column}.iw-mod-side{flex-direction:row;width:100%}}
   </style>
 </head>
 <body class="iw-page">
@@ -206,98 +176,225 @@
   <div id="iw-gate" class="iw-gate">
     <h2>Sign In Required</h2>
     <p>Log in to access your internship workspace.</p>
-    <button class="iw-gate-btn" onclick="window.profileNav&&window.profileNav.openLoginModal()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-      Sign In
-    </button>
+    <button class="iw-gate-btn" onclick="window.profileNav&&window.profileNav.openLoginModal()">Sign In</button>
   </div>
 
-  <!-- Main content (hidden until auth) -->
+  <!-- Main content -->
   <div id="iw-main" style="display:none">
-    <div class="iw-container">
+    <div class="iw-wrap">
       <a href="/pages/internship.html" class="iw-back">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to Internships
       </a>
-
-      <div class="iw-header">
+      <div class="iw-hdr">
         <div>
           <h1 id="iw-title">Working</h1>
-          <div class="iw-header-meta">
-            <span class="iw-pill iw-pill-violet" id="iw-project-pill">Internship</span>
-            <span class="iw-pill iw-pill-emerald" id="iw-status-pill">Active</span>
+          <div class="iw-pills">
+            <span class="iw-pill iw-pill-v" id="iw-domain-pill">Internship</span>
+            <span class="iw-pill iw-pill-e" id="iw-status-pill">Active</span>
+            <span class="iw-pill iw-pill-g" id="iw-day-pill" style="display:none">Day 0</span>
           </div>
         </div>
       </div>
 
-      <!-- Progress bar -->
-      <div class="iw-progress-wrap">
-        <div class="iw-progress-row">
-          <span class="iw-progress-label">Overall Progress</span>
-          <span class="iw-progress-pct" id="iw-pct">0%</span>
+      <!-- Progress -->
+      <div class="iw-prog">
+        <div class="iw-prog-top">
+          <span class="iw-prog-lbl">Overall Progress</span>
+          <span class="iw-prog-pct" id="iw-pct">0%</span>
         </div>
-        <div class="iw-progress-bar">
-          <div class="iw-progress-fill" id="iw-progress-fill" style="width:0%"></div>
-        </div>
+        <div class="iw-prog-bar"><div class="iw-prog-fill" id="iw-prog-fill" style="width:0%"></div></div>
       </div>
 
       <!-- Stats -->
       <div class="iw-stats">
-        <div class="iw-stat-card" style="animation-delay:.1s">
-          <div class="iw-stat-val" id="iw-stat-total" style="color:var(--iw-violet)">0</div>
-          <div class="iw-stat-lbl">Total Modules</div>
-        </div>
-        <div class="iw-stat-card" style="animation-delay:.15s">
-          <div class="iw-stat-val" id="iw-stat-active" style="color:var(--iw-emerald)">0</div>
-          <div class="iw-stat-lbl">Assigned</div>
-        </div>
-        <div class="iw-stat-card" style="animation-delay:.2s">
-          <div class="iw-stat-val" id="iw-stat-progress" style="color:var(--iw-gold)">0</div>
-          <div class="iw-stat-lbl">In Progress</div>
-        </div>
-        <div class="iw-stat-card" style="animation-delay:.25s">
-          <div class="iw-stat-val" id="iw-stat-done" style="color:var(--iw-violet)">0</div>
-          <div class="iw-stat-lbl">Completed</div>
-        </div>
+        <div class="iw-stat" style="animation-delay:.08s"><div class="iw-stat-v" id="iw-s-total" style="color:var(--iw-v)">0</div><div class="iw-stat-l">Modules</div></div>
+        <div class="iw-stat" style="animation-delay:.12s"><div class="iw-stat-v" id="iw-s-prog" style="color:var(--iw-g)">0</div><div class="iw-stat-l">In Progress</div></div>
+        <div class="iw-stat" style="animation-delay:.16s"><div class="iw-stat-v" id="iw-s-done" style="color:var(--iw-e)">0</div><div class="iw-stat-l">Completed</div></div>
+        <div class="iw-stat" style="animation-delay:.2s"><div class="iw-stat-v" id="iw-s-days" style="color:var(--iw-c)">0</div><div class="iw-stat-l">Days Worked</div></div>
       </div>
 
-      <!-- Modules section -->
-      <div class="iw-section" style="animation-delay:.3s">
-        <div class="iw-sec-hdr">
-          <h2>My Modules</h2>
-          <span id="iw-mod-count" style="font-size:.75rem;font-weight:700;color:var(--txt3)">0 modules</span>
-        </div>
-        <div class="iw-sec-body">
-          <div class="iw-modules" id="iw-modules-list">
-            <div class="iw-empty">Loading modules…</div>
+      <!-- ── TWO-COLUMN LAYOUT ── -->
+      <div class="iw-layout">
+        <!-- ═══ LEFT COLUMN ═══ -->
+        <div class="iw-left">
+
+          <!-- Live Timer & Session -->
+          <div class="iw-card" style="animation-delay:.22s">
+            <div class="iw-card-hdr">
+              <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Work Session</h2>
+              <span id="iw-sess-status" style="font-size:.72rem;font-weight:700;color:var(--txt3)">Not started</span>
+            </div>
+            <div class="iw-timer-zone" id="iw-timer-zone">
+              <div id="iw-pre-start">
+                <p style="color:var(--txt3);margin-bottom:1rem;font-size:.85rem">Click to begin your work day</p>
+                <button class="iw-start-btn" id="iw-start-btn" onclick="startWork()">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Start Work
+                </button>
+              </div>
+              <div id="iw-working" style="display:none">
+                <div class="iw-timer"><span class="iw-timer-dot" id="iw-timer-dot"></span><span id="iw-timer-val">00:00:00</span></div>
+                <div class="iw-timer-sub" id="iw-started-at"></div>
+                <div class="iw-brk-row">
+                  <button class="iw-brk-btn" id="iw-brk1" onclick="toggleBreak(1)">Break 1</button>
+                  <button class="iw-brk-btn" id="iw-brk2" onclick="toggleBreak(2)" disabled>Break 2</button>
+                </div>
+                <button class="iw-end-btn" onclick="endWork()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  End Work
+                </button>
+              </div>
+              <div id="iw-completed" style="display:none">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--iw-e)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11.5 14.5 15.5 10"/></svg>
+                <p style="font-size:.92rem;font-weight:800;color:var(--txt);margin-top:.6rem">Day Complete!</p>
+                <p style="font-size:.78rem;color:var(--txt3);margin-top:.2rem" id="iw-done-summary"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Modules -->
+          <div class="iw-card" style="animation-delay:.28s">
+            <div class="iw-card-hdr">
+              <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> My Modules</h2>
+              <span id="iw-mod-count" style="font-size:.72rem;font-weight:700;color:var(--txt3)">0</span>
+            </div>
+            <div class="iw-card-body"><div class="iw-mods" id="iw-mods-list"><div class="iw-empty">Loading…</div></div></div>
+          </div>
+
+          <!-- Git Repositories -->
+          <div class="iw-card" style="animation-delay:.32s">
+            <div class="iw-card-hdr">
+              <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77"/></svg> Git Repositories</h2>
+            </div>
+            <div class="iw-card-body" id="iw-git-list"><div class="iw-empty">No Git repos linked.</div></div>
+          </div>
+
+          <!-- Report Submission -->
+          <div class="iw-card" style="animation-delay:.36s">
+            <div class="iw-card-hdr">
+              <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Report Submission</h2>
+              <button class="iw-sm-btn start" onclick="openSubmitModal()">+ Submit Work</button>
+            </div>
+            <div class="iw-card-body" id="iw-subs-list"><div class="iw-empty">No submissions yet.</div></div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="iw-card" style="animation-delay:.4s">
+            <div class="iw-card-hdr">
+              <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Activity Log</h2>
+            </div>
+            <div class="iw-card-body"><div class="iw-log" id="iw-log"><div class="iw-empty">Start working to see activity.</div></div></div>
           </div>
         </div>
-      </div>
 
-      <!-- Git Push Links section -->
-      <div class="iw-section" style="animation-delay:.35s">
-        <div class="iw-sec-hdr">
-          <h2>Git Repositories</h2>
-        </div>
-        <div class="iw-sec-body">
-          <div id="iw-git-list">
-            <div class="iw-empty">No Git repositories linked yet.</div>
+        <!-- ═══ RIGHT COLUMN (Attendance & Quick Actions) ═══ -->
+        <div class="iw-right">
+          <!-- Attendance Calendar -->
+          <div class="iw-card" style="animation-delay:.25s">
+            <div class="iw-card-hdr">
+              <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Attendance</h2>
+              <span id="iw-att-summary" style="font-size:.68rem;font-weight:700;color:var(--iw-e)"></span>
+            </div>
+            <div class="iw-card-body">
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-bottom:6px">
+                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">S</span>
+                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">M</span>
+                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">T</span>
+                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">W</span>
+                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">T</span>
+                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">F</span>
+                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">S</span>
+              </div>
+              <div class="iw-att-grid" id="iw-att-grid"></div>
+            </div>
+          </div>
+
+          <!-- Quick Stats (Sidebar) -->
+          <div class="iw-card" style="animation-delay:.3s">
+            <div class="iw-card-hdr"><h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> Session Stats</h2></div>
+            <div class="iw-card-body">
+              <div style="display:flex;flex-direction:column;gap:.5rem" id="iw-session-stats">
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;padding:.35rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--txt3);font-weight:600">Total Work Time</span><span style="font-weight:800;color:var(--txt)" id="iw-ss-work">—</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;padding:.35rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--txt3);font-weight:600">Total Breaks</span><span style="font-weight:800;color:var(--txt)" id="iw-ss-breaks">—</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;padding:.35rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--txt3);font-weight:600">Submissions</span><span style="font-weight:800;color:var(--txt)" id="iw-ss-subs">0</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;padding:.35rem 0"><span style="color:var(--txt3);font-weight:600">Attendance</span><span style="font-weight:800;color:var(--iw-e)" id="iw-ss-att">0%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Share Report Button -->
+          <div class="iw-card" style="animation-delay:.35s">
+            <div class="iw-card-body" style="text-align:center">
+              <button class="iw-btn-primary" style="width:100%" onclick="openShareReport()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:.3rem"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                Generate &amp; Share Report
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </div><!-- /iw-layout -->
+    </div>
+  </div>
 
-      <!-- Activity Log -->
-      <div class="iw-section" style="animation-delay:.4s">
-        <div class="iw-sec-hdr">
-          <h2>Activity Log</h2>
-        </div>
-        <div class="iw-sec-body">
-          <div class="iw-log" id="iw-activity-log">
-            <div class="iw-empty">No activity recorded yet. Start working to see your progress here.</div>
+  <!-- ══════ SUBMIT WORK MODAL ══════ -->
+  <div class="iw-overlay" id="iw-submit-overlay" onclick="if(event.target===this)closeSubmitModal()">
+    <div class="iw-modal">
+      <div class="iw-modal-hdr"><h3>Submit Work</h3><div class="iw-modal-close" onclick="closeSubmitModal()">✕</div></div>
+      <div class="iw-modal-body">
+        <div class="iw-fg"><label>Title *</label><input type="text" id="iw-sub-title" placeholder="e.g. Completed homepage layout"></div>
+        <div class="iw-fg"><label>Description</label><textarea id="iw-sub-desc" placeholder="Describe what you accomplished…"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+          <div class="iw-fg">
+            <label>Screenshot *</label>
+            <div class="iw-drop" id="iw-drop-ss" onclick="document.getElementById('iw-file-ss').click()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              <p>Click to upload</p><div class="fname" id="iw-fn-ss"></div>
+            </div>
+            <input type="file" id="iw-file-ss" accept="image/*" style="display:none" onchange="_pickFile(this,'ss')">
+          </div>
+          <div class="iw-fg">
+            <label>Report (PDF/Excel)</label>
+            <div class="iw-drop" id="iw-drop-rpt" onclick="document.getElementById('iw-file-rpt').click()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <p>Click to upload</p><div class="fname" id="iw-fn-rpt"></div>
+            </div>
+            <input type="file" id="iw-file-rpt" accept=".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx" style="display:none" onchange="_pickFile(this,'rpt')">
           </div>
         </div>
+        <div class="iw-fg"><label>Commit Message</label><input type="text" id="iw-sub-commit" placeholder="e.g. feat: add responsive navbar"></div>
+        <div class="iw-fg"><label>Comments</label><textarea id="iw-sub-comments" placeholder="Additional notes for admin…" style="min-height:50px"></textarea></div>
       </div>
+      <div class="iw-modal-foot">
+        <button class="iw-btn-secondary" onclick="closeSubmitModal()">Cancel</button>
+        <button class="iw-btn-primary" onclick="submitWork()">Submit</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- ══════ SHARE REPORT MODAL ══════ -->
+  <div class="iw-overlay" id="iw-share-overlay" onclick="if(event.target===this)closeShareReport()">
+    <div class="iw-modal" style="max-width:480px">
+      <div class="iw-modal-hdr"><h3>Generate Report</h3><div class="iw-modal-close" onclick="closeShareReport()">✕</div></div>
+      <div class="iw-modal-body">
+        <p style="font-size:.8rem;color:var(--txt3);margin-bottom:.8rem">Select which fields to include in the exported report:</p>
+        <div class="iw-chk-list" id="iw-report-fields">
+          <label class="iw-chk-item"><input type="checkbox" checked value="attendance"> Attendance (Days Worked)</label>
+          <label class="iw-chk-item"><input type="checkbox" checked value="work_time"> Work Time Summary</label>
+          <label class="iw-chk-item"><input type="checkbox" checked value="modules"> Module Progress</label>
+          <label class="iw-chk-item"><input type="checkbox" checked value="submissions"> Submissions</label>
+          <label class="iw-chk-item"><input type="checkbox" checked value="breaks"> Break Duration</label>
+          <label class="iw-chk-item"><input type="checkbox" value="app_usage"> App Usage (Admin Only)</label>
+          <label class="iw-chk-item"><input type="checkbox" checked value="git"> Git Activity</label>
+        </div>
+        <div class="iw-fg" style="margin-top:.8rem"><label>Export Format</label>
+          <select id="iw-report-format"><option value="pdf">PDF Report</option><option value="csv">CSV Data</option></select>
+        </div>
+      </div>
+      <div class="iw-modal-foot">
+        <button class="iw-btn-secondary" onclick="closeShareReport()">Cancel</button>
+        <button class="iw-btn-primary" onclick="generateReport()">Generate</button>
+      </div>
     </div>
   </div>
 
@@ -307,276 +404,469 @@
   <script src="../js/profile-nav.js"></script>
 
   <script>
-  let _user = null;
-  let _internshipId = null;
-  let _assignments = [];
+/* ══════════════════════════════════════════════════
+   INTERN WORKING PAGE — Complete Workspace
+══════════════════════════════════════════════════ */
+let _user=null,_intId=null,_enrollment=null,_session=null,_assignments=[],_timerInt=null,_brkState={1:null,2:null},_files={ss:null,rpt:null},_appTrackInt=null;
+function C(){return window.supabaseConfig?.client}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(m,t='ok',d=3500){const el=document.getElementById('iw-toast');el.textContent=m;el.className='show '+t;clearTimeout(el._t);el._t=setTimeout(()=>{el.className=''},d)}
+function fmtMins(m){const h=Math.floor(m/60);return h>0?h+'h '+(m%60)+'m':m+'m'}
 
-  function _client() { return window.supabaseConfig?.client; }
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+/* ── Auth ── */
+async function initAuth(){
+  const c=C();if(!c)return;
+  const{data}=await c.auth.getSession();
+  _user=data?.session?.user||null;
+  c.auth.onAuthStateChange(async(_e,s)=>{_user=s?.user||null;await initPage()});
+  await initPage();
+}
 
-  function toast(msg, type='ok', dur=3500) {
-    const t = document.getElementById('iw-toast');
-    t.textContent = msg; t.className = 'show ' + type;
-    clearTimeout(t._tid);
-    t._tid = setTimeout(() => { t.className = ''; }, dur);
-  }
+async function initPage(){
+  if(!_user){document.getElementById('iw-gate').style.display='';document.getElementById('iw-main').style.display='none';return}
+  _intId=new URLSearchParams(location.search).get('id');
+  if(!_intId){showGate('No Internship Selected','Go to the internships page.','Browse Internships','/pages/internship.html');return}
+  document.getElementById('iw-gate').style.display='none';
+  document.getElementById('iw-main').style.display='';
+  await loadAll();
+}
 
-  /* ── Auth ── */
-  async function initAuth() {
-    const c = _client();
-    if (!c) return;
-    const { data } = await c.auth.getSession();
-    _user = data?.session?.user || null;
-    c.auth.onAuthStateChange(async (_e, s) => {
-      _user = s?.user || null;
-      await initPage();
-    });
-    await initPage();
-  }
+function showGate(t,p,btn,href){
+  document.getElementById('iw-gate').style.display='';document.getElementById('iw-main').style.display='none';
+  const g=document.getElementById('iw-gate');g.querySelector('h2').textContent=t;g.querySelector('p').textContent=p;
+  const b=g.querySelector('button');b.textContent=btn;b.onclick=()=>{location.href=href};
+}
 
-  async function initPage() {
-    if (!_user) {
-      document.getElementById('iw-gate').style.display = '';
-      document.getElementById('iw-main').style.display = 'none';
-      return;
-    }
+/* ══════ LOAD ALL DATA ══════ */
+async function loadAll(){
+  const c=C();
 
-    _internshipId = new URLSearchParams(window.location.search).get('id');
-    if (!_internshipId) {
-      document.getElementById('iw-gate').style.display = '';
-      document.getElementById('iw-main').style.display = 'none';
-      const gate = document.getElementById('iw-gate');
-      gate.querySelector('h2').textContent = 'No Internship Selected';
-      gate.querySelector('p').textContent = 'Go to the internships page to choose one.';
-      gate.querySelector('button').textContent = 'Browse Internships';
-      gate.querySelector('button').onclick = () => { window.location.href = '/pages/internship.html'; };
-      return;
-    }
+  // Enrollment
+  const{data:enrols}=await c.from('internship_enrollments').select('*').eq('student_user_id',_user.id).eq('project_id',_intId).eq('approval_status','approved').limit(1);
+  _enrollment=enrols?.[0]||null;
 
-    document.getElementById('iw-gate').style.display = 'none';
-    document.getElementById('iw-main').style.display = '';
+  // Assignments
+  const{data:asgn,error}=await c.from('intern_program_assignments')
+    .select('*,intern_program_modules(id,module_name,description,deadline,git_push_link,order_num)')
+    .eq('student_user_id',_user.id).eq('internship_id',_intId).neq('status','revoked')
+    .order('assigned_at');
+  if(error||!asgn?.length){showGate('Access Denied','You have no assigned modules for this internship.','Browse Internships','/pages/internship.html');return}
+  _assignments=asgn;
 
-    await loadWorkspace();
-  }
+  // Internship details
+  const{data:proj}=await c.from('internship_projects').select('project_name,domain,tech_stack,duration_weeks').eq('id',_intId).single();
+  document.title=(proj?.project_name||'Working')+' — SkillUpNow';
+  document.getElementById('iw-title').textContent=proj?.project_name||'Working';
+  document.getElementById('iw-domain-pill').textContent=proj?.domain||'Internship';
 
-  /* ── Load all workspace data ── */
-  async function loadWorkspace() {
-    const c = _client();
+  await Promise.all([loadSession(),loadStats(),loadSubmissions(),loadActivityLog()]);
+  renderModules();
+  renderGitLinks();
+  renderAttendance();
+}
 
-    // Load assignments for this internship + this user
-    const { data: assignments, error } = await c
-      .from('intern_program_assignments')
-      .select('*, intern_program_modules(id, module_name, description, deadline, git_push_link, order_num)')
-      .eq('student_user_id', _user.id)
-      .eq('internship_id', _internshipId)
-      .neq('status', 'revoked')
-      .order('assigned_at', { ascending: true });
-
-    if (error || !assignments?.length) {
-      document.getElementById('iw-gate').style.display = '';
-      document.getElementById('iw-main').style.display = 'none';
-      const gate = document.getElementById('iw-gate');
-      gate.querySelector('h2').textContent = 'Access Denied';
-      gate.querySelector('p').textContent = 'You don\'t have any assigned modules for this internship.';
-      gate.querySelector('button').textContent = 'Browse Internships';
-      gate.querySelector('button').onclick = () => { window.location.href = '/pages/internship.html'; };
-      return;
-    }
-
-    _assignments = assignments;
-
-    // Load internship details
-    const { data: internship } = await c
-      .from('internship_projects')
-      .select('project_name, domain, tech_stack, duration_weeks')
-      .eq('id', _internshipId)
-      .single();
-
-    // Update header
-    document.title = `${internship?.project_name || 'Working'} — SkillUpNow`;
-    document.getElementById('iw-title').textContent = internship?.project_name || 'Working';
-    document.getElementById('iw-project-pill').textContent = internship?.domain || 'Internship';
-
-    renderStats();
-    renderModules();
-    renderGitLinks();
-    await loadActivityLog();
-  }
-
-  /* ── Stats ── */
-  function renderStats() {
-    const total     = _assignments.length;
-    const active    = _assignments.filter(a => a.status === 'active').length;
-    const inProg    = _assignments.filter(a => a.status === 'in_progress').length;
-    const completed = _assignments.filter(a => a.status === 'completed').length;
-    const pct       = total ? Math.round((completed / total) * 100) : 0;
-
-    document.getElementById('iw-stat-total').textContent    = total;
-    document.getElementById('iw-stat-active').textContent   = active;
-    document.getElementById('iw-stat-progress').textContent = inProg;
-    document.getElementById('iw-stat-done').textContent     = completed;
-    document.getElementById('iw-pct').textContent           = pct + '%';
-    document.getElementById('iw-progress-fill').style.width = pct + '%';
-
-    const statusPill = document.getElementById('iw-status-pill');
-    if (completed === total && total > 0) {
-      statusPill.textContent = 'Completed'; statusPill.className = 'iw-pill iw-pill-violet';
-    } else if (inProg > 0) {
-      statusPill.textContent = 'In Progress'; statusPill.style.background = 'rgba(245,158,11,.1)'; statusPill.style.color = '#f59e0b'; statusPill.style.borderColor = 'rgba(245,158,11,.25)';
+/* ══════ WORK SESSION ══════ */
+async function loadSession(){
+  const c=C();if(!_enrollment)return;
+  const today=new Date().toISOString().slice(0,10);
+  const{data}=await c.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id',_enrollment.id).eq('session_date',today).maybeSingle();
+  _session=data||null;
+  if(_session){
+    const dayPill=document.getElementById('iw-day-pill');dayPill.style.display='';dayPill.textContent='Day '+_session.day_number;
+    if(_session.status==='active'){
+      showWorking();startTimer();startAppTracking();
+      _brkState={1:null,2:null};
+      (_session.intern_breaks||[]).forEach(b=>{_brkState[b.break_number]=b});
+      updateBreakUI();
     } else {
-      statusPill.textContent = 'Active';
+      showCompleted();
     }
   }
+}
 
-  /* ── Modules ── */
-  function renderModules() {
-    const list = document.getElementById('iw-modules-list');
-    const countEl = document.getElementById('iw-mod-count');
-    countEl.textContent = _assignments.length + ' module' + (_assignments.length !== 1 ? 's' : '');
+function showWorking(){
+  document.getElementById('iw-pre-start').style.display='none';
+  document.getElementById('iw-working').style.display='';
+  document.getElementById('iw-completed').style.display='none';
+  document.getElementById('iw-sess-status').textContent='Working';
+  document.getElementById('iw-sess-status').style.color='var(--iw-e)';
+  if(_session?.start_time){document.getElementById('iw-started-at').textContent='Started '+new Date(_session.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}
+}
 
-    if (!_assignments.length) {
-      list.innerHTML = '<div class="iw-empty">No modules assigned yet.</div>';
-      return;
-    }
+function showCompleted(){
+  document.getElementById('iw-pre-start').style.display='none';
+  document.getElementById('iw-working').style.display='none';
+  document.getElementById('iw-completed').style.display='';
+  document.getElementById('iw-sess-status').textContent='Completed';
+  document.getElementById('iw-sess-status').style.color='var(--iw-v)';
+  if(_session?.total_work_mins){document.getElementById('iw-done-summary').textContent='Worked '+fmtMins(_session.total_work_mins)+' today'}
+}
 
-    list.innerHTML = _assignments.map(a => {
-      const mod = a.intern_program_modules || {};
-      const statusCls = a.status === 'completed' ? 'done' : (a.status === 'in_progress' ? 'progress' : 'active');
-      const statusIcon = a.status === 'completed'
-        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
-        : (a.status === 'in_progress'
-          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
-          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>');
-      const deadlineStr = mod.deadline ? new Date(mod.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : null;
-      const gitLink = a.git_push_link || mod.git_push_link || '';
-      const canStart = a.status === 'active';
-      const canComplete = a.status === 'in_progress';
+async function startWork(){
+  const c=C();if(!_enrollment)return;
+  const{count}=await c.from('intern_work_sessions').select('id',{count:'exact',head:true}).eq('enrollment_id',_enrollment.id);
+  if(count>=50){toast('Maximum 50 work days reached.','err');return}
+  const dayNum=(count||0)+1;
+  const{data,error}=await c.from('intern_work_sessions').insert({
+    enrollment_id:_enrollment.id,student_user_id:_user.id,
+    start_time:new Date().toISOString(),status:'active',day_number:dayNum
+  }).select().single();
+  if(error){toast('Failed: '+error.message,'err');return}
+  _session=data;
+  document.getElementById('iw-day-pill').style.display='';
+  document.getElementById('iw-day-pill').textContent='Day '+dayNum;
+  showWorking();startTimer();startAppTracking();
+  logNotification('Work Started','Started work session — Day '+dayNum);
+  toast('Work session started!','ok');
+}
 
-      return `
-        <div class="iw-mod">
-          <div class="iw-mod-icon ${statusCls}">${statusIcon}</div>
-          <div class="iw-mod-info">
-            <div class="iw-mod-name">${esc(mod.module_name || 'Module')}</div>
-            ${mod.description ? `<div class="iw-mod-desc">${esc(mod.description)}</div>` : ''}
-            <div class="iw-mod-meta">
-              ${deadlineStr ? `<span>Deadline: ${deadlineStr}</span>` : ''}
-              ${gitLink ? `<a href="${esc(gitLink)}" target="_blank" rel="noopener" style="color:var(--iw-violet);text-decoration:underline">Git Repo</a>` : ''}
-            </div>
-          </div>
-          <div class="iw-mod-actions">
-            <span class="iw-mod-badge ${statusCls}">${a.status === 'in_progress' ? 'In Progress' : (a.status === 'completed' ? 'Completed' : 'Assigned')}</span>
-            ${canStart ? `<button class="iw-mod-btn iw-mod-btn-start" onclick="startModule('${a.id}')">Start Working</button>` : ''}
-            ${canComplete ? `<button class="iw-mod-btn iw-mod-btn-done" onclick="completeModule('${a.id}')">Mark Complete</button>` : ''}
-          </div>
-        </div>`;
-    }).join('');
+async function endWork(){
+  if(!_session)return;
+  const c=C();const now=new Date().toISOString();
+  const mins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
+  await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:mins}).eq('id',_session.id);
+  _session.status='completed';_session.total_work_mins=mins;
+  clearInterval(_timerInt);clearInterval(_appTrackInt);
+  showCompleted();
+  logNotification('Work Ended','Completed work session — '+fmtMins(mins));
+  toast('Work day completed!','ok');
+  await loadStats();renderAttendance();
+}
+
+function startTimer(){
+  clearInterval(_timerInt);
+  const start=new Date(_session.start_time).getTime();
+  const update=()=>{const d=Date.now()-start;const s=Math.floor(d/1000);const h=String(Math.floor(s/3600)).padStart(2,'0');const m=String(Math.floor((s%3600)/60)).padStart(2,'0');const ss=String(s%60).padStart(2,'0');document.getElementById('iw-timer-val').textContent=h+':'+m+':'+ss};
+  update();_timerInt=setInterval(update,1000);
+}
+
+/* ── Breaks ── */
+async function toggleBreak(num){
+  if(!_session)return;const c=C();const existing=_brkState[num];
+  if(!existing){
+    const{data,error}=await c.from('intern_breaks').insert({session_id:_session.id,student_user_id:_user.id,break_number:num,break_start:new Date().toISOString()}).select().single();
+    if(error){toast('Break failed: '+error.message,'err');return}
+    _brkState[num]=data;toast('Break '+num+' started','ok');
+  } else if(!existing.break_end){
+    const now=new Date().toISOString();const mins=Math.round((new Date(now)-new Date(existing.break_start))/60000);
+    await c.from('intern_breaks').update({break_end:now}).eq('id',existing.id);
+    _brkState[num].break_end=now;_brkState[num].duration_mins=mins;
+    toast('Break '+num+' ended ('+mins+'m)','ok');
+  }
+  updateBreakUI();
+}
+
+function updateBreakUI(){
+  [1,2].forEach(n=>{
+    const btn=document.getElementById('iw-brk'+n);const b=_brkState[n];
+    if(!b){btn.textContent='Break '+n;btn.className='iw-brk-btn';btn.disabled=(n===2&&!_brkState[1]?.break_end)}
+    else if(!b.break_end){btn.textContent='End Break '+n;btn.className='iw-brk-btn on';btn.disabled=false}
+    else{btn.textContent='Break '+n+' ('+(_brkState[n].duration_mins||0)+'m)';btn.className='iw-brk-btn';btn.disabled=true;if(n===1){document.getElementById('iw-brk2').disabled=false}}
+  });
+}
+
+/* ══════ APP TRACKING ══════ */
+function startAppTracking(){
+  clearInterval(_appTrackInt);
+  _appTrackInt=setInterval(async()=>{
+    if(!_session||document.visibilityState!=='visible')return;
+    const ua=navigator.userAgent;let app='Browser';
+    if(ua.includes('Chrome')&&!ua.includes('Edg'))app='Chrome';
+    else if(ua.includes('Firefox'))app='Firefox';
+    else if(ua.includes('Safari')&&!ua.includes('Chrome'))app='Safari';
+    else if(ua.includes('Edg'))app='Edge';
+    try{await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:app,window_title:document.title,active_seconds:30})}catch{}
+  },30000);
+}
+
+/* ══════ STATS ══════ */
+async function loadStats(){
+  const c=C();
+  // Module stats
+  const total=_assignments.length;
+  const prog=_assignments.filter(a=>a.status==='in_progress').length;
+  const done=_assignments.filter(a=>a.status==='completed').length;
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById('iw-s-total').textContent=total;
+  document.getElementById('iw-s-prog').textContent=prog;
+  document.getElementById('iw-s-done').textContent=done;
+  document.getElementById('iw-pct').textContent=pct+'%';
+  document.getElementById('iw-prog-fill').style.width=pct+'%';
+
+  // Days worked
+  if(_enrollment){
+    const{data:sessions}=await c.from('intern_work_sessions').select('id,total_work_mins,intern_breaks(duration_mins)').eq('enrollment_id',_enrollment.id);
+    const days=(sessions||[]).length;
+    document.getElementById('iw-s-days').textContent=days;
+    const totalMins=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+    const totalBrk=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0)),0);
+    document.getElementById('iw-ss-work').textContent=fmtMins(totalMins);
+    document.getElementById('iw-ss-breaks').textContent=fmtMins(totalBrk);
+    document.getElementById('iw-ss-att').textContent=days>0?Math.round((days/50)*100)+'%':'0%';
+    document.getElementById('iw-att-summary').textContent=days+'/50 days';
   }
 
-  /* ── Git links ── */
-  function renderGitLinks() {
-    const container = document.getElementById('iw-git-list');
-    const links = [];
-    const seen = new Set();
-
-    _assignments.forEach(a => {
-      const mod = a.intern_program_modules || {};
-      const url = a.git_push_link || mod.git_push_link;
-      if (url && !seen.has(url)) {
-        seen.add(url);
-        links.push({ url, moduleName: mod.module_name || 'Module' });
-      }
-    });
-
-    if (!links.length) {
-      container.innerHTML = '<div class="iw-empty">No Git repositories linked. Your admin will add Git push links when assigning modules.</div>';
-      return;
-    }
-
-    container.innerHTML = links.map(l => `
-      <div class="iw-git-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--iw-violet)" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        <a href="${esc(l.url)}" target="_blank" rel="noopener" class="iw-git-url">${esc(l.url)}</a>
-        <button class="iw-git-copy" onclick="copyGitUrl('${esc(l.url)}')">Copy</button>
-      </div>`).join('');
+  // Submissions count
+  if(_enrollment){
+    const{count:subCount}=await c.from('intern_submissions').select('id',{count:'exact',head:true}).eq('enrollment_id',_enrollment.id);
+    document.getElementById('iw-ss-subs').textContent=subCount||0;
   }
 
-  function copyGitUrl(url) {
-    navigator.clipboard.writeText(url).then(() => toast('URL copied!','ok')).catch(() => toast('Copy failed','err'));
+  // Status pill
+  const sp=document.getElementById('iw-status-pill');
+  if(done===total&&total>0){sp.textContent='Completed';sp.className='iw-pill iw-pill-v'}
+  else if(prog>0){sp.textContent='In Progress';sp.className='iw-pill iw-pill-g'}
+  else{sp.textContent='Active';sp.className='iw-pill iw-pill-e'}
+}
+
+/* ══════ MODULES ══════ */
+function renderModules(){
+  const list=document.getElementById('iw-mods-list');
+  document.getElementById('iw-mod-count').textContent=_assignments.length+' module'+(_assignments.length!==1?'s':'');
+  if(!_assignments.length){list.innerHTML='<div class="iw-empty">No modules assigned.</div>';return}
+  list.innerHTML=_assignments.map(a=>{
+    const m=a.intern_program_modules||{};
+    const sc=a.status==='completed'?'s-done':(a.status==='in_progress'?'s-progress':'s-active');
+    const ico=a.status==='completed'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>':(a.status==='in_progress'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>');
+    const dl=m.deadline?new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):null;
+    const gl=a.git_push_link||m.git_push_link||'';
+    return `<div class="iw-mod">
+      <div class="iw-mod-ico ${sc}">${ico}</div>
+      <div class="iw-mod-body">
+        <div class="iw-mod-name">${esc(m.module_name||'Module')}</div>
+        ${m.description?`<div class="iw-mod-desc">${esc(m.description)}</div>`:''}
+        <div class="iw-mod-meta">${dl?`<span>Due: ${dl}</span>`:''}${gl?`<a href="${esc(gl)}" target="_blank">Git Repo</a>`:''}</div>
+      </div>
+      <div class="iw-mod-side">
+        <span class="iw-badge ${sc}">${a.status==='in_progress'?'In Progress':(a.status==='completed'?'Done':'Assigned')}</span>
+        ${a.status==='active'?`<button class="iw-sm-btn start" onclick="doStartMod('${a.id}')">Start Working</button>`:''}
+        ${a.status==='in_progress'?`<button class="iw-sm-btn done" onclick="doCompleteMod('${a.id}')">Mark Complete</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function doStartMod(id){
+  await C().from('intern_program_assignments').update({status:'in_progress'}).eq('id',id);
+  const a=_assignments.find(x=>x.id===id);if(a)a.status='in_progress';
+  logNotification('Module Started','Started working on a module');
+  toast('Module started!','ok');renderModules();loadStats();
+}
+async function doCompleteMod(id){
+  await C().from('intern_program_assignments').update({status:'completed'}).eq('id',id);
+  const a=_assignments.find(x=>x.id===id);if(a)a.status='completed';
+  logNotification('Module Completed','Completed a module');
+  toast('Module completed!','ok');renderModules();loadStats();
+}
+
+/* ══════ GIT ══════ */
+function renderGitLinks(){
+  const el=document.getElementById('iw-git-list');const links=[];const seen=new Set();
+  _assignments.forEach(a=>{const m=a.intern_program_modules||{};const u=a.git_push_link||m.git_push_link;if(u&&!seen.has(u)){seen.add(u);links.push({url:u,name:m.module_name||'Module'})}});
+  if(!links.length){el.innerHTML='<div class="iw-empty">No Git repos linked yet.</div>';return}
+  el.innerHTML=links.map(l=>`<div class="iw-git-item">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--iw-v)" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77"/></svg>
+    <a href="${esc(l.url)}" target="_blank" class="iw-git-url">${esc(l.url)}</a>
+    <button class="iw-git-copy" onclick="navigator.clipboard.writeText('${esc(l.url)}').then(()=>toast('Copied!'))">Copy</button>
+  </div>`).join('');
+}
+
+/* ══════ ATTENDANCE ══════ */
+async function renderAttendance(){
+  const grid=document.getElementById('iw-att-grid');
+  if(!_enrollment){grid.innerHTML='';return}
+  const c=C();
+  const{data:sessions}=await c.from('intern_work_sessions').select('session_date,day_number,status').eq('enrollment_id',_enrollment.id).order('session_date');
+  const dateSet=new Set((sessions||[]).map(s=>s.session_date));
+  const today=new Date().toISOString().slice(0,10);
+
+  // Build calendar for last 35 days
+  const cells=[];const now=new Date();
+  const start=new Date(now);start.setDate(start.getDate()-34);
+  const startDay=start.getDay();
+  for(let i=0;i<startDay;i++)cells.push('<div class="iw-att-day" style="visibility:hidden"></div>');
+  for(let d=new Date(start);d<=now;d.setDate(d.getDate()+1)){
+    const ds=d.toISOString().slice(0,10);
+    const isPresent=dateSet.has(ds);const isToday=ds===today;
+    const cls='iw-att-day'+(isPresent?' present':'')+(isToday?' today':'');
+    const day=d.getDate();
+    cells.push(`<div class="${cls}" title="${ds}">${day}</div>`);
+  }
+  grid.innerHTML=cells.join('');
+}
+
+/* ══════ SUBMISSIONS ══════ */
+async function loadSubmissions(){
+  if(!_enrollment)return;const c=C();
+  const{data}=await c.from('intern_submissions').select('*').eq('enrollment_id',_enrollment.id).order('submitted_at',{ascending:false}).limit(10);
+  const el=document.getElementById('iw-subs-list');
+  if(!data?.length){el.innerHTML='<div class="iw-empty">No submissions yet. Click "+ Submit Work" to add one.</div>';return}
+  el.innerHTML=data.map(s=>{
+    const dt=new Date(s.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    const stCls=s.status==='approved'?'s-done':(s.status==='rejected'?'color:var(--iw-r)':'s-progress');
+    return `<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;border-radius:8px;background:var(--panel);border:1px solid var(--border);margin-bottom:.35rem;font-size:.78rem">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;color:var(--txt)">${esc(s.submission_title)}</div>
+        <div style="font-size:.68rem;color:var(--txt3);margin-top:.1rem">${dt}${s.commit_message?' · '+esc(s.commit_message):''}</div>
+      </div>
+      <span class="iw-badge ${stCls}">${s.status}</span>
+      ${s.screenshot_url?`<a href="${esc(s.screenshot_url)}" target="_blank" style="font-size:.66rem;color:var(--iw-v)">📷</a>`:''}
+      ${s.report_file_url?`<a href="${esc(s.report_file_url)}" target="_blank" style="font-size:.66rem;color:var(--iw-v)">📄</a>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ── Submit modal ── */
+function openSubmitModal(){document.getElementById('iw-submit-overlay').classList.add('open');_files={ss:null,rpt:null}}
+function closeSubmitModal(){document.getElementById('iw-submit-overlay').classList.remove('open')}
+
+function _pickFile(input,type){
+  const f=input.files?.[0];if(!f)return;_files[type]=f;
+  document.getElementById('iw-fn-'+type).textContent=f.name;
+  document.getElementById('iw-drop-'+type).classList.add('has');
+}
+
+async function submitWork(){
+  const title=document.getElementById('iw-sub-title').value.trim();
+  if(!title){toast('Title is required','err');return}
+  if(!_files.ss){toast('Screenshot is required','err');return}
+  if(!_enrollment){toast('No enrollment found','err');return}
+  const c=C();const ts=Date.now();const uid=_user.id;
+
+  // Upload files
+  let ssUrl=null,rptUrl=null,rptType=null;
+  try{
+    const ssExt=_files.ss.name.split('.').pop()||'png';
+    const{error:e1}=await c.storage.from('intern-submissions').upload(`${uid}/${ts}/screenshot.${ssExt}`,_files.ss,{upsert:true});
+    if(e1)throw e1;
+    ssUrl=c.storage.from('intern-submissions').getPublicUrl(`${uid}/${ts}/screenshot.${ssExt}`).data.publicUrl;
+  }catch(e){toast('Screenshot upload failed: '+e.message,'err');return}
+
+  if(_files.rpt){
+    try{
+      const rptExt=_files.rpt.name.split('.').pop()||'pdf';
+      rptType=['xlsx','xls'].includes(rptExt)?rptExt:'pdf';
+      const{error:e2}=await c.storage.from('intern-submissions').upload(`${uid}/${ts}/report.${rptExt}`,_files.rpt,{upsert:true});
+      if(e2)throw e2;
+      rptUrl=c.storage.from('intern-submissions').getPublicUrl(`${uid}/${ts}/report.${rptExt}`).data.publicUrl;
+    }catch(e){toast('Report upload failed: '+e.message,'err');return}
   }
 
-  /* ── Module actions ── */
-  async function startModule(assignmentId) {
-    const c = _client();
-    const { error } = await c.from('intern_program_assignments')
-      .update({ status: 'in_progress' })
-      .eq('id', assignmentId);
-    if (error) { toast('Failed: ' + error.message, 'err'); return; }
+  const payload={
+    enrollment_id:_enrollment.id,student_user_id:uid,session_id:_session?.id||null,
+    submission_title:title,description:document.getElementById('iw-sub-desc').value.trim(),
+    screenshot_url:ssUrl,report_file_url:rptUrl,report_file_type:rptType,
+    commit_message:document.getElementById('iw-sub-commit').value.trim(),
+    status:'submitted'
+  };
+  const{data:sub,error}=await c.from('intern_submissions').insert(payload).select().single();
+  if(error){toast('Submission failed: '+error.message,'err');return}
 
-    await logActivity(assignmentId, 'started');
-    toast('Module started — good luck!', 'ok');
-    await loadWorkspace();
+  // Create admin report
+  await c.from('intern_admin_reports').insert({
+    submission_id:sub.id,enrollment_id:_enrollment.id,student_user_id:uid,
+    work_duration:_session?.total_work_mins||0,attendance_day:_session?.day_number||0,
+    notes:'Submission: '+title+(document.getElementById('iw-sub-comments').value.trim()?' | '+document.getElementById('iw-sub-comments').value.trim():'')
+  });
+
+  logNotification('Work Submitted','Submitted: '+title);
+  closeSubmitModal();toast('Work submitted successfully!','ok');
+  document.getElementById('iw-sub-title').value='';document.getElementById('iw-sub-desc').value='';
+  document.getElementById('iw-sub-commit').value='';document.getElementById('iw-sub-comments').value='';
+  document.getElementById('iw-fn-ss').textContent='';document.getElementById('iw-fn-rpt').textContent='';
+  document.getElementById('iw-drop-ss').classList.remove('has');document.getElementById('iw-drop-rpt').classList.remove('has');
+  _files={ss:null,rpt:null};
+  await loadSubmissions();await loadStats();
+}
+
+/* ══════ ACTIVITY LOG ══════ */
+async function logNotification(title,msg){
+  try{await C().from('notifications').insert({user_id:_user.id,title,message:msg,type:'info',link:location.href})}catch{}
+}
+
+async function loadActivityLog(){
+  const c=C();
+  const{data}=await c.from('notifications').select('title,message,created_at').eq('user_id',_user.id).order('created_at',{ascending:false}).limit(30);
+  const el=document.getElementById('iw-log');
+  if(!data?.length){el.innerHTML='<div class="iw-empty">Start working to see your activity here.</div>';return}
+  el.innerHTML=data.map(n=>{
+    const t=new Date(n.created_at).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const c=n.title?.includes('Completed')||n.title?.includes('Done')?'#a78bfa':(n.title?.includes('Started')?'#10b981':(n.title?.includes('Submitted')?'#f59e0b':'#06b6d4'));
+    return `<div class="iw-log-item"><span class="iw-log-dot" style="background:${c}"></span><div style="flex:1;min-width:0"><div style="font-weight:700;color:var(--txt);font-size:.76rem">${esc(n.title)}</div><div style="color:var(--txt3);font-size:.7rem">${esc(n.message)}</div></div><span class="iw-log-time">${t}</span></div>`;
+  }).join('');
+}
+
+/* ══════ REPORT GENERATION ══════ */
+function openShareReport(){document.getElementById('iw-share-overlay').classList.add('open')}
+function closeShareReport(){document.getElementById('iw-share-overlay').classList.remove('open')}
+
+async function generateReport(){
+  const checks=[...document.querySelectorAll('#iw-report-fields input:checked')].map(c=>c.value);
+  const fmt=document.getElementById('iw-report-format').value;
+  if(!checks.length){toast('Select at least one field','err');return}
+
+  const c=C();
+  const{data:sessions}=await c.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id',_enrollment?.id).order('session_date');
+  const{data:subs}=await c.from('intern_submissions').select('*').eq('enrollment_id',_enrollment?.id).order('submitted_at',{ascending:false});
+  const{data:proj}=await c.from('internship_projects').select('project_name').eq('id',_intId).single();
+  const name=_user.user_metadata?.full_name||_user.email?.split('@')[0]||'Student';
+
+  if(fmt==='csv'){
+    let csv='Field,Value\n';
+    if(checks.includes('attendance'))csv+=`Days Worked,${(sessions||[]).length}\n`;
+    if(checks.includes('work_time')){const t=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);csv+=`Total Work Time,${fmtMins(t)}\n`}
+    if(checks.includes('breaks')){const b=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0)),0);csv+=`Total Break Time,${fmtMins(b)}\n`}
+    if(checks.includes('modules')){csv+=`Modules Total,${_assignments.length}\nModules Completed,${_assignments.filter(a=>a.status==='completed').length}\n`}
+    if(checks.includes('submissions'))csv+=`Submissions,${(subs||[]).length}\n`;
+    if(checks.includes('git')){const gl=new Set();_assignments.forEach(a=>{const u=a.git_push_link||(a.intern_program_modules||{}).git_push_link;if(u)gl.add(u)});csv+=`Git Repos,${gl.size}\n`}
+    const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`intern-report-${name}.csv`;a.click();
+    toast('CSV exported!','ok');closeShareReport();return;
   }
 
-  async function completeModule(assignmentId) {
-    const c = _client();
-    const { error } = await c.from('intern_program_assignments')
-      .update({ status: 'completed' })
-      .eq('id', assignmentId);
-    if (error) { toast('Failed: ' + error.message, 'err'); return; }
+  // PDF via jsPDF
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();let y=20;
+  doc.setFontSize(18);doc.setFont(undefined,'bold');doc.text('SkillUpNow — Internship Report',14,y);y+=10;
+  doc.setFontSize(10);doc.setFont(undefined,'normal');doc.setTextColor(100);
+  doc.text(`Student: ${name}  |  Project: ${proj?.project_name||'—'}  |  Generated: ${new Date().toLocaleDateString('en-IN')}`,14,y);y+=12;
+  doc.setTextColor(0);
 
-    await logActivity(assignmentId, 'completed');
-    toast('Module completed!', 'ok');
-    await loadWorkspace();
+  if(checks.includes('attendance')){
+    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Attendance',14,y);y+=7;
+    doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text(`Days worked: ${(sessions||[]).length} / 50`,14,y);y+=6;
+    doc.text(`Attendance rate: ${Math.round(((sessions||[]).length/50)*100)}%`,14,y);y+=10;
+  }
+  if(checks.includes('work_time')){
+    const t=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Work Time',14,y);y+=7;
+    doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text(`Total: ${fmtMins(t)}  |  Avg/day: ${(sessions||[]).length?fmtMins(Math.round(t/(sessions||[]).length)):'—'}`,14,y);y+=10;
+  }
+  if(checks.includes('breaks')){
+    const b=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0)),0);
+    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Breaks',14,y);y+=7;
+    doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text(`Total break time: ${fmtMins(b)}`,14,y);y+=10;
+  }
+  if(checks.includes('modules')){
+    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Modules',14,y);y+=7;
+    doc.setFontSize(10);doc.setFont(undefined,'normal');
+    _assignments.forEach(a=>{const m=a.intern_program_modules||{};doc.text(`• ${m.module_name||'Module'} — ${a.status}`,16,y);y+=5;if(y>270){doc.addPage();y=20}});y+=5;
+  }
+  if(checks.includes('submissions')&&(subs||[]).length){
+    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Submissions',14,y);y+=7;
+    doc.setFontSize(10);doc.setFont(undefined,'normal');
+    (subs||[]).forEach(s=>{doc.text(`• ${s.submission_title} — ${s.status} (${new Date(s.submitted_at).toLocaleDateString('en-IN')})`,16,y);y+=5;if(y>270){doc.addPage();y=20}});y+=5;
+  }
+  if(checks.includes('git')){
+    const gl=[];const seen=new Set();_assignments.forEach(a=>{const u=a.git_push_link||(a.intern_program_modules||{}).git_push_link;if(u&&!seen.has(u)){seen.add(u);gl.push(u)}});
+    if(gl.length){doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Git Repositories',14,y);y+=7;doc.setFontSize(10);doc.setFont(undefined,'normal');gl.forEach(u=>{doc.text(`• ${u}`,16,y);y+=5})}
   }
 
-  /* ── Activity logging ── */
-  async function logActivity(assignmentId, action) {
-    const c = _client();
-    try {
-      await c.from('notifications').insert({
-        user_id: _user.id,
-        title: action === 'started' ? 'Module Started' : 'Module Completed',
-        message: `You ${action} a module in your internship.`,
-        type: 'info',
-        link: window.location.href
-      });
-    } catch {}
-  }
+  doc.setFontSize(8);doc.setTextColor(150);doc.text('SkillUpNow · skillupnow.in · Confidential',14,285);
+  doc.save(`intern-report-${name}.pdf`);
+  toast('PDF report generated!','ok');closeShareReport();
+}
 
-  async function loadActivityLog() {
-    const c = _client();
-    const logEl = document.getElementById('iw-activity-log');
-
-    const { data: notifications } = await c
-      .from('notifications')
-      .select('title, message, created_at')
-      .eq('user_id', _user.id)
-      .like('link', `%id=${_internshipId}%`)
-      .order('created_at', { ascending: false })
-      .limit(20);
-
-    if (!notifications?.length) {
-      logEl.innerHTML = '<div class="iw-empty">No activity recorded yet. Start working to see your progress here.</div>';
-      return;
-    }
-
-    logEl.innerHTML = notifications.map(n => {
-      const time = new Date(n.created_at).toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-      const color = n.title?.includes('Completed') ? '#a78bfa' : (n.title?.includes('Started') ? '#10b981' : '#f59e0b');
-      return `
-        <div class="iw-log-item">
-          <span class="iw-log-dot" style="background:${color}"></span>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:700;color:var(--txt)">${esc(n.title)}</div>
-            <div style="color:var(--txt3);margin-top:.1rem">${esc(n.message)}</div>
-          </div>
-          <span class="iw-log-time">${time}</span>
-        </div>`;
-    }).join('');
-  }
-
-  /* ── Init ── */
-  document.addEventListener('DOMContentLoaded', initAuth);
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded',initAuth);
   </script>
 </body>
 </html>
