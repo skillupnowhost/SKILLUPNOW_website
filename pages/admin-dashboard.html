@@ -2502,6 +2502,7 @@
               </select>
               <input type="date" id="itnm-trk-date-filter" onchange="loadInternTracking()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
               <button class="btn-secondary" onclick="exportTrackingCSV()">⬇ CSV</button>
+              <button class="btn-secondary" onclick="exportTrackingPDF()">⬇ PDF</button>
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
@@ -2544,6 +2545,7 @@
                 <option value="rejected">Rejected</option>
               </select>
               <button class="btn-secondary" onclick="exportSubmissionsCSV()">⬇ CSV</button>
+              <button class="btn-secondary" onclick="exportSubmissionsPDF()">⬇ PDF</button>
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
@@ -3365,6 +3367,23 @@
       <button class="btn-secondary" onclick="closeModal('sub-review-modal')">Cancel</button>
       <button class="btn-primary" onclick="saveSubReview()">Save Review</button>
     </div>
+  </div>
+</div>
+
+<!-- ══════ STUDENT DETAIL POPUP ══════ -->
+<div class="modal-overlay" id="student-detail-modal" onclick="if(event.target===this)closeModal('student-detail-modal')">
+  <div class="modal-box" style="max-width:780px;max-height:90vh;overflow-y:auto">
+    <div class="modal-close" onclick="closeModal('student-detail-modal')">✕</div>
+    <h3 style="margin-bottom:.6rem" id="sd-title">Student Details</h3>
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+      <select id="sd-day-filter" onchange="renderStudentDetail()" style="font-size:.78rem;padding:.3rem .6rem;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--txt);font-family:inherit">
+        <option value="all">All Days</option>
+      </select>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .6rem" onclick="exportStudentDetail('csv')">CSV</button>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .6rem" onclick="exportStudentDetail('pdf')">PDF</button>
+      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .6rem" onclick="exportStudentDetail('xlsx')">Excel</button>
+    </div>
+    <div id="sd-content"><p style="text-align:center;color:var(--txt3)">Loading…</p></div>
   </div>
 </div>
 
@@ -10597,7 +10616,7 @@ async function loadInternTracking() {
     const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
     const brkText = b => b ? (b.duration_mins ? `${b.duration_mins}m` : (b.break_start ? 'On break' : '—')) : '—';
     return `<tr>
-      <td>${_adm_esc(pm[s.student_user_id]||'—')}</td>
+      <td><a href="#" onclick="openStudentDetail('${s.student_user_id}');return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(pm[s.student_user_id]||'—')}</a></td>
       <td>${s.session_date}</td>
       <td>${s.day_number}</td>
       <td>${fmtTime(s.start_time)}</td>
@@ -10614,6 +10633,35 @@ function exportTrackingCSV() {
   const table = document.querySelector('#itnm-itab-tracking .data-table');
   if (!table) return;
   _exportTableCSV(table, 'intern-tracking.csv');
+}
+
+function exportTrackingPDF(){
+  const table=document.querySelector('#itnm-itab-tracking .data-table');
+  if(!table)return;
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const pw=297,ml=12,mr=12,cw=pw-ml-mr;let y=15;
+  doc.setFillColor(30,15,60);doc.rect(0,0,pw,24,'F');
+  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('Work Session Tracking Report',pw/2,14,{align:'center'});
+  y=30;
+  const rows=table.querySelectorAll('tbody tr');
+  const headers=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());
+  const colW=Math.floor(cw/headers.length);
+  doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+  doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1,1,'F');
+  doc.setTextColor(255);
+  headers.forEach((h,i)=>doc.text(h,ml+i*colW+2,y));
+  y+=5;doc.setFont('helvetica','normal');doc.setTextColor(50);
+  rows.forEach(tr=>{
+    if(y>195){doc.addPage();y=15}
+    const cells=[...tr.querySelectorAll('td')];
+    doc.setFontSize(7);
+    cells.forEach((td,i)=>doc.text((td.textContent||'').trim().substring(0,20),ml+i*colW+2,y));
+    y+=4.5;doc.setDrawColor(230);doc.line(ml,y-1,pw-mr,y-1);
+  });
+  doc.save('intern-tracking.pdf');
+  _showAdminToast('Tracking PDF exported!','success');
 }
 
 /* ── Module Assignment ── */
@@ -10974,6 +11022,35 @@ function exportSubmissionsCSV() {
   _exportTableCSV(table, 'intern-submissions.csv');
 }
 
+function exportSubmissionsPDF(){
+  const table=document.querySelector('#itnm-itab-submissions .data-table');
+  if(!table)return;
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const pw=297,ml=12,cw=pw-ml-12;let y=15;
+  doc.setFillColor(30,15,60);doc.rect(0,0,pw,24,'F');
+  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('Student Submissions Report',pw/2,14,{align:'center'});
+  y=30;
+  const rows=table.querySelectorAll('tbody tr');
+  const headers=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());
+  const colW=Math.floor(cw/headers.length);
+  doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+  doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1,1,'F');
+  doc.setTextColor(255);
+  headers.forEach((h,i)=>doc.text(h,ml+i*colW+2,y));
+  y+=5;doc.setFont('helvetica','normal');doc.setTextColor(50);
+  rows.forEach(tr=>{
+    if(y>195){doc.addPage();y=15}
+    const cells=[...tr.querySelectorAll('td')];
+    doc.setFontSize(7);
+    cells.forEach((td,i)=>doc.text((td.textContent||'').trim().substring(0,25),ml+i*colW+2,y));
+    y+=4.5;doc.setDrawColor(230);doc.line(ml,y-1,pw-12,y-1);
+  });
+  doc.save('intern-submissions.pdf');
+  _showAdminToast('Submissions PDF exported!','success');
+}
+
 /* ── App Usage (Confidential) ── */
 async function loadAppUsage() {
   const tbody = document.getElementById('itnm-au-tbody');
@@ -11000,7 +11077,7 @@ async function loadAppUsage() {
     const mins = Math.round((a.active_seconds||0) / 60);
     const secs = (a.active_seconds||0) % 60;
     return `<tr>
-      <td>${_adm_esc(pm[a.student_user_id]||'—')}</td>
+      <td><a href="#" onclick="openStudentDetail('${a.student_user_id}');return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(pm[a.student_user_id]||'—')}</a></td>
       <td style="font-weight:600">${_adm_esc(a.app_name)}</td>
       <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.76rem">${_adm_esc(a.window_title||'—')}</td>
       <td>${mins>0 ? mins+'m ' : ''}${secs}s</td>
@@ -11740,6 +11817,211 @@ async function deleteInternProgramAssignment(id) {
   if (error) { _showAdminToast('Delete failed: '+error.message,'error'); return; }
   _showAdminToast('Deleted.','success');
   loadInternProgramAssignments();
+}
+
+/* ============================================================
+   STUDENT DETAIL POPUP — Click student name to view full profile
+   ============================================================ */
+let _sdCache={};
+async function openStudentDetail(studentId){
+  if(!studentId)return;
+  openModal('student-detail-modal');
+  document.getElementById('sd-content').innerHTML='<p style="text-align:center;color:var(--txt3)">Loading…</p>';
+
+  const[{data:sessions},{data:appUsage},{data:subs},{data:progAssign},pm]=await Promise.all([
+    db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:true}),
+    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at').eq('student_user_id',studentId).order('recorded_at',{ascending:false}).limit(500),
+    db.client.from('intern_submissions').select('*').eq('student_user_id',studentId).order('submitted_at',{ascending:false}),
+    db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name)').eq('student_user_id',studentId).neq('status','revoked'),
+    _getProfileMap([studentId])
+  ]);
+
+  const name=pm[studentId]||'Student';
+  document.getElementById('sd-title').textContent=name+' — Detailed Report';
+
+  _sdCache={studentId,name,sessions:sessions||[],appUsage:appUsage||[],subs:subs||[],progAssign:progAssign||[]};
+
+  const dayFilter=document.getElementById('sd-day-filter');
+  dayFilter.innerHTML='<option value="all">All Days</option>';
+  (sessions||[]).forEach(s=>{
+    dayFilter.innerHTML+=`<option value="${s.session_date}">Day ${s.day_number} — ${s.session_date}</option>`;
+  });
+
+  renderStudentDetail();
+}
+
+function renderStudentDetail(){
+  const{sessions,appUsage,subs,progAssign,name}=_sdCache;
+  const el=document.getElementById('sd-content');
+  const dayF=document.getElementById('sd-day-filter')?.value||'all';
+  const fmtMins=m=>`${Math.floor(m/60)}h ${m%60}m`;
+  const fmtSecs=s=>{const m=Math.floor(s/60);return m>0?m+'m '+(s%60)+'s':(s%60)+'s'};
+  const sb={submitted:'badge-yellow',approved:'badge-green',rejected:'badge-red',active:'badge-blue',in_progress:'badge-yellow',completed:'badge-green'};
+
+  const filtSess=dayF==='all'?sessions:sessions.filter(s=>s.session_date===dayF);
+  const filtApp=dayF==='all'?appUsage:appUsage.filter(a=>{
+    const d=a.recorded_at?new Date(a.recorded_at).toISOString().slice(0,10):'';
+    return d===dayF;
+  });
+
+  const totalWork=filtSess.reduce((s,x)=>s+(x.total_work_mins||0),0);
+  const totalBrk=filtSess.reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
+  const netWork=Math.max(0,totalWork-totalBrk);
+
+  const appMap={};
+  filtApp.forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
+  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]);
+
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1rem">
+      <div style="text-align:center;padding:.6rem;background:rgba(16,185,129,.08);border-radius:10px;border:1px solid rgba(16,185,129,.2)">
+        <div style="font-size:1.1rem;font-weight:900;color:#10b981">${filtSess.length}</div>
+        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Days</div>
+      </div>
+      <div style="text-align:center;padding:.6rem;background:rgba(124,58,237,.08);border-radius:10px;border:1px solid rgba(124,58,237,.2)">
+        <div style="font-size:1.1rem;font-weight:900;color:var(--v1)">${fmtMins(totalWork)}</div>
+        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Work</div>
+      </div>
+      <div style="text-align:center;padding:.6rem;background:rgba(245,158,11,.08);border-radius:10px;border:1px solid rgba(245,158,11,.2)">
+        <div style="font-size:1.1rem;font-weight:900;color:#f59e0b">${fmtMins(totalBrk)}</div>
+        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Breaks</div>
+      </div>
+      <div style="text-align:center;padding:.6rem;background:rgba(6,182,212,.08);border-radius:10px;border:1px solid rgba(6,182,212,.2)">
+        <div style="font-size:1.1rem;font-weight:900;color:#06b6d4">${fmtMins(netWork)}</div>
+        <div style="font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase">Net</div>
+      </div>
+    </div>
+
+    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">Attendance Log</h4>
+    ${filtSess.length?`<div style="overflow-x:auto;margin-bottom:1rem"><table style="width:100%;font-size:.76rem;border-collapse:collapse">
+      <thead><tr style="background:var(--panel);border-bottom:2px solid var(--border)">
+        <th style="text-align:left;padding:.4rem .5rem">Date</th><th>Day</th><th>Login</th><th>Logout</th>
+        <th>Work</th><th>Breaks</th><th>Net</th><th>Status</th>
+      </tr></thead>
+      <tbody>${filtSess.map(s=>{
+        const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
+        const net=Math.max(0,(s.total_work_mins||0)-brk);
+        const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+        const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+        const brkDetail=(s.intern_breaks||[]).map(br=>(br.break_type||'brk').split('_')[0]+':'+(br.duration_mins||'?')+'m').join(', ')||'—';
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:.35rem .5rem">${s.session_date}</td>
+          <td style="text-align:center">${s.day_number||'—'}</td>
+          <td style="text-align:center;color:#10b981;font-weight:600">${login}</td>
+          <td style="text-align:center;color:var(--v1);font-weight:600">${logout}</td>
+          <td style="text-align:center">${s.total_work_mins||0}m</td>
+          <td style="text-align:center;font-size:.7rem">${brkDetail}</td>
+          <td style="text-align:center;font-weight:700;color:var(--v1)">${net}m</td>
+          <td style="text-align:center"><span class="${{active:'badge-green',completed:'badge-blue',auto_closed:'badge-yellow'}[s.status]||'badge-gray'}">${s.status}</span></td>
+        </tr>`;
+      }).join('')}</tbody></table></div>`:'<p style="color:var(--txt3);font-size:.82rem">No sessions.</p>'}
+
+    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">App Usage</h4>
+    ${appEntries.length?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${appEntries.map(([app,secs])=>
+      `<div style="padding:.4rem .7rem;background:var(--panel);border:1px solid var(--border);border-radius:8px;font-size:.76rem">
+        <span style="font-weight:700">${_adm_esc(app)}</span>
+        <span style="color:var(--v1);font-weight:600;margin-left:.3rem">${fmtSecs(secs)}</span>
+      </div>`).join('')}</div>`:'<p style="color:var(--txt3);font-size:.82rem">No app usage data.</p>'}
+
+    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">Module Progress</h4>
+    ${(progAssign||[]).length?`<ul style="list-style:none;padding:0;margin:0 0 1rem">${(progAssign||[]).map((a,i)=>
+      `<li style="display:flex;justify-content:space-between;padding:.35rem .5rem;border-bottom:1px solid var(--border);font-size:.8rem">
+        <span>${i+1}. ${_adm_esc(a.intern_program_modules?.module_name||'Module')}</span>
+        <span class="${sb[a.status]||'badge-gray'}">${(a.status||'').replace('_',' ')}</span>
+      </li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No modules.</p>'}
+
+    <h4 style="font-size:.85rem;font-weight:800;margin:.8rem 0 .4rem;color:var(--v1)">Submissions</h4>
+    ${(subs||[]).length?`<ul style="list-style:none;padding:0;margin:0">${subs.map(s=>
+      `<li style="display:flex;justify-content:space-between;padding:.35rem .5rem;border-bottom:1px solid var(--border);font-size:.8rem">
+        <span>${_adm_esc(s.submission_title)} <small style="color:var(--txt3)">${new Date(s.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</small></span>
+        <span class="${sb[s.status]||'badge-gray'}">${s.status}</span>
+      </li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No submissions.</p>'}
+  `;
+}
+
+function exportStudentDetail(fmt){
+  const{sessions,appUsage,name,progAssign,subs}=_sdCache;
+  if(!sessions?.length&&!appUsage?.length){_showAdminToast('No data to export','error');return}
+  const dayF=document.getElementById('sd-day-filter')?.value||'all';
+  const filtSess=dayF==='all'?sessions:sessions.filter(s=>s.session_date===dayF);
+  const filtApp=dayF==='all'?appUsage:appUsage.filter(a=>{const d=a.recorded_at?new Date(a.recorded_at).toISOString().slice(0,10):'';return d===dayF});
+  const fmtMins=m=>`${Math.floor(m/60)}h ${m%60}m`;
+
+  if(fmt==='csv'||fmt==='xlsx'){
+    let csv='Student Detail Report\n';
+    csv+=`Student,${name}\nGenerated,${new Date().toLocaleString('en-IN')}\n\n`;
+    csv+='Date,Day,Login,Logout,Work (min),Break (min),Net (min),Status\n';
+    filtSess.forEach(s=>{
+      const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
+      const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
+      const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
+      csv+=`${s.session_date},Day ${s.day_number},${login},${logout},${s.total_work_mins||0},${brk},${Math.max(0,(s.total_work_mins||0)-brk)},${s.status}\n`;
+    });
+    csv+='\nApp Usage\nApp,Time (seconds)\n';
+    const appMap={};filtApp.forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
+    Object.entries(appMap).sort((a,b)=>b[1]-a[1]).forEach(([app,secs])=>{csv+=`"${app}",${secs}\n`});
+    const ext=fmt==='xlsx'?'csv':'csv';
+    const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=`Student-Report-${name.replace(/\s+/g,'_')}.${ext}`;a.click();
+    _showAdminToast(fmt.toUpperCase()+' exported!','success');return;
+  }
+
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pw=210,ml=18,mr=18,cw=pw-ml-mr;let y=15;
+
+  doc.setFillColor(30,15,60);doc.rect(0,0,pw,30,'F');
+  doc.setFillColor(124,58,237);doc.rect(0,30,pw,1.5,'F');
+  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('Student Performance Report',pw/2,14,{align:'center'});
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
+  doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}`,pw/2,22,{align:'center'});
+  y=38;
+
+  const totalWork=filtSess.reduce((s,x)=>s+(x.total_work_mins||0),0);
+  const totalBrk=filtSess.reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
+
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
+  doc.text('Attendance Log',pw/2,y,{align:'center'});y+=6;
+
+  if(filtSess.length){
+    doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+    const cols=[ml,ml+22,ml+36,ml+56,ml+76,ml+94,ml+112,ml+140];
+    doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1.5,1.5,'F');
+    doc.setTextColor(255);
+    ['Date','Day','Login','Logout','Work','Break','Net','Status'].forEach((h,i)=>doc.text(h,cols[i]+1,y));
+    y+=5;doc.setFont('helvetica','normal');doc.setTextColor(50);
+    filtSess.forEach(s=>{
+      if(y>275){doc.addPage();y=15}
+      const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
+      const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+      const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+      doc.setFontSize(7);
+      doc.text(s.session_date||'—',cols[0]+1,y);doc.text('Day '+(s.day_number||''),cols[1]+1,y);
+      doc.setTextColor(16,185,129);doc.text(login,cols[2]+1,y);
+      doc.setTextColor(124,58,237);doc.text(logout,cols[3]+1,y);
+      doc.setTextColor(50);doc.text((s.total_work_mins||0)+'m',cols[4]+1,y);
+      doc.text(brk+'m',cols[5]+1,y);doc.text(Math.max(0,(s.total_work_mins||0)-brk)+'m',cols[6]+1,y);
+      doc.text(s.status||'—',cols[7]+1,y);
+      y+=4.5;doc.setDrawColor(230);doc.line(ml,y-1,pw-mr,y-1);
+    });
+    y+=6;
+  }
+
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
+  doc.text('App Usage',pw/2,y,{align:'center'});y+=6;
+  const appMap={};filtApp.forEach(a=>{appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0)});
+  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]);
+  if(appEntries.length){
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(50);
+    appEntries.forEach(([app,secs])=>{
+      if(y>280){doc.addPage();y=15}
+      doc.text(`${app}: ${Math.floor(secs/60)}m ${secs%60}s`,ml+2,y);y+=4.5;
+    });
+  }
+
+  doc.save(`Student-Report-${name.replace(/\s+/g,'_')}.pdf`);
+  _showAdminToast('PDF exported!','success');
 }
 </script>
 
