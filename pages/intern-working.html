@@ -230,6 +230,8 @@ img{-webkit-user-drag:none}
 .iw-chk-item:hover{background:rgba(124,58,237,.06);border-color:rgba(124,58,237,.15)}
 .iw-chk-item input[type=checkbox]{accent-color:var(--iw-v);width:15px;height:15px}
 
+.iw-log-hidden{display:none!important}
+.iw-log-item:hover{background:rgba(124,58,237,.03);border-radius:8px}
 .iw-empty{text-align:center;padding:1.5rem .8rem;color:var(--txt3);font-size:.82rem;font-weight:600}
 
 @media(max-width:640px){.iw-mod{flex-direction:column}.iw-mod-side{flex-direction:row;width:100%}}
@@ -386,7 +388,8 @@ img{-webkit-user-drag:none}
           <div class="iw-card" style="animation-delay:.4s">
             <div class="iw-card-hdr">
               <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Activity Log</h2>
-              <div style="display:flex;gap:.4rem;align-items:center">
+              <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+                <input type="date" id="iw-log-date" onchange="loadActivityLog()" style="padding:.25rem .4rem;border-radius:8px;font-size:.66rem;font-weight:600;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);font-family:inherit;cursor:pointer;outline:none;max-width:120px">
                 <select id="iw-log-filter" onchange="loadActivityLog()" style="padding:.25rem .5rem;border-radius:8px;font-size:.68rem;font-weight:700;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);font-family:inherit;cursor:pointer;outline:none">
                   <option value="all">All Activity</option>
                   <option value="work">Work Sessions</option>
@@ -502,6 +505,7 @@ img{-webkit-user-drag:none}
           <label class="iw-chk-item"><input type="checkbox" checked value="modules"> Module Progress</label>
           <label class="iw-chk-item"><input type="checkbox" checked value="submissions"> Submissions</label>
           <label class="iw-chk-item"><input type="checkbox" checked value="breaks"> Break Duration</label>
+          <label class="iw-chk-item"><input type="checkbox" checked value="app_usage"> App Usage & IP</label>
           <label class="iw-chk-item"><input type="checkbox" checked value="git"> Git Activity</label>
         </div>
         <div class="iw-fg" style="margin-top:.8rem"><label>Export Format</label>
@@ -818,8 +822,8 @@ async function endWork(){
     // Auto-end any active break before ending session
     const activeBreak=Object.values(_brkState).find(b=>b&&!b.break_end);
     if(activeBreak){
-      await c.from('intern_breaks').update({break_end:now}).eq('id',activeBreak.id);
       const brkDur=Math.round((new Date(now)-new Date(activeBreak.break_start))/60000);
+      await c.from('intern_breaks').update({break_end:now,duration_mins:brkDur}).eq('id',activeBreak.id);
       activeBreak.break_end=now;activeBreak.duration_mins=brkDur;
     }
 
@@ -828,11 +832,14 @@ async function endWork(){
     const netMins=Math.max(0,totalMins-breakMins);
     const targetMins=480; // 8 hours
     await withRetry(async()=>{
-      const{error}=await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:totalMins,total_break_mins:breakMins,net_work_mins:netMins}).eq('id',_session.id);
+      const{error}=await c.from('intern_work_sessions').update({
+        end_time:now,status:'completed',
+        total_work_mins:totalMins,total_break_mins:breakMins,net_work_mins:netMins
+      }).eq('id',_session.id);
       if(error)throw error;
     });
     _session.status='completed';_session.total_work_mins=totalMins;_session.total_break_mins=breakMins;_session.net_work_mins=netMins;
-    clearInterval(_timerInt);clearInterval(_appTrackInt);_stopScreenCapture();
+    clearInterval(_timerInt);clearInterval(_appTrackInt);
     showCompleted();
     const pctOfTarget=Math.round((netMins/targetMins)*100);
     const targetMsg=netMins>=targetMins?`Target 8h ACHIEVED (${fmtMins(netMins)})`:`Net: ${fmtMins(netMins)} / 8h target (${pctOfTarget}%)`;
@@ -868,11 +875,11 @@ async function toggleBreakWithType(){
   if(activeBreak){
     if(!await iwConfirm(`End ${BRK_LABELS[activeBreak.break_type]||'Break'}?`,'End Break','Continue'))return;
     const now=new Date().toISOString();
-    const{error}=await c.from('intern_breaks').update({break_end:now}).eq('id',activeBreak.id);
-    if(error){toast('Failed to end break: '+error.message,'err');return}
     let mins=Math.round((new Date(now)-new Date(activeBreak.break_start))/60000);
     const maxForType=BRK_MAX_MINS[activeBreak.break_type]||30;
     if(mins>maxForType) mins=maxForType;
+    const{error}=await c.from('intern_breaks').update({break_end:now,duration_mins:mins}).eq('id',activeBreak.id);
+    if(error){toast('Failed to end break: '+error.message,'err');return}
     activeBreak.break_end=now;
     activeBreak.duration_mins=mins;
     logNotification('Break Ended',`${BRK_LABELS[activeBreak.break_type]||'Break'} ended — ${mins}m`);
@@ -1090,66 +1097,17 @@ function _initActivityListeners(){
 
 async function _recordTrack(appName,windowTitle){
   if(!_session)return;
-  try{await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:appName,window_title:windowTitle||'',active_seconds:0})}catch{}
+  try{await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:appName,window_title:windowTitle||'',active_seconds:0,ip_address:_detectedIP||''})}catch{}
 }
 
-/* ── Screen Capture for real-time tracking ── */
-let _screenStream=null,_screenVideo=null,_screenCanvas=null,_screenCtx=null,_captureInt=null;
-const CAPTURE_INTERVAL=120000; // screenshot every 2 minutes
-
-async function _startScreenCapture(){
+/* ── IP Address Detection ── */
+let _detectedIP=null;
+async function _detectIP(){
   try{
-    _screenStream=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always',displaySurface:'monitor'},audio:false});
-    _screenVideo=document.createElement('video');
-    _screenVideo.srcObject=_screenStream;
-    _screenVideo.setAttribute('playsinline','');
-    await _screenVideo.play();
-    _screenCanvas=document.createElement('canvas');
-    _screenCtx=_screenCanvas.getContext('2d');
-    _screenStream.getVideoTracks()[0].addEventListener('ended',()=>{
-      _screenStream=null;toast('Screen sharing stopped. Tracking continues without screenshots.','err');
-      clearInterval(_captureInt);
-    });
-    _captureInt=setInterval(_captureScreenshot,CAPTURE_INTERVAL);
-    setTimeout(_captureScreenshot,3000);
-    _recordTrack('Screen Capture','Screen sharing enabled — real-time tracking active');
-    toast('Screen tracking active','ok');
-    return true;
-  }catch(e){
-    console.warn('Screen capture denied:',e.message);
-    _recordTrack('Screen Capture Denied','Student declined screen sharing permission');
-    return false;
-  }
-}
-
-async function _captureScreenshot(){
-  if(!_screenStream||!_screenVideo||!_session)return;
-  try{
-    const vw=_screenVideo.videoWidth,vh=_screenVideo.videoHeight;
-    if(!vw||!vh)return;
-    const scale=Math.min(1280/vw,720/vh,1);
-    _screenCanvas.width=Math.round(vw*scale);
-    _screenCanvas.height=Math.round(vh*scale);
-    _screenCtx.drawImage(_screenVideo,0,0,_screenCanvas.width,_screenCanvas.height);
-    const blob=await new Promise(r=>_screenCanvas.toBlob(r,'image/jpeg',0.6));
-    if(!blob||blob.size<1000)return;
-    const ts=Date.now();
-    const path=`${_user.id}/${_session.id}/screen-${ts}.jpg`;
-    const{error}=await C().storage.from('intern-submissions').upload(path,blob,{contentType:'image/jpeg',upsert:true});
-    if(!error){
-      const url=C().storage.from('intern-submissions').getPublicUrl(path).data.publicUrl;
-      await C().from('intern_app_usage').insert({
-        session_id:_session.id,student_user_id:_user.id,
-        app_name:'Screenshot',window_title:url,active_seconds:0
-      });
-    }
-  }catch(e){console.warn('Screenshot failed:',e.message)}
-}
-
-function _stopScreenCapture(){
-  if(_screenStream){_screenStream.getTracks().forEach(t=>t.stop());_screenStream=null}
-  if(_screenVideo){_screenVideo.pause();_screenVideo.srcObject=null;_screenVideo=null}
-  clearInterval(_captureInt);
+    const r=await fetch('https://api.ipify.org?format=json');
+    const d=await r.json();
+    _detectedIP=d.ip||null;
+  }catch{_detectedIP=null}
 }
 
 /* ── Main tracking start ── */
@@ -1158,10 +1116,11 @@ async function startAppTracking(){
   _initActivityListeners();
   _trackState.lastTitle=document.title;
 
-  // Request screen capture for real-time monitoring
-  await _startScreenCapture();
+  await _detectIP();
+  if(_detectedIP&&_session){
+    try{await C().from('intern_work_sessions').update({ip_address:_detectedIP}).eq('id',_session.id)}catch{}
+  }
 
-  // Periodic activity + app detection tracking (every 15 seconds)
   _appTrackInt=setInterval(async()=>{
     if(!_session)return;
     const now=Date.now();
@@ -1173,8 +1132,9 @@ async function startAppTracking(){
     const isVisible=document.visibilityState==='visible';
     const records=[];
 
+    const ip=_detectedIP||'';
     if(isVisible&&!_trackState.idle){
-      records.push({session_id:_session.id,student_user_id:_user.id,app_name:browser,window_title:title,active_seconds:15});
+      records.push({session_id:_session.id,student_user_id:_user.id,app_name:browser,window_title:title,active_seconds:15,ip_address:ip,category:'Browser'});
       const detected=_detectAppsFromTitle(title);
       const urlHosts=_getUrlHost();
       urlHosts.forEach(h=>{
@@ -1182,29 +1142,28 @@ async function startAppTracking(){
         hostApps.forEach(a=>{if(!detected.find(d=>d.name===a.name))detected.push(a)});
       });
       detected.forEach(app=>{
-        records.push({session_id:_session.id,student_user_id:_user.id,app_name:app.name,window_title:`[${app.category}] ${title}`,active_seconds:15});
+        records.push({session_id:_session.id,student_user_id:_user.id,app_name:app.name,window_title:`[${app.category}] ${title}`,active_seconds:15,ip_address:ip,category:app.category});
       });
     } else if(!isVisible){
-      records.push({session_id:_session.id,student_user_id:_user.id,app_name:'Away: Other App',window_title:'User in another application',active_seconds:15});
+      records.push({session_id:_session.id,student_user_id:_user.id,app_name:'Away: Other App',window_title:'User in another application',active_seconds:15,ip_address:ip,category:'Away'});
     } else if(_trackState.idle){
-      records.push({session_id:_session.id,student_user_id:_user.id,app_name:'Idle',window_title:`No activity for ${Math.round(idleSecs/60)}m`,active_seconds:15});
+      records.push({session_id:_session.id,student_user_id:_user.id,app_name:'Idle',window_title:`No activity for ${Math.round(idleSecs/60)}m`,active_seconds:15,ip_address:ip,category:'Idle'});
     }
 
     if(_trackState.mouseClicks>0||_trackState.keyPresses>0||_trackState.scrolls>0){
       records.push({session_id:_session.id,student_user_id:_user.id,
         app_name:'User Activity',
         window_title:`Clicks:${_trackState.mouseClicks} Keys:${_trackState.keyPresses} Scrolls:${_trackState.scrolls} | OS:${_detectedOS} | ${browser}`,
-        active_seconds:15
+        active_seconds:15,ip_address:ip,category:'Activity'
       });
       _trackState.mouseClicks=0;_trackState.keyPresses=0;_trackState.scrolls=0;
     }
 
-    // Track copy/paste events that accumulated
     if(_trackState.copyCount>0||_trackState.pasteCount>0){
       records.push({session_id:_session.id,student_user_id:_user.id,
         app_name:'Clipboard',
         window_title:`Copy:${_trackState.copyCount} Paste:${_trackState.pasteCount}`,
-        active_seconds:0
+        active_seconds:0,ip_address:ip,category:'Activity'
       });
       _trackState.copyCount=0;_trackState.pasteCount=0;
     }
@@ -1339,7 +1298,7 @@ async function loadAttendanceData(){
   if(!_enrollment)return;
   const c=C();
   const[{data:sessions},{data:attendance}]=await Promise.all([
-    c.from('intern_work_sessions').select('session_date,day_number,status,start_time,end_time,total_work_mins,intern_breaks(break_number,break_start,break_end,duration_mins)')
+    c.from('intern_work_sessions').select('session_date,day_number,status,start_time,end_time,total_work_mins,ip_address,intern_breaks(break_number,break_type,break_start,break_end,duration_mins)')
       .eq('enrollment_id',_enrollment.id).order('session_date'),
     c.from('internship_attendance').select('attendance_date,status,check_in_time,check_out_time,notes')
       .eq('enrollment_id',_enrollment.id).order('attendance_date')
@@ -1442,6 +1401,7 @@ function toggleDayDetail(dateStr,event){
     <div class="iw-dd-row"><span class="iw-dd-label">Break Time</span><span class="iw-dd-val">${fmtMins(breakMins)}</span></div>
     ${breakDetails}
     <div class="iw-dd-row"><span class="iw-dd-label">Net Work</span><span class="iw-dd-val green">${fmtMins(Math.max(0,workMins-breakMins))} / 8h</span></div>
+    ${sess.ip_address?`<div class="iw-dd-row"><span class="iw-dd-label">IP Address</span><span class="iw-dd-val" style="font-size:.6rem">${esc(sess.ip_address)}</span></div>`:''}
     <div class="iw-dd-row"><span class="iw-dd-label">Status</span><span class="iw-dd-val">${status}</span></div>
     ${att?.notes?`<div style="margin-top:.3rem;font-size:.62rem;color:var(--txt3)">Note: ${esc(att.notes)}</div>`:''}
   `;
@@ -1621,20 +1581,18 @@ async function logNotification(title,msg){
 async function loadActivityLog(){
   const c=C();
   const filter=document.getElementById('iw-log-filter')?.value||'all';
+  const dateFilter=document.getElementById('iw-log-date')?.value||'';
   const el=document.getElementById('iw-log');
   const brkLogEl=document.getElementById('iw-brk-log');
 
   const{data}=await c.from('notifications').select('title,message,created_at').eq('user_id',_user.id).order('created_at',{ascending:false}).limit(100);
   let notifs=data||[];
 
-  // Build synthetic activity entries from session and break data
   const syntheticEntries=[];
   if(_session){
-    // Login entry
     if(_session.start_time){
       syntheticEntries.push({title:'Work Started',message:'Started work session — Day '+(_session.day_number||''),created_at:_session.start_time,_synthetic:true});
     }
-    // Break entries from _brkState
     const breaks=_brkState;
     breaks.forEach(b=>{
       if(b.break_start){
@@ -1644,25 +1602,21 @@ async function loadActivityLog(){
         syntheticEntries.push({title:'Break Ended',message:`${BRK_LABELS[b.break_type]||'Break'} ended — ${b.duration_mins||'?'}m`,created_at:b.break_end,_synthetic:true});
       }
     });
-    // End work entry
     if(_session.end_time&&_session.status==='completed'){
       const netMins=_session.net_work_mins||Math.max(0,(_session.total_work_mins||0)-(_session.total_break_mins||0));
       syntheticEntries.push({title:'Work Ended',message:`Session completed — Net: ${fmtMins(netMins)} / 8h target`,created_at:_session.end_time,_synthetic:true});
     }
   }
 
-  // Merge: add synthetic entries that don't duplicate existing notifications (by matching title+timestamp within 2 min)
   syntheticEntries.forEach(se=>{
     const seTime=new Date(se.created_at).getTime();
     const isDupe=notifs.some(n=>n.title===se.title&&Math.abs(new Date(n.created_at).getTime()-seTime)<120000);
     if(!isDupe) notifs.push(se);
   });
 
-  // Sort combined list by created_at descending
   notifs.sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
   _activityCache=notifs;
 
-  // Show break summary if session is active
   if(_session?.status==='active'){
     const breaks=_brkState;
     const completedBreaks=breaks.filter(b=>b&&b.break_end);
@@ -1674,6 +1628,16 @@ async function loadActivityLog(){
   } else {brkLogEl.style.display='none'}
 
   let filtered=_activityCache;
+
+  // Date filter
+  if(dateFilter){
+    filtered=filtered.filter(n=>{
+      const nd=new Date(n.created_at);
+      const ds=nd.getFullYear()+'-'+String(nd.getMonth()+1).padStart(2,'0')+'-'+String(nd.getDate()).padStart(2,'0');
+      return ds===dateFilter;
+    });
+  }
+
   if(filter==='work') filtered=filtered.filter(n=>n.title?.includes('Work')||n.title?.includes('Session'));
   else if(filter==='breaks') filtered=filtered.filter(n=>n.title?.includes('Break')||n.message?.toLowerCase().includes('break'));
   else if(filter==='modules') filtered=filtered.filter(n=>n.title?.includes('Module'));
@@ -1681,7 +1645,6 @@ async function loadActivityLog(){
 
   if(!filtered.length){el.innerHTML='<div class="iw-empty">No activity found for this filter.</div>';return}
 
-  // Group by day
   const grouped={};
   filtered.forEach(n=>{
     const d=new Date(n.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
@@ -1690,10 +1653,18 @@ async function loadActivityLog(){
   });
 
   el.innerHTML=Object.entries(grouped).map(([day,items])=>{
-    const rows=items.map(n=>{
+    const rows=items.map((n,idx)=>{
       const t=new Date(n.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
       const clr=n.title?.includes('Completed')||n.title?.includes('Done')?'#a78bfa':(n.title?.includes('Started')||n.title?.includes('Resumed')?'#10b981':(n.title?.includes('Submit')?'#f59e0b':(n.title?.includes('Break')?'#f59e0b':(n.title?.includes('Ended')?'#f43f5e':'#06b6d4'))));
-      return `<div class="iw-log-item"><span class="iw-log-dot" style="background:${clr}"></span><div style="flex:1;min-width:0"><div style="font-weight:700;color:var(--txt);font-size:.76rem">${esc(n.title)}</div><div style="color:var(--txt3);font-size:.7rem">${esc(n.message)}</div></div><span class="iw-log-time">${t}</span></div>`;
+      const uid='log-'+day.replace(/\s/g,'')+'-'+idx;
+      return `<div class="iw-log-item" style="cursor:pointer" onclick="this.querySelector('.iw-log-detail').classList.toggle('iw-log-hidden')">
+        <span class="iw-log-dot" style="background:${clr}"></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;color:var(--txt);font-size:.76rem">${esc(n.title)}</div>
+          <div class="iw-log-detail" style="color:var(--txt3);font-size:.7rem">${esc(n.message)}</div>
+        </div>
+        <span class="iw-log-time">${t}</span>
+      </div>`;
     }).join('');
     return `<div style="margin-bottom:.6rem"><div style="font-size:.68rem;font-weight:800;color:var(--iw-v);text-transform:uppercase;letter-spacing:.04em;padding:.3rem 0;border-bottom:1.5px solid var(--border);margin-bottom:.3rem">${day}</div>${rows}</div>`;
   }).join('');
@@ -1764,9 +1735,13 @@ async function generateReport(){
   if(!checks.length){toast('Select at least one field','err');return}
 
   const c=C();
-  const{data:sessions}=await c.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id',_enrollment?.id).order('session_date');
-  const{data:subs}=await c.from('intern_submissions').select('*').eq('enrollment_id',_enrollment?.id).order('submitted_at',{ascending:false});
-  const{data:proj}=await c.from('internship_projects').select('project_name').eq('id',_intId).single();
+  const[{data:sessions},{data:subs},{data:proj},{data:appUsageRaw}]=await Promise.all([
+    c.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id',_enrollment?.id).order('session_date'),
+    c.from('intern_submissions').select('*').eq('enrollment_id',_enrollment?.id).order('submitted_at',{ascending:false}),
+    c.from('internship_projects').select('project_name').eq('id',_intId).single(),
+    checks.includes('app_usage')?c.from('intern_app_usage').select('app_name,category,active_seconds,ip_address,recorded_at,session_id').eq('student_user_id',_user.id).order('recorded_at',{ascending:false}).limit(500):{data:null}
+  ]);
+  const appUsage=appUsageRaw||[];
   const name=_user.user_metadata?.full_name||_user.email?.split('@')[0]||'Student';
   const companyName='Skill-Up Now Private Limited';
   const companyEmail='skillupnow.off@gmail.com';
@@ -1787,14 +1762,14 @@ async function generateReport(){
     if(checks.includes('modules')){csv+=`Modules Total,${_assignments.length}\nModules Completed,${_assignments.filter(a=>a.status==='completed').length}\nModules In Progress,${_assignments.filter(a=>a.status==='in_progress').length}\n`}
     if(checks.includes('submissions'))csv+=`Total Submissions,${(subs||[]).length}\n`;
     if(checks.includes('attendance')&&(sessions||[]).length){
-      csv+='\nDate,Day,Login Time,Logout Time,Total Time (min),Break Time (min),Break Types,Net Work (min),Status\n';
+      csv+='\nDate,Day,Login Time,Logout Time,Total Time (min),Break Time (min),Break Types,Net Work (min),IP Address,Status\n';
       (sessions||[]).forEach(s=>{
         const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
         const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
         const brk=(s.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0);
         const brkTypes=(s.intern_breaks||[]).map(br=>(BRK_LABELS[br.break_type]||'Break')+':'+( br.duration_mins||'?')+'m').join('; ');
         const net=Math.max(0,(s.total_work_mins||0)-brk);
-        csv+=`${s.session_date||''},Day ${s.day_number||''},${login},${logout},${s.total_work_mins||0},${brk},"${brkTypes}",${net},${s.status||''}\n`;
+        csv+=`${s.session_date||''},Day ${s.day_number||''},${login},${logout},${s.total_work_mins||0},${brk},"${brkTypes}",${net},"${s.ip_address||''}",${s.status||''}\n`;
       });
     }
     if(checks.includes('breaks')&&(sessions||[]).length){
@@ -1805,6 +1780,18 @@ async function generateReport(){
           const bEnd=br.break_end?new Date(br.break_end).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'Active';
           csv+=`${s.session_date||''},Break ${br.break_number},"${BRK_LABELS[br.break_type]||'General'}",${bStart},${bEnd},${br.duration_mins||0}\n`;
         });
+      });
+    }
+    if(checks.includes('app_usage')&&appUsage.length){
+      const appSummary={};
+      appUsage.forEach(a=>{
+        if(a.app_name==='User Activity'||a.app_name==='Clipboard')return;
+        if(!appSummary[a.app_name])appSummary[a.app_name]={secs:0,cat:a.category||'',ip:a.ip_address||''};
+        appSummary[a.app_name].secs+=a.active_seconds||0;
+      });
+      csv+='\nApp Usage Summary\nApp Name,Category,Total Time,IP Address\n';
+      Object.entries(appSummary).sort((a,b)=>b[1].secs-a[1].secs).forEach(([app,d])=>{
+        csv+=`"${app}","${d.cat}","${fmtMins(Math.round(d.secs/60))}","${d.ip}"\n`;
       });
     }
     csv+=`\n"Report generated by ${companyName}"\n"Contact: ${companyPhone} | Email: ${companyEmail}"\n`;
@@ -1889,11 +1876,11 @@ async function generateReport(){
   if(checks.includes('attendance')&&(sessions||[]).length){
     sectionTitle('Attendance & Work Log');
     doc.setFontSize(7.5);doc.setFont('helvetica','bold');
-    const colW=[24,16,22,22,18,18,38,22];
+    const colW=[22,14,20,20,16,16,30,18,18];
     const colX=[ml];for(let i=1;i<colW.length;i++)colX.push(colX[i-1]+colW[i-1]);
     doc.setFillColor(124,58,237);doc.roundedRect(ml,y-3.5,cw,6,1.5,1.5,'F');
     doc.setTextColor(255);
-    ['Date','Day','Login','Logout','Work','Breaks','Break Types','Status'].forEach((h,i)=>doc.text(h,colX[i]+2,y));
+    ['Date','Day','Login','Logout','Work','Breaks','Break Types','IP','Status'].forEach((h,i)=>doc.text(h,colX[i]+2,y));
     y+=5;doc.setFont('helvetica','normal');
     let rowAlt=false;
     (sessions||[]).forEach(s=>{
@@ -1902,7 +1889,7 @@ async function generateReport(){
       rowAlt=!rowAlt;
       doc.setFontSize(7);doc.setTextColor(60);
       doc.text(s.session_date||'—',colX[0]+2,y);
-      doc.text('Day '+(s.day_number||''),colX[1]+2,y);
+      doc.text('D'+(s.day_number||''),colX[1]+2,y);
       doc.setTextColor(16,185,129);
       doc.text(s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—',colX[2]+2,y);
       doc.setTextColor(124,58,237);
@@ -1911,12 +1898,14 @@ async function generateReport(){
       doc.text(s.total_work_mins?fmtMins(s.total_work_mins):'—',colX[4]+2,y);
       const brk=(s.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0);
       doc.text(fmtMins(brk),colX[5]+2,y);
-      doc.setFontSize(6);
+      doc.setFontSize(5.5);
       const brkTypes=(s.intern_breaks||[]).map(br=>{const l=BRK_LABELS[br.break_type]||'Brk';return l.split(' ')[0]+':'+(br.duration_mins||'?')+'m'}).join(', ');
-      doc.text((brkTypes||'None').substring(0,36),colX[6]+2,y);
+      doc.text((brkTypes||'None').substring(0,28),colX[6]+2,y);
+      doc.setFontSize(6);
+      doc.text((s.ip_address||'—').substring(0,15),colX[7]+2,y);
       doc.setFontSize(7);
       const status=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
-      doc.text(status,colX[7]+2,y);
+      doc.text(status,colX[8]+2,y);
       y+=5;doc.setDrawColor(230);doc.line(ml,y-1.5,pw-mr,y-1.5);
     });
     y+=5;
@@ -1998,6 +1987,42 @@ async function generateReport(){
       checkPage(6);
       doc.text(`•  ${s.submission_title} — ${s.status} (${new Date(s.submitted_at).toLocaleDateString('en-IN')})`,ml+4,y);y+=5;
     });y+=4;
+  }
+
+  // ── APP USAGE ──
+  if(checks.includes('app_usage')&&appUsage.length){
+    sectionTitle('App Usage & Network');
+    const appSummary={};
+    appUsage.forEach(a=>{
+      if(a.app_name==='User Activity'||a.app_name==='Clipboard')return;
+      if(!appSummary[a.app_name])appSummary[a.app_name]={secs:0,cat:a.category||'',ip:a.ip_address||''};
+      appSummary[a.app_name].secs+=a.active_seconds||0;
+    });
+    const sortedApps=Object.entries(appSummary).sort((a,b)=>b[1].secs-a[1].secs);
+    doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+    const aColW=[50,30,30,64];
+    const aColX=[ml];for(let i=1;i<aColW.length;i++)aColX.push(aColX[i-1]+aColW[i-1]);
+    doc.setFillColor(6,182,212);doc.roundedRect(ml,y-3.5,cw,6,1.5,1.5,'F');
+    doc.setTextColor(255);
+    ['App Name','Category','Time Used','IP Address'].forEach((h,i)=>doc.text(h,aColX[i]+2,y));
+    y+=5;doc.setFont('helvetica','normal');doc.setTextColor(60);
+    let aAlt=false;
+    sortedApps.slice(0,30).forEach(([app,d])=>{
+      checkPage(5.5);
+      if(aAlt){doc.setFillColor(245,252,255);doc.rect(ml,y-3.5,cw,5,'F')}
+      aAlt=!aAlt;
+      doc.setFontSize(7);doc.setTextColor(50);
+      doc.text(app.substring(0,32),aColX[0]+2,y);
+      doc.text((d.cat||'—').substring(0,18),aColX[1]+2,y);
+      doc.setFont('helvetica','bold');
+      doc.text(fmtMins(Math.round(d.secs/60)),aColX[2]+2,y);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(6.5);
+      doc.text((d.ip||'—').substring(0,36),aColX[3]+2,y);
+      doc.setFontSize(7);
+      y+=5;doc.setDrawColor(230);doc.line(ml,y-1.5,pw-mr,y-1.5);
+    });
+    y+=5;
   }
 
   // ── GIT REPOSITORIES ──
