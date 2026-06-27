@@ -2506,7 +2506,7 @@
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Student</th><th>Date</th><th>Day #</th><th>Start</th><th>End</th><th>Work Mins</th><th>Break 1</th><th>Break 2</th><th>Status</th></tr></thead>
+            <thead><tr><th>Student</th><th>Date</th><th>Day #</th><th>Start</th><th>End</th><th>Work Mins</th><th>Breaks</th><th>Total Break</th><th>Status</th></tr></thead>
             <tbody id="itnm-trk-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
@@ -10610,11 +10610,12 @@ async function loadInternTracking() {
   const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id).filter(Boolean))]);
   const statusBadge = { active:'badge-green', completed:'badge-blue', auto_closed:'badge-yellow' };
 
+  const BRK_LBL={morning_break:'Morning',lunch_break:'Lunch',evening_break:'Evening',tea_break:'Tea',personal_break:'Personal',general:'Break'};
   tbody.innerHTML = data.map(s => {
-    const brk1 = (s.intern_breaks||[]).find(b => b.break_number === 1);
-    const brk2 = (s.intern_breaks||[]).find(b => b.break_number === 2);
     const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
-    const brkText = b => b ? (b.duration_mins ? `${b.duration_mins}m` : (b.break_start ? 'On break' : '—')) : '—';
+    const allBreaks=(s.intern_breaks||[]).sort((a,b)=>a.break_number-b.break_number);
+    const brkSummary=allBreaks.length?allBreaks.map(b=>`${BRK_LBL[b.break_type]||'Brk'}:${b.duration_mins||'?'}m`).join(', '):'—';
+    const totalBrk=allBreaks.reduce((sum,b)=>sum+(b.duration_mins||0),0);
     return `<tr>
       <td><a href="#" onclick="openStudentDetail('${s.student_user_id}');return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(pm[s.student_user_id]||'—')}</a></td>
       <td>${s.session_date}</td>
@@ -10622,8 +10623,8 @@ async function loadInternTracking() {
       <td>${fmtTime(s.start_time)}</td>
       <td>${fmtTime(s.end_time)}</td>
       <td>${s.total_work_mins||0}</td>
-      <td>${brkText(brk1)}</td>
-      <td>${brkText(brk2)}</td>
+      <td style="font-size:.72rem;max-width:180px">${brkSummary}</td>
+      <td style="font-weight:700">${totalBrk}m</td>
       <td><span class="${statusBadge[s.status]||'badge-gray'}">${s.status}</span></td>
     </tr>`;
   }).join('');

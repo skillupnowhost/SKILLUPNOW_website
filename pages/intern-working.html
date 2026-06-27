@@ -524,7 +524,7 @@ img{-webkit-user-drag:none}
 /* ══════════════════════════════════════════════════
    INTERN WORKING PAGE — Complete Workspace
 ══════════════════════════════════════════════════ */
-let _user=null,_intId=null,_enrollment=null,_session=null,_assignments=[],_timerInt=null,_brkState={1:null,2:null},_files={ss:null,rpt:null},_appTrackInt=null;
+let _user=null,_intId=null,_enrollment=null,_session=null,_assignments=[],_timerInt=null,_brkState=[],_files={ss:null,rpt:null},_appTrackInt=null;
 function C(){return window.supabaseConfig?.client}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function toast(m,t='ok',d=3500){const el=document.getElementById('iw-toast');el.textContent=m;el.className='show '+t;clearTimeout(el._t);el._t=setTimeout(()=>{el.className=''},d)}
@@ -658,9 +658,9 @@ async function loadSession(){
     const dayPill=document.getElementById('iw-day-pill');dayPill.style.display='';dayPill.textContent='Day '+_session.day_number;
     if(_session.status==='active'){
       showWorking();startTimer();startAppTracking();
-      _brkState={1:null,2:null};
+      _brkState=[];
       (_session.intern_breaks||[]).forEach(b=>{
-        _brkState[b.break_number]=b;
+        _brkState.push(b);
         if(b.break_start&&b.break_end&&!b.duration_mins){
           b.duration_mins=Math.round((new Date(b.break_end)-new Date(b.break_start))/60000);
         }
@@ -668,9 +668,9 @@ async function loadSession(){
       updateBreakUI();
       logNotification('Session Resumed','Resumed active work session — Day '+_session.day_number);
     } else {
-      _brkState={1:null,2:null};
+      _brkState=[];
       (_session.intern_breaks||[]).forEach(b=>{
-        _brkState[b.break_number]=b;
+        _brkState.push(b);
         if(b.break_start&&b.break_end&&!b.duration_mins){
           b.duration_mins=Math.round((new Date(b.break_end)-new Date(b.break_start))/60000);
         }
@@ -700,7 +700,7 @@ function showCompleted(){
   document.getElementById('iw-completed').style.display='flex';
   document.getElementById('iw-completed-action').style.display='flex';
   const totalMins=_session?.total_work_mins||0;
-  const breakMins=_session?.total_break_mins||Object.values(_brkState).filter(Boolean).reduce((s,b)=>s+(b.duration_mins||0),0);
+  const breakMins=_session?.total_break_mins||_brkState.reduce((s,b)=>s+(b.duration_mins||0),0);
   const netMins=Math.max(0,totalMins-breakMins);
   if(totalMins>0){
     document.getElementById('iw-done-summary').textContent=`Total: ${fmtMins(totalMins)} | Breaks: ${fmtMins(breakMins)} | Net Work: ${fmtMins(netMins)} / 8h`;
@@ -755,9 +755,9 @@ async function startWork(){
           if(resumeErr){toast('Failed to resume: '+resumeErr.message,'err');_session=existing;showCompleted();return;}
           existing.status='active';existing.end_time=null;
           _session=existing;
-          _brkState={1:null,2:null};
+          _brkState=[];
           (existing.intern_breaks||[]).forEach(b=>{
-            _brkState[b.break_number]=b;
+            _brkState.push(b);
             if(b.break_start&&b.break_end&&!b.duration_mins){
               b.duration_mins=Math.round((new Date(b.break_end)-new Date(b.break_start))/60000);
             }
@@ -824,7 +824,7 @@ async function endWork(){
     }
 
     const totalMins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
-    const breakMins=Object.values(_brkState).filter(Boolean).reduce((s,b)=>s+(b.duration_mins||0),0);
+    const breakMins=_brkState.reduce((s,b)=>s+(b.duration_mins||0),0);
     const netMins=Math.max(0,totalMins-breakMins);
     const targetMins=480; // 8 hours
     await withRetry(async()=>{
@@ -862,7 +862,7 @@ const BRK_TOTAL_MAX=120; // max 2 hours total break per day
 
 async function toggleBreakWithType(){
   if(!_session)return;const c=C();
-  const breaks=Object.values(_brkState).filter(Boolean);
+  const breaks=_brkState;
   const activeBreak=breaks.find(b=>b&&!b.break_end);
 
   if(activeBreak){
@@ -879,8 +879,8 @@ async function toggleBreakWithType(){
     toast(`${BRK_LABELS[activeBreak.break_type]||'Break'} ended (${mins}m)`,'ok');
     loadActivityLog();
   } else {
-    // Count ALL breaks (completed + active), not just completed — DB constraint allows max 2
-    if(breaks.length>=2){toast('Maximum 2 breaks per day','err');return}
+    // Check for active break first
+    if(breaks.find(b=>b&&!b.break_end)){toast('End current break before starting a new one','err');return}
     const completedBreaks=breaks.filter(b=>b&&b.break_end);
     const totalBrkSoFar=completedBreaks.reduce((s,b)=>s+(b.duration_mins||0),0);
     if(totalBrkSoFar>=BRK_TOTAL_MAX){toast(`Total break limit reached (${fmtMins(BRK_TOTAL_MAX)} max)`,'err');return}
@@ -888,11 +888,10 @@ async function toggleBreakWithType(){
     const maxForType=BRK_MAX_MINS[breakType]||30;
     const remainingBreakTime=BRK_TOTAL_MAX-totalBrkSoFar;
     if(remainingBreakTime<5){toast(`Only ${remainingBreakTime}m of break time remaining`,'err');return}
-    // break_number must be 1 or 2 (DB constraint)
     const breakNum=breaks.length+1;
     const{data,error}=await c.from('intern_breaks').insert({session_id:_session.id,student_user_id:_user.id,break_number:breakNum,break_start:new Date().toISOString(),break_type:breakType}).select().single();
     if(error){toast('Break failed: '+error.message,'err');return}
-    _brkState[breakNum]=data;
+    _brkState.push(data);
     logNotification('Break Started',`${BRK_LABELS[breakType]} started (max ${maxForType}m, ${fmtMins(remainingBreakTime)} remaining today)`);
     toast(`${BRK_LABELS[breakType]} started (max ${maxForType}m)`,'ok');
     loadActivityLog();
@@ -903,7 +902,7 @@ async function toggleBreakWithType(){
 function updateBreakUI(){
   const btn=document.getElementById('iw-brk-toggle');
   const logEl=document.getElementById('iw-brk-log');
-  const breaks=Object.values(_brkState).filter(Boolean);
+  const breaks=_brkState;
   const activeBreak=breaks.find(b=>b&&!b.break_end);
   const completedBreaks=breaks.filter(b=>b&&b.break_end);
   const totalBrkMins=completedBreaks.reduce((s,b)=>s+(b.duration_mins||0),0);
@@ -1636,7 +1635,7 @@ async function loadActivityLog(){
       syntheticEntries.push({title:'Work Started',message:'Started work session — Day '+(_session.day_number||''),created_at:_session.start_time,_synthetic:true});
     }
     // Break entries from _brkState
-    const breaks=Object.values(_brkState).filter(Boolean);
+    const breaks=_brkState;
     breaks.forEach(b=>{
       if(b.break_start){
         syntheticEntries.push({title:'Break Started',message:`${BRK_LABELS[b.break_type]||'Break'} started`,created_at:b.break_start,_synthetic:true});
@@ -1665,7 +1664,7 @@ async function loadActivityLog(){
 
   // Show break summary if session is active
   if(_session?.status==='active'){
-    const breaks=Object.values(_brkState).filter(Boolean);
+    const breaks=_brkState;
     const completedBreaks=breaks.filter(b=>b&&b.break_end);
     const totalBrkMins=completedBreaks.reduce((s,b)=>s+(b.duration_mins||0),0);
     if(completedBreaks.length){
