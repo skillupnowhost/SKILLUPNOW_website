@@ -4525,7 +4525,7 @@ async function loadEnrollments() {
   const categoryFilter = document.getElementById('enroll-category-filter')?.value || '';
   const courseFilter = document.getElementById('enroll-course-filter')?.value || '';
 
-  let q = db.client.from('enrollments').select('*, courses(id, title, course_categories(id, name)), course_pricing(pricing_type)');
+  let q = db.client.from('enrollments').select('*, courses(id, title, category_id), course_pricing(pricing_type)');
   if (statusFilter) q = q.eq('enrollment_status', statusFilter);
   if (courseFilter) q = q.eq('course_id', courseFilter);
   const { data, error } = await q.order('created_at', { ascending: false }).limit(200);
@@ -4535,9 +4535,20 @@ async function loadEnrollments() {
     return;
   }
 
+  // Fetch categories to enrich enrollment data
+  const { data: allCategories } = await db.client.from('course_categories').select('id, name');
+  const categoryMap = Object.fromEntries((allCategories||[]).map(c => [c.id, c]));
+
+  // Attach category info to each enrollment's course
+  (data||[]).forEach(e => {
+    if (e.courses?.category_id) {
+      e.courses.course_categories = categoryMap[e.courses.category_id] || null;
+    }
+  });
+
   let filtered = data || [];
   if (categoryFilter) {
-    filtered = filtered.filter(e => e.courses?.course_categories?.id === categoryFilter);
+    filtered = filtered.filter(e => e.courses?.category_id === categoryFilter);
   }
 
   if (!filtered.length) {
@@ -4552,8 +4563,8 @@ async function loadEnrollments() {
   const profileMap = Object.fromEntries((profiles||[]).map(p => [p.user_id, p]));
 
   // Populate category and course filter dropdowns
-  const categories = [...new Map((data||[]).filter(e => e.courses?.course_categories)
-    .map(e => [e.courses.course_categories.id, e.courses.course_categories])).values()];
+  const usedCatIds = [...new Set((data||[]).map(e => e.courses?.category_id).filter(Boolean))];
+  const categories = usedCatIds.map(id => categoryMap[id]).filter(Boolean);
   const catSelect = document.getElementById('enroll-category-filter');
   if (catSelect) {
     const curCat = catSelect.value;
@@ -4785,7 +4796,7 @@ async function loadPayments() {
     db.client.from('payments').select('payment_status, amount').limit(500),
     (() => {
       let q = db.client.from('payments')
-        .select('*, invoices(invoice_number), student_profiles!payments_student_user_id_fkey(user_profiles!student_profiles_user_id_fkey(full_name, email, phone)), enrollments!payments_enrollment_id_fkey(courses(title))');
+        .select('*, invoices(invoice_number), student_profiles(user_profiles!student_profiles_user_id_fkey(full_name, email, phone)), enrollments(courses(title))');
       if (statusFilter) q = q.eq('payment_status', statusFilter);
       return q.order('paid_at', { ascending: false }).limit(100);
     })()
@@ -4834,7 +4845,7 @@ async function loadPayments() {
         <button class="action-btn danger" style="font-size:.72rem;padding:.25rem .55rem;" data-pid="${p.id}" data-eid="${p.enrollment_id||''}" data-amt="${Number(p.amount||0)}" onclick="deletePaymentRecord(this.dataset.pid,this.dataset.eid,parseFloat(this.dataset.amt))">Delete</button>
       </div></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="9" class="table-empty">No payments found</td></tr>';
+  }).join('') || '<tr><td colspan="10" class="table-empty">No payments found</td></tr>';
 }
 
 async function generateInvoice(paymentId) {
@@ -6971,7 +6982,7 @@ async function copyQrUrl() {
     const btn = event.target; const orig = btn.textContent;
     btn.textContent = '✅ Copied!';
     setTimeout(() => { btn.textContent = orig; }, 2000);
-  }).catch(() => { await _adminModal({title:'Copy Link',message:_qrCurrentUrl,type:'prompt',inputDefault:_qrCurrentUrl,inputLabel:'Copy this link:'}); });
+  }).catch(async () => { await _adminModal({title:'Copy Link',message:_qrCurrentUrl,type:'prompt',inputDefault:_qrCurrentUrl,inputLabel:'Copy this link:'}); });
 }
 
 async function downloadQr() {
