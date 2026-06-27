@@ -482,11 +482,32 @@ function showGate(t,p,btn,href){
 async function loadAll(){
   const c=C();
 
-  // Enrollment
-  const{data:enrols}=await c.from('internship_enrollments').select('*').eq('student_user_id',_user.id).eq('project_id',_intId).eq('approval_status','approved').limit(1);
+  // Enrollment — try by project_id first, then check if _intId is an enrollment id
+  let{data:enrols}=await c.from('internship_enrollments').select('*').eq('student_user_id',_user.id).eq('project_id',_intId).eq('approval_status','approved').limit(1);
   _enrollment=enrols?.[0]||null;
 
-  if(!_enrollment){showGate('Access Denied','You are not enrolled in this internship or your enrollment is not approved.','Browse Internships','/pages/internship.html');return}
+  // Fallback: maybe _intId is an enrollment ID itself
+  if(!_enrollment){
+    const{data:directEnrol}=await c.from('internship_enrollments').select('*').eq('id',_intId).eq('student_user_id',_user.id).eq('approval_status','approved').maybeSingle();
+    if(directEnrol){_enrollment=directEnrol;_intId=directEnrol.project_id;}
+  }
+
+  // Fallback: student has assignments but enrollment might use different status
+  if(!_enrollment){
+    const{data:anyEnrol}=await c.from('internship_enrollments').select('*').eq('student_user_id',_user.id).eq('project_id',_intId).in('approval_status',['approved','pending']).limit(1);
+    _enrollment=anyEnrol?.[0]||null;
+  }
+
+  // Fallback: find any enrollment regardless of status (admin may have assigned modules before approving)
+  if(!_enrollment){
+    const{data:anyStatusEnrol}=await c.from('internship_enrollments').select('*').eq('student_user_id',_user.id).eq('project_id',_intId).limit(1);
+    _enrollment=anyStatusEnrol?.[0]||null;
+  }
+
+  if(!_enrollment){
+    showGate('Access Denied','You are not enrolled in this internship. Please apply first or contact admin.','Browse Internships','/pages/internship.html');
+    return;
+  }
 
   // Assignments
   const{data:asgn}=await c.from('intern_program_assignments')
