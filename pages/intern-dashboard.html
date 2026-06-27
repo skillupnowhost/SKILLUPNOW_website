@@ -641,6 +641,7 @@
   let _selectedFiles = { screenshot: null, report: null };
 
   function _client() { return window.supabaseConfig?.client; }
+  function localDate(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
   function toast(msg, type='ok', dur=3800) {
     const t = document.getElementById('id-toast');
@@ -745,7 +746,7 @@
   /* ── Work Session ── */
   async function loadWorkSession() {
     const c = _client();
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDate();
 
     const { data } = await c
       .from('intern_work_sessions')
@@ -805,12 +806,30 @@
 
   async function startWork() {
     const btn = document.getElementById('id-start-btn');
+    const resetBtn = () => { btn.disabled = false; btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Work'; };
     btn.classList.add('clicking');
     btn.disabled = true;
     btn.textContent = 'Starting...';
 
     const c = _client();
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDate();
+
+    // Check if session already exists for today
+    const { data: existing } = await c.from('intern_work_sessions')
+      .select('*,intern_breaks(*)').eq('enrollment_id', _enrollment.id).eq('session_date', today).maybeSingle();
+    if (existing) {
+      if (existing.status === 'active') {
+        _session = existing;
+        showWorking(); startTimer();
+        toast('Resuming existing session!', 'ok');
+        return;
+      }
+      if (existing.status === 'completed') {
+        _session = existing; showCompleted();
+        toast('Today\'s session is already completed.', 'err');
+        return;
+      }
+    }
 
     const { data: sessions } = await c
       .from('intern_work_sessions')
@@ -822,8 +841,7 @@
 
     if (dayNum > 50) {
       toast('Maximum 50 work days reached.', 'err');
-      btn.disabled = false;
-      btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Work';
+      resetBtn();
       return;
     }
 
@@ -841,9 +859,14 @@
       .single();
 
     if (error) {
+      if (error.code === '23505') {
+        toast('A session for today already exists. Refreshing...', 'err');
+        await loadWorkSession();
+        resetBtn();
+        return;
+      }
       toast('Failed to start session: ' + (error.message || ''), 'err');
-      btn.disabled = false;
-      btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Work';
+      resetBtn();
       return;
     }
 
@@ -851,7 +874,19 @@
     showWorking();
     startTimer();
     toast('Work session started! Day ' + dayNum, 'ok');
+    upsertAttendance(today,'present',new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}),null);
     loadStats();
+  }
+
+  async function upsertAttendance(dateStr,status,checkIn,checkOut){
+    if(!_enrollment)return;
+    try{
+      const c=_client();
+      const payload={enrollment_id:_enrollment.id,student_user_id:_user.id,attendance_date:dateStr,status:status||'present',marked_by:_user.id};
+      if(checkIn)payload.check_in_time=checkIn;
+      if(checkOut)payload.check_out_time=checkOut;
+      await c.from('internship_attendance').upsert(payload,{onConflict:'enrollment_id,attendance_date'});
+    }catch(e){console.warn('Attendance upsert failed:',e.message)}
   }
 
   async function endWork() {
@@ -872,6 +907,8 @@
     _session.total_work_mins = Math.round((end - start) / 60000);
     showCompleted();
     toast('Work day ended!', 'ok');
+    const checkOut=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+    upsertAttendance(localDate(),'present',null,checkOut);
     loadStats();
   }
 
@@ -1314,7 +1351,7 @@
         submission_id: sub.id,
         enrollment_id: _enrollment.id,
         student_user_id: _user.id,
-        report_date: new Date().toISOString().slice(0, 10),
+        report_date: localDate(),
         work_duration: _session?.total_work_mins || 0,
         attendance_day: _session?.day_number || 0,
         notes: `Submission: ${title}`
@@ -1347,7 +1384,7 @@
       .order('session_date', { ascending: true });
 
     const grid = document.getElementById('id-attendance-grid');
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDate();
     const dateSet = new Set((sessions || []).map(s => s.session_date));
 
     let html = '';

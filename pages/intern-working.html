@@ -118,12 +118,39 @@ img{-webkit-user-drag:none}
 .iw-git-copy{padding:.25rem .55rem;border-radius:8px;font-size:.66rem;font-weight:700;background:rgba(124,58,237,.08);color:var(--iw-v);border:1px solid rgba(124,58,237,.18);cursor:pointer;font-family:inherit;transition:background .2s}
 .iw-git-copy:hover{background:rgba(124,58,237,.15)}
 
-/* ── Attendance panel (right side) ── */
-.iw-att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.iw-att-day{width:100%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;background:var(--panel);border:1px solid var(--border);color:var(--txt3);cursor:default;transition:all .2s}
-.iw-att-day.present{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.35);color:#10b981}
+/* ── Real Calendar Attendance ── */
+.iw-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.iw-cal-nav button{background:none;border:1px solid var(--border);border-radius:8px;padding:.2rem .5rem;cursor:pointer;color:var(--txt2);font-size:.72rem;font-weight:700;font-family:inherit;transition:background .2s}
+.iw-cal-nav button:hover{background:var(--panel)}
+.iw-cal-month{font-size:.78rem;font-weight:800;color:var(--txt)}
+.iw-att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.iw-att-hdr{font-size:.55rem;font-weight:700;color:var(--txt4);text-align:center;padding:.2rem 0}
+.iw-att-day{width:100%;aspect-ratio:1;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;background:var(--panel);border:1px solid var(--border);color:var(--txt4);cursor:default;transition:all .2s;position:relative}
+.iw-att-day.other-month{opacity:.3}
+.iw-att-day.present{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.35);color:#10b981;cursor:pointer}
 .iw-att-day.today{border-color:var(--iw-v);box-shadow:0 0 0 2px rgba(124,58,237,.2)}
 .iw-att-day.absent{background:rgba(244,63,94,.08);border-color:rgba(244,63,94,.2);color:var(--iw-r)}
+.iw-att-day.holiday{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:var(--iw-g)}
+.iw-att-day .iw-att-dot{width:4px;height:4px;border-radius:50%;background:#10b981;margin-top:1px}
+/* Day detail popup */
+.iw-day-detail{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;width:180px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:100;font-size:.7rem;display:none;text-align:left}
+.iw-day-detail.show{display:block}
+.iw-day-detail::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--border)}
+.iw-day-detail h4{font-size:.72rem;font-weight:800;margin-bottom:.35rem;color:var(--txt)}
+.iw-day-detail .iw-dd-row{display:flex;justify-content:space-between;padding:.15rem 0;font-size:.66rem}
+.iw-day-detail .iw-dd-label{color:var(--txt3)}
+.iw-day-detail .iw-dd-val{font-weight:700;color:var(--txt)}
+.iw-day-detail .iw-dd-val.green{color:#10b981}
+/* Attendance log table */
+.iw-att-log{margin-top:.8rem;max-height:200px;overflow-y:auto}
+.iw-att-log table{width:100%;border-collapse:collapse;font-size:.68rem}
+.iw-att-log th{text-align:left;padding:.3rem .4rem;font-weight:700;color:var(--txt2);border-bottom:2px solid var(--border);font-size:.6rem;text-transform:uppercase;letter-spacing:.04em}
+.iw-att-log td{padding:.3rem .4rem;border-bottom:1px solid var(--border);color:var(--txt)}
+.iw-att-log .att-status{padding:.1rem .4rem;border-radius:999px;font-size:.58rem;font-weight:700}
+.iw-att-log .att-present{background:rgba(16,185,129,.12);color:#10b981}
+.iw-att-log .att-absent{background:rgba(244,63,94,.1);color:#f43f5e}
+.iw-att-log .att-late{background:rgba(245,158,11,.1);color:#f59e0b}
+.iw-att-log .att-completed{background:rgba(124,58,237,.1);color:#a78bfa}
 
 /* ── Activity log ── */
 .iw-log{max-height:280px;overflow-y:auto}
@@ -298,16 +325,16 @@ img{-webkit-user-drag:none}
               <span id="iw-att-summary" style="font-size:.68rem;font-weight:700;color:var(--iw-e)"></span>
             </div>
             <div class="iw-card-body">
-              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-bottom:6px">
-                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">S</span>
-                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">M</span>
-                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">T</span>
-                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">W</span>
-                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">T</span>
-                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">F</span>
-                <span style="font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center">S</span>
+              <div class="iw-cal-nav">
+                <button onclick="changeCalMonth(-1)">&larr;</button>
+                <span class="iw-cal-month" id="iw-cal-month-label"></span>
+                <button onclick="changeCalMonth(1)">&rarr;</button>
               </div>
-              <div class="iw-att-grid" id="iw-att-grid"></div>
+              <div class="iw-att-grid" id="iw-att-grid">
+                <span class="iw-att-hdr">S</span><span class="iw-att-hdr">M</span><span class="iw-att-hdr">T</span>
+                <span class="iw-att-hdr">W</span><span class="iw-att-hdr">T</span><span class="iw-att-hdr">F</span><span class="iw-att-hdr">S</span>
+              </div>
+              <div class="iw-att-log" id="iw-att-log"></div>
             </div>
           </div>
 
@@ -424,6 +451,7 @@ async function logAccess(action,details){
   try{await C().from('notifications').insert({user_id:_user?.id,title:'Access: '+action,message:details||'',type:'security',link:location.href});}catch{}
 }
 function fmtMins(m){const h=Math.floor(m/60);return h>0?h+'h '+(m%60)+'m':m+'m'}
+function localDate(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 
 /* ── Auth ── */
 async function initAuth(){
@@ -458,13 +486,14 @@ async function loadAll(){
   const{data:enrols}=await c.from('internship_enrollments').select('*').eq('student_user_id',_user.id).eq('project_id',_intId).eq('approval_status','approved').limit(1);
   _enrollment=enrols?.[0]||null;
 
+  if(!_enrollment){showGate('Access Denied','You are not enrolled in this internship or your enrollment is not approved.','Browse Internships','/pages/internship.html');return}
+
   // Assignments
-  const{data:asgn,error}=await c.from('intern_program_assignments')
+  const{data:asgn}=await c.from('intern_program_assignments')
     .select('*,intern_program_modules(id,module_name,description,deadline,git_push_link,order_num)')
     .eq('student_user_id',_user.id).eq('internship_id',_intId).neq('status','revoked')
     .order('assigned_at');
-  if(error||!asgn?.length){showGate('Access Denied','You have no assigned modules for this internship.','Browse Internships','/pages/internship.html');return}
-  _assignments=asgn;
+  _assignments=asgn||[];
 
   // Internship details
   const{data:proj}=await c.from('internship_projects').select('project_name,domain,tech_stack,duration_weeks').eq('id',_intId).single();
@@ -482,7 +511,7 @@ async function loadAll(){
 /* ══════ WORK SESSION ══════ */
 async function loadSession(){
   const c=C();if(!_enrollment)return;
-  const today=new Date().toISOString().slice(0,10);
+  const today=localDate();
   const{data}=await c.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id',_enrollment.id).eq('session_date',today).maybeSingle();
   _session=data||null;
   if(_session){
@@ -520,46 +549,77 @@ let _startBusy=false;
 async function startWork(){
   if(_startBusy)return;_startBusy=true;
   const btn=document.getElementById('iw-start-btn');
-  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  if(btn){btn.disabled=true;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:iwSpin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="40" stroke-dashoffset="10"/></svg> Starting…';btn.style.opacity='.6';}
   try{
-    const c=C();if(!_enrollment){_startBusy=false;return;}
+    const c=C();
+    if(!_enrollment){toast('No enrollment found. Please check your internship status.','err');return;}
+    if(!_user?.id){toast('Session expired. Please sign in again.','err');return;}
+    const today=localDate();
+
+    // Check if session already exists for today
+    const{data:existing}=await c.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id',_enrollment.id).eq('session_date',today).maybeSingle();
+    if(existing){
+      if(existing.status==='active'){
+        _session=existing;
+        document.getElementById('iw-day-pill').style.display='';
+        document.getElementById('iw-day-pill').textContent='Day '+existing.day_number;
+        showWorking();startTimer();startAppTracking();
+        toast('Resuming existing session!','ok');
+        return;
+      }
+      if(existing.status==='completed'){toast('Today\'s session is already completed.','err');showCompleted();_session=existing;return;}
+    }
+
     const{count}=await c.from('intern_work_sessions').select('id',{count:'exact',head:true}).eq('enrollment_id',_enrollment.id);
-    if(count>=50){toast('Maximum 50 work days reached.','err');return}
+    if(count>=50){toast('Maximum 50 work days reached.','err');return;}
     const dayNum=(count||0)+1;
     const{data,error}=await c.from('intern_work_sessions').insert({
       enrollment_id:_enrollment.id,student_user_id:_user.id,
+      session_date:today,
       start_time:new Date().toISOString(),status:'active',day_number:dayNum
     }).select().single();
-    if(error){toast('Failed: '+error.message,'err');return}
-    _session=data;
-    if(_session&&_session.status==='active'&&!_session.start_time){
-      _session.start_time=new Date().toISOString();
-      await c.from('intern_work_sessions').update({start_time:_session.start_time}).eq('id',_session.id);
+    if(error){
+      if(error.code==='23505'){
+        toast('A session for today already exists. Refreshing...','err');
+        await loadSession();return;
+      }
+      toast('Failed: '+error.message,'err');return;
     }
+    _session=data;
     document.getElementById('iw-day-pill').style.display='';
     document.getElementById('iw-day-pill').textContent='Day '+dayNum;
     showWorking();startTimer();startAppTracking();
     logNotification('Work Started','Started work session — Day '+dayNum);
     toast('Work session started!','ok');
+    upsertAttendance(today,'present',new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}),null);
+    renderAttendance();
   }catch(e){toast('Start failed: '+(e.message||'Unknown error'),'err');}
-  finally{_startBusy=false;if(btn){btn.disabled=false;btn.style.opacity='';}}
+  finally{_startBusy=false;if(btn){btn.disabled=false;btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Work';btn.style.opacity='';}}
 }
 
 let _endBusy=false;
 async function endWork(){
-  if(_endBusy||!_session)return;_endBusy=true;
+  if(_endBusy||!_session)return;
+  if(!confirm('Are you sure you want to end today\'s work session?'))return;
+  _endBusy=true;
   const btn=document.querySelector('.iw-end-btn');
   if(btn){btn.disabled=true;btn.style.opacity='.6';}
   try{
     const c=C();const now=new Date().toISOString();
     const mins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
-    const{error}=await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:mins}).eq('id',_session.id);
-    if(error){toast('End failed: '+error.message,'err');return;}
+    await withRetry(async()=>{
+      const{error}=await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:mins}).eq('id',_session.id);
+      if(error)throw error;
+    });
     _session.status='completed';_session.total_work_mins=mins;
     clearInterval(_timerInt);clearInterval(_appTrackInt);
     showCompleted();
     logNotification('Work Ended','Completed work session — '+fmtMins(mins));
+    logAccess('Session End','Day completed — '+fmtMins(mins));
     toast('Work day completed!','ok');
+    const todayEnd=localDate();
+    const checkOut=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+    upsertAttendance(todayEnd,'present',null,checkOut);
     await loadStats();renderAttendance();
   }catch(e){toast('End failed: '+(e.message||'Unknown error'),'err');}
   finally{_endBusy=false;if(btn){btn.disabled=false;btn.style.opacity='';}}
@@ -598,6 +658,11 @@ function updateBreakUI(){
 }
 
 /* ══════ APP TRACKING ══════ */
+const _aiToolPatterns=['chatgpt','claude','copilot','gemini','bard','perplexity','phind','cursor','github copilot','tabnine','codewhisperer','v0.dev'];
+function _detectAiTool(title){
+  const t=(title||'').toLowerCase();
+  return _aiToolPatterns.find(p=>t.includes(p))||null;
+}
 function startAppTracking(){
   clearInterval(_appTrackInt);
   _appTrackInt=setInterval(async()=>{
@@ -607,7 +672,15 @@ function startAppTracking(){
     else if(ua.includes('Firefox'))app='Firefox';
     else if(ua.includes('Safari')&&!ua.includes('Chrome'))app='Safari';
     else if(ua.includes('Edg'))app='Edge';
-    try{await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:app,window_title:document.title,active_seconds:30})}catch{}
+    const title=document.title;
+    const aiTool=_detectAiTool(title);
+    try{
+      const record={session_id:_session.id,student_user_id:_user.id,app_name:app,window_title:title,active_seconds:30};
+      await C().from('intern_app_usage').insert(record);
+      if(aiTool){
+        await C().from('intern_app_usage').insert({session_id:_session.id,student_user_id:_user.id,app_name:'AI: '+aiTool,window_title:title,active_seconds:30});
+      }
+    }catch{}
   },30000);
 }
 
@@ -709,28 +782,143 @@ function renderGitLinks(){
   </div>`).join('');
 }
 
-/* ══════ ATTENDANCE ══════ */
-async function renderAttendance(){
-  const grid=document.getElementById('iw-att-grid');
-  if(!_enrollment){grid.innerHTML='';return}
-  const c=C();
-  const{data:sessions}=await c.from('intern_work_sessions').select('session_date,day_number,status').eq('enrollment_id',_enrollment.id).order('session_date');
-  const dateSet=new Set((sessions||[]).map(s=>s.session_date));
-  const today=new Date().toISOString().slice(0,10);
+/* ══════ ATTENDANCE (Real Calendar) ══════ */
+async function upsertAttendance(dateStr,status,checkIn,checkOut){
+  if(!_enrollment)return;
+  try{
+    const c=C();
+    const payload={enrollment_id:_enrollment.id,student_user_id:_user.id,attendance_date:dateStr,status:status||'present',marked_by:_user.id};
+    if(checkIn)payload.check_in_time=checkIn;
+    if(checkOut)payload.check_out_time=checkOut;
+    await c.from('internship_attendance').upsert(payload,{onConflict:'enrollment_id,attendance_date'});
+  }catch(e){console.warn('Attendance upsert failed:',e.message)}
+}
 
-  // Build calendar for last 35 days
-  const cells=[];const now=new Date();
-  const start=new Date(now);start.setDate(start.getDate()-34);
-  const startDay=start.getDay();
-  for(let i=0;i<startDay;i++)cells.push('<div class="iw-att-day" style="visibility:hidden"></div>');
-  for(let d=new Date(start);d<=now;d.setDate(d.getDate()+1)){
-    const ds=d.toISOString().slice(0,10);
-    const isPresent=dateSet.has(ds);const isToday=ds===today;
-    const cls='iw-att-day'+(isPresent?' present':'')+(isToday?' today':'');
-    const day=d.getDate();
-    cells.push(`<div class="${cls}" title="${ds}">${day}</div>`);
+let _calMonth=new Date().getMonth(),_calYear=new Date().getFullYear();
+let _attData={sessions:{},attendance:{}};
+
+function changeCalMonth(dir){
+  _calMonth+=dir;
+  if(_calMonth>11){_calMonth=0;_calYear++}
+  if(_calMonth<0){_calMonth=11;_calYear--}
+  renderCalendar();
+}
+
+async function loadAttendanceData(){
+  if(!_enrollment)return;
+  const c=C();
+  const[{data:sessions},{data:attendance}]=await Promise.all([
+    c.from('intern_work_sessions').select('session_date,day_number,status,start_time,end_time,total_work_mins,intern_breaks(break_number,break_start,break_end,duration_mins)')
+      .eq('enrollment_id',_enrollment.id).order('session_date'),
+    c.from('internship_attendance').select('attendance_date,status,check_in_time,check_out_time,notes')
+      .eq('enrollment_id',_enrollment.id).order('attendance_date')
+  ]);
+  _attData.sessions={};
+  (sessions||[]).forEach(s=>{_attData.sessions[s.session_date]=s});
+  _attData.attendance={};
+  (attendance||[]).forEach(a=>{_attData.attendance[a.attendance_date]=a});
+  const days=Object.keys(_attData.sessions).length;
+  document.getElementById('iw-att-summary').textContent=days+'/50 days';
+}
+
+async function renderAttendance(){
+  await loadAttendanceData();
+  renderCalendar();
+  renderAttendanceLog();
+}
+
+function renderCalendar(){
+  const grid=document.getElementById('iw-att-grid');
+  const today=localDate();
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('iw-cal-month-label').textContent=monthNames[_calMonth]+' '+_calYear;
+
+  const firstDay=new Date(_calYear,_calMonth,1).getDay();
+  const daysInMonth=new Date(_calYear,_calMonth+1,0).getDate();
+  const prevMonthDays=new Date(_calYear,_calMonth,0).getDate();
+
+  let html='<span class="iw-att-hdr">S</span><span class="iw-att-hdr">M</span><span class="iw-att-hdr">T</span><span class="iw-att-hdr">W</span><span class="iw-att-hdr">T</span><span class="iw-att-hdr">F</span><span class="iw-att-hdr">S</span>';
+
+  for(let i=0;i<firstDay;i++){
+    const d=prevMonthDays-firstDay+1+i;
+    html+=`<div class="iw-att-day other-month">${d}</div>`;
   }
-  grid.innerHTML=cells.join('');
+
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=_calYear+'-'+String(_calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const sess=_attData.sessions[ds];
+    const att=_attData.attendance[ds];
+    const isToday=ds===today;
+    let cls='iw-att-day';
+    if(sess) cls+=' present';
+    if(isToday) cls+=' today';
+    if(att?.status==='holiday') cls+=' holiday';
+    const dot=sess?'<div class="iw-att-dot"></div>':'';
+    const clickAttr=sess?` onclick="showDayDetail('${ds}',event)" style="cursor:pointer"`:'';
+    html+=`<div class="${cls}" title="${ds}"${clickAttr}>${d}${dot}</div>`;
+  }
+
+  const totalCells=firstDay+daysInMonth;
+  const remaining=totalCells%7===0?0:7-totalCells%7;
+  for(let i=1;i<=remaining;i++){
+    html+=`<div class="iw-att-day other-month">${i}</div>`;
+  }
+
+  grid.innerHTML=html;
+}
+
+function showDayDetail(dateStr,event){
+  document.querySelectorAll('.iw-day-detail').forEach(el=>el.remove());
+  const sess=_attData.sessions[dateStr];
+  const att=_attData.attendance[dateStr];
+  if(!sess)return;
+
+  const loginTime=sess.start_time?new Date(sess.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+  const logoutTime=sess.end_time?new Date(sess.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'Active';
+  const workMins=sess.total_work_mins||0;
+  const breakMins=(sess.intern_breaks||[]).reduce((s,b)=>s+(b.duration_mins||0),0);
+  const status=sess.status==='completed'?'Completed':(sess.status==='active'?'Active':'Auto-Closed');
+  const statusCls=sess.status==='completed'?'green':'';
+
+  const dateFmt=new Date(dateStr+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+
+  const popup=document.createElement('div');
+  popup.className='iw-day-detail show';
+  popup.innerHTML=`
+    <h4>${dateFmt} — Day ${sess.day_number||'—'}</h4>
+    <div class="iw-dd-row"><span class="iw-dd-label">Login</span><span class="iw-dd-val green">${loginTime}</span></div>
+    <div class="iw-dd-row"><span class="iw-dd-label">Logout</span><span class="iw-dd-val ${statusCls}">${logoutTime}</span></div>
+    <div class="iw-dd-row"><span class="iw-dd-label">Work Time</span><span class="iw-dd-val">${fmtMins(workMins)}</span></div>
+    <div class="iw-dd-row"><span class="iw-dd-label">Break Time</span><span class="iw-dd-val">${fmtMins(breakMins)}</span></div>
+    <div class="iw-dd-row"><span class="iw-dd-label">Net Coding</span><span class="iw-dd-val green">${fmtMins(Math.max(0,workMins-breakMins))}</span></div>
+    <div class="iw-dd-row"><span class="iw-dd-label">Status</span><span class="iw-dd-val">${status}</span></div>
+    ${att?.notes?`<div style="margin-top:.3rem;font-size:.62rem;color:var(--txt3)">Note: ${esc(att.notes)}</div>`:''}
+  `;
+
+  const target=event.currentTarget;
+  target.style.position='relative';
+  target.appendChild(popup);
+
+  const closePopup=(e)=>{if(!popup.contains(e.target)&&e.target!==target){popup.remove();document.removeEventListener('click',closePopup)}};
+  setTimeout(()=>document.addEventListener('click',closePopup),10);
+}
+
+function renderAttendanceLog(){
+  const el=document.getElementById('iw-att-log');
+  const entries=Object.entries(_attData.sessions).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,10);
+  if(!entries.length){el.innerHTML='<p style="font-size:.72rem;color:var(--txt3);text-align:center;padding:.5rem">No attendance records yet.</p>';return}
+  let html='<table><thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th><th>Status</th></tr></thead><tbody>';
+  entries.forEach(([date,s])=>{
+    const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+    const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+    const hrs=s.total_work_mins?fmtMins(s.total_work_mins):'—';
+    const sc=s.status==='completed'?'att-completed':(s.status==='active'?'att-present':'att-late');
+    const sl=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
+    const df=new Date(date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    html+=`<tr><td>${df}</td><td style="color:#10b981;font-weight:600">${login}</td><td style="color:var(--iw-v);font-weight:600">${logout}</td><td>${hrs}</td><td><span class="att-status ${sc}">${sl}</span></td></tr>`;
+  });
+  html+='</tbody></table>';
+  el.innerHTML=html;
 }
 
 /* ══════ SUBMISSIONS ══════ */
@@ -803,17 +991,24 @@ async function submitWork(){
     commit_message:document.getElementById('iw-sub-commit').value.trim(),
     status:'submitted'
   };
-  const{data:sub,error}=await c.from('intern_submissions').insert(payload).select().single();
+  const{data:sub,error}=await withRetry(async()=>{
+    const res=await c.from('intern_submissions').insert(payload).select().single();
+    if(res.error)throw res.error;
+    return res;
+  });
   if(error){toast('Submission failed: '+error.message,'err');return}
 
   // Create admin report
-  await c.from('intern_admin_reports').insert({
-    submission_id:sub.id,enrollment_id:_enrollment.id,student_user_id:uid,
-    work_duration:_session?.total_work_mins||0,attendance_day:_session?.day_number||0,
-    notes:'Submission: '+title+(document.getElementById('iw-sub-comments').value.trim()?' | '+document.getElementById('iw-sub-comments').value.trim():'')
-  });
+  try{
+    await c.from('intern_admin_reports').insert({
+      submission_id:sub.id,enrollment_id:_enrollment.id,student_user_id:uid,
+      work_duration:_session?.total_work_mins||0,attendance_day:_session?.day_number||0,
+      notes:'Submission: '+title+(document.getElementById('iw-sub-comments').value.trim()?' | '+document.getElementById('iw-sub-comments').value.trim():'')
+    });
+  }catch{}
 
   logNotification('Work Submitted','Submitted: '+title);
+  logAccess('Submission','Submitted work: '+title);
 
   // Auto-complete the current in_progress module
   const inProgressMod=_assignments.find(a=>a.status==='in_progress');
@@ -870,12 +1065,21 @@ async function generateReport(){
 
   if(fmt==='csv'){
     let csv='Field,Value\n';
-    if(checks.includes('attendance'))csv+=`Days Worked,${(sessions||[]).length}\n`;
+    if(checks.includes('attendance'))csv+=`Days Worked,${(sessions||[]).length}\nAttendance Rate,${Math.round(((sessions||[]).length/50)*100)}%\n`;
     if(checks.includes('work_time')){const t=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);csv+=`Total Work Time,${fmtMins(t)}\n`}
     if(checks.includes('breaks')){const b=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0)),0);csv+=`Total Break Time,${fmtMins(b)}\n`}
     if(checks.includes('modules')){csv+=`Modules Total,${_assignments.length}\nModules Completed,${_assignments.filter(a=>a.status==='completed').length}\n`}
     if(checks.includes('submissions'))csv+=`Submissions,${(subs||[]).length}\n`;
     if(checks.includes('git')){const gl=new Set();_assignments.forEach(a=>{const u=a.git_push_link||(a.intern_program_modules||{}).git_push_link;if(u)gl.add(u)});csv+=`Git Repos,${gl.size}\n`}
+    if(checks.includes('attendance')&&(sessions||[]).length){
+      csv+='\nDate,Day,Login,Logout,Work Time,Break Time,Status\n';
+      (sessions||[]).forEach(s=>{
+        const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
+        const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
+        const brk=(s.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0);
+        csv+=`${s.session_date||''},Day ${s.day_number||''},${login},${logout},${s.total_work_mins||0}m,${brk}m,${s.status||''}\n`;
+      });
+    }
     const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`intern-report-${name}.csv`;a.click();
     toast('CSV exported!','ok');closeShareReport();return;
   }
@@ -889,8 +1093,29 @@ async function generateReport(){
 
   if(checks.includes('attendance')){
     doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Attendance',14,y);y+=7;
-    doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text(`Days worked: ${(sessions||[]).length} / 50`,14,y);y+=6;
-    doc.text(`Attendance rate: ${Math.round(((sessions||[]).length/50)*100)}%`,14,y);y+=10;
+    doc.setFontSize(10);doc.setFont(undefined,'normal');
+    doc.text(`Days worked: ${(sessions||[]).length} / 50  |  Attendance rate: ${Math.round(((sessions||[]).length/50)*100)}%`,14,y);y+=8;
+    // Daily attendance table with login/logout
+    if((sessions||[]).length){
+      doc.setFontSize(8);doc.setFont(undefined,'bold');
+      const cols=[14,38,62,86,110,145];
+      doc.setFillColor(230,225,250);doc.rect(12,y-3,185,6,'F');
+      ['Date','Day','Login','Logout','Work Time','Status'].forEach((h,i)=>doc.text(h,cols[i],y));
+      y+=5;doc.setFont(undefined,'normal');
+      (sessions||[]).forEach(s=>{
+        if(y>268){doc.addPage();y=20}
+        const dt=s.session_date||'—';
+        const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+        const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+        const work=s.total_work_mins?fmtMins(s.total_work_mins):'—';
+        const status=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
+        doc.text(dt,cols[0],y);doc.text('Day '+(s.day_number||''),cols[1],y);
+        doc.text(login,cols[2],y);doc.text(logout,cols[3],y);
+        doc.text(work,cols[4],y);doc.text(status,cols[5],y);
+        y+=4.5;doc.setDrawColor(220);doc.line(12,y-1,197,y-1);
+      });
+      doc.setFontSize(10);y+=5;
+    }
   }
   if(checks.includes('work_time')){
     const t=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);

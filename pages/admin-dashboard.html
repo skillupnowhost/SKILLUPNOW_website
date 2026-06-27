@@ -1952,7 +1952,6 @@
         <button class="it-sub-tab"        data-itab="attendance"  onclick="switchInternTab('attendance')">📅 Attendance</button>
         <button class="it-sub-tab"        data-itab="proj-app-usage"   onclick="switchInternTab('proj-app-usage')">👁 App Usage</button>
         <button class="it-sub-tab"        data-itab="proj-submissions" onclick="switchInternTab('proj-submissions')">📎 Submissions</button>
-        <button class="it-sub-tab"        data-itab="proj-session-tasks" onclick="switchInternTab('proj-session-tasks')">📋 Session Tasks</button>
         <button class="it-sub-tab"        data-itab="client-payments"  onclick="switchInternTab('client-payments')">💰 Client Payments</button>
       </div>
 
@@ -2282,25 +2281,6 @@
           <div class="table-scroll"><table class="data-table">
             <thead><tr><th>Student</th><th>Title</th><th>Screenshot</th><th>Report</th><th>Commit</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
             <tbody id="proj-sub-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
-          </table></div>
-        </div>
-      </div>
-
-      <!-- Project Session Tasks -->
-      <div class="it-itab-pane" id="itab-proj-session-tasks">
-        <div class="table-card">
-          <div class="table-header">
-            <h3>Session Task Assignments</h3>
-            <div class="table-actions">
-              <select id="proj-st-student-filter" onchange="loadProjectSessionTasks()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--txt);max-width:200px">
-                <option value="">All Students</option>
-              </select>
-              <button class="btn-primary" onclick="openProjectSessionTaskModal()">+ Assign Task</button>
-            </div>
-          </div>
-          <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Student</th><th>Task</th><th>Module</th><th>Session Date</th><th>Status</th><th>Started</th><th>Completed</th><th>Actions</th></tr></thead>
-            <tbody id="proj-st-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2765,40 +2745,6 @@
 </div>
 
 
-<!-- Project Session Task Modal -->
-<div class="modal-overlay" id="proj-session-task-modal" onclick="if(event.target===this)closeModal('proj-session-task-modal')">
-  <div class="modal-box" style="max-width:520px">
-    <div class="modal-close" onclick="closeModal('proj-session-task-modal')">✕</div>
-    <div class="modal-title">Assign Project Session Task</div>
-    <input type="hidden" id="pst-edit-id">
-    <div class="f-group">
-      <label>Student Assignment *</label>
-      <select id="pst-assignment-id" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:.56rem .78rem;color:var(--txt);font-size:.82rem;font-family:inherit">
-        <option value="">Select student...</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <div class="f-group">
-        <label>Task Title *</label>
-        <input type="text" id="pst-title" placeholder="e.g. Implement API endpoint">
-      </div>
-      <div class="f-group">
-        <label>Module (optional)</label>
-        <select id="pst-module-id" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:.56rem .78rem;color:var(--txt);font-size:.82rem;font-family:inherit">
-          <option value="">None</option>
-        </select>
-      </div>
-    </div>
-    <div class="f-group">
-      <label>Description</label>
-      <textarea id="pst-desc" placeholder="Task details..."></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('proj-session-task-modal')">Cancel</button>
-      <button class="btn-primary" onclick="saveProjectSessionTask()">Save Task</button>
-    </div>
-  </div>
-</div>
 
 <!-- Client Payment Modal -->
 <div class="modal-overlay" id="client-payment-modal" onclick="if(event.target===this)closeModal('client-payment-modal')">
@@ -8725,7 +8671,6 @@ function switchInternTab(tab) {
   if (tab === 'paid-settings') loadPaidSettings();
   if (tab === 'proj-app-usage')    { _populateProjStudentFilter('proj-au-student-filter'); loadProjectAppUsage(); }
   if (tab === 'proj-submissions')  loadProjectSubmissions();
-  if (tab === 'proj-session-tasks'){ _populateProjStudentFilter('proj-st-student-filter'); loadProjectSessionTasks(); }
   if (tab === 'client-payments')   loadClientPayments();
 }
 
@@ -9146,16 +9091,17 @@ async function loadProjectAssignments() {
   if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No assignments yet.</td></tr>'; return; }
 
-  const stuIds = [...new Set(data.map(a => a.student_user_id))];
-  const { data: profs } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id',stuIds);
-  const pMap = {}; (profs||[]).forEach(p => { pMap[p.user_id] = p.full_name||p.email||p.user_id.slice(0,8); });
+  const stuIds = [...new Set(data.map(a => a.student_user_id).filter(Boolean))];
+  const pMap = stuIds.length ? await _getProfileMap(stuIds) : {};
   const statColors = { active:'#4ade80', completed:'#a5b4fc', revoked:'#f87171' };
 
   tbody.innerHTML = data.map(a => {
     const sc = statColors[a.status]||'#fff';
-    const dt = new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    return `<tr>
-      <td>${_adm_esc(pMap[a.student_user_id]||'—')}</td>
+    const dt = a.assigned_at ? new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const studentName = a.student_user_id ? (pMap[a.student_user_id] || '(Unknown — ' + a.student_user_id.slice(0,8) + ')') : '(No Student ID)';
+    const hasMissing = !a.student_user_id || !pMap[a.student_user_id];
+    return `<tr${hasMissing?' style="background:rgba(245,158,11,.05)"':''}>
+      <td>${hasMissing?'<span style="color:#f59e0b" title="Missing user profile">⚠</span> ':''}${_adm_esc(studentName)}</td>
       <td>${_adm_esc(a.internship_projects?.project_name||'—')}</td>
       <td>${_adm_esc(a.project_modules?.module_name||'All Modules')}</td>
       <td>${dt}</td>
@@ -9210,8 +9156,14 @@ async function saveAssignment() {
     assigned_by: adm.user.id, notes, status: 'active',
   };
 
-  const { error } = await db.client.from('project_assignments').insert(payload);
-  if (error) { _showAdminToast('Assignment failed: '+error.message,'error'); return; }
+  let lastAssignErr = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const { error } = await db.client.from('project_assignments').insert(payload);
+    if (!error) { lastAssignErr = null; break; }
+    lastAssignErr = error;
+    if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * attempt));
+  }
+  if (lastAssignErr) { _showAdminToast('Assignment failed: '+lastAssignErr.message,'error'); return; }
   _showAdminToast('Student assigned!','success');
   closeModal('assign-modal');
   loadProjectAssignments();
@@ -9459,15 +9411,16 @@ async function loadGitAccess() {
   if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No git access records yet.</td></tr>'; return; }
 
   const stuIds = [...new Set(rows.map(r => r.project_assignments?.student_user_id).filter(Boolean))];
-  const { data: profs } = await db.client.from('user_profiles').select('user_id,full_name,email').in('user_id',stuIds);
-  const pMap = {}; (profs||[]).forEach(p => { pMap[p.user_id] = p.full_name||p.email||'—'; });
+  const pMap = stuIds.length ? await _getProfileMap(stuIds) : {};
 
   tbody.innerHTML = rows.map(r => {
     const stuId = r.project_assignments?.student_user_id;
+    const studentName = stuId ? (pMap[stuId] || '(Unknown — ' + stuId.slice(0,8) + ')') : '(No Student ID)';
+    const hasMissing = !stuId || !pMap[stuId];
     const sc = r.is_active ? '#4ade80' : '#f87171';
-    const dt = new Date(r.granted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    return `<tr>
-      <td>${_adm_esc(pMap[stuId]||'—')}</td>
+    const dt = r.granted_at ? new Date(r.granted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    return `<tr${hasMissing?' style="background:rgba(245,158,11,.05)"':''}>
+      <td>${hasMissing?'<span style="color:#f59e0b" title="Missing user profile">⚠</span> ':''}${_adm_esc(studentName)}</td>
       <td>${_adm_esc(r.project_assignments?.internship_projects?.project_name||'—')}</td>
       <td style="font-family:monospace;font-size:.82rem">${_adm_esc(r.github_username||'—')}</td>
       <td><span class="badge" style="background:rgba(99,102,241,.15);color:#a5b4fc;text-transform:capitalize">${r.access_level}</span></td>
@@ -9836,9 +9789,10 @@ async function loadInternStudents() {
     const pct   = atd?.t ? Math.round(atd.p / atd.t * 100) + '%' : '—';
     const rpts  = rptMap[e.id] || 0;
     const dt    = new Date(e.enrolled_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+    const hasMissing = sName === '—' || !e.student_user_id;
     const sNameE = _adm_esc(sName), pNameE = _adm_esc(pName), sEmailE = _adm_esc(sEmail);
-    return `<tr>
-      <td>${sNameE}</td>
+    return `<tr${hasMissing?' style="background:rgba(245,158,11,.05)"':''}>
+      <td>${hasMissing?'<span style="color:#f59e0b" title="Missing user profile">⚠</span> ':''}${sNameE}</td>
       <td>${pNameE}</td>
       <td>${dt}</td>
       <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}44">${e.approval_status}</span></td>
@@ -10163,13 +10117,15 @@ async function generateStudentReport(enrollId, studentName, projectName, teamNam
   if (!window.jspdf?.jsPDF) { _showAdminToast('jsPDF not loaded.','error'); return; }
   const { jsPDF } = window.jspdf;
 
-  const [{ data: rpts }, { data: atd }, { data: enrol }, { data: wSessions }, { data: appUsage }] = await Promise.all([
+  const [{ data: rpts }, { data: atd }, { data: enrol }, { data: wSessions }] = await Promise.all([
     db.client.from('internship_daily_reports').select('*').eq('enrollment_id', enrollId).order('report_date', { ascending: true }),
     db.client.from('internship_attendance').select('status').eq('enrollment_id', enrollId),
     db.client.from('internship_enrollments').select('*, internship_projects(*)').eq('id', enrollId).single(),
-    db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id', enrollId).order('session_date',{ascending:true}),
-    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds').eq('student_user_id', enrol?.student_user_id||'x')
+    db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('enrollment_id', enrollId).order('session_date',{ascending:true})
   ]);
+  const { data: appUsage } = enrol?.student_user_id
+    ? await db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at').eq('student_user_id', enrol.student_user_id)
+    : { data: [] };
 
   const present = (atd||[]).filter(a=>['present','late'].includes(a.status)).length;
   const total   = (atd||[]).length;
@@ -10177,14 +10133,17 @@ async function generateStudentReport(enrollId, studentName, projectName, teamNam
   const proj    = enrol?.internship_projects;
   const totalH  = (rpts||[]).reduce((s,r) => s + Number(r.hours_worked||0), 0);
 
-  const aiTools=['chatgpt','claude','copilot','gemini','bard','perplexity','cursor'];
+  const aiTools=['chatgpt','claude','copilot','gemini','bard','perplexity','cursor','phind','tabnine','codewhisperer','v0.dev'];
   const aiUsage={};
+  const appMap={};
   (appUsage||[]).forEach(a=>{
     const title=(a.window_title||'').toLowerCase();
     const found=aiTools.find(t=>title.includes(t));
     if(found) aiUsage[found]=(aiUsage[found]||0)+(a.active_seconds||0);
+    appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0);
   });
   const aiEntries=Object.entries(aiUsage).sort((a,b)=>b[1]-a[1]);
+  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
 
   const doc = new jsPDF({ unit:'mm', format:'a4' });
   const pw  = doc.internal.pageSize.getWidth();
@@ -10226,10 +10185,39 @@ async function generateStudentReport(enrollId, studentName, projectName, teamNam
     doc.text(`Total Break Time:        ${Math.floor(totalBMins/60)}h ${totalBMins%60}m`, 14, y); y += 5;
     doc.text(`Net Coding Time:         ${Math.floor((totalWMins-totalBMins)/60)}h ${(totalWMins-totalBMins)%60}m`, 14, y); y += 5;
   }
+  if (appEntries.length) {
+    y += 3; doc.text(`Top Apps:                ${appEntries.slice(0,5).map(([a,s])=>a+' ('+Math.floor(s/60)+'m)').join(', ')}`, 14, y); y += 5;
+  }
   if (aiEntries.length) {
-    y += 3; doc.text(`AI Tools Used:           ${aiEntries.map(([t,s])=>t+' ('+Math.floor(s/60)+'m)').join(', ')}`, 14, y); y += 5;
+    doc.text(`AI Tools Used:           ${aiEntries.map(([t,s])=>t+' ('+Math.floor(s/60)+'m)').join(', ')}`, 14, y); y += 5;
   }
   y += 3;
+
+  // Work Sessions with Login/Logout
+  if ((wSessions||[]).length) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+    doc.text('Work Sessions (Login / Logout)', 14, y); y += 6;
+    const wsCols = [14, 36, 58, 82, 106, 130, 155];
+    doc.setFillColor(210,200,255); doc.rect(12,y-4,pw-24,6,'F');
+    doc.setFontSize(7); doc.setFont('helvetica','bold');
+    ['Date','Day','Login','Logout','Work','Break','Status'].forEach((h,i) => doc.text(h, wsCols[i], y));
+    y += 5; doc.setFont('helvetica','normal');
+    for (const ws of (wSessions||[])) {
+      if (y > 268) { doc.addPage(); y = 20; }
+      const login = ws.start_time ? new Date(ws.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) : '—';
+      const logout = ws.end_time ? new Date(ws.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) : '—';
+      const brk = (ws.intern_breaks||[]).reduce((b,br) => b + (br.duration_mins||0), 0);
+      doc.text(ws.session_date||'', wsCols[0], y);
+      doc.text(String(ws.day_number||''), wsCols[1], y);
+      doc.text(login, wsCols[2], y);
+      doc.text(logout, wsCols[3], y);
+      doc.text((ws.total_work_mins||0)+'m', wsCols[4], y);
+      doc.text(brk+'m', wsCols[5], y);
+      doc.text(ws.status==='completed'?'Done':(ws.status==='active'?'Active':'Closed'), wsCols[6], y);
+      y += 4.5; doc.setDrawColor(225,220,245); doc.line(12,y-1,pw-12,y-1);
+    }
+    y += 6;
+  }
 
   doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
   doc.text('Daily Reports', 14, y); y += 6;
@@ -10771,27 +10759,34 @@ async function loadGitPermissions() {
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
 
-  const { data, error } = await db.client.from('intern_git_permissions')
-    .select('*')
-    .order('granted_at', { ascending: false });
+  try {
+    const { data, error } = await db.client.from('intern_git_permissions')
+      .select('*')
+      .order('granted_at', { ascending: false });
 
-  if (error) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No git permissions granted yet.</td></tr>'; return; }
+    if (error) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+    if (!data?.length) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No git permissions granted yet.</td></tr>'; return; }
 
-  const pm = await _getProfileMap([...new Set(data.map(g => g.student_user_id).filter(Boolean))]);
+    const validIds = [...new Set(data.map(g => g.student_user_id).filter(Boolean))];
+    const pm = validIds.length ? await _getProfileMap(validIds) : {};
 
-  tbody.innerHTML = data.map(g => `<tr>
-    <td>${_adm_esc(pm[g.student_user_id]||'—')}</td>
-    <td style="font-size:.76rem;word-break:break-all">${_adm_esc(g.repo_url)}</td>
-    <td><span class="badge-blue">${_adm_esc(g.branch_name)}</span></td>
-    <td><span class="${g.is_active?'badge-green':'badge-red'}">${g.is_active?'Active':'Revoked'}</span></td>
-    <td>${new Date(g.granted_at).toLocaleDateString('en-IN')}</td>
-    <td class="action-btns">
-      ${g.is_active
-        ? `<button class="action-btn danger" onclick="revokeGitPerm('${g.id}')">Revoke</button>`
-        : `<button class="action-btn" onclick="reactivateGitPerm('${g.id}')">Reactivate</button>`}
-    </td>
-  </tr>`).join('');
+    tbody.innerHTML = data.map(g => {
+      const studentName = g.student_user_id ? (pm[g.student_user_id] || '(Unknown Student)') : '(No User ID)';
+      const hasWarning = !g.student_user_id || !pm[g.student_user_id];
+      return `<tr${hasWarning ? ' style="background:rgba(245,158,11,.06)"' : ''}>
+        <td>${hasWarning ? '<span style="color:#f59e0b" title="Missing user data">⚠</span> ' : ''}${_adm_esc(studentName)}</td>
+        <td style="font-size:.76rem;word-break:break-all">${_adm_esc(g.repo_url || '—')}</td>
+        <td><span class="badge-blue">${_adm_esc(g.branch_name || 'main')}</span></td>
+        <td><span class="${g.is_active?'badge-green':'badge-red'}">${g.is_active?'Active':'Revoked'}</span></td>
+        <td>${g.granted_at ? new Date(g.granted_at).toLocaleDateString('en-IN') : '—'}</td>
+        <td class="action-btns">
+          ${g.is_active
+            ? `<button class="action-btn danger" onclick="revokeGitPerm('${g.id}')">Revoke</button>`
+            : `<button class="action-btn" onclick="reactivateGitPerm('${g.id}')">Reactivate</button>`}
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:#f87171">Error loading: ${e.message||'Unknown'}</td></tr>`; }
 }
 
 async function openGitPermModal() {
@@ -10799,20 +10794,34 @@ async function openGitPermModal() {
   document.getElementById('git-branch').value = 'main';
 
   const sel = document.getElementById('git-enrollment-id');
-  const { data: enrols } = await db.client
-    .from('internship_enrollments')
-    .select('id, student_user_id, approval_status, internship_projects(project_name)')
-    .in('approval_status', ['approved', 'pending'])
-    .order('enrolled_at', { ascending: false });
-  const sIds = [...new Set((enrols||[]).map(e => e.student_user_id).filter(Boolean))];
-  const pm = await _getProfileMap(sIds);
-  sel.innerHTML = '<option value="">Select student...</option>' +
-    (enrols||[]).map(e => {
-      const tag = e.approval_status === 'pending' ? ' [Pending]' : '';
-      return `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id]||'—')} — ${_adm_esc(e.internship_projects?.project_name||'—')}${tag}</option>`;
-    }).join('');
-
+  sel.innerHTML = '<option value="">Loading students…</option>';
   openModal('git-perm-modal');
+
+  try {
+    const { data: enrols, error } = await db.client
+      .from('internship_enrollments')
+      .select('id, student_user_id, approval_status, internship_projects(project_name)')
+      .in('approval_status', ['approved', 'pending'])
+      .order('enrolled_at', { ascending: false });
+    if (error) { _showAdminToast('Failed to load students: ' + error.message, 'error'); sel.innerHTML = '<option value="">Error loading students</option>'; return; }
+
+    const validEnrols = (enrols || []).filter(e => e.student_user_id);
+    if (!validEnrols.length) { sel.innerHTML = '<option value="">No enrolled students found</option>'; return; }
+
+    const sIds = [...new Set(validEnrols.map(e => e.student_user_id))];
+    const pm = await _getProfileMap(sIds);
+
+    sel.innerHTML = '<option value="">Select student…</option>' +
+      validEnrols.map(e => {
+        const name = pm[e.student_user_id] || '(No Name — ID: ' + e.student_user_id.slice(0,8) + ')';
+        const proj = e.internship_projects?.project_name || '(No Project)';
+        const tag = e.approval_status === 'pending' ? ' [Pending]' : '';
+        return `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(name)} — ${_adm_esc(proj)}${tag}</option>`;
+      }).join('');
+  } catch(e) {
+    _showAdminToast('Error loading student list: ' + (e.message || 'Unknown'), 'error');
+    sel.innerHTML = '<option value="">Error loading students</option>';
+  }
 }
 
 async function saveGitPermission() {
@@ -11180,72 +11189,6 @@ async function reviewProjectSubmission(subId){
   openModal('sub-review-modal');
 }
 
-/* ============================================================
-   PROJECT SESSION TASKS
-   ============================================================ */
-async function loadProjectSessionTasks() {
-  const tbody = document.getElementById('proj-st-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
-  let q = db.client.from('project_session_tasks').select('*,project_work_sessions(session_start),project_modules(module_name)').order('created_at',{ascending:false}).limit(150);
-  const sf = document.getElementById('proj-st-student-filter')?.value;
-  if (sf) q = q.eq('student_user_id',sf);
-  const {data,error} = await q;
-  if (error){tbody.innerHTML=`<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`;return;}
-  if (!data?.length){tbody.innerHTML='<tr><td colspan="8" class="table-empty">No session tasks yet.</td></tr>';return;}
-  const pm = await _getProfileMap([...new Set(data.map(t=>t.student_user_id).filter(Boolean))]);
-  const sb={pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red'};
-  const ft=t=>t?new Date(t).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'}):'—';
-  tbody.innerHTML = data.map(t=>`<tr><td>${_adm_esc(pm[t.student_user_id]||'—')}</td><td style="font-weight:600">${_adm_esc(t.task_title)}</td><td>${_adm_esc(t.project_modules?.module_name||'—')}</td><td>${t.project_work_sessions?.session_start?new Date(t.project_work_sessions.session_start).toLocaleDateString('en-IN'):'—'}</td><td><span class="${sb[t.status]||'badge-gray'}">${t.status.replace('_',' ')}</span></td><td>${ft(t.started_at)}</td><td>${ft(t.completed_at)}</td><td class="action-btns"><button class="action-btn" onclick="editProjectSessionTask('${t.id}')">Edit</button></td></tr>`).join('');
-}
-
-async function openProjectSessionTaskModal(){
-  document.getElementById('pst-edit-id').value='';
-  document.getElementById('pst-title').value='';
-  document.getElementById('pst-desc').value='';
-  const sel=document.getElementById('pst-assignment-id');
-  const {data:assigns}=await db.client.from('project_assignments').select('id,student_user_id,internship_projects:project_id(project_name)').eq('status','active');
-  const sIds=[...new Set((assigns||[]).map(a=>a.student_user_id).filter(Boolean))];
-  const pm=await _getProfileMap(sIds);
-  sel.innerHTML='<option value="">Select student...</option>'+(assigns||[]).map(a=>`<option value="${a.id}" data-uid="${a.student_user_id}">${_adm_esc(pm[a.student_user_id]||'—')} — ${_adm_esc(a.internship_projects?.project_name||'—')}</option>`).join('');
-  const modSel=document.getElementById('pst-module-id');
-  const {data:mods}=await db.client.from('project_modules').select('id,module_name').eq('is_active',true).order('order_num');
-  modSel.innerHTML='<option value="">None</option>'+(mods||[]).map(m=>`<option value="${m.id}">${_adm_esc(m.module_name)}</option>`).join('');
-  openModal('proj-session-task-modal');
-}
-
-async function editProjectSessionTask(taskId){
-  const {data:t}=await db.client.from('project_session_tasks').select('*').eq('id',taskId).single();
-  if(!t)return;
-  await openProjectSessionTaskModal();
-  document.getElementById('pst-edit-id').value=t.id;
-  document.getElementById('pst-title').value=t.task_title;
-  document.getElementById('pst-desc').value=t.task_desc||'';
-  const sel=document.getElementById('pst-assignment-id');
-  for(const o of sel.options)if(o.value===t.assignment_id){o.selected=true;break;}
-  if(t.module_id){const ms=document.getElementById('pst-module-id');for(const o of ms.options)if(o.value===t.module_id){o.selected=true;break;}}
-}
-
-async function saveProjectSessionTask(){
-  const editId=document.getElementById('pst-edit-id').value;
-  const assignId=document.getElementById('pst-assignment-id').value;
-  const title=document.getElementById('pst-title').value.trim();
-  const desc=document.getElementById('pst-desc').value.trim();
-  const moduleId=document.getElementById('pst-module-id').value||null;
-  if(!assignId||!title){_showAdminToast('Student and title required.','error');return;}
-  const sel=document.getElementById('pst-assignment-id');
-  const uid=sel.options[sel.selectedIndex]?.dataset.uid;
-  const {data:admin}=await db.client.auth.getUser();
-  const {data:sess}=await db.client.from('project_work_sessions').select('id').eq('assignment_id',assignId).eq('is_active',true).maybeSingle();
-  const payload={assignment_id:assignId,student_user_id:uid,task_title:title,task_desc:desc||null,module_id:moduleId,assigned_by:admin?.user?.id||null,session_id:sess?.id||null,status:'pending'};
-  let err;
-  if(editId)({error:err}=await db.client.from('project_session_tasks').update(payload).eq('id',editId));
-  else({error:err}=await db.client.from('project_session_tasks').insert(payload));
-  if(err){_showAdminToast('Save failed: '+err.message,'error');return;}
-  _showAdminToast(editId?'Task updated!':'Task assigned!','success');
-  closeModal('proj-session-task-modal');
-  loadProjectSessionTasks();
-}
 
 /* ============================================================
    CLIENT PAYMENTS
@@ -11368,13 +11311,17 @@ async function loadDetailedReport(){
   const aiEntries=Object.entries(aiUsage).sort((a,b)=>b[1]-a[1]);
 
   let teamHtml='';
+  let teamNames=[];
   if(enrol?.project_id){
     const {data:teamEnrols}=await db.client.from('internship_enrollments').select('student_user_id').eq('project_id',enrol.project_id).eq('approval_status','approved');
     const teamIds=(teamEnrols||[]).map(t=>t.student_user_id).filter(Boolean);
-    if(teamIds.length>1){
+    if(teamIds.length>0){
       const teamPm=await _getProfileMap(teamIds);
-      const teamNames=teamIds.map(id=>teamPm[id]||'Unknown');
-      teamHtml=`<div style="font-size:.78rem;color:var(--txt3);margin-top:.25rem">Team: ${teamNames.map(n=>_adm_esc(n)).join(' &bull; ')}</div>`;
+      teamNames=teamIds.map(id=>teamPm[id]||'Unknown');
+      teamHtml=`<div style="margin-top:.7rem;padding:.6rem 1rem;background:var(--panel);border:1px solid var(--border);border-radius:10px;display:inline-block">
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt4);margin-bottom:.3rem">Team Members</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--txt2)">${teamNames.map(n=>_adm_esc(n)).join(' &bull; ')}</div>
+      </div>`;
     }
   }
 
@@ -11382,17 +11329,25 @@ async function loadDetailedReport(){
   const sb={submitted:'badge-yellow',reviewed:'badge-blue',approved:'badge-green',rejected:'badge-red',pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red',assigned:'badge-blue',active:'badge-blue'};
   const fmtMins=m=>`${Math.floor(m/60)}h ${m%60}m`;
 
+  // Date-wise app usage for per-date breakdown
+  const dateAppMap={};
+  (appUsage||[]).forEach(a=>{
+    const d=a.recorded_at?new Date(a.recorded_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Unknown';
+    if(!dateAppMap[d])dateAppMap[d]=[];
+    dateAppMap[d].push({app:a.app_name,title:a.window_title,secs:a.active_seconds||0});
+  });
+
   el.innerHTML=`
-  <div style="text-align:center;margin-bottom:1.5rem;padding:1.2rem 0;border-bottom:2px solid var(--border)">
-    <h2 style="font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--v1),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem">SkillUpNow</h2>
-    <p style="font-size:.82rem;color:var(--txt3);font-weight:600">Internship Progress Report</p>
-    <div style="font-size:.88rem;font-weight:700;color:var(--txt2);margin-top:.5rem">${_adm_esc(proj?.project_name||'N/A')} ${isPaid?'<span class="badge-yellow" style="margin-left:.4rem">Paid</span>':'<span class="badge-green" style="margin-left:.4rem">Free</span>'}</div>
+  <div style="text-align:center;margin-bottom:2rem;padding:1.5rem 1rem;border-bottom:3px solid var(--border);background:linear-gradient(180deg,rgba(68,25,152,.03),transparent);border-radius:var(--r) var(--r) 0 0">
+    <h2 style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--v1),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem;letter-spacing:-.02em">SkillUpNow</h2>
+    <p style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--txt4);margin-bottom:.6rem">Internship Progress Report</p>
+    <div style="font-size:.95rem;font-weight:800;color:var(--txt);margin-top:.5rem">${_adm_esc(proj?.project_name||'N/A')} ${isPaid?'<span class="badge-yellow" style="margin-left:.4rem">Paid</span>':'<span class="badge-green" style="margin-left:.4rem">Free</span>'}</div>
     ${teamHtml}
   </div>
 
-  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap">
-    <div style="width:48px;height:48px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-weight:800;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
-    <div><div style="font-size:1.05rem;font-weight:800">${_adm_esc(name)}</div><div style="font-size:.76rem;color:var(--txt3)">Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding:0 .5rem;flex-wrap:wrap">
+    <div style="width:52px;height:52px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;font-weight:800;flex-shrink:0;box-shadow:0 4px 14px rgba(68,25,152,.25)">${name.charAt(0).toUpperCase()}</div>
+    <div style="flex:1"><div style="font-size:1.1rem;font-weight:800">${_adm_esc(name)}</div><div style="font-size:.76rem;color:var(--txt3)">Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div></div>
   </div>
 
   <div style="display:flex;flex-direction:column;gap:1rem">
@@ -11401,6 +11356,7 @@ async function loadDetailedReport(){
       <div class="dr-stat"><span class="dr-stat-label">Total Work Time</span><span class="dr-stat-val">${fmtMins(totalWorkMins)}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Total Break Time</span><span class="dr-stat-val">${fmtMins(totalBreakMins)}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Net Coding Time</span><span class="dr-stat-val" style="color:var(--v1)">${fmtMins(netCodingMins)}</span></div>
+      <div class="dr-stat"><span class="dr-stat-label">Avg Work / Day</span><span class="dr-stat-val">${totalDays?fmtMins(Math.round(totalWorkMins/totalDays)):'—'}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Modules Assigned</span><span class="dr-stat-val">${(mods||[]).length + (progAssign||[]).length}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Modules Completed</span><span class="dr-stat-val">${completedMods + completedProg}</span></div>
       <div class="dr-stat"><span class="dr-stat-label">Submissions</span><span class="dr-stat-val">${(subs||[]).length}</span></div>
@@ -11410,6 +11366,8 @@ async function loadDetailedReport(){
       ${(sessions||[]).length?`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;border-collapse:collapse">
         <thead><tr style="border-bottom:2px solid var(--border)">
           <th style="text-align:left;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Date</th>
+          <th style="text-align:center;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Login</th>
+          <th style="text-align:center;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Logout</th>
           <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Work</th>
           <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Break</th>
           <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Net Coding</th>
@@ -11417,8 +11375,12 @@ async function loadDetailedReport(){
         <tbody>${(sessions||[]).map(s=>{
           const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
           const net=Math.max(0,(s.total_work_mins||0)-brk);
+          const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+          const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
           return `<tr style="border-bottom:1px solid var(--border)">
             <td style="padding:.4rem .5rem">${s.session_date?new Date(s.session_date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—'}</td>
+            <td style="text-align:center;padding:.4rem .5rem;color:#10b981;font-weight:600">${login}</td>
+            <td style="text-align:center;padding:.4rem .5rem;color:var(--v1);font-weight:600">${logout}</td>
             <td style="text-align:right;padding:.4rem .5rem">${s.total_work_mins||0}m</td>
             <td style="text-align:right;padding:.4rem .5rem">${brk}m</td>
             <td style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--v1)">${net}m</td>
@@ -11431,8 +11393,12 @@ async function loadDetailedReport(){
       <ul class="dr-list">${aiEntries.map(([tool,secs])=>`<li><span style="font-weight:600;text-transform:capitalize">${_adm_esc(tool)}</span><span style="color:var(--v1);font-weight:700">${Math.floor(secs/60)}m</span></li>`).join('')}</ul>
     </div>`:''}
 
-    <div class="dr-card"><h4>App Usage (Confidential)</h4>
-      ${appEntries.length?`<ul class="dr-list">${appEntries.map(([app,secs])=>`<li><span style="font-weight:600">${_adm_esc(app)}</span><span style="color:var(--v1);font-weight:700">${Math.floor(secs/60)}m</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No app usage recorded.</p>'}
+    <div class="dr-card"><h4>App Usage by Date (Confidential)</h4>
+      ${Object.keys(dateAppMap).length?Object.entries(dateAppMap).sort((a,b)=>new Date(b[0])-new Date(a[0])).slice(0,15).map(([date,apps])=>{
+        const grouped={};apps.forEach(a=>{grouped[a.app]=(grouped[a.app]||0)+a.secs});
+        return `<div style="margin-bottom:.6rem"><div style="font-size:.74rem;font-weight:700;color:var(--txt2);margin-bottom:.2rem">${_adm_esc(date)}</div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap">${Object.entries(grouped).map(([app,s])=>`<span style="font-size:.72rem;padding:.15rem .5rem;border-radius:6px;background:var(--panel);border:1px solid var(--border);font-weight:600">${_adm_esc(app)} <span style="color:var(--v1)">${Math.floor(s/60)}m</span></span>`).join('')}</div></div>`;
+      }).join(''):'<p style="color:var(--txt3);font-size:.82rem">No app usage recorded.</p>'}
     </div>
 
     <div class="dr-card"><h4>Module Progress</h4>
@@ -11596,10 +11562,12 @@ async function loadInternProgramAssignments() {
 
   tbody.innerHTML = data.map(a => {
     const sc = statColors[a.status]||'#fff';
-    const dt = new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const dt = a.assigned_at ? new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
     const gitLink = a.git_push_link || a.intern_program_modules?.git_push_link || '';
-    return `<tr>
-      <td>${_adm_esc(pm[a.student_user_id]||'—')}</td>
+    const studentName = a.student_user_id ? (pm[a.student_user_id] || '(Unknown — ' + a.student_user_id.slice(0,8) + ')') : '(No Student ID)';
+    const hasMissing = !a.student_user_id || !pm[a.student_user_id];
+    return `<tr${hasMissing?' style="background:rgba(245,158,11,.05)"':''}>
+      <td>${hasMissing?'<span style="color:#f59e0b" title="Missing user profile">⚠</span> ':''}${_adm_esc(studentName)}</td>
       <td>${_adm_esc(a.internship_projects?.project_name||'—')}</td>
       <td>${_adm_esc(a.intern_program_modules?.module_name||'All Modules')}</td>
       <td>${dt}</td>
@@ -11703,8 +11671,14 @@ async function saveInternProgramAssignment() {
     git_push_link: modData?.git_push_link || null
   };
 
-  const { error } = await db.client.from('intern_program_assignments').insert(payload);
-  if (error) { _showAdminToast('Assignment failed: '+error.message,'error'); return; }
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const { error } = await db.client.from('intern_program_assignments').insert(payload);
+    if (!error) { lastErr = null; break; }
+    lastErr = error;
+    if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * attempt));
+  }
+  if (lastErr) { _showAdminToast('Assignment failed after retries: '+lastErr.message,'error'); return; }
 
   // Send in-app notification
   const { data: intern } = await db.client.from('internship_projects').select('project_name').eq('id', internId).single();
