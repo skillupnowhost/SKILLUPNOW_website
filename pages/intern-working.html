@@ -125,13 +125,17 @@ img{-webkit-user-drag:none}
 .iw-cal-month{font-size:.78rem;font-weight:800;color:var(--txt)}
 .iw-att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .iw-att-hdr{font-size:.55rem;font-weight:700;color:var(--txt4);text-align:center;padding:.2rem 0}
-.iw-att-day{width:100%;aspect-ratio:1;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;background:var(--panel);border:1px solid var(--border);color:var(--txt4);cursor:default;transition:all .2s;position:relative}
+.iw-att-day{width:100%;aspect-ratio:1;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;background:var(--panel);border:1.5px solid var(--border);color:var(--txt4);cursor:default;transition:all .2s;position:relative}
 .iw-att-day.other-month{opacity:.3}
-.iw-att-day.present{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.35);color:#10b981;cursor:pointer}
-.iw-att-day.today{border-color:var(--iw-v);box-shadow:0 0 0 2px rgba(124,58,237,.2)}
+.iw-att-day.present{background:#10b981;border-color:#10b981;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(16,185,129,.3)}
+.iw-att-day.today{border-color:#3b82f6;box-shadow:0 0 0 2.5px rgba(59,130,246,.35)}
+.iw-att-day.sunday{color:#ef4444;font-weight:800}
+.iw-att-day.sunday.present{background:#10b981;color:#fff}
+.iw-att-day.leave{border-color:#a855f7;box-shadow:0 0 0 2px rgba(168,85,247,.25);color:#a855f7}
+.iw-att-day.holiday{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2);color:#ef4444}
 .iw-att-day.absent{background:rgba(244,63,94,.08);border-color:rgba(244,63,94,.2);color:var(--iw-r)}
-.iw-att-day.holiday{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:var(--iw-g)}
-.iw-att-day .iw-att-dot{width:4px;height:4px;border-radius:50%;background:#10b981;margin-top:1px}
+.iw-att-day .iw-att-dot{width:4px;height:4px;border-radius:50%;background:#fff;margin-top:1px}
+.iw-att-day:not(.present) .iw-att-dot{background:#10b981}
 /* Day detail popup */
 .iw-day-detail{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;width:180px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:100;font-size:.7rem;display:none;text-align:left}
 .iw-day-detail.show{display:block}
@@ -264,9 +268,18 @@ img{-webkit-user-drag:none}
               <div id="iw-working" style="display:none">
                 <div class="iw-timer"><span class="iw-timer-dot" id="iw-timer-dot"></span><span id="iw-timer-val">00:00:00</span></div>
                 <div class="iw-timer-sub" id="iw-started-at"></div>
-                <div class="iw-brk-row">
-                  <button class="iw-brk-btn" id="iw-brk1" onclick="toggleBreak(1)">Break 1</button>
-                  <button class="iw-brk-btn" id="iw-brk2" onclick="toggleBreak(2)" disabled>Break 2</button>
+                <div class="iw-brk-row" style="flex-direction:column;align-items:center;gap:.5rem">
+                  <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:center">
+                    <select id="iw-brk-type" style="padding:.35rem .7rem;border-radius:8px;font-size:.72rem;font-weight:700;border:1.5px solid var(--border);background:var(--panel);color:var(--txt2);font-family:inherit;cursor:pointer;outline:none">
+                      <option value="morning_break">Morning Break</option>
+                      <option value="lunch_break">Lunch Break</option>
+                      <option value="evening_break">Evening Break</option>
+                      <option value="tea_break">Tea Break</option>
+                      <option value="personal_break">Personal Break</option>
+                    </select>
+                    <button class="iw-brk-btn" id="iw-brk-toggle" onclick="toggleBreakWithType()">Start Break</button>
+                  </div>
+                  <div id="iw-brk-log" style="font-size:.68rem;color:var(--txt3);text-align:center"></div>
                 </div>
                 <button class="iw-end-btn" onclick="endWork()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
@@ -563,7 +576,12 @@ function showCompleted(){
   document.getElementById('iw-completed').style.display='';
   document.getElementById('iw-sess-status').textContent='Completed';
   document.getElementById('iw-sess-status').style.color='var(--iw-v)';
-  if(_session?.total_work_mins){document.getElementById('iw-done-summary').textContent='Worked '+fmtMins(_session.total_work_mins)+' today'}
+  if(_session?.total_work_mins){
+    const totalMins=_session.total_work_mins||0;
+    const breakMins=_session.total_break_mins||Object.values(_brkState).filter(Boolean).reduce((s,b)=>s+(b.duration_mins||0),0);
+    const netMins=Math.max(0,totalMins-breakMins);
+    document.getElementById('iw-done-summary').textContent=`Total: ${fmtMins(totalMins)} | Breaks: ${fmtMins(breakMins)} | Net Work: ${fmtMins(netMins)} / 8h`;
+  }
 }
 
 let _startBusy=false;
@@ -627,12 +645,15 @@ async function endWork(){
   if(btn){btn.disabled=true;btn.style.opacity='.6';}
   try{
     const c=C();const now=new Date().toISOString();
-    const mins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
+    const totalMins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
+    const breakMins=Object.values(_brkState).filter(Boolean).reduce((s,b)=>s+(b.duration_mins||0),0);
+    const netMins=Math.max(0,totalMins-breakMins);
+    const targetMins=480; // 8 hours = 480 mins
     await withRetry(async()=>{
-      const{error}=await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:mins}).eq('id',_session.id);
+      const{error}=await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:totalMins,total_break_mins:breakMins,net_work_mins:netMins}).eq('id',_session.id);
       if(error)throw error;
     });
-    _session.status='completed';_session.total_work_mins=mins;
+    _session.status='completed';_session.total_work_mins=totalMins;
     clearInterval(_timerInt);clearInterval(_appTrackInt);
     showCompleted();
     logNotification('Work Ended','Completed work session — '+fmtMins(mins));
@@ -654,28 +675,51 @@ function startTimer(){
 }
 
 /* ── Breaks ── */
-async function toggleBreak(num){
-  if(!_session)return;const c=C();const existing=_brkState[num];
-  if(!existing){
-    const{data,error}=await c.from('intern_breaks').insert({session_id:_session.id,student_user_id:_user.id,break_number:num,break_start:new Date().toISOString()}).select().single();
+const BRK_LABELS={morning_break:'Morning Break',lunch_break:'Lunch Break',evening_break:'Evening Break',tea_break:'Tea Break',personal_break:'Personal Break',general:'Break'};
+
+async function toggleBreakWithType(){
+  if(!_session)return;const c=C();
+  const breaks=Object.values(_brkState).filter(Boolean);
+  const activeBreak=breaks.find(b=>b&&!b.break_end);
+
+  if(activeBreak){
+    const now=new Date().toISOString();const mins=Math.round((new Date(now)-new Date(activeBreak.break_start))/60000);
+    const{error}=await c.from('intern_breaks').update({break_end:now,duration_mins:mins}).eq('id',activeBreak.id);
+    if(error){toast('Failed to end break','err');return}
+    activeBreak.break_end=now;activeBreak.duration_mins=mins;
+    toast(`${BRK_LABELS[activeBreak.break_type]||'Break'} ended (${mins}m)`,'ok');
+  } else {
+    const completedBreaks=breaks.filter(b=>b&&b.break_end);
+    if(completedBreaks.length>=2){toast('Max 2 breaks per day','err');return}
+    const breakType=document.getElementById('iw-brk-type').value;
+    const breakNum=completedBreaks.length+1;
+    const{data,error}=await c.from('intern_breaks').insert({session_id:_session.id,student_user_id:_user.id,break_number:breakNum,break_start:new Date().toISOString(),break_type:breakType}).select().single();
     if(error){toast('Break failed: '+error.message,'err');return}
-    _brkState[num]=data;toast('Break '+num+' started','ok');
-  } else if(!existing.break_end){
-    const now=new Date().toISOString();const mins=Math.round((new Date(now)-new Date(existing.break_start))/60000);
-    await c.from('intern_breaks').update({break_end:now}).eq('id',existing.id);
-    _brkState[num].break_end=now;_brkState[num].duration_mins=mins;
-    toast('Break '+num+' ended ('+mins+'m)','ok');
+    _brkState[breakNum]=data;
+    toast(`${BRK_LABELS[breakType]} started`,'ok');
   }
   updateBreakUI();
 }
 
 function updateBreakUI(){
-  [1,2].forEach(n=>{
-    const btn=document.getElementById('iw-brk'+n);const b=_brkState[n];
-    if(!b){btn.textContent='Break '+n;btn.className='iw-brk-btn';btn.disabled=(n===2&&!_brkState[1]?.break_end)}
-    else if(!b.break_end){btn.textContent='End Break '+n;btn.className='iw-brk-btn on';btn.disabled=false}
-    else{btn.textContent='Break '+n+' ('+(_brkState[n].duration_mins||0)+'m)';btn.className='iw-brk-btn';btn.disabled=true;if(n===1){document.getElementById('iw-brk2').disabled=false}}
-  });
+  const btn=document.getElementById('iw-brk-toggle');
+  const logEl=document.getElementById('iw-brk-log');
+  const breaks=Object.values(_brkState).filter(Boolean);
+  const activeBreak=breaks.find(b=>b&&!b.break_end);
+  const completedBreaks=breaks.filter(b=>b&&b.break_end);
+
+  if(activeBreak){
+    btn.textContent='End '+(BRK_LABELS[activeBreak.break_type]||'Break');
+    btn.className='iw-brk-btn on';btn.disabled=false;
+  } else if(completedBreaks.length>=2){
+    btn.textContent='All breaks used';btn.className='iw-brk-btn';btn.disabled=true;
+  } else {
+    btn.textContent='Start Break';btn.className='iw-brk-btn';btn.disabled=false;
+  }
+
+  if(completedBreaks.length){
+    logEl.innerHTML=completedBreaks.map(b=>`${BRK_LABELS[b.break_type]||'Break'}: ${b.duration_mins||'?'}m`).join(' · ');
+  } else { logEl.innerHTML=''; }
 }
 
 /* ══════ APP TRACKING ══════ */
@@ -870,10 +914,14 @@ function renderCalendar(){
     const sess=_attData.sessions[ds];
     const att=_attData.attendance[ds];
     const isToday=ds===today;
+    const dayOfWeek=new Date(_calYear,_calMonth,d).getDay();
+    const isSunday=dayOfWeek===0;
     let cls='iw-att-day';
     if(sess) cls+=' present';
     if(isToday) cls+=' today';
-    if(att?.status==='holiday') cls+=' holiday';
+    if(isSunday) cls+=' sunday';
+    if(att?.calendar_status==='leave'||att?.status==='leave') cls+=' leave';
+    else if(att?.calendar_status==='holiday'||att?.status==='holiday'||isSunday&&!sess) cls+=' holiday';
     const dot=sess?'<div class="iw-att-dot"></div>':'';
     const clickAttr=sess?` onclick="showDayDetail('${ds}',event)" style="cursor:pointer"`:'';
     html+=`<div class="${cls}" title="${ds}"${clickAttr}>${d}${dot}</div>`;
@@ -1083,88 +1131,232 @@ async function generateReport(){
   const{data:subs}=await c.from('intern_submissions').select('*').eq('enrollment_id',_enrollment?.id).order('submitted_at',{ascending:false});
   const{data:proj}=await c.from('internship_projects').select('project_name').eq('id',_intId).single();
   const name=_user.user_metadata?.full_name||_user.email?.split('@')[0]||'Student';
+  const companyName='Skill-Up Now Private Limited';
+  const companyEmail='skillupnow.off@gmail.com';
+  const companyPhone='+91 93618 05877';
 
   if(fmt==='csv'){
-    let csv='Field,Value\n';
+    let csv=`"${companyName}"\n"Internship Performance Report"\n\n`;
+    csv+='Field,Value\n';
+    csv+=`Student Name,"${name}"\n`;
+    csv+=`Project,"${proj?.project_name||'—'}"\n`;
+    csv+=`Report Date,"${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}"\n\n`;
     if(checks.includes('attendance'))csv+=`Days Worked,${(sessions||[]).length}\nAttendance Rate,${Math.round(((sessions||[]).length/50)*100)}%\n`;
-    if(checks.includes('work_time')){const t=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);csv+=`Total Work Time,${fmtMins(t)}\n`}
-    if(checks.includes('breaks')){const b=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0)),0);csv+=`Total Break Time,${fmtMins(b)}\n`}
-    if(checks.includes('modules')){csv+=`Modules Total,${_assignments.length}\nModules Completed,${_assignments.filter(a=>a.status==='completed').length}\n`}
-    if(checks.includes('submissions'))csv+=`Submissions,${(subs||[]).length}\n`;
-    if(checks.includes('git')){const gl=new Set();_assignments.forEach(a=>{const u=a.git_push_link||(a.intern_program_modules||{}).git_push_link;if(u)gl.add(u)});csv+=`Git Repos,${gl.size}\n`}
+    if(checks.includes('work_time')){
+      const t=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+      const b=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0)),0);
+      csv+=`Total Work Time,"${fmtMins(t)}"\nTotal Break Time,"${fmtMins(b)}"\nNet Work Time,"${fmtMins(Math.max(0,t-b))}"\nTarget (8h/day),"${(sessions||[]).length*8}h"\n`;
+    }
+    if(checks.includes('modules')){csv+=`Modules Total,${_assignments.length}\nModules Completed,${_assignments.filter(a=>a.status==='completed').length}\nModules In Progress,${_assignments.filter(a=>a.status==='in_progress').length}\n`}
+    if(checks.includes('submissions'))csv+=`Total Submissions,${(subs||[]).length}\n`;
     if(checks.includes('attendance')&&(sessions||[]).length){
-      csv+='\nDate,Day,Login,Logout,Work Time,Break Time,Status\n';
+      csv+='\nDate,Day,Login Time,Logout Time,Total Time (min),Break Time (min),Break Types,Net Work (min),Status\n';
       (sessions||[]).forEach(s=>{
         const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
         const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
         const brk=(s.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0);
-        csv+=`${s.session_date||''},Day ${s.day_number||''},${login},${logout},${s.total_work_mins||0}m,${brk}m,${s.status||''}\n`;
+        const brkTypes=(s.intern_breaks||[]).map(br=>(BRK_LABELS[br.break_type]||'Break')+':'+( br.duration_mins||'?')+'m').join('; ');
+        const net=Math.max(0,(s.total_work_mins||0)-brk);
+        csv+=`${s.session_date||''},Day ${s.day_number||''},${login},${logout},${s.total_work_mins||0},${brk},"${brkTypes}",${net},${s.status||''}\n`;
       });
     }
-    const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`intern-report-${name}.csv`;a.click();
+    if(checks.includes('breaks')&&(sessions||[]).length){
+      csv+='\nBreak Detail Log\nDate,Break #,Break Type,Start,End,Duration (min)\n';
+      (sessions||[]).forEach(s=>{
+        (s.intern_breaks||[]).forEach(br=>{
+          const bStart=br.break_start?new Date(br.break_start).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'';
+          const bEnd=br.break_end?new Date(br.break_end).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'Active';
+          csv+=`${s.session_date||''},Break ${br.break_number},"${BRK_LABELS[br.break_type]||'General'}",${bStart},${bEnd},${br.duration_mins||0}\n`;
+        });
+      });
+    }
+    csv+=`\n"Report generated by ${companyName}"\n"Contact: ${companyPhone} | Email: ${companyEmail}"\n`;
+    const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`SkillUpNow-Report-${name.replace(/\s+/g,'_')}.csv`;a.click();
     toast('CSV exported!','ok');closeShareReport();return;
   }
 
-  // PDF via jsPDF
-  const{jsPDF}=window.jspdf;const doc=new jsPDF();let y=20;
-  doc.setFontSize(18);doc.setFont(undefined,'bold');doc.text('SkillUpNow — Internship Report',14,y);y+=10;
-  doc.setFontSize(10);doc.setFont(undefined,'normal');doc.setTextColor(100);
-  doc.text(`Student: ${name}  |  Project: ${proj?.project_name||'—'}  |  Generated: ${new Date().toLocaleDateString('en-IN')}`,14,y);y+=12;
+  // PDF via jsPDF — Professional A4 format
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pw=210,ph=297,ml=15,mr=15,cw=pw-ml-mr;
+  let y=15;
+
+  function addFooter(pageDoc){
+    const fy=ph-12;
+    pageDoc.setDrawColor(245,158,11);pageDoc.setLineWidth(0.3);pageDoc.line(ml,fy-3,pw-mr,fy-3);
+    pageDoc.setFontSize(7);pageDoc.setFont(undefined,'normal');pageDoc.setTextColor(120);
+    pageDoc.text(companyName,ml,fy);
+    pageDoc.text(`Phone: ${companyPhone}`,ml,fy+3.5);
+    pageDoc.textWithLink(`Email: ${companyEmail}`,ml,fy+7,{url:'mailto:'+companyEmail});
+    pageDoc.setTextColor(180);
+    pageDoc.text('Confidential — For internal use only',pw-mr,fy,{align:'right'});
+    pageDoc.text(`Page ${pageDoc.internal.getNumberOfPages()}`,pw-mr,fy+7,{align:'right'});
+  }
+
+  function checkPage(needed){if(y+needed>ph-22){addFooter(doc);doc.addPage();y=18;return true}return false}
+
+  // ── HEADER ──
+  doc.setFillColor(20,10,50);doc.rect(0,0,pw,42,'F');
+  doc.setFillColor(245,158,11);doc.rect(0,42,pw,2,'F');
+  doc.setFontSize(20);doc.setFont(undefined,'bold');doc.setTextColor(255,255,255);
+  doc.text(companyName,ml,20);
+  doc.setFontSize(11);doc.setFont(undefined,'normal');doc.setTextColor(251,191,36);
+  doc.text('Internship Performance Report',ml,28);
+  doc.setFontSize(8.5);doc.setTextColor(200,200,200);
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`,ml,35);
+  y=52;
+
+  // ── STUDENT INFO BOX ──
+  doc.setFillColor(248,247,255);doc.roundedRect(ml,y,cw,20,3,3,'F');
+  doc.setDrawColor(124,92,252);doc.setLineWidth(0.4);doc.roundedRect(ml,y,cw,20,3,3,'S');
+  doc.setFontSize(9);doc.setFont(undefined,'bold');doc.setTextColor(40);
+  doc.text('Student:',ml+5,y+7);doc.text('Project:',ml+5,y+14);
+  doc.setFont(undefined,'normal');doc.setTextColor(80);
+  doc.text(name,ml+28,y+7);doc.text(proj?.project_name||'—',ml+28,y+14);
+  doc.setFont(undefined,'bold');doc.setTextColor(40);
+  doc.text('Email:',cw/2+ml,y+7);doc.text('Days Worked:',cw/2+ml,y+14);
+  doc.setFont(undefined,'normal');doc.setTextColor(80);
+  doc.text(_user.email||'—',cw/2+ml+22,y+7);
+  doc.text(`${(sessions||[]).length} / 50`,cw/2+ml+34,y+14);
+  y+=28;
+
+  // ── SUMMARY STATS ──
+  const totalWrkMins=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+  const totalBrkMins=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0)),0);
+  const netWrkMins=Math.max(0,totalWrkMins-totalBrkMins);
+  const targetHrs=(sessions||[]).length*8;
+
+  const statBoxW=cw/4-3;
+  const stats=[
+    {label:'Total Work',val:fmtMins(totalWrkMins),clr:[16,185,129]},
+    {label:'Total Breaks',val:fmtMins(totalBrkMins),clr:[245,158,11]},
+    {label:'Net Work',val:fmtMins(netWrkMins),clr:[124,92,252]},
+    {label:'Target',val:targetHrs+'h',clr:[6,182,212]}
+  ];
+  stats.forEach((st,i)=>{
+    const sx=ml+i*(statBoxW+4);
+    doc.setFillColor(st.clr[0],st.clr[1],st.clr[2]);doc.roundedRect(sx,y,statBoxW,16,2,2,'F');
+    doc.setFontSize(11);doc.setFont(undefined,'bold');doc.setTextColor(255);
+    doc.text(st.val,sx+statBoxW/2,y+7,{align:'center'});
+    doc.setFontSize(6.5);doc.setFont(undefined,'normal');
+    doc.text(st.label,sx+statBoxW/2,y+12.5,{align:'center'});
+  });
+  y+=24;
+
   doc.setTextColor(0);
 
-  if(checks.includes('attendance')){
-    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Attendance',14,y);y+=7;
-    doc.setFontSize(10);doc.setFont(undefined,'normal');
-    doc.text(`Days worked: ${(sessions||[]).length} / 50  |  Attendance rate: ${Math.round(((sessions||[]).length/50)*100)}%`,14,y);y+=8;
-    // Daily attendance table with login/logout
-    if((sessions||[]).length){
-      doc.setFontSize(8);doc.setFont(undefined,'bold');
-      const cols=[14,38,62,86,110,145];
-      doc.setFillColor(230,225,250);doc.rect(12,y-3,185,6,'F');
-      ['Date','Day','Login','Logout','Work Time','Status'].forEach((h,i)=>doc.text(h,cols[i],y));
-      y+=5;doc.setFont(undefined,'normal');
-      (sessions||[]).forEach(s=>{
-        if(y>268){doc.addPage();y=20}
-        const dt=s.session_date||'—';
-        const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-        const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-        const work=s.total_work_mins?fmtMins(s.total_work_mins):'—';
-        const status=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
-        doc.text(dt,cols[0],y);doc.text('Day '+(s.day_number||''),cols[1],y);
-        doc.text(login,cols[2],y);doc.text(logout,cols[3],y);
-        doc.text(work,cols[4],y);doc.text(status,cols[5],y);
-        y+=4.5;doc.setDrawColor(220);doc.line(12,y-1,197,y-1);
-      });
-      doc.setFontSize(10);y+=5;
-    }
-  }
-  if(checks.includes('work_time')){
-    const t=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
-    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Work Time',14,y);y+=7;
-    doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text(`Total: ${fmtMins(t)}  |  Avg/day: ${(sessions||[]).length?fmtMins(Math.round(t/(sessions||[]).length)):'—'}`,14,y);y+=10;
-  }
-  if(checks.includes('breaks')){
-    const b=(sessions||[]).reduce((s,x)=>s+((x.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0)),0);
-    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Breaks',14,y);y+=7;
-    doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text(`Total break time: ${fmtMins(b)}`,14,y);y+=10;
-  }
-  if(checks.includes('modules')){
-    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Modules',14,y);y+=7;
-    doc.setFontSize(10);doc.setFont(undefined,'normal');
-    _assignments.forEach(a=>{const m=a.intern_program_modules||{};doc.text(`• ${m.module_name||'Module'} — ${a.status}`,16,y);y+=5;if(y>270){doc.addPage();y=20}});y+=5;
-  }
-  if(checks.includes('submissions')&&(subs||[]).length){
-    doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Submissions',14,y);y+=7;
-    doc.setFontSize(10);doc.setFont(undefined,'normal');
-    (subs||[]).forEach(s=>{doc.text(`• ${s.submission_title} — ${s.status} (${new Date(s.submitted_at).toLocaleDateString('en-IN')})`,16,y);y+=5;if(y>270){doc.addPage();y=20}});y+=5;
-  }
-  if(checks.includes('git')){
-    const gl=[];const seen=new Set();_assignments.forEach(a=>{const u=a.git_push_link||(a.intern_program_modules||{}).git_push_link;if(u&&!seen.has(u)){seen.add(u);gl.push(u)}});
-    if(gl.length){doc.setFontSize(13);doc.setFont(undefined,'bold');doc.text('Git Repositories',14,y);y+=7;doc.setFontSize(10);doc.setFont(undefined,'normal');gl.forEach(u=>{doc.text(`• ${u}`,16,y);y+=5})}
+  // ── ATTENDANCE TABLE ──
+  if(checks.includes('attendance')&&(sessions||[]).length){
+    doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(40);
+    doc.text('Attendance & Work Log',ml,y);y+=6;
+    doc.setFontSize(7);doc.setFont(undefined,'bold');
+    const cols=[ml,ml+22,ml+42,ml+62,ml+82,ml+102,ml+132,ml+158];
+    doc.setFillColor(245,158,11);doc.rect(ml,y-3,cw,5.5,'F');
+    doc.setTextColor(255);
+    ['Date','Day','Login','Logout','Work','Breaks','Break Types','Status'].forEach((h,i)=>doc.text(h,cols[i],y));
+    y+=4.5;doc.setFont(undefined,'normal');doc.setTextColor(50);
+    let rowAlt=false;
+    (sessions||[]).forEach(s=>{
+      checkPage(5);
+      if(rowAlt){doc.setFillColor(250,249,255);doc.rect(ml,y-3,cw,4.5,'F')}
+      rowAlt=!rowAlt;
+      const dt=s.session_date||'—';
+      const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+      const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+      const work=s.total_work_mins?fmtMins(s.total_work_mins):'—';
+      const brk=(s.intern_breaks||[]).reduce((a,br)=>a+(br.duration_mins||0),0);
+      const brkTypes=(s.intern_breaks||[]).map(br=>(BRK_LABELS[br.break_type]||'Brk').split(' ')[0]+':'+( br.duration_mins||'?')+'m').join(', ');
+      const status=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
+      doc.setTextColor(50);
+      doc.text(dt,cols[0],y);doc.text('Day '+(s.day_number||''),cols[1],y);
+      doc.setTextColor(16,185,129);doc.text(login,cols[2],y);
+      doc.setTextColor(124,92,252);doc.text(logout,cols[3],y);
+      doc.setTextColor(50);doc.text(work,cols[4],y);doc.text(fmtMins(brk),cols[5],y);
+      doc.setFontSize(6);doc.text((brkTypes||'None').substring(0,30),cols[6],y);doc.setFontSize(7);
+      doc.text(status,cols[7],y);
+      y+=4.5;doc.setDrawColor(230);doc.line(ml,y-1,pw-mr,y-1);
+    });
+    y+=6;
   }
 
-  doc.setFontSize(8);doc.setTextColor(150);doc.text('SkillUpNow · skillupnow.in · Confidential',14,285);
-  doc.save(`intern-report-${name}.pdf`);
+  // ── BREAK DETAIL TABLE ──
+  if(checks.includes('breaks')){
+    checkPage(20);
+    doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(40);
+    doc.text('Break Time Detail',ml,y);y+=6;
+    doc.setFontSize(7);doc.setFont(undefined,'bold');
+    const bCols=[ml,ml+25,ml+42,ml+75,ml+100,ml+128];
+    doc.setFillColor(124,92,252);doc.rect(ml,y-3,cw,5.5,'F');
+    doc.setTextColor(255);
+    ['Date','Break #','Break Type','Start Time','End Time','Duration'].forEach((h,i)=>doc.text(h,bCols[i],y));
+    y+=4.5;doc.setFont(undefined,'normal');doc.setTextColor(50);
+    (sessions||[]).forEach(s=>{
+      (s.intern_breaks||[]).forEach(br=>{
+        checkPage(5);
+        const bStart=br.break_start?new Date(br.break_start).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+        const bEnd=br.break_end?new Date(br.break_end).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'Active';
+        doc.text(s.session_date||'—',bCols[0],y);
+        doc.text('Break '+br.break_number,bCols[1],y);
+        doc.text(BRK_LABELS[br.break_type]||'General',bCols[2],y);
+        doc.text(bStart,bCols[3],y);doc.text(bEnd,bCols[4],y);
+        doc.text((br.duration_mins||0)+' min',bCols[5],y);
+        y+=4.5;doc.setDrawColor(230);doc.line(ml,y-1,pw-mr,y-1);
+      });
+    });
+    y+=6;
+  }
+
+  if(checks.includes('work_time')){
+    checkPage(15);
+    doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(40);
+    doc.text('Work Time Summary',ml,y);y+=6;
+    doc.setFontSize(9);doc.setFont(undefined,'normal');doc.setTextColor(60);
+    doc.text(`Total Work Time: ${fmtMins(totalWrkMins)}  |  Total Break Time: ${fmtMins(totalBrkMins)}  |  Net Work: ${fmtMins(netWrkMins)}`,ml,y);y+=5;
+    doc.text(`Target: ${targetHrs}h (8h/day)  |  Avg/day: ${(sessions||[]).length?fmtMins(Math.round(totalWrkMins/(sessions||[]).length)):'—'}  |  Days: ${(sessions||[]).length}/50`,ml,y);y+=8;
+  }
+
+  if(checks.includes('modules')){
+    checkPage(15);
+    doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(40);
+    doc.text('Module Progress',ml,y);y+=6;
+    doc.setFontSize(9);doc.setFont(undefined,'normal');doc.setTextColor(60);
+    const done=_assignments.filter(a=>a.status==='completed').length;
+    doc.text(`Completed: ${done}/${_assignments.length}  |  Progress: ${_assignments.length?Math.round(done/_assignments.length*100):0}%`,ml,y);y+=6;
+    _assignments.forEach(a=>{
+      checkPage(5);
+      const m=a.intern_program_modules||{};
+      const ic=a.status==='completed'?'[DONE]':(a.status==='in_progress'?'[WIP]':'[TODO]');
+      doc.text(`${ic} ${m.module_name||'Module'}`,ml+3,y);y+=4.5;
+    });y+=5;
+  }
+
+  if(checks.includes('submissions')&&(subs||[]).length){
+    checkPage(15);
+    doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(40);
+    doc.text('Submissions',ml,y);y+=6;
+    doc.setFontSize(9);doc.setFont(undefined,'normal');doc.setTextColor(60);
+    (subs||[]).forEach(s=>{
+      checkPage(5);
+      doc.text(`• ${s.submission_title} — ${s.status} (${new Date(s.submitted_at).toLocaleDateString('en-IN')})`,ml+3,y);y+=4.5;
+    });y+=5;
+  }
+
+  if(checks.includes('git')){
+    const gl=[];const seen=new Set();_assignments.forEach(a=>{const u=a.git_push_link||(a.intern_program_modules||{}).git_push_link;if(u&&!seen.has(u)){seen.add(u);gl.push(u)}});
+    if(gl.length){
+      checkPage(15);
+      doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(40);
+      doc.text('Git Repositories',ml,y);y+=6;
+      doc.setFontSize(9);doc.setFont(undefined,'normal');doc.setTextColor(60);
+      gl.forEach(u=>{checkPage(5);doc.textWithLink(`• ${u}`,ml+3,y,{url:u});y+=4.5});y+=5;
+    }
+  }
+
+  // Add footer to all pages
+  const totalPages=doc.internal.getNumberOfPages();
+  for(let p=1;p<=totalPages;p++){doc.setPage(p);addFooter(doc)}
+
+  doc.save(`SkillUpNow-Report-${name.replace(/\s+/g,'_')}.pdf`);
   toast('PDF report generated!','ok');closeShareReport();
 }
 

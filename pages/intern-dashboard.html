@@ -336,10 +336,14 @@
     .id-att-day {
       width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;
       font-size:.6rem; font-weight:700; cursor:default;
-      border:1px solid var(--border); background:var(--panel);
+      border:1.5px solid var(--border); background:var(--panel);
     }
-    .id-att-day.present { background:rgba(16,185,129,.15); color:var(--id-emerald); border-color:rgba(16,185,129,.3); }
-    .id-att-day.today { border-color:var(--id-gold); box-shadow:0 0 0 2px rgba(245,158,11,.2); }
+    .id-att-day.present { background:#10b981; color:#fff; border-color:#10b981; box-shadow:0 2px 6px rgba(16,185,129,.3); }
+    .id-att-day.today { border-color:#3b82f6; box-shadow:0 0 0 2.5px rgba(59,130,246,.35); }
+    .id-att-day.sunday { color:#ef4444; font-weight:800; }
+    .id-att-day.sunday.present { background:#10b981; color:#fff; }
+    .id-att-day.leave { border-color:#a855f7; box-shadow:0 0 0 2px rgba(168,85,247,.25); color:#a855f7; }
+    .id-att-day.holiday { color:#ef4444; }
 
     /* Responsive */
     @media(max-width:640px) {
@@ -428,17 +432,21 @@
                 </div>
                 <p style="font-size:.8rem;color:var(--txt3);margin-bottom:.5rem" id="id-started-at-text"></p>
 
-                <div class="id-break-row">
-                  <button class="id-break-btn" id="id-break1-btn" onclick="toggleBreak(1)">
+                <div style="margin-top:.8rem;display:flex;align-items:center;gap:.6rem;justify-content:center;flex-wrap:wrap">
+                  <select id="id-break-type" style="padding:.45rem .8rem;border-radius:10px;font-size:.78rem;font-weight:700;border:1.5px solid rgba(245,158,11,.35);background:rgba(245,158,11,.06);color:var(--id-gold);font-family:inherit;cursor:pointer;outline:none;min-width:160px">
+                    <option value="morning_break">Morning Break</option>
+                    <option value="lunch_break">Lunch Break</option>
+                    <option value="evening_break">Evening Break</option>
+                    <option value="tea_break">Tea Break</option>
+                    <option value="personal_break">Personal Break</option>
+                  </select>
+                  <button class="id-break-btn" id="id-break-toggle-btn" onclick="toggleBreakWithType()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
-                    Break 1
-                  </button>
-                  <button class="id-break-btn" id="id-break2-btn" onclick="toggleBreak(2)" disabled>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
-                    Break 2
+                    Start Break
                   </button>
                 </div>
-                <div class="id-break-info" id="id-break-info">Breaks: 30–45 min each</div>
+                <div class="id-break-info" id="id-break-info">Select break type, then start. Max 2 breaks per day.</div>
+                <div id="id-break-log" style="margin-top:.6rem;font-size:.72rem;color:var(--txt3);text-align:center"></div>
 
                 <div style="margin-top:1.5rem">
                   <button class="id-end-btn" id="id-end-btn" onclick="endWork()">
@@ -796,11 +804,13 @@
     document.getElementById('id-session-status').textContent = 'Completed';
     document.getElementById('id-session-status').style.color = 'var(--id-emerald)';
     if (_session) {
-      const mins = _session.total_work_mins || 0;
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
+      const totalMins = _session.total_work_mins || 0;
+      const breakMins = _session.total_break_mins || Object.values(_breakState).filter(Boolean).reduce((s,b) => s + (b.duration_mins || 0), 0);
+      const netMins = Math.max(0, totalMins - breakMins);
+      const h = Math.floor(netMins / 60);
+      const m = netMins % 60;
       document.getElementById('id-completed-summary').textContent =
-        `Worked ${h}h ${m}m today (Day ${_session.day_number})`;
+        `Day ${_session.day_number} — Total: ${Math.floor(totalMins/60)}h ${totalMins%60}m | Breaks: ${breakMins}m | Net Work: ${h}h ${m}m / 8h`;
     }
   }
 
@@ -892,19 +902,25 @@
   async function endWork() {
     if (!_session) return;
     const c = _client();
+    const now = new Date().toISOString();
+    const start = new Date(_session.start_time);
+    const totalMins = Math.round((new Date(now) - start) / 60000);
+    const breakMins = Object.values(_breakState).filter(Boolean).reduce((s,b) => s + (b.duration_mins || 0), 0);
+    const netMins = Math.max(0, totalMins - breakMins);
+
     const { error } = await c
       .from('intern_work_sessions')
-      .update({ end_time: new Date().toISOString(), status: 'completed' })
+      .update({ end_time: now, status: 'completed', total_work_mins: totalMins, total_break_mins: breakMins, net_work_mins: netMins })
       .eq('id', _session.id);
 
     if (error) { toast('Failed to end session', 'err'); return; }
 
     clearInterval(_timerInterval);
-    _session.end_time = new Date().toISOString();
+    _session.end_time = now;
     _session.status = 'completed';
-    const start = new Date(_session.start_time);
-    const end = new Date(_session.end_time);
-    _session.total_work_mins = Math.round((end - start) / 60000);
+    _session.total_work_mins = totalMins;
+    _session.total_break_mins = breakMins;
+    _session.net_work_mins = netMins;
     showCompleted();
     toast('Work day ended!', 'ok');
     const checkOut=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
@@ -929,72 +945,76 @@
   }
 
   /* ── Breaks ── */
+  const BREAK_LABELS = {
+    morning_break: 'Morning Break', lunch_break: 'Lunch Break', evening_break: 'Evening Break',
+    tea_break: 'Tea Break', personal_break: 'Personal Break', general: 'Break'
+  };
+
   function loadBreakState() {
     if (!_session?.intern_breaks) return;
-    _session.intern_breaks.forEach(b => {
-      _breakState[b.break_number] = b;
-      const btn = document.getElementById(`id-break${b.break_number}-btn`);
-      if (b.break_end) {
-        btn.textContent = `Break ${b.break_number} (${b.duration_mins || '?'}m)`;
-        btn.disabled = true;
-        btn.classList.remove('active');
-      } else {
-        btn.classList.add('active');
-        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> End Break ${b.break_number}`;
-      }
-    });
-    if (_breakState[1] && _breakState[1].break_end) {
-      document.getElementById('id-break2-btn').disabled = false;
+    _session.intern_breaks.forEach(b => { _breakState[b.break_number] = b; });
+    updateBreakUI();
+  }
+
+  function updateBreakUI() {
+    const btn = document.getElementById('id-break-toggle-btn');
+    const logEl = document.getElementById('id-break-log');
+    const breaks = Object.values(_breakState).filter(Boolean);
+    const activeBreak = breaks.find(b => b && !b.break_end);
+    const completedBreaks = breaks.filter(b => b && b.break_end);
+
+    if (activeBreak) {
+      btn.classList.add('active');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> End ${BREAK_LABELS[activeBreak.break_type] || 'Break'}`;
+      document.getElementById('id-break-info').textContent = `${BREAK_LABELS[activeBreak.break_type] || 'Break'} in progress…`;
+    } else if (completedBreaks.length >= 2) {
+      btn.disabled = true;
+      btn.textContent = 'All breaks used';
+      btn.classList.remove('active');
+    } else {
+      btn.disabled = false;
+      btn.classList.remove('active');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/></svg> Start Break`;
+      document.getElementById('id-break-info').textContent = `${completedBreaks.length}/2 breaks taken. Select type & start.`;
+    }
+
+    // Show break log
+    if (completedBreaks.length) {
+      logEl.innerHTML = completedBreaks.map(b =>
+        `<div>${BREAK_LABELS[b.break_type] || 'Break'}: ${b.duration_mins || '?'}m</div>`
+      ).join('');
     }
   }
 
-  async function toggleBreak(num) {
+  async function toggleBreakWithType() {
     const c = _client();
-    const existing = _breakState[num];
+    const breaks = Object.values(_breakState).filter(Boolean);
+    const activeBreak = breaks.find(b => b && !b.break_end);
 
-    if (!existing || !existing.id) {
-      const { data, error } = await c
-        .from('intern_breaks')
-        .insert({
-          session_id: _session.id,
-          student_user_id: _user.id,
-          break_number: num,
-          break_start: new Date().toISOString()
-        })
-        .select()
-        .single();
-
-      if (error) { toast('Failed to start break', 'err'); return; }
-      _breakState[num] = data;
-      const btn = document.getElementById(`id-break${num}-btn`);
-      btn.classList.add('active');
-      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> End Break ${num}`;
-      document.getElementById('id-break-info').textContent = `Break ${num} started — 30 to 45 min`;
-      toast(`Break ${num} started`, 'ok');
-    } else if (!existing.break_end) {
-      const startTime = new Date(existing.break_start);
-      const durMins = Math.round((Date.now() - startTime.getTime()) / 60000);
-
-      const { error } = await c
-        .from('intern_breaks')
-        .update({ break_end: new Date().toISOString() })
-        .eq('id', existing.id);
-
+    if (activeBreak) {
+      // End the active break
+      const durMins = Math.round((Date.now() - new Date(activeBreak.break_start).getTime()) / 60000);
+      const { error } = await c.from('intern_breaks')
+        .update({ break_end: new Date().toISOString(), duration_mins: durMins })
+        .eq('id', activeBreak.id);
       if (error) { toast('Failed to end break', 'err'); return; }
-      _breakState[num].break_end = new Date().toISOString();
-      const btn = document.getElementById(`id-break${num}-btn`);
-      btn.classList.remove('active');
-      btn.textContent = `Break ${num} (${durMins}m)`;
-      btn.disabled = true;
-
-      if (num === 1) document.getElementById('id-break2-btn').disabled = false;
-
-      document.getElementById('id-break-info').textContent =
-        durMins < 30 ? `Break ${num}: ${durMins}m (short — aim for 30–45m)`
-        : durMins > 45 ? `Break ${num}: ${durMins}m (over limit)`
-        : `Break ${num}: ${durMins}m`;
-      toast(`Break ${num} ended (${durMins}m)`, 'ok');
+      activeBreak.break_end = new Date().toISOString();
+      activeBreak.duration_mins = durMins;
+      toast(`${BREAK_LABELS[activeBreak.break_type] || 'Break'} ended (${durMins}m)`, 'ok');
+    } else {
+      // Start a new break
+      const completedBreaks = breaks.filter(b => b && b.break_end);
+      if (completedBreaks.length >= 2) { toast('Max 2 breaks per day', 'err'); return; }
+      const breakType = document.getElementById('id-break-type').value;
+      const breakNum = completedBreaks.length + 1;
+      const { data, error } = await c.from('intern_breaks')
+        .insert({ session_id: _session.id, student_user_id: _user.id, break_number: breakNum, break_start: new Date().toISOString(), break_type: breakType })
+        .select().single();
+      if (error) { toast('Failed to start break', 'err'); return; }
+      _breakState[breakNum] = data;
+      toast(`${BREAK_LABELS[breakType]} started`, 'ok');
     }
+    updateBreakUI();
   }
 
   /* ── Stats ── */

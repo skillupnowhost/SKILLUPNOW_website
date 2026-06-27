@@ -620,6 +620,74 @@
     #itn-toast.err  { border-color:rgba(244,63,94,.4); }
 
     /* ═══════════════════════════════════════════════════════
+       INTERNSHIP DETAIL POPUP
+    ═══════════════════════════════════════════════════════ */
+    .itn-detail-overlay {
+      position:fixed; inset:0; z-index:10000;
+      background:rgba(3,1,10,.78); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+      display:none; align-items:center; justify-content:center; padding:1rem;
+    }
+    .itn-detail-overlay.open { display:flex; animation:itnCardIn .25s ease; }
+    .itn-detail-box {
+      background:var(--bg2); border:1.5px solid rgba(245,158,11,.3); border-radius:24px;
+      max-width:620px; width:100%; max-height:90vh; overflow-y:auto; position:relative;
+      box-shadow:0 32px 80px rgba(0,0,0,.4),0 0 0 1px rgba(245,158,11,.15);
+      animation:itnCardIn .4s cubic-bezier(.22,1,.36,1) both;
+    }
+    .itn-detail-box::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:4px;
+      background:linear-gradient(90deg,#f59e0b,#fbbf24 40%,#10b981 75%,#fbbf24);
+      border-radius:24px 24px 0 0;
+    }
+    .itn-detail-close {
+      position:absolute; top:1rem; right:1rem; z-index:3;
+      width:34px; height:34px; border-radius:50%;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      font-size:.85rem; color:rgba(255,255,255,.7);
+      transition:background .2s,transform .28s;
+    }
+    .itn-detail-close:hover { background:rgba(244,63,94,.2); color:#f87171; transform:rotate(90deg) scale(1.1); }
+    :root[data-theme="light"] .itn-detail-close { background:rgba(0,0,0,.06); border-color:rgba(0,0,0,.1); color:var(--txt3); }
+    .itn-detail-header {
+      padding:2rem 2rem 1.2rem; position:relative;
+      background:linear-gradient(160deg,rgba(245,158,11,.08),rgba(16,185,129,.04));
+      border-bottom:1px solid var(--border);
+    }
+    .itn-detail-badges { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.8rem; }
+    .itn-detail-title { font-size:1.4rem; font-weight:900; color:var(--txt); letter-spacing:-.03em; margin-bottom:.3rem; }
+    .itn-detail-domain { font-size:.85rem; color:var(--txt3); font-weight:600; }
+    .itn-detail-body { padding:1.5rem 2rem; }
+    .itn-detail-section { margin-bottom:1.4rem; }
+    .itn-detail-section-title { font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--txt3); margin-bottom:.6rem; }
+    .itn-detail-desc { font-size:.88rem; color:var(--txt2); line-height:1.75; }
+    .itn-detail-tags { display:flex; flex-wrap:wrap; gap:.35rem; }
+    .itn-detail-tag { padding:.22rem .7rem; border-radius:999px; font-size:.68rem; font-weight:700; background:rgba(245,158,11,.1); color:var(--itn-gold); border:1px solid rgba(245,158,11,.22); }
+    .itn-detail-stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; }
+    @media(max-width:500px) { .itn-detail-stats-grid { grid-template-columns:repeat(2,1fr); } }
+    .itn-detail-stat {
+      padding:.7rem .8rem; border-radius:12px; text-align:center;
+      background:var(--panel); border:1px solid var(--border);
+    }
+    .itn-detail-stat-val { font-size:1.1rem; font-weight:900; color:var(--txt); }
+    .itn-detail-stat-lbl { font-size:.62rem; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.06em; margin-top:.15rem; }
+    .itn-detail-features { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.4rem; }
+    .itn-detail-features li { display:flex; align-items:flex-start; gap:.5rem; font-size:.84rem; color:var(--txt2); line-height:1.5; }
+    .itn-detail-feat-check { flex-shrink:0; width:18px; height:18px; border-radius:50%; background:rgba(16,185,129,.12); color:#10b981; display:flex; align-items:center; justify-content:center; margin-top:.1rem; }
+    .itn-detail-footer {
+      padding:1rem 2rem 1.6rem;
+      border-top:1px solid var(--border);
+      display:flex; gap:.8rem; flex-wrap:wrap;
+    }
+    .itn-detail-footer .itn-card-btn { flex:1; min-width:180px; margin-top:0; }
+    @media(max-width:600px) {
+      .itn-detail-header { padding:1.5rem 1.3rem 1rem; }
+      .itn-detail-body { padding:1.2rem 1.3rem; }
+      .itn-detail-footer { padding:.8rem 1.3rem 1.2rem; }
+      .itn-detail-title { font-size:1.2rem; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
        RESPONSIVE
     ═══════════════════════════════════════════════════════ */
     @media(max-width:900px) { .itn-sections { gap:2.4rem; padding:2.4rem 0 4rem; } }
@@ -1182,6 +1250,39 @@
   </main>
 
   <!-- ═══════════════════════════════════════════════════════
+       INTERNSHIP DETAIL POPUP
+  ═══════════════════════════════════════════════════════ -->
+  <div id="itn-detail-overlay" class="itn-detail-overlay" onclick="if(event.target===this)closeDetailPopup()">
+    <div class="itn-detail-box">
+      <button class="itn-detail-close" onclick="closeDetailPopup()">✕</button>
+      <div class="itn-detail-header">
+        <div class="itn-detail-badges" id="detail-badges"></div>
+        <div class="itn-detail-title" id="detail-title">Internship</div>
+        <div class="itn-detail-domain" id="detail-domain"></div>
+      </div>
+      <div class="itn-detail-body">
+        <div class="itn-detail-section">
+          <div class="itn-detail-section-title">About This Internship</div>
+          <div class="itn-detail-desc" id="detail-desc"></div>
+        </div>
+        <div class="itn-detail-section">
+          <div class="itn-detail-section-title">Technologies</div>
+          <div class="itn-detail-tags" id="detail-tags"></div>
+        </div>
+        <div class="itn-detail-section">
+          <div class="itn-detail-section-title">Programme Details</div>
+          <div class="itn-detail-stats-grid" id="detail-stats"></div>
+        </div>
+        <div class="itn-detail-section" id="detail-features-section">
+          <div class="itn-detail-section-title">What You'll Get</div>
+          <ul class="itn-detail-features" id="detail-features"></ul>
+        </div>
+      </div>
+      <div class="itn-detail-footer" id="detail-footer"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
        PAYMENT MODAL
   ═══════════════════════════════════════════════════════ -->
   <div id="itn-pay-overlay" class="itn-pay-overlay" onclick="if(event.target===this)closePayModal()">
@@ -1462,7 +1563,7 @@
           <div class="itn-card-icon-wrap" style="--itn-icon-c:#a78bfa">${icon.replace(/#10b981/g,'#a78bfa')}</div>
           <span class="itn-pill itn-pill-enrolled"><span class="itn-pill-dot"></span>Learner Perk</span>
         </div>
-        <div class="itn-card-body">
+        <div class="itn-card-body" onclick="openDetailPopup('${_itnEsc(p.id)}')" style="cursor:pointer">
           <div class="itn-card-tags">${tags}</div>
           <div class="itn-card-title">${p.project_name}</div>
           <p class="itn-card-desc">${p.description || 'No description provided.'}</p>
@@ -1517,7 +1618,7 @@
           <div class="itn-card-icon-wrap" style="--itn-icon-c:#f59e0b">${icon}</div>
           <span class="itn-pill itn-pill-paid"><span class="itn-pill-dot"></span>Paid</span>
         </div>
-        <div class="itn-card-body">
+        <div class="itn-card-body" onclick="openDetailPopup('${_itnEsc(p.id)}')" style="cursor:pointer">
           <div class="itn-card-tags">${tags}</div>
           <div class="itn-card-title">${p.project_name}</div>
           <p class="itn-card-desc">${p.description || 'No description provided.'}</p>
@@ -1625,6 +1726,7 @@
       } catch {}
     }
     if (!all.length) all = [...getFallbackFree(), ...getFallbackPaid()];
+    _allInternshipsCache = all;
 
     const ongoing  = all.filter(p => !p.internship_status || p.internship_status === 'ongoing');
     const upcoming = all.filter(p => p.internship_status === 'upcoming');
@@ -1961,6 +2063,98 @@
       btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit Application`;
     }
   });
+
+  /* ── Internship Detail Popup ── */
+  let _allInternshipsCache = [];
+  function openDetailPopup(projectId) {
+    const p = _allInternshipsCache.find(x => x.id === projectId);
+    if (!p) return;
+    const overlay = document.getElementById('itn-detail-overlay');
+
+    // Badges
+    const badges = [];
+    if (p.is_paid) badges.push('<span class="itn-pill itn-pill-paid"><span class="itn-pill-dot"></span>Paid</span>');
+    else badges.push('<span class="itn-pill itn-pill-enrolled"><span class="itn-pill-dot"></span>Learner Perk</span>');
+    if (p.internship_status === 'upcoming') badges.push('<span class="itn-pill itn-pill-soon"><span class="itn-pill-dot"></span>Upcoming</span>');
+    else badges.push('<span class="itn-pill itn-pill-free"><span class="itn-pill-dot"></span>Ongoing</span>');
+    document.getElementById('detail-badges').innerHTML = badges.join('');
+
+    document.getElementById('detail-title').textContent = p.project_name || 'Internship';
+    document.getElementById('detail-domain').textContent = [p.domain, p.duration_weeks ? p.duration_weeks + ' Weeks' : null].filter(Boolean).join(' · ');
+    document.getElementById('detail-desc').textContent = p.description || 'No description available.';
+
+    // Tags
+    const tags = (p.tech_stack || []).map(t => `<span class="itn-detail-tag">${_itnEsc(t)}</span>`).join('');
+    document.getElementById('detail-tags').innerHTML = tags || '<span style="color:var(--txt3);font-size:.82rem">No technologies specified</span>';
+
+    // Stats
+    const amt = p.payment_amount ? '₹' + Number(p.payment_amount).toLocaleString('en-IN') : 'Free';
+    document.getElementById('detail-stats').innerHTML = `
+      <div class="itn-detail-stat"><div class="itn-detail-stat-val">${p.duration_weeks || '—'}</div><div class="itn-detail-stat-lbl">Weeks</div></div>
+      <div class="itn-detail-stat"><div class="itn-detail-stat-val">${amt}</div><div class="itn-detail-stat-lbl">Fee</div></div>
+      <div class="itn-detail-stat"><div class="itn-detail-stat-val">✓</div><div class="itn-detail-stat-lbl">Certificate</div></div>
+    `;
+
+    // Features
+    const feats = p.learning_outcomes || [
+      'Real industry project experience',
+      'Weekly mentor code reviews',
+      'Completion certificate',
+      p.is_paid ? 'Monthly stipend included' : 'Free for enrolled learners',
+      'Portfolio-ready deliverables'
+    ];
+    document.getElementById('detail-features').innerHTML = feats.map(f =>
+      `<li><span class="itn-detail-feat-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span>${_itnEsc(f)}</span></li>`
+    ).join('');
+
+    // Footer buttons
+    let footerHtml = '';
+    if (!currentUser) {
+      footerHtml = `<button class="itn-card-btn itn-btn-login" onclick="closeDetailPopup();window.profileNav&&window.profileNav.openLoginModal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Login to Apply</button>`;
+    } else if (p.is_paid) {
+      footerHtml = `<button class="itn-card-btn itn-btn-paid" onclick="closeDetailPopup();openPayModal('${_itnEsc(p.id)}','${_itnEsc(p.project_name)}',${Number(p.payment_amount||0)})">
+        Pay & Apply (${amt})
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>`;
+    } else if (!isEnrolled) {
+      footerHtml = `<a class="itn-card-btn itn-btn-enroll" href="/courses" onclick="closeDetailPopup()">Skill Up → Step In Free</a>`;
+    } else {
+      footerHtml = `<button class="itn-card-btn itn-btn-free" onclick="closeDetailPopup();scrollToApply('${_itnEsc(p.project_name)}',false,'${_itnEsc(p.id)}',0)">
+        Apply Free <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>`;
+    }
+
+    // Check if user has assignment — show "Open Workspace" button
+    if (currentUser) {
+      const client = window.supabaseConfig?.client;
+      if (client) {
+        client.from('intern_program_assignments')
+          .select('id,internship_id')
+          .eq('student_user_id', currentUser.id)
+          .eq('internship_id', p.id)
+          .neq('status', 'revoked')
+          .limit(1)
+          .then(({ data }) => {
+            if (data && data.length) {
+              document.getElementById('detail-footer').innerHTML = `
+                <button class="itn-card-btn itn-btn-free" onclick="window.location.href='/pages/intern-working.html?id=${_itnEsc(p.id)}'">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Open Workspace
+                </button>`;
+            }
+          });
+      }
+    }
+
+    document.getElementById('detail-footer').innerHTML = footerHtml;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDetailPopup() {
+    document.getElementById('itn-detail-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
 
   /* ── Init ── */
   document.addEventListener('DOMContentLoaded', async function() {
