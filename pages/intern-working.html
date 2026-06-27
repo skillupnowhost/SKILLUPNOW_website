@@ -645,10 +645,18 @@ async function endWork(){
   if(btn){btn.disabled=true;btn.style.opacity='.6';}
   try{
     const c=C();const now=new Date().toISOString();
+
+    // Auto-end any active break before ending session
+    const activeBreak=Object.values(_brkState).find(b=>b&&!b.break_end);
+    if(activeBreak){
+      const brkDur=Math.round((new Date(now)-new Date(activeBreak.break_start))/60000);
+      await c.from('intern_breaks').update({break_end:now,duration_mins:brkDur}).eq('id',activeBreak.id);
+      activeBreak.break_end=now;activeBreak.duration_mins=brkDur;
+    }
+
     const totalMins=Math.round((new Date(now)-new Date(_session.start_time))/60000);
     const breakMins=Object.values(_brkState).filter(Boolean).reduce((s,b)=>s+(b.duration_mins||0),0);
     const netMins=Math.max(0,totalMins-breakMins);
-    const targetMins=480; // 8 hours = 480 mins
     await withRetry(async()=>{
       const{error}=await c.from('intern_work_sessions').update({end_time:now,status:'completed',total_work_mins:totalMins,total_break_mins:breakMins,net_work_mins:netMins}).eq('id',_session.id);
       if(error)throw error;
@@ -953,13 +961,16 @@ function showDayDetail(dateStr,event){
 
   const popup=document.createElement('div');
   popup.className='iw-day-detail show';
+  const breakDetails=(sess.intern_breaks||[]).map(b=>`<div class="iw-dd-row"><span class="iw-dd-label">${BRK_LABELS[b.break_type]||'Break '+b.break_number}</span><span class="iw-dd-val">${b.duration_mins||'?'}m</span></div>`).join('');
+
   popup.innerHTML=`
     <h4>${dateFmt} — Day ${sess.day_number||'—'}</h4>
     <div class="iw-dd-row"><span class="iw-dd-label">Login</span><span class="iw-dd-val green">${loginTime}</span></div>
     <div class="iw-dd-row"><span class="iw-dd-label">Logout</span><span class="iw-dd-val ${statusCls}">${logoutTime}</span></div>
-    <div class="iw-dd-row"><span class="iw-dd-label">Work Time</span><span class="iw-dd-val">${fmtMins(workMins)}</span></div>
+    <div class="iw-dd-row"><span class="iw-dd-label">Total Time</span><span class="iw-dd-val">${fmtMins(workMins)}</span></div>
     <div class="iw-dd-row"><span class="iw-dd-label">Break Time</span><span class="iw-dd-val">${fmtMins(breakMins)}</span></div>
-    <div class="iw-dd-row"><span class="iw-dd-label">Net Coding</span><span class="iw-dd-val green">${fmtMins(Math.max(0,workMins-breakMins))}</span></div>
+    ${breakDetails}
+    <div class="iw-dd-row"><span class="iw-dd-label">Net Work</span><span class="iw-dd-val green">${fmtMins(Math.max(0,workMins-breakMins))} / 8h</span></div>
     <div class="iw-dd-row"><span class="iw-dd-label">Status</span><span class="iw-dd-val">${status}</span></div>
     ${att?.notes?`<div style="margin-top:.3rem;font-size:.62rem;color:var(--txt3)">Note: ${esc(att.notes)}</div>`:''}
   `;
@@ -976,15 +987,18 @@ function renderAttendanceLog(){
   const el=document.getElementById('iw-att-log');
   const entries=Object.entries(_attData.sessions).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,10);
   if(!entries.length){el.innerHTML='<p style="font-size:.72rem;color:var(--txt3);text-align:center;padding:.5rem">No attendance records yet.</p>';return}
-  let html='<table><thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th><th>Status</th></tr></thead><tbody>';
+  let html='<table><thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Work</th><th>Breaks</th><th>Status</th></tr></thead><tbody>';
   entries.forEach(([date,s])=>{
     const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
     const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-    const hrs=s.total_work_mins?fmtMins(s.total_work_mins):'—';
+    const totalMins=s.total_work_mins||0;
+    const brkMins=(s.intern_breaks||[]).reduce((a,b)=>a+(b.duration_mins||0),0);
+    const netMins=Math.max(0,totalMins-brkMins);
+    const brkInfo=(s.intern_breaks||[]).map(b=>(BRK_LABELS[b.break_type]||'Brk').split(' ')[0]+':'+(b.duration_mins||'?')+'m').join(', ')||'—';
     const sc=s.status==='completed'?'att-completed':(s.status==='active'?'att-present':'att-late');
     const sl=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
     const df=new Date(date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
-    html+=`<tr><td>${df}</td><td style="color:#10b981;font-weight:600">${login}</td><td style="color:var(--iw-v);font-weight:600">${logout}</td><td>${hrs}</td><td><span class="att-status ${sc}">${sl}</span></td></tr>`;
+    html+=`<tr><td>${df}</td><td style="color:#10b981;font-weight:600">${login}</td><td style="color:var(--iw-v);font-weight:600">${logout}</td><td>${fmtMins(netMins)}</td><td style="font-size:.6rem">${brkInfo}</td><td><span class="att-status ${sc}">${sl}</span></td></tr>`;
   });
   html+='</tbody></table>';
   el.innerHTML=html;

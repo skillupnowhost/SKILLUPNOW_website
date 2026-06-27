@@ -903,6 +903,16 @@
     if (!_session) return;
     const c = _client();
     const now = new Date().toISOString();
+
+    // Auto-end any active break before ending session
+    const activeBreak = Object.values(_breakState).find(b => b && !b.break_end);
+    if (activeBreak) {
+      const brkDur = Math.round((new Date(now) - new Date(activeBreak.break_start)) / 60000);
+      await c.from('intern_breaks').update({ break_end: now, duration_mins: brkDur }).eq('id', activeBreak.id);
+      activeBreak.break_end = now;
+      activeBreak.duration_mins = brkDur;
+    }
+
     const start = new Date(_session.start_time);
     const totalMins = Math.round((new Date(now) - start) / 60000);
     const breakMins = Object.values(_breakState).filter(Boolean).reduce((s,b) => s + (b.duration_mins || 0), 0);

@@ -1335,6 +1335,7 @@
   let currentUser    = null;
   let isEnrolled     = false; // true only if user has an active/completed course enrollment
   let pendingPaidApp = null;
+  let _userAssignedIds = new Set(); // internship IDs assigned to current user
 
   /* ── Toast helper ── */
   function toast(msg, type = 'ok', duration = 3800) {
@@ -1373,9 +1374,9 @@
     });
   }
 
-  function renderPaidSectionState() {
+  async function renderPaidSectionState() {
+    await loadMyWorkingInternships();
     loadAllInternships();
-    loadMyWorkingInternships();
   }
 
   /* ── MY TASKS / WORKING section ── */
@@ -1403,10 +1404,15 @@
       return;
     }
 
-    // Show the section & update stat
+    // Show the section at the TOP & update stat
     section.style.display = '';
+    const sectionsContainer = section.parentElement;
+    if (sectionsContainer) sectionsContainer.prepend(section);
     statLabel.textContent = 'Working';
     statCard.onclick = () => section.scrollIntoView({ behavior:'smooth', block:'start' });
+
+    // Track assigned internship IDs for button rendering
+    _userAssignedIds = new Set(assignments.map(a => a.internship_id));
 
     // Group assignments by internship
     const grouped = {};
@@ -1535,9 +1541,16 @@
       `<span class="itn-card-tag itn-card-tag-g">${t}</span>`).join('');
     const dur  = p.duration_weeks ? `${p.duration_weeks}W` : '—';
 
-    // Gate button based on login + enrollment
+    // Gate button based on login + enrollment + assignment
     let freeBtn;
-    if (!currentUser) {
+    const isAssigned = currentUser && _userAssignedIds && _userAssignedIds.has(p.id);
+    if (isAssigned) {
+      freeBtn = `<button class="itn-card-btn itn-btn-free"
+        onclick="window.location.href='/pages/intern-working.html?id=${_itnEsc(p.id)}'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Open Workspace
+      </button>`;
+    } else if (!currentUser) {
       freeBtn = `<button class="itn-card-btn itn-btn-login"
         onclick="window.profileNav&&window.profileNav.openLoginModal()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
@@ -1595,14 +1608,23 @@
     const amount = p.payment_amount || 0;
     const amtFmt = amount > 0 ? `₹${amount.toLocaleString('en-IN')}` : 'Free';
 
-    const btnHtml = currentUser
-      ? `<button class="itn-card-btn itn-btn-paid"
+    const isPaidAssigned = currentUser && _userAssignedIds && _userAssignedIds.has(p.id);
+    let btnHtml;
+    if (isPaidAssigned) {
+      btnHtml = `<button class="itn-card-btn itn-btn-free"
+           onclick="window.location.href='/pages/intern-working.html?id=${_itnEsc(p.id)}'">
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+           Open Workspace
+         </button>`;
+    } else if (currentUser) {
+      btnHtml = `<button class="itn-card-btn itn-btn-paid"
            onclick="openPayModal('${p.id}','${p.project_name.replace(/'/g,"\\'")}',${amount})">
            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
            Pay &amp; Apply (${amtFmt})
            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-         </button>`
-      : `<div style="margin-top:.9rem;padding:.85rem 1rem;border:1.5px dashed rgba(245,158,11,.28);border-radius:12px;text-align:center;">
+         </button>`;
+    } else {
+      btnHtml = `<div style="margin-top:.9rem;padding:.85rem 1rem;border:1.5px dashed rgba(245,158,11,.28);border-radius:12px;text-align:center;">
            <div style="font-size:.78rem;color:var(--txt3);margin-bottom:.6rem;">Login required for paid internship</div>
            <button class="itn-card-btn itn-btn-login"
              style="margin-top:0;"
@@ -1610,6 +1632,7 @@
              Login / Sign Up
            </button>
          </div>`;
+    }
 
     return `
       <div class="itn-paid-card">
@@ -2124,7 +2147,9 @@
         Apply Free <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>`;
     }
 
-    // Check if user has assignment — show "Open Workspace" button
+    document.getElementById('detail-footer').innerHTML = footerHtml;
+
+    // Check if user has assignment — override with "Open Workspace" button
     if (currentUser) {
       const client = window.supabaseConfig?.client;
       if (client) {
@@ -2145,8 +2170,6 @@
           });
       }
     }
-
-    document.getElementById('detail-footer').innerHTML = footerHtml;
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -2159,8 +2182,8 @@
   /* ── Init ── */
   document.addEventListener('DOMContentLoaded', async function() {
     await initAuth();
+    await loadMyWorkingInternships();
     loadAllInternships();
-    loadMyWorkingInternships();
   });
   </script>
 </body>
