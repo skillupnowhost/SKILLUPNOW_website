@@ -1759,7 +1759,9 @@
     document.getElementById('stat-ongoing').textContent  = ongoing.length;
     document.getElementById('stat-upcoming').textContent = upcoming.length;
     document.getElementById('stat-free').textContent     = free.length;
-    document.getElementById('stat-paid').textContent     = paid.length;
+    if (!_userAssignedIds || _userAssignedIds.size === 0) {
+      document.getElementById('stat-paid').textContent   = paid.length;
+    }
 
     _renderInternGrid('itn-ongoing-grid',  ongoing,  'itn-count-ongoing',  null);
     _renderInternGrid('itn-upcoming-grid', upcoming, 'itn-count-upcoming', null);
