@@ -2571,6 +2571,24 @@ function startRealtimeSubscriptions() {
       if (activeSection === 'section-holidays') loadHolidays();
     })
     .subscribe();
+
+  client.channel('md-batches-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'course_batches', filter: `primary_mentor_user_id=eq.${mentorUserId}` }, () => {
+      loadBatches();
+      loadOverview();
+    })
+    .subscribe();
+
+  client.channel('md-attendance-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'class_attendance' }, () => {
+      const activeSection = document.querySelector('.section.active')?.id;
+      if (activeSection === 'section-students') loadStudents();
+    })
+    .subscribe();
+
+  client.channel('md-notifications-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${mentorUserId}` }, () => loadOverview())
+    .subscribe();
 }
 
 async function loadOverview() {

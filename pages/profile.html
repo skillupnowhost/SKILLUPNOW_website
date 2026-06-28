@@ -1083,10 +1083,13 @@ function initRealtimeProfile() {
 
   _profileRealtimeChannel = _db().channel('profile-live-updates')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'enrollments', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'user_enrollments', filter: `user_id=eq.${currentUser.id}` }, refresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'payments', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'user_profiles', filter: `user_id=eq.${currentUser.id}` }, () => { loadProfile(); refresh(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'class_attendance', filter: `student_user_id=eq.${currentUser.id}` }, refresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'class_sessions' }, refresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'live_recordings' }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${currentUser.id}` }, refresh)
     .subscribe();
 }
 

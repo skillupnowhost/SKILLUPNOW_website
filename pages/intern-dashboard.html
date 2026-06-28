@@ -2712,6 +2712,53 @@ async function gitPush(){
   btn.disabled=false;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg> Push to GitHub';
 }
 
+/* ── Realtime subscriptions ── */
+function _initInternRealtime(){
+  const c=C();if(!c||!_user||!_enrollment)return;
+  const eid=_enrollment.id;
+  const uid=_user.id;
+  const pid=_intId;
+  const _rtT={};
+  function _rtD(k,fn,d){clearTimeout(_rtT[k]);_rtT[k]=setTimeout(fn,d||800);}
+
+  c.channel('intern-rt-session')
+    .on('postgres_changes',{event:'*',schema:'public',table:'intern_work_sessions',filter:`enrollment_id=eq.${eid}`},()=>_rtD('sess',()=>{loadSession();loadStats();}))
+    .on('postgres_changes',{event:'*',schema:'public',table:'intern_breaks'},()=>_rtD('sess',()=>loadSession()))
+    .subscribe();
+
+  c.channel('intern-rt-assignments')
+    .on('postgres_changes',{event:'*',schema:'public',table:'intern_program_assignments',filter:`student_user_id=eq.${uid}`},()=>_rtD('asgn',async()=>{
+      const{data}=await c.from('intern_program_assignments').select('*,intern_program_modules(id,module_name,description,deadline,git_push_link,order_num)')
+        .eq('student_user_id',uid).eq('internship_id',pid).neq('status','revoked').order('assigned_at');
+      _assignments=data||[];renderModules();loadStats();
+    }))
+    .subscribe();
+
+  c.channel('intern-rt-attendance')
+    .on('postgres_changes',{event:'*',schema:'public',table:'intern_attendance',filter:`enrollment_id=eq.${eid}`},()=>_rtD('atd',()=>{renderAttendance();loadStats();}))
+    .subscribe();
+
+  c.channel('intern-rt-submissions')
+    .on('postgres_changes',{event:'*',schema:'public',table:'intern_submissions',filter:`enrollment_id=eq.${eid}`},()=>_rtD('sub',()=>{loadSubmissions();loadStats();}))
+    .subscribe();
+
+  c.channel('intern-rt-git')
+    .on('postgres_changes',{event:'*',schema:'public',table:'intern_git_permissions',filter:`enrollment_id=eq.${eid}`},()=>_rtD('git',loadGitPermission))
+    .subscribe();
+
+  c.channel('intern-rt-tasks')
+    .on('postgres_changes',{event:'*',schema:'public',table:'intern_session_tasks',filter:`enrollment_id=eq.${eid}`},()=>_rtD('tasks',loadSessionTasks))
+    .subscribe();
+
+  c.channel('intern-rt-enrollment')
+    .on('postgres_changes',{event:'*',schema:'public',table:'internship_enrollments',filter:`id=eq.${eid}`},()=>_rtD('enroll',initPage))
+    .subscribe();
+}
+
+// Hook realtime after loadAll completes
+const _origLoadAll=loadAll;
+loadAll=async function(){await _origLoadAll();_initInternRealtime();};
+
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded',initAuth);
   </script>

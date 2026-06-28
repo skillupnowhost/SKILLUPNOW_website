@@ -8829,39 +8829,65 @@ async function initDropdowns() {
 // ===== RECORDING FORM RESET =====
 // ===== REALTIME SUBSCRIPTIONS =====
 function initRealtime() {
-  const sectionRefresh = {
-    courses: loadCourses,
-    payments: loadPayments,
-    enrollments: loadEnrollments,
-    live_recordings: loadRecordings,
-    holidays: loadHolidays,
-    class_sessions: loadSchedules,
-    class_attendance: loadSchedules,
-    user_profiles: loadUsers,
-    course_batches: loadBatches,
-    discounts: loadDiscounts,
-    reviews: loadReviews,
-    form_submissions: loadFormsSection,
-    feedback: loadFormsSection,
+  const _rtTimers = {};
+  function _rtDebounce(key, fn, delay) {
+    clearTimeout(_rtTimers[key]);
+    _rtTimers[key] = setTimeout(fn, delay || 600);
+  }
+
+  // Every Supabase table → the admin section(s) it feeds and their loader
+  const _rtTableMap = {
+    courses:                  [{ sec: 'courses',              fn: loadCourses }],
+    course_categories:        [{ sec: 'categories',           fn: loadCategories }],
+    course_pricing:           [{ sec: 'pricing',              fn: loadPricing }],
+    course_batches:           [{ sec: 'batches',              fn: loadBatches }],
+    course_interests:         [{ sec: 'interests',            fn: loadInterested }],
+    user_profiles:            [{ sec: 'users',                fn: loadUsers }],
+    mentor_profiles:          [{ sec: 'mentors',              fn: loadMentors }],
+    mentor_documents:         [{ sec: 'mentors',              fn: loadMentors }],
+    enrollments:              [{ sec: 'enrollments',          fn: loadEnrollments }],
+    user_enrollments:         [{ sec: 'enrollments',          fn: loadEnrollments }],
+    payments:                 [{ sec: 'payments',             fn: loadPayments }],
+    payment_schedules:        [{ sec: 'emi',                  fn: loadEmi }],
+    discount_campaigns:       [{ sec: 'discounts',            fn: loadDiscounts },
+                               { sec: 'pricing',              fn: loadPricing }],
+    referral_codes:           [{ sec: 'referrals',            fn: loadReferrals }],
+    referral_logs:            [{ sec: 'referrals',            fn: loadReferrals }],
+    reviews:                  [{ sec: 'reviews',              fn: loadReviews }],
+    feedback:                 [{ sec: 'feedback',             fn: loadFeedback },
+                               { sec: 'forms',                fn: loadFormsSection }],
+    form_submissions:         [{ sec: 'forms',                fn: loadFormsSection }],
+    site_forms:               [{ sec: 'forms',                fn: loadFormsSection }],
+    inquiries:                [{ sec: 'inquiries',            fn: loadInquiries }],
+    holidays:                 [{ sec: 'holidays',             fn: loadHolidays }],
+    live_recordings:          [{ sec: 'recordings',           fn: loadRecordings }],
+    class_sessions:           [{ sec: 'schedules',            fn: loadSchedules }],
+    class_attendance:         [{ sec: 'schedules',            fn: loadSchedules }],
+    project_requirements:     [{ sec: 'project-requirements', fn: loadClientRequirements }],
+    internship_projects:      [{ sec: 'internships',          fn: loadInternships },
+                               { sec: 'internships-mgmt',     fn: loadInternshipsMgmt }],
+    internship_enrollments:   [{ sec: 'internships-mgmt',     fn: loadInternshipsMgmt }],
+    internship_applications:  [{ sec: 'internships-mgmt',     fn: loadInternshipsMgmt }],
+    intern_daily_reports:     [{ sec: 'internships-mgmt',     fn: loadInternshipsMgmt }],
+    intern_attendance:        [{ sec: 'internships-mgmt',     fn: loadInternshipsMgmt }],
+    intern_work_sessions:     [{ sec: 'internships-mgmt',     fn: loadInternshipsMgmt }],
+    notifications:            [],
+    activity_logs:            [],
   };
 
-  const tables = ['courses', 'payments', 'enrollments', 'live_recordings', 'holidays', 'class_sessions', 'class_attendance', 'user_profiles', 'course_batches', 'discounts', 'reviews', 'form_submissions', 'feedback'];
-  const tableToSection = {
-    courses: 'courses', payments: 'payments', enrollments: 'enrollments',
-    live_recordings: 'recordings', holidays: 'holidays', class_sessions: 'schedules', class_attendance: 'schedules', user_profiles: 'users',
-    course_batches: 'batches', discounts: 'discounts', reviews: 'reviews', form_submissions: 'forms', feedback: 'forms',
-  };
-
-  tables.forEach(table => {
+  Object.entries(_rtTableMap).forEach(([table, targets]) => {
     db.client.channel(`admin-rt-${table}`)
       .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
-        const fn = sectionRefresh[table];
-        if (!fn) return;
-        const activeSection = document.querySelector('.section.active');
-        if (!activeSection) return;
-        const secId = activeSection.id.replace('section-', '');
-        if (secId === tableToSection[table]) fn();
-        if (secId === 'dashboard') loadDashboard();
+        const activeEl = document.querySelector('.section.active');
+        const secId = activeEl ? activeEl.id.replace('section-', '') : '';
+
+        // Refresh the active section if it matches any target
+        targets.forEach(t => {
+          if (secId === t.sec) _rtDebounce('sec-' + t.sec, t.fn, 500);
+        });
+
+        // Always refresh dashboard stats + sidebar badges (debounced)
+        _rtDebounce('dashboard-badges', loadDashboard, 1500);
       })
       .subscribe();
   });
