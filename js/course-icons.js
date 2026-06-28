@@ -33,19 +33,19 @@
     const s = (title || '').toLowerCase();
     if (/machine\s*learn|ml\b|deep\s*learn|neural|nlp|llm|gpt|gen\s*ai|generative/.test(s)) return 'ml';
     if (/\bai\b|artificial\s*intel|computer\s*vision/.test(s)) return 'ai';
-    if (/student|intern|trainee|learner|beginner|fresher/.test(s)) return 'student';
     if (/devops|ci\/?cd|jenkins|kubernetes|k8s|docker|ansible|terraform|pipeline/.test(s)) return 'devops';
     if (/cloud|aws|azure|gcp|serverless|\bs3\b|\bec2\b|\blambda\b/.test(s)) return 'cloud';
     if (/cyber|security|ethical\s*hack|pentest|vapt|\bsoc\b|siem|firewall/.test(s)) return 'cyber';
-    if (/data|analytics|power\s*bi|tableau|\bsql\b|bigquery|spark|hadoop|etl/.test(s)) return 'data';
+    if (/data\s*sci|analytics|power\s*bi|tableau|\bsql\b|bigquery|spark|hadoop|etl|\bdata\b/.test(s)) return 'data';
     if (/\btest|qa\b|selenium|playwright|automation|jest|cypress|postman/.test(s)) return 'testing';
     if (/network|ccna|ccnp|cisco|routing|switching|\bvpn\b/.test(s)) return 'network';
     if (/linux|unix|\bbash\b|shell\s*script|sysadmin|rhel/.test(s)) return 'linux';
-    if (/java\b|python|react|angular|vue|node\.?js|web\s*dev|frontend|backend|fullstack|php|spring/.test(s)) return 'webdev';
+    if (/java\b|python|react|angular|vue|node\.?js|web\s*dev|frontend|backend|fullstack|php|spring|webinar/.test(s)) return 'webdev';
     if (/business|finance|accounting|entrepreneur|startup|\bmba\b/.test(s)) return 'business';
     if (/commun|english|speak|vocal|public\s*speak|present|languag/.test(s)) return 'comm';
     if (/lead|manag|\bhr\b|people|strategy|scrum|agile|\bpmp\b/.test(s)) return 'leader';
     if (/interview|career|\bjob\b|placement|resume/.test(s)) return 'career';
+    if (/student|intern|trainee|learner|beginner|fresher/.test(s)) return 'student';
     return 'default';
   }
 

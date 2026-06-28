@@ -1102,7 +1102,8 @@
       <div class="table-card">
         <div class="table-header">
           <h3>Mentor Management</h3>
-          <div class="table-actions">
+          <div class="table-actions filter-bar">
+            <input class="tbl-search" placeholder="Search mentors…" oninput="filterTable('mentor-tbody',this.value,[0,1])">
             <select id="mentor-status-filter" onchange="loadMentors()">
               <option value="">All Status</option>
               <option value="pending">Pending Approval</option>
@@ -1113,8 +1114,8 @@
           </div>
         </div>
         <div class="table-scroll"><table class="data-table">
-          <thead><tr><th style="width:32px;"><input type="checkbox" class="bulk-check" onchange="toggleSelectAll('mentor-tbody',this.checked,'mentors')"></th><th>Name</th><th>Email</th><th>Qualifications</th><th>Expertise</th><th>Experience</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="mentor-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
+          <thead><tr><th>Name</th><th>Email</th><th>Qualifications</th><th>Expertise</th><th>Experience</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="mentor-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -2323,7 +2324,7 @@
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Date</th><th>Project</th><th>Module</th><th>Description</th><th>Deadline</th><th>Branch</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Scheduled</th><th>Project</th><th>Module</th><th>Description</th><th>Deadline</th><th>Branch</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="mod-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
@@ -2878,7 +2879,7 @@
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Date</th><th>Internship</th><th>Module</th><th>Description</th><th>Deadline</th><th>Git Link</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Scheduled</th><th>Internship</th><th>Module</th><th>Description</th><th>Deadline</th><th>Git Link</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="ipm-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
@@ -4490,8 +4491,9 @@ async function loadCategories() {
   const cleanSlug = s => (s || '').replace(/\bcourses[-_]?/gi, '').replace(/[-_]+/g, '-').replace(/^-|-$/g, '') || s;
   document.getElementById('category-tbody').innerHTML = (data||[]).map(c => {
     const slug = cleanSlug(c.slug);
-    const iconKey = c.icon_name || c.icon || '';
-    const iconInfo = window.CourseIcons ? window.CourseIcons.getInfo(iconKey || c.name || '') : null;
+    const storedIcon = c.icon_name || c.icon || '';
+    const iconKey = (storedIcon && storedIcon !== 'default' && storedIcon !== 'general') ? storedIcon : (c.name || '');
+    const iconInfo = window.CourseIcons ? window.CourseIcons.getInfo(iconKey) : null;
     const iconHtml = iconInfo
       ? `<div style="width:36px;height:36px;border-radius:10px;background:${iconInfo.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,.35);overflow:hidden;"><div style="width:24px;height:24px;">${iconInfo.svg}</div></div>`
       : `<div style="width:36px;height:36px;border-radius:10px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📚</div>`;
@@ -4514,8 +4516,8 @@ async function loadCategories() {
   }).join('') || '<tr><td colspan="5" class="table-empty">No categories</td></tr>';
   const opts = (data||[]).map(c => {
     const k = c.icon_name || c.icon || '';
-    const label = window.CourseIcons ? window.CourseIcons.getKey(k || c.name || '') : 'default';
-    const emoji = {ml:'🤖',devops:'⚙️',cloud:'☁️',cyber:'🔒',data:'📊',testing:'🧪',network:'🌐',linux:'🐧',webdev:'💻',business:'💼',comm:'🎤',leader:'🏆',career:'🚀',default:'📚'}[label] || '📚';
+    const label = window.CourseIcons ? window.CourseIcons.getKey((k && k !== 'default' && k !== 'general') ? k : c.name || '') : 'default';
+    const emoji = {ai:'🧠',ml:'🤖',devops:'⚙️',cloud:'☁️',cyber:'🔒',data:'📊',testing:'🧪',network:'🌐',linux:'🐧',webdev:'💻',business:'💼',comm:'🎤',leader:'🏆',career:'🚀',student:'🎓',default:'📚'}[label] || '📚';
     return `<option value="${c.id}">${emoji} ${c.name}</option>`;
   }).join('');
   const el = document.getElementById('c-category'); if (el) el.innerHTML = '<option value="">None</option>' + opts;
@@ -6514,11 +6516,11 @@ async function saveCourse() {
 }
 
 // ==================== CATEGORY ICON PICKER ====================
-const _CAT_ICON_KEYS = ['ml','devops','cloud','cyber','data','testing','network','linux','webdev','business','comm','leader','career','default'];
+const _CAT_ICON_KEYS = ['ai','ml','devops','cloud','cyber','data','testing','network','linux','webdev','business','comm','leader','career','student','default'];
 const _CAT_ICON_LABELS = {
-  ml:'AI / ML', devops:'DevOps', cloud:'Cloud', cyber:'Cyber', data:'Data',
+  ai:'AI', ml:'ML', devops:'DevOps', cloud:'Cloud', cyber:'Cyber', data:'Data',
   testing:'Testing', network:'Network', linux:'Linux', webdev:'Web Dev',
-  business:'Business', comm:'Comm', leader:'Leader', career:'Career', default:'General'
+  business:'Business', comm:'Comm', leader:'Leader', career:'Career', student:'Student', default:'General'
 };
 
 function _catIconInit() {
@@ -6527,9 +6529,9 @@ function _catIconInit() {
   grid.innerHTML = _CAT_ICON_KEYS.map(key => {
     const info = window.CourseIcons.getInfo(key);
     return `<div class="cat-icon-tile" data-key="${key}" onclick="_catIconSetKey('${key}')" title="${_CAT_ICON_LABELS[key]||key}"
-      style="cursor:pointer;border-radius:10px;padding:.35rem .2rem;display:flex;flex-direction:column;align-items:center;gap:.25rem;background:rgba(255,255,255,.04);border:2px solid transparent;transition:all .18s;">
+      style="cursor:pointer;border-radius:10px;padding:.35rem .2rem;display:flex;flex-direction:column;align-items:center;gap:.25rem;background:color-mix(in srgb, var(--v1) 6%, transparent);border:2px solid transparent;transition:all .18s;">
       <div style="width:30px;height:30px;">${info.svg}</div>
-      <span style="font-size:.52rem;color:rgba(255,255,255,.55);text-align:center;line-height:1.1;">${_CAT_ICON_LABELS[key]||key}</span>
+      <span style="font-size:.52rem;color:var(--txt3);text-align:center;line-height:1.1;">${_CAT_ICON_LABELS[key]||key}</span>
     </div>`;
   }).join('');
 }
@@ -6547,7 +6549,7 @@ function _catIconSetKey(key) {
   if (lbl) lbl.textContent = _CAT_ICON_LABELS[key] || key;
   document.querySelectorAll('.cat-icon-tile').forEach(t => {
     const sel = t.dataset.key === key;
-    t.style.background = sel ? 'rgba(124,58,237,.28)' : 'rgba(255,255,255,.04)';
+    t.style.background = sel ? 'color-mix(in srgb, var(--v1) 18%, transparent)' : 'color-mix(in srgb, var(--v1) 6%, transparent)';
     t.style.borderColor = sel ? '#7c3aed' : 'transparent';
   });
 }
@@ -9179,6 +9181,30 @@ function editMentor(id) {
   return viewMentor(id, true);
 }
 
+async function deleteMentor(userId, name) {
+  const confirmed = await _adminModal({
+    title: 'Delete Mentor',
+    message: `Are you sure you want to permanently delete mentor "${name}"?\n\nThis will remove their mentor profile. Their user account will remain.`,
+    type: 'danger'
+  });
+  if (!confirmed) return;
+  try {
+    const { error } = await db.client.from('mentor_profiles').delete().eq('user_id', userId);
+    if (error) throw error;
+    // Reset role to student
+    try {
+      await db.client.rpc('admin_update_user_role', { p_user_id: userId, p_new_role: 'user' });
+    } catch(_) {
+      await db.client.from('user_profiles').update({ role: 'user', updated_at: new Date().toISOString() }).eq('user_id', userId);
+    }
+    _showAdminToast('Mentor deleted successfully.', 'success');
+    closeModal('user-modal');
+    loadMentors();
+  } catch (err) {
+    _showAdminToast('Delete failed: ' + (err.message || 'Unknown error'), 'error');
+  }
+}
+
 async function loadMentors() {
   const statusFilter = document.getElementById('mentor-status-filter').value;
   let q = db.client.from('mentor_profiles').select('*');
@@ -9190,23 +9216,37 @@ async function loadMentors() {
   const profileMap = await fetchProfileMap(mentors.map(item => item.user_id));
   const ratingMap = await fetchMentorRatingMap(mentors.map(item => item.user_id));
 
-  document.getElementById('mentor-tbody').innerHTML = mentors.map(m => `
-    <tr>
-      <td>${adminMentorText(profileMap[m.user_id]?.full_name)}</td>
-      <td>${adminMentorText(profileMap[m.user_id]?.email)}</td>
-      <td>${adminMentorText(m.qualifications)}</td>
-      <td>${adminMentorText((m.expertise_areas || []).slice(0, 2).join(', '))}</td>
-      <td>${adminMentorExperience(m.years_of_experience)}</td>
+  document.getElementById('mentor-tbody').innerHTML = mentors.map(m => {
+    const p = profileMap[m.user_id] || {};
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.72rem;flex-shrink:0">${(p.full_name||'?')[0].toUpperCase()}</div>
+          <div><div style="font-weight:700;font-size:.82rem;color:var(--txt)">${_adm_esc(p.full_name||'—')}</div>${m.designation ? `<div style="font-size:.65rem;color:var(--txt3)">${_adm_esc(m.designation)}</div>` : ''}</div>
+        </div>
+      </td>
+      <td style="font-size:.8rem">${_adm_esc(p.email||'—')}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${adminMentorText(m.qualifications)}</td>
+      <td>${(m.expertise_areas||[]).slice(0,2).map(e => `<span class="badge badge-purple" style="font-size:.6rem;margin:.1rem">${_adm_esc(e)}</span>`).join('')||'<span style="color:var(--txt4);font-size:.75rem">—</span>'}</td>
+      <td style="text-align:center">${m.years_of_experience ? m.years_of_experience + ' yr' + (m.years_of_experience>1?'s':'') : '—'}</td>
       <td>${adminBuildPremiumStars(ratingMap[m.user_id]?.avg ?? m.average_rating ?? 0)}</td>
       <td>${statusBadge(m.status)}</td>
-      <td><div class="action-btns">
-        ${m.status === 'pending' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">&#10003; Approve</button><button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">&#10005; Reject</button>` : ''}
-        ${m.status === 'rejected' ? `<button class="action-btn" onclick="approveMentor('${m.user_id}','approved')">&#8635; Re-approve</button>` : ''}
-        ${m.status === 'approved' ? `<button class="action-btn danger" onclick="openRejectMentor('${m.user_id}')">&#10005; Revoke</button>` : ''}
-        <button class="action-btn" onclick="editMentor('${m.user_id}')">Edit</button>
-        <button class="action-btn" onclick="viewMentor('${m.user_id}')">View</button>
-      </div></td>
-    </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No mentors</td></tr>';
+      <td>
+        <div class="kebab-wrap">
+          <button class="kebab-btn" onclick="toggleKebab(this)" title="Actions">⋮</button>
+          <div class="kebab-menu">
+            <button class="kebab-item" onclick="viewMentor('${m.user_id}')">👁 View Details</button>
+            <button class="kebab-item" onclick="editMentor('${m.user_id}')">✏ Edit Mentor</button>
+            ${m.status === 'pending' ? `<button class="kebab-item" onclick="approveMentor('${m.user_id}','approved')">✓ Approve</button>` : ''}
+            ${m.status === 'pending' ? `<button class="kebab-item danger" onclick="openRejectMentor('${m.user_id}')">✕ Reject</button>` : ''}
+            ${m.status === 'rejected' ? `<button class="kebab-item" onclick="approveMentor('${m.user_id}','approved')">↻ Re-approve</button>` : ''}
+            ${m.status === 'approved' ? `<button class="kebab-item danger" onclick="openRejectMentor('${m.user_id}')">✕ Revoke</button>` : ''}
+            <button class="kebab-item danger" onclick="deleteMentor('${m.user_id}','${_adm_esc(p.full_name||'')}')">🗑 Delete Mentor</button>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" class="table-empty">No mentors</td></tr>';
 
   const opts = mentors
     .filter(m => m.status === 'approved')
@@ -9242,31 +9282,67 @@ async function viewMentor(id, editMode = false) {
   const roleRow = document.getElementById('user-role-change-row');
   if (roleRow) roleRow.style.display = 'none';
 
-  document.getElementById('user-detail-content').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
-      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${adminMentorText(profile.full_name)}</div>
-      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${adminMentorText(profile.email)}</div>
-      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${adminMentorText(profile.phone)}</div>
-      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
-      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${adminMentorExperience(m.years_of_experience)}</div>
-      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>${adminBuildPremiumStars(liveRating)}</div>
-    </div>
-    <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${adminMentorText(m.qualifications)}</div>
-    <div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${adminMentorText((m.expertise_areas || []).join(', '))}</div>
-    ${m.bio ? `<div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${adminEscapeHtml(m.bio)}</div>` : ''}
-    ${m.linkedin_url ? `<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile &rarr;</a></div>` : ''}
-    <div style="margin-top:1rem;padding:1rem;border:1px solid rgba(124,92,252,.18);border-radius:12px;background:rgba(124,92,252,.05);">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;">
-        <div>
-          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);">Mentor Editor</div>
-          <div class="mentor-inline-note">Updates save directly to the live database and refresh the table immediately.</div>
+  const initials = (profile.full_name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+
+  if (!editMode) {
+    // ── VIEW MODE — professional card layout ──
+    document.getElementById('user-detail-content').innerHTML = `
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.1rem;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:800;font-size:1.05rem;color:var(--txt)">${_adm_esc(profile.full_name||'—')}</div>
+          <div style="font-size:.78rem;color:var(--txt3)">${_adm_esc(profile.email||'—')} ${profile.phone ? '· '+_adm_esc(profile.phone) : ''}</div>
+          <div style="display:flex;gap:.35rem;margin-top:.35rem;align-items:center;flex-wrap:wrap">
+            ${statusBadge(m.status)}
+            <span style="font-size:.68rem;color:var(--txt3);font-weight:600">${roleLabel}</span>
+            ${m.designation ? `<span style="font-size:.65rem;color:var(--txt4)">· ${_adm_esc(m.designation)}</span>` : ''}
+          </div>
         </div>
-        ${!editMode ? `<button class="action-btn" onclick="editMentor('${id}')">Edit Mentor</button>` : '<span class="badge badge-green">Editing</span>'}
+        <div style="text-align:right">${adminBuildPremiumStars(liveRating)}<div style="font-size:.65rem;color:var(--txt4);margin-top:.1rem">${liveRating > 0 ? liveRating.toFixed(1)+' / 5' : 'No ratings'}</div></div>
       </div>
-      <div class="mentor-edit-grid">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem .6rem;margin-bottom:1rem">
+        <div style="padding:.6rem .8rem;background:color-mix(in srgb, var(--v1) 4%, transparent);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt4);margin-bottom:.2rem">Experience</div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--txt)">${m.years_of_experience ? m.years_of_experience + ' year'+(m.years_of_experience>1?'s':'') : '—'}</div>
+        </div>
+        <div style="padding:.6rem .8rem;background:color-mix(in srgb, var(--v1) 4%, transparent);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt4);margin-bottom:.2rem">Qualifications</div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--txt);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${_adm_esc(m.qualifications||'—')}</div>
+        </div>
+        <div style="padding:.6rem .8rem;background:color-mix(in srgb, var(--v1) 4%, transparent);border-radius:10px;border:1px solid var(--border);grid-column:1/-1">
+          <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt4);margin-bottom:.3rem">Expertise</div>
+          <div style="display:flex;flex-wrap:wrap;gap:.3rem">${(m.expertise_areas||[]).map(e=>`<span class="badge badge-purple" style="font-size:.65rem">${_adm_esc(e)}</span>`).join('')||'<span style="color:var(--txt4);font-size:.78rem">No expertise listed</span>'}</div>
+        </div>
+      </div>
+      ${m.bio ? `<div style="padding:.6rem .8rem;background:color-mix(in srgb, var(--v1) 3%, transparent);border-radius:10px;border:1px solid var(--border);margin-bottom:.8rem"><div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt4);margin-bottom:.2rem">Bio</div><div style="font-size:.82rem;color:var(--txt);line-height:1.5">${adminEscapeHtml(m.bio)}</div></div>` : ''}
+      ${m.linkedin_url ? `<div style="margin-bottom:.8rem"><a href="${m.linkedin_url}" target="_blank" style="color:var(--v1);font-size:.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem">🔗 LinkedIn Profile →</a></div>` : ''}
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;padding-top:.8rem;border-top:1px solid var(--border)">
+        <button class="btn-primary" onclick="editMentor('${id}')">✏ Edit Mentor</button>
+        ${m.status === 'approved' ? `<button class="action-btn danger" onclick="openRejectMentor('${id}')">✕ Revoke Approval</button>` : ''}
+        ${m.status === 'pending' ? `<button class="action-btn" style="background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.3)" onclick="approveMentor('${id}','approved')">✓ Approve</button><button class="action-btn danger" onclick="openRejectMentor('${id}')">✕ Reject</button>` : ''}
+        ${m.status === 'rejected' ? `<button class="action-btn" onclick="approveMentor('${id}','approved')">↻ Re-approve</button>` : ''}
+        <button class="action-btn danger" onclick="deleteMentor('${id}','${_adm_esc(profile.full_name||'')}')">🗑 Delete</button>
+      </div>`;
+  } else {
+    // ── EDIT MODE — clean form layout ──
+    document.getElementById('user-detail-content').innerHTML = `
+      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)">
+        <div style="width:42px;height:42px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem;flex-shrink:0">${initials}</div>
+        <div style="flex:1"><div style="font-weight:700;font-size:.9rem;color:var(--txt)">Edit Mentor Profile</div><div style="font-size:.72rem;color:var(--txt3)">${_adm_esc(profile.email||'')}</div></div>
+        <span class="badge badge-green">Editing</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem">
         <div class="f-group">
-          <label>Name</label>
+          <label>Full Name</label>
           <input type="text" id="mentor-edit-name" value="${adminEscapeHtml(profile.full_name || '')}">
+        </div>
+        <div class="f-group">
+          <label>Designation</label>
+          <input type="text" id="mentor-edit-designation" value="${adminEscapeHtml(m.designation || '')}" placeholder="e.g. Senior Developer">
+        </div>
+        <div class="f-group">
+          <label>Experience (years)</label>
+          <input type="number" id="mentor-edit-experience" min="0" value="${Number(m.years_of_experience || 0)}">
         </div>
         <div class="f-group">
           <label>Role</label>
@@ -9275,18 +9351,13 @@ async function viewMentor(id, editMode = false) {
             <option value="support" ${profile.role === 'support' ? 'selected' : ''}>Support</option>
             <option value="user" ${['user', 'student'].includes(profile.role) ? 'selected' : ''}>Student</option>
           </select>
-          <div class="mentor-inline-note">Current role: ${adminEscapeHtml(roleLabel)}</div>
         </div>
         <div class="f-group" style="grid-column:1/-1">
           <label>Qualifications</label>
-          <textarea id="mentor-edit-qualifications" rows="3" placeholder="${MENTOR_EMPTY_TEXT}">${adminEscapeHtml(m.qualifications || '')}</textarea>
-        </div>
-        <div class="f-group">
-          <label>Experience (years)</label>
-          <input type="number" id="mentor-edit-experience" min="0" value="${Number(m.years_of_experience || 0)}">
+          <textarea id="mentor-edit-qualifications" rows="2" placeholder="Degrees, certifications…">${adminEscapeHtml(m.qualifications || '')}</textarea>
         </div>
         <div class="f-group" style="grid-column:1/-1">
-          <label>Expertise Areas (comma-separated)</label>
+          <label>Expertise Areas <span style="font-weight:400;color:var(--txt4)">(comma-separated)</span></label>
           <input type="text" id="mentor-edit-expertise" value="${adminEscapeHtml((m.expertise_areas || []).join(', '))}" placeholder="e.g. Python, Machine Learning, Data Science">
         </div>
         <div class="f-group" style="grid-column:1/-1">
@@ -9297,16 +9368,13 @@ async function viewMentor(id, editMode = false) {
           <label>LinkedIn URL</label>
           <input type="url" id="mentor-edit-linkedin" value="${adminEscapeHtml(m.linkedin_url || '')}" placeholder="https://linkedin.com/in/…">
         </div>
-        <div class="f-group">
-          <label>Designation</label>
-          <input type="text" id="mentor-edit-designation" value="${adminEscapeHtml(m.designation || '')}" placeholder="e.g. Senior Developer">
-        </div>
       </div>
-      <div style="display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;margin-top:1rem;">
-        <button class="btn-primary" id="mentor-edit-save-btn" onclick="saveMentorRealtime()">Save Mentor</button>
-        <span id="mentor-edit-msg" style="font-size:.78rem;color:var(--txt2);">${editMode ? 'Edit the fields and save when ready.' : ''}</span>
-      </div>
-    </div>`;
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--border)">
+        <button class="btn-primary" id="mentor-edit-save-btn" onclick="saveMentorRealtime()">Save Changes</button>
+        <button class="btn-secondary" onclick="viewMentor('${id}')">Cancel</button>
+        <span id="mentor-edit-msg" style="font-size:.75rem;color:var(--txt3);margin-left:.3rem"></span>
+      </div>`;
+  }
 
   document.querySelector('#user-modal .modal-title').textContent = editMode ? 'Edit Mentor' : 'Mentor Details';
   openModal('user-modal');
@@ -9907,7 +9975,7 @@ async function loadProjectModules() {
 
   let q = db.client.from('project_modules')
     .select('*, internship_projects(project_name)')
-    .order('scheduled_date', { ascending: false }).order('order_num');
+    .order('deadline', { ascending: true, nullsFirst: false }).order('order_num');
   if (projF) q = q.eq('project_id', projF);
   if (statusF) q = q.eq('status', statusF);
 
@@ -9920,18 +9988,23 @@ async function loadProjectModules() {
 
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No modules found.</td></tr>'; return; }
 
-  // Group by scheduled_date
+  // Group by deadline
   const grouped = new Map();
   filtered.forEach(m => {
-    const dateKey = m.scheduled_date || 'No Date';
+    const dateKey = m.deadline || 'No Deadline';
     if (!grouped.has(dateKey)) grouped.set(dateKey, []);
     grouped.get(dateKey).push(m);
   });
 
   let html = '';
   for (const [date, modules] of grouped) {
-    const dateLabel = date === 'No Date' ? 'No Date Assigned' : fmtDate(date);
-    html += `<tr class="date-group-header"><td colspan="8">${dateLabel} — ${modules.length} module${modules.length>1?'s':''}</td></tr>`;
+    const dateLabel = date === 'No Deadline' ? 'No Deadline Set' : fmtDate(date);
+    const today = new Date().toISOString().slice(0,10);
+    const isOverdue = date !== 'No Deadline' && date < today;
+    const isToday = date === today;
+    const headerStyle = isOverdue ? 'color:#ef4444' : (isToday ? 'color:#10b981' : '');
+    const tag = isToday ? ' <span class="badge badge-green" style="font-size:.6rem;vertical-align:middle">Today</span>' : (isOverdue ? ' <span class="badge badge-red" style="font-size:.6rem;vertical-align:middle">Overdue</span>' : '');
+    html += `<tr class="date-group-header"><td colspan="8" style="${headerStyle}">📅 Deadline: ${dateLabel} — ${modules.length} module${modules.length>1?'s':''}${tag}</td></tr>`;
     html += modules.map(m => `<tr>
       <td style="font-size:.75rem;color:var(--txt3)">${m.scheduled_date ? fmtDate(m.scheduled_date) : '—'}</td>
       <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
@@ -12603,7 +12676,7 @@ async function loadInternProgramModules() {
 
   let q = db.client.from('intern_program_modules')
     .select('*, internship_projects(project_name)')
-    .order('scheduled_date', { ascending: false }).order('order_num');
+    .order('deadline', { ascending: true, nullsFirst: false }).order('order_num');
   if (internF) q = q.eq('internship_id', internF);
   if (statusF) q = q.eq('status', statusF);
 
@@ -12616,17 +12689,23 @@ async function loadInternProgramModules() {
 
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No modules found.</td></tr>'; return; }
 
+  // Group by deadline date
   const grouped = new Map();
   filtered.forEach(m => {
-    const dateKey = m.scheduled_date || 'No Date';
+    const dateKey = m.deadline || 'No Deadline';
     if (!grouped.has(dateKey)) grouped.set(dateKey, []);
     grouped.get(dateKey).push(m);
   });
 
   let html = '';
   for (const [date, modules] of grouped) {
-    const dateLabel = date === 'No Date' ? 'No Date Assigned' : fmtDate(date);
-    html += `<tr class="date-group-header"><td colspan="8">${dateLabel} — ${modules.length} module${modules.length>1?'s':''}</td></tr>`;
+    const dateLabel = date === 'No Deadline' ? 'No Deadline Set' : fmtDate(date);
+    const today = new Date().toISOString().slice(0,10);
+    const isOverdue = date !== 'No Deadline' && date < today;
+    const isToday = date === today;
+    const headerStyle = isOverdue ? 'color:#ef4444' : (isToday ? 'color:#10b981' : '');
+    const tag = isToday ? ' <span class="badge badge-green" style="font-size:.6rem;vertical-align:middle">Today</span>' : (isOverdue ? ' <span class="badge badge-red" style="font-size:.6rem;vertical-align:middle">Overdue</span>' : '');
+    html += `<tr class="date-group-header"><td colspan="8" style="${headerStyle}">📅 Deadline: ${dateLabel} — ${modules.length} module${modules.length>1?'s':''}${tag}</td></tr>`;
     html += modules.map(m => `<tr>
       <td style="font-size:.75rem;color:var(--txt3)">${m.scheduled_date ? fmtDate(m.scheduled_date) : '—'}</td>
       <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
