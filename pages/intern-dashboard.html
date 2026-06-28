@@ -280,6 +280,36 @@ img{-webkit-user-drag:none}
 .iw-confetti{position:absolute;top:50%;left:50%;pointer-events:none}
 .iw-confetti span{position:absolute;width:8px;height:8px;border-radius:2px;animation:iwConfetti1 1.2s ease-out forwards}
 .iw-confetti span:nth-child(even){animation-name:iwConfetti2;border-radius:50%}
+
+/* ── Module Detail Modal ── */
+.iw-md-top{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.2rem}
+.iw-md-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem}
+.iw-md-icon.s-active{background:rgba(16,185,129,.12);color:#10b981}
+.iw-md-icon.s-progress{background:rgba(245,158,11,.12);color:#f59e0b}
+.iw-md-icon.s-done{background:rgba(124,58,237,.12);color:#a78bfa}
+.iw-md-title{font-size:1.15rem;font-weight:900;color:var(--txt);line-height:1.3}
+.iw-md-status{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .8rem;border-radius:999px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:.3rem}
+.iw-md-status.s-active{background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+.iw-md-status.s-progress{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+.iw-md-status.s-done{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
+.iw-md-section{margin-bottom:1rem}
+.iw-md-label{font-size:.7rem;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
+.iw-md-desc{font-size:.86rem;color:var(--txt2);line-height:1.7;white-space:pre-wrap}
+.iw-md-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+@media(max-width:480px){.iw-md-grid{grid-template-columns:1fr}}
+.iw-md-info{padding:.6rem .8rem;border-radius:12px;background:rgba(124,58,237,.03);border:1px solid rgba(124,58,237,.08)}
+.iw-md-info-label{font-size:.62rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em}
+.iw-md-info-val{font-size:.88rem;font-weight:800;color:var(--txt);margin-top:.1rem}
+.iw-md-git{display:flex;align-items:center;gap:.5rem;padding:.6rem .8rem;border-radius:12px;background:rgba(124,58,237,.04);border:1px solid rgba(124,58,237,.1);margin-top:.4rem;word-break:break-all}
+.iw-md-git a{color:var(--iw-v);font-size:.8rem;font-weight:600;text-decoration:underline;flex:1}
+.iw-md-subs{display:flex;flex-direction:column;gap:.4rem;max-height:160px;overflow-y:auto}
+.iw-md-sub-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .7rem;border-radius:10px;background:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1);font-size:.78rem}
+[data-theme="dark"] .iw-md-sub-item{background:rgba(30,20,50,.2);border-color:rgba(255,255,255,.06)}
+.iw-md-sub-item .sub-title{flex:1;font-weight:700;color:var(--txt)}
+.iw-md-sub-item .sub-date{font-size:.66rem;color:var(--txt3);font-weight:600}
+.iw-md-sub-item .sub-status{font-size:.6rem;font-weight:700;padding:.15rem .45rem;border-radius:999px}
+.iw-md-actions{display:flex;gap:.6rem;margin-top:1.2rem}
+.iw-md-actions .iw-btn-primary{flex:1}
   </style>
 </head>
 <body class="iw-page">
@@ -615,6 +645,16 @@ img{-webkit-user-drag:none}
       <div class="iw-modal-foot">
         <button class="iw-btn-secondary" onclick="closeShareReport()">Cancel</button>
         <button class="iw-btn-primary" onclick="generateReport()">Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ MODULE DETAIL MODAL ══════ -->
+  <div class="iw-overlay" id="iw-mod-detail-overlay" onclick="if(event.target===this)closeModDetail()">
+    <div class="iw-modal" style="max-width:580px">
+      <div class="iw-modal-hdr"><h3>Module Details</h3><div class="iw-modal-close" onclick="closeModDetail()">✕</div></div>
+      <div class="iw-modal-body" id="iw-mod-detail-body">
+        <div class="iw-empty">Loading…</div>
       </div>
     </div>
   </div>
@@ -1538,17 +1578,17 @@ function renderModules(){
     const ico=a.status==='completed'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>':(a.status==='in_progress'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>');
     const dl=m.deadline?new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):null;
     const gl=a.git_push_link||m.git_push_link||'';
-    return `<div class="iw-mod">
+    return `<div class="iw-mod" style="cursor:pointer" onclick="openModDetail('${a.id}')">
       <div class="iw-mod-ico ${sc}">${ico}</div>
       <div class="iw-mod-body">
         <div class="iw-mod-name"><span style="color:var(--txt3);font-weight:600;margin-right:.3rem">${idx+1}.</span>${esc(m.module_name||'Module')}</div>
         ${m.description?`<div class="iw-mod-desc">${esc(m.description)}</div>`:''}
-        <div class="iw-mod-meta">${dl?`<span>Due: ${dl}</span>`:''}${gl?`<a href="${esc(gl)}" target="_blank">Git Repo</a>`:''}</div>
+        <div class="iw-mod-meta">${dl?`<span>Due: ${dl}</span>`:''}${gl?`<a href="${esc(gl)}" target="_blank" onclick="event.stopPropagation()">Git Repo</a>`:''}</div>
       </div>
       <div class="iw-mod-side">
         <span class="iw-badge ${sc}">${a.status==='in_progress'?'In Progress':(a.status==='completed'?'Done':'Assigned')}</span>
-        ${a.status==='active'?`<button class="iw-sm-btn start" onclick="doStartMod('${a.id}')">Start Working</button>`:''}
-        ${a.status==='in_progress'?`<button class="iw-sm-btn done" onclick="doCompleteMod('${a.id}')">Mark Complete</button>`:''}
+        ${a.status==='active'?`<button class="iw-sm-btn start" onclick="event.stopPropagation();doStartMod('${a.id}')">Start Working</button>`:''}
+        ${a.status==='in_progress'?`<button class="iw-sm-btn done" onclick="event.stopPropagation();doCompleteMod('${a.id}')">Mark Complete</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1560,8 +1600,9 @@ async function doStartMod(id){
   const{error}=await C().from('intern_program_assignments').update({status:'in_progress'}).eq('id',id).eq('status','active');
   if(error){toast('Failed to start module','err');return;}
   a.status='in_progress';
-  logNotification('Module Started','Started working on a module');
+  logNotification('Module Started','Started working on: '+(a.intern_program_modules?.module_name||'Module'));
   toast('Module started!','ok');renderModules();loadStats();
+  if(document.getElementById('iw-mod-detail-overlay').classList.contains('open'))openModDetail(id);
 }
 async function doCompleteMod(id){
   const a=_assignments.find(x=>x.id===id);
@@ -1569,9 +1610,99 @@ async function doCompleteMod(id){
   const{error}=await C().from('intern_program_assignments').update({status:'completed'}).eq('id',id).eq('status','in_progress');
   if(error){toast('Failed to complete module','err');return;}
   a.status='completed';
-  logNotification('Module Completed','Completed a module');
+  logNotification('Module Completed','Completed: '+(a.intern_program_modules?.module_name||'Module'));
   showSuccessPopup('Module Completed!','Great work! Your progress has been saved.');
   renderModules();loadStats();
+  if(document.getElementById('iw-mod-detail-overlay').classList.contains('open'))openModDetail(id);
+}
+
+/* ── Module Detail Modal ── */
+function openModDetail(assignmentId){
+  const a=_assignments.find(x=>x.id===assignmentId);
+  if(!a)return;
+  const m=a.intern_program_modules||{};
+  const sc=a.status==='completed'?'s-done':(a.status==='in_progress'?'s-progress':'s-active');
+  const statusLabel=a.status==='completed'?'Completed':(a.status==='in_progress'?'In Progress':'Assigned');
+  const ico=a.status==='completed'?'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>':(a.status==='in_progress'?'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>':'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>');
+  const gl=a.git_push_link||m.git_push_link||'';
+  const dl=m.deadline?new Date(m.deadline).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'long',year:'numeric'}):null;
+  const isOverdue=m.deadline&&new Date(m.deadline)<new Date()&&a.status!=='completed';
+  const assignedDate=a.assigned_at?new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):null;
+  const updatedDate=a.updated_at?new Date(a.updated_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):null;
+  const idx=_assignments.indexOf(a);
+
+  const body=document.getElementById('iw-mod-detail-body');
+  body.innerHTML=`
+    <div class="iw-md-top">
+      <div class="iw-md-icon ${sc}">${ico}</div>
+      <div>
+        <div class="iw-md-title">${idx>=0?'<span style="color:var(--txt3);font-weight:600">#'+(idx+1)+'</span> ':''}${esc(m.module_name||'Module')}</div>
+        <div class="iw-md-status ${sc}">
+          <span style="width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block"></span>
+          ${statusLabel}
+        </div>
+      </div>
+    </div>
+
+    ${m.description?`<div class="iw-md-section"><div class="iw-md-label">Description</div><div class="iw-md-desc">${esc(m.description)}</div></div>`:''}
+
+    <div class="iw-md-section">
+      <div class="iw-md-label">Details</div>
+      <div class="iw-md-grid">
+        ${dl?`<div class="iw-md-info"><div class="iw-md-info-label">Deadline</div><div class="iw-md-info-val" ${isOverdue?'style="color:var(--iw-r)"':''}>${dl}${isOverdue?' (Overdue)':''}</div></div>`:''}
+        ${assignedDate?`<div class="iw-md-info"><div class="iw-md-info-label">Assigned On</div><div class="iw-md-info-val">${assignedDate}</div></div>`:''}
+        <div class="iw-md-info"><div class="iw-md-info-label">Status</div><div class="iw-md-info-val">${statusLabel}</div></div>
+        ${updatedDate?`<div class="iw-md-info"><div class="iw-md-info-label">Last Updated</div><div class="iw-md-info-val">${updatedDate}</div></div>`:''}
+        ${m.order_num?`<div class="iw-md-info"><div class="iw-md-info-label">Order</div><div class="iw-md-info-val">#${m.order_num}</div></div>`:''}
+      </div>
+    </div>
+
+    ${gl?`<div class="iw-md-section"><div class="iw-md-label">Git Repository</div><div class="iw-md-git"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--iw-v)" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77"/></svg><a href="${esc(gl)}" target="_blank">${esc(gl)}</a><button class="iw-git-copy" onclick="navigator.clipboard.writeText('${esc(gl)}').then(()=>toast('Copied!'))">Copy</button></div></div>`:''}
+
+    ${a.notes?`<div class="iw-md-section"><div class="iw-md-label">Admin Notes</div><div class="iw-md-desc" style="font-size:.82rem;padding:.6rem .8rem;border-radius:12px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.12)">${esc(a.notes)}</div></div>`:''}
+
+    <div class="iw-md-section" id="iw-md-subs-section"><div class="iw-md-label">Submissions for this Module</div><div class="iw-md-subs" id="iw-md-subs-list"><div class="iw-empty" style="padding:.5rem;font-size:.76rem">Loading...</div></div></div>
+
+    <div class="iw-md-actions">
+      ${a.status==='active'?`<button class="iw-btn-primary" onclick="doStartMod('${a.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:.3rem"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Working</button>`:''}
+      ${a.status==='in_progress'?`<button class="iw-btn-primary" style="background:linear-gradient(135deg,var(--iw-e),#059669)" onclick="doCompleteMod('${a.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:.3rem"><polyline points="20 6 9 17 4 12"/></svg> Mark Complete</button>`:''}
+      ${a.status==='in_progress'?`<button class="iw-btn-secondary" onclick="closeModDetail();openSubmitModal()">+ Submit Work</button>`:''}
+      ${a.status==='completed'?`<div style="text-align:center;width:100%;padding:.5rem;font-size:.82rem;color:var(--iw-e);font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:.3rem"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> This module is completed</div>`:''}
+    </div>
+  `;
+  document.getElementById('iw-mod-detail-overlay').classList.add('open');
+  loadModSubmissions(assignmentId);
+}
+
+function closeModDetail(){document.getElementById('iw-mod-detail-overlay').classList.remove('open')}
+
+async function loadModSubmissions(assignmentId){
+  const subsEl=document.getElementById('iw-md-subs-list');
+  if(!_enrollment){subsEl.innerHTML='<div class="iw-empty" style="padding:.5rem;font-size:.76rem">No submissions.</div>';return}
+  const c=C();
+  const a=_assignments.find(x=>x.id===assignmentId);
+  const modName=a?.intern_program_modules?.module_name||'';
+  const{data}=await c.from('intern_submissions').select('submission_title,status,submitted_at,screenshot_url,report_file_url,commit_message').eq('enrollment_id',_enrollment.id).order('submitted_at',{ascending:false}).limit(20);
+  const modSubs=(data||[]).filter(s=>{
+    const title=(s.submission_title||'').toLowerCase();
+    const commit=(s.commit_message||'').toLowerCase();
+    const mn=modName.toLowerCase();
+    return mn&&(title.includes(mn)||commit.includes(mn));
+  });
+  const allSubs=modSubs.length?modSubs:(data||[]).slice(0,5);
+  if(!allSubs.length){subsEl.innerHTML='<div class="iw-empty" style="padding:.5rem;font-size:.76rem">No submissions yet. Submit your work above.</div>';return}
+  const label=modSubs.length?'':'<div style="font-size:.66rem;color:var(--txt3);margin-bottom:.3rem;font-weight:600">Showing recent submissions:</div>';
+  subsEl.innerHTML=label+allSubs.map(s=>{
+    const dt=new Date(s.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    const stCls=s.status==='approved'?'background:rgba(16,185,129,.1);color:#10b981':(s.status==='rejected'?'background:rgba(244,63,94,.08);color:#f43f5e':'background:rgba(245,158,11,.08);color:#f59e0b');
+    return `<div class="iw-md-sub-item">
+      <div class="sub-title">${esc(s.submission_title)}</div>
+      <span class="sub-date">${dt}</span>
+      <span class="sub-status" style="${stCls}">${s.status}</span>
+      ${s.screenshot_url?`<a href="${esc(s.screenshot_url)}" target="_blank" style="font-size:.66rem;color:var(--iw-v)" onclick="event.stopPropagation()">📷</a>`:''}
+      ${s.report_file_url?`<a href="${esc(s.report_file_url)}" target="_blank" style="font-size:.66rem;color:var(--iw-v)" onclick="event.stopPropagation()">📄</a>`:''}
+    </div>`;
+  }).join('');
 }
 
 /* ══════ GIT ══════ */
