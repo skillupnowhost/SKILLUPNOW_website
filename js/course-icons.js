@@ -23,6 +23,8 @@
     comm:     'linear-gradient(145deg,#001414,#0f766e,#0d9488)',
     leader:   'linear-gradient(145deg,#1a1000,#92400e,#d97706)',
     career:   'linear-gradient(145deg,#001a0a,#065f46,#10b981)',
+    ai:       'linear-gradient(145deg,#0f0a2e,#3b1d95,#6d28d9)',
+    student:  'linear-gradient(145deg,#001a2e,#0f5c8a,#1d97d4)',
     default:  'linear-gradient(145deg,#12003a,#4c1d95,#7c3aed)',
   };
 
@@ -30,7 +32,8 @@
   function getKey(title) {
     const s = (title || '').toLowerCase();
     if (/machine\s*learn|ml\b|deep\s*learn|neural|nlp|llm|gpt|gen\s*ai|generative/.test(s)) return 'ml';
-    if (/\bai\b|artificial\s*intel|computer\s*vision/.test(s)) return 'ml';
+    if (/\bai\b|artificial\s*intel|computer\s*vision/.test(s)) return 'ai';
+    if (/student|intern|trainee|learner|beginner|fresher/.test(s)) return 'student';
     if (/devops|ci\/?cd|jenkins|kubernetes|k8s|docker|ansible|terraform|pipeline/.test(s)) return 'devops';
     if (/cloud|aws|azure|gcp|serverless|\bs3\b|\bec2\b|\blambda\b/.test(s)) return 'cloud';
     if (/cyber|security|ethical\s*hack|pentest|vapt|\bsoc\b|siem|firewall/.test(s)) return 'cyber';
@@ -873,15 +876,54 @@
     comm:     '#0d9488',
     leader:   '#d97706',
     career:   '#10b981',
+    ai:       '#6d28d9',
+    student:  '#1d97d4',
     default:  '#7c3aed',
   };
+
+  /* ── AI Icon — Brain with circuit board design ──────────────────────── */
+  function svgAI(id) {
+    const g1=uid(),g2=uid();
+    return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="${g1}" cx="50%" cy="40%"><stop offset="0%" stop-color="#a78bfa" stop-opacity=".3"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <linearGradient id="${g2}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs>
+    <circle cx="40" cy="40" r="30" fill="url(#${g1})"><animate attributeName="r" values="28;32;28" dur="3s" repeatCount="indefinite"/></circle>
+    <path d="M40 18c-12 0-20 8-20 18s4 14 10 18c2 1 3 3 3 5h14c0-2 1-4 3-5 6-4 10-8 10-18s-8-18-20-18z" fill="none" stroke="url(#${g2})" stroke-width="2" stroke-linecap="round"/>
+    <path d="M32 59h16M34 63h12" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+    <circle cx="33" cy="35" r="2.5" fill="#c084fc"><animate attributeName="opacity" values="1;.3;1" dur="2s" repeatCount="indefinite"/></circle>
+    <circle cx="47" cy="35" r="2.5" fill="#c084fc"><animate attributeName="opacity" values=".3;1;.3" dur="2s" repeatCount="indefinite"/></circle>
+    <path d="M36 42c2 2 6 2 8 0" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <line x1="22" y1="30" x2="15" y2="25" stroke="#7c3aed" stroke-width="1" opacity=".4"/><circle cx="15" cy="25" r="2" fill="#7c3aed" opacity=".4"/>
+    <line x1="58" y1="30" x2="65" y2="25" stroke="#7c3aed" stroke-width="1" opacity=".4"/><circle cx="65" cy="25" r="2" fill="#7c3aed" opacity=".4"/>
+    <line x1="22" y1="45" x2="13" y2="48" stroke="#7c3aed" stroke-width="1" opacity=".4"/><circle cx="13" cy="48" r="2" fill="#7c3aed" opacity=".4"/>
+    <line x1="58" y1="45" x2="67" y2="48" stroke="#7c3aed" stroke-width="1" opacity=".4"/><circle cx="67" cy="48" r="2" fill="#7c3aed" opacity=".4"/>
+    </svg>`;
+  }
+
+  /* ── Student Icon — Graduation cap design ──────────────────────────── */
+  function svgStudent(id) {
+    const g1=uid();
+    return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="${g1}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs>
+    <polygon points="40,16 8,32 40,48 72,32" fill="url(#${g1})" opacity=".9"/>
+    <polygon points="40,16 8,32 40,48 72,32" fill="none" stroke="#7dd3fc" stroke-width="1" opacity=".5"/>
+    <line x1="40" y1="48" x2="40" y2="38" stroke="#38bdf8" stroke-width="1.5" opacity=".3"/>
+    <path d="M22 36v14c0 6 8 10 18 10s18-4 18-10V36" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round">
+      <animate attributeName="stroke-opacity" values=".6;1;.6" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <line x1="64" y1="32" x2="64" y2="56" stroke="#0ea5e9" stroke-width="1.5"/>
+    <circle cx="64" cy="58" r="2.5" fill="#0ea5e9"><animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite"/></circle>
+    <circle cx="40" cy="32" r="3" fill="#7dd3fc" opacity=".3"><animate attributeName="opacity" values=".2;.5;.2" dur="2.5s" repeatCount="indefinite"/></circle>
+    </svg>`;
+  }
 
   /* ── Icon function map ────────────────────────────────────────────────── */
   const SVGS = {
     ml: svgML, devops: svgDevOps, cloud: svgCloud, cyber: svgCyber,
     data: svgData, testing: svgTesting, network: svgNetwork, linux: svgLinux,
     webdev: svgWebDev, business: svgBusiness, comm: svgComm,
-    leader: svgLeader, career: svgCareer, default: svgDefault,
+    leader: svgLeader, career: svgCareer, ai: svgAI, student: svgStudent,
+    default: svgDefault,
   };
 
   /* ── Public API ───────────────────────────────────────────────────────── */

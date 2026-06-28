@@ -1003,6 +1003,10 @@
           </div>
         </section>
 
+        <!-- ── MY SESSIONS — Date-based view ── -->
+        <section id="itn-sessions-section" style="display:none;padding:1.5rem 0;">
+        </section>
+
         <!-- ── PAID INTERNSHIPS ── -->
         <section id="itn-paid-section">
           <div class="itn-sec-hdr" style="--itn-hdr-c:var(--itn-gold)">
@@ -2212,10 +2216,80 @@
     document.body.style.overflow = '';
   }
 
+  /* ── MY SESSIONS — Date-based view ── */
+  async function loadMySessionView() {
+    const container = document.getElementById('itn-sessions-section');
+    if (!container || !currentUser) return;
+
+    const client = window.supabaseConfig?.client;
+    if (!client) return;
+
+    const [{ data: sessions }, { data: modules }] = await Promise.all([
+      client.from('intern_work_sessions')
+        .select('session_date, total_work_mins, status')
+        .eq('student_user_id', currentUser.id)
+        .order('session_date', { ascending: false })
+        .limit(30),
+      client.from('intern_modules')
+        .select('module_title, status, scheduled_date, due_date, day_number')
+        .eq('student_user_id', currentUser.id)
+        .order('scheduled_date', { ascending: false })
+    ]);
+
+    if ((!sessions || !sessions.length) && (!modules || !modules.length)) {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = '';
+
+    // Group modules by date
+    const modsByDate = new Map();
+    (modules || []).forEach(m => {
+      const dateKey = m.scheduled_date || m.due_date || 'No Date';
+      if (!modsByDate.has(dateKey)) modsByDate.set(dateKey, []);
+      modsByDate.get(dateKey).push(m);
+    });
+
+    // Session time map
+    const sessionMap = {};
+    (sessions || []).forEach(s => { sessionMap[s.session_date] = s; });
+
+    const statusColor = { active:'#10b981', completed:'#3b82f6', inactive:'#6b7280', not_completed:'#ef4444', assigned:'#3b82f6', in_progress:'#f59e0b', reviewed:'#7c3aed' };
+    const fmtD = d => d && d !== 'No Date' ? new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : 'No Date';
+
+    let html = '<h3 style="font-size:1.1rem;font-weight:900;margin-bottom:.8rem;background:linear-gradient(135deg,var(--txt),var(--itn-violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">My Sessions</h3>';
+    html += '<div style="display:flex;flex-direction:column;gap:.5rem">';
+
+    for (const [date, mods] of modsByDate) {
+      const sess = sessionMap[date];
+      const workMins = sess?.total_work_mins || 0;
+      const workLabel = workMins > 0 ? `${Math.floor(workMins/60)}h ${workMins%60}m` : '';
+
+      html += `<div style="background:rgba(255,255,255,.55);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04)">`;
+      html += `<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="padding:.7rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:rgba(124,58,237,.04)">`;
+      html += `<div style="font-weight:700;font-size:.85rem;color:var(--txt);display:flex;align-items:center;gap:.5rem">${fmtD(date)} <span style="font-size:.65rem;background:rgba(124,58,237,.12);color:var(--itn-violet);padding:.1rem .4rem;border-radius:50px;font-weight:700">${mods.length} module${mods.length>1?'s':''}</span>${workLabel ? `<span style="font-size:.68rem;color:var(--txt3)">${workLabel}</span>` : ''}</div>`;
+      html += `<span style="color:var(--txt3);font-size:.75rem">▼</span></div>`;
+      html += `<div style="display:none;padding:.5rem 1rem;border-top:1px solid rgba(255,255,255,.1)">`;
+      mods.forEach(m => {
+        const sc = statusColor[m.status] || '#6b7280';
+        const label = (m.status||'').replace(/_/g,' ');
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.08)">`;
+        html += `<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.82rem;color:var(--txt)">${_itnEsc(m.module_title)}</div>${m.day_number ? `<span style="font-size:.65rem;color:var(--txt3)">Day ${m.day_number}</span>` : ''}</div>`;
+        html += `<span style="background:${sc}20;color:${sc};font-size:.65rem;font-weight:700;padding:.1rem .4rem;border-radius:50px;border:1px solid ${sc}40">${label}</span>`;
+        html += `</div>`;
+      });
+      html += `</div></div>`;
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
   /* ── Init ── */
   document.addEventListener('DOMContentLoaded', async function() {
     await initAuth();
     await loadMyWorkingInternships();
+    loadMySessionView();
     loadAllInternships();
   });
   </script>

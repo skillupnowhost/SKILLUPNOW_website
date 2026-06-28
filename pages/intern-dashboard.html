@@ -189,18 +189,21 @@ img{-webkit-user-drag:none}
 .iw-att-day.leave{color:#a855f7;font-weight:700}
 .iw-att-day.holiday{color:#ef4444;font-weight:700}
 /* Day detail popup */
-.iw-day-detail{position:fixed;background:rgba(255,255,255,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(124,58,237,.12);border-radius:16px;padding:.7rem .9rem;width:210px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:10000;font-size:.7rem;display:none;text-align:left}
-[data-theme="dark"] .iw-day-detail{background:rgba(30,20,50,.88);border-color:rgba(255,255,255,.1)}
+.iw-day-detail{position:fixed;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(124,58,237,.12);border-radius:16px;padding:.8rem 1rem;width:260px;max-height:360px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth;box-shadow:0 12px 40px rgba(0,0,0,.18);z-index:10000;font-size:.7rem;display:none;text-align:left}
+.iw-day-detail::-webkit-scrollbar{display:none}
+[data-theme="dark"] .iw-day-detail{background:rgba(30,20,50,.92);border-color:rgba(255,255,255,.1)}
 .iw-day-detail.show{display:block}
 .iw-day-detail::after{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:rgba(124,58,237,.12)}
 .iw-day-detail h4{font-size:.72rem;font-weight:800;margin-bottom:.35rem;color:var(--txt)}
-.iw-day-detail .iw-dd-row{display:flex;justify-content:space-between;padding:.15rem 0;font-size:.66rem}
-.iw-day-detail .iw-dd-label{color:var(--txt3)}
-.iw-day-detail .iw-dd-val{font-weight:700;color:var(--txt)}
+.iw-day-detail .iw-dd-row{display:flex;justify-content:space-between;gap:.4rem;padding:.2rem 0;font-size:.66rem}
+.iw-day-detail .iw-dd-label{color:var(--txt3);white-space:nowrap;flex-shrink:0}
+.iw-day-detail .iw-dd-val{font-weight:700;color:var(--txt);text-align:right;word-break:break-word;overflow-wrap:break-word;max-width:150px}
 .iw-day-detail .iw-dd-val.green{color:#10b981}
+.iw-day-detail .iw-dd-full{font-size:.58rem;color:var(--txt3);word-break:break-all;overflow-wrap:break-word;padding:.2rem 0;line-height:1.4;border-top:1px solid rgba(124,58,237,.06);margin-top:.15rem}
 /* Attendance log */
-.iw-att-log{margin-top:.8rem;max-height:200px;overflow-y:auto}
-.iw-att-log table{width:100%;border-collapse:collapse;font-size:.68rem}
+.iw-att-log{margin-top:.8rem;max-height:200px;overflow-y:auto;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth}
+.iw-att-log::-webkit-scrollbar{display:none}
+.iw-att-log table{width:100%;border-collapse:collapse;font-size:.68rem;min-width:320px}
 .iw-att-log th{text-align:left;padding:.3rem .4rem;font-weight:700;color:var(--txt2);border-bottom:2px solid rgba(124,58,237,.1);font-size:.6rem;text-transform:uppercase;letter-spacing:.04em}
 .iw-att-log td{padding:.3rem .4rem;border-bottom:1px solid rgba(124,58,237,.05);color:var(--txt)}
 .iw-att-log .att-status{padding:.12rem .45rem;border-radius:999px;font-size:.58rem;font-weight:700}
@@ -1859,19 +1862,19 @@ function toggleDayDetail(dateStr,event){
     ${(sess.gap_mins||0)>0?`<div class="iw-dd-row"><span class="iw-dd-label">Idle/Gap</span><span class="iw-dd-val" style="color:var(--iw-r)">${fmtMins(sess.gap_mins)}</span></div>`:''}
     <div class="iw-dd-row" style="border-top:1px solid rgba(124,58,237,.12);padding-top:.2rem;margin-top:.1rem"><span class="iw-dd-label" style="font-weight:700">Active Work</span><span class="iw-dd-val green" style="font-size:.8rem">${fmtMins(Math.max(0,workMins-breakMins-(sess.gap_mins||0)))} / 8h</span></div>
     ${(()=>{const aw=Math.max(0,workMins-breakMins-(sess.gap_mins||0));return aw>=480?`<div class="iw-dd-row"><span class="iw-dd-label">Overtime</span><span class="iw-dd-val" style="color:#10b981">+${fmtMins(aw-480)}</span></div>`:`<div class="iw-dd-row"><span class="iw-dd-label">Remaining</span><span class="iw-dd-val" style="color:var(--iw-g)">${fmtMins(480-aw)}</span></div>`;})()}
-    ${sess.ip_address?`<div class="iw-dd-row"><span class="iw-dd-label">IP Address</span><span class="iw-dd-val" style="font-size:.6rem">${esc(sess.ip_address)}</span></div>`:''}
-    ${sess.network_info?`<div class="iw-dd-row"><span class="iw-dd-label">Network</span><span class="iw-dd-val" style="font-size:.55rem;word-break:break-all">${esc(sess.network_info)}</span></div>`:''}
+    ${sess.ip_address?`<div class="iw-dd-row"><span class="iw-dd-label">IP Address</span><span class="iw-dd-val">${esc(sess.ip_address)}</span></div>`:''}
     <div class="iw-dd-row"><span class="iw-dd-label">Status</span><span class="iw-dd-val">${status}</span></div>
-    ${att?.notes?`<div style="margin-top:.3rem;font-size:.62rem;color:var(--txt3)">Note: ${esc(att.notes)}</div>`:''}
+    ${sess.network_info?`<div class="iw-dd-full">${esc(sess.network_info)}</div>`:''}
+    ${att?.notes?`<div class="iw-dd-full">Note: ${esc(att.notes)}</div>`:''}
   `;
 
   const target=event.currentTarget;
   const rect=target.getBoundingClientRect();
   document.body.appendChild(popup);
-  let popLeft=rect.left+rect.width/2-105;
+  let popLeft=rect.left+rect.width/2-130;
   let popTop=rect.bottom+6;
   if(popLeft<8) popLeft=8;
-  if(popLeft+210>window.innerWidth-8) popLeft=window.innerWidth-218;
+  if(popLeft+260>window.innerWidth-8) popLeft=window.innerWidth-268;
   if(popTop+popup.offsetHeight>window.innerHeight-8) popTop=rect.top-popup.offsetHeight-6;
   popup.style.left=popLeft+'px';
   popup.style.top=popTop+'px';
@@ -2069,6 +2072,22 @@ async function loadActivityLog(){
       const netMins=_session.net_work_mins||Math.max(0,(_session.total_work_mins||0)-(_session.total_break_mins||0));
       syntheticEntries.push({title:'Work Ended',message:`Session completed — Net: ${fmtMins(netMins)} / 8h target`,created_at:_session.end_time,_synthetic:true});
     }
+  }
+
+  // Remove old-style separate "Break Started"/"Break Ended" DB entries — replaced by merged synthetic "Break" entries
+  if(_session&&_brkState.length){
+    const brkTimes=new Set();
+    _brkState.forEach(b=>{
+      if(b.break_start)brkTimes.add(new Date(b.break_start).getTime());
+      if(b.break_end)brkTimes.add(new Date(b.break_end).getTime());
+    });
+    notifs=notifs.filter(n=>{
+      if(n.title==='Break Started'||n.title==='Break Ended'){
+        const nt=new Date(n.created_at).getTime();
+        return ![...brkTimes].some(bt=>Math.abs(nt-bt)<120000);
+      }
+      return true;
+    });
   }
 
   syntheticEntries.forEach(se=>{

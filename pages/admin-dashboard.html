@@ -346,6 +346,87 @@
     [data-theme="dark"] .badge-blue   { color:#60a5fa; }
     [data-theme="dark"] .badge-purple { color:#a78bfa; }
     [data-theme="dark"] .badge-gray   { color:#94a3b8; }
+    /* ── SORTABLE TABLE HEADERS ── */
+    .sortable-th { position: relative; cursor: pointer; user-select: none; }
+    .sortable-th:hover { color: var(--v1); }
+    .sort-arrow { font-size: .58rem; margin-left: .2rem; opacity: .5; transition: opacity .18s; }
+    .sortable-th:hover .sort-arrow { opacity: 1; }
+    .sort-dropdown {
+      display: none; position: absolute; top: 100%; left: 0; z-index: 50;
+      background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12); min-width: 140px;
+      padding: .3rem 0; margin-top: 2px;
+    }
+    .sortable-th.open .sort-dropdown { display: block; }
+    .sort-dropdown-item {
+      padding: .45rem .8rem; font-size: .72rem; font-weight: 600; color: var(--txt2);
+      cursor: pointer; transition: background .15s; white-space: nowrap;
+      text-transform: none; letter-spacing: normal;
+    }
+    .sort-dropdown-item:hover { background: color-mix(in srgb, var(--v1) 8%, transparent); color: var(--v1); }
+    .sort-dropdown-item.active { color: var(--v1); background: color-mix(in srgb, var(--v1) 12%, transparent); }
+
+    /* ── DATE GROUP HEADER ── */
+    .date-group-header td {
+      background: color-mix(in srgb, var(--v1) 6%, transparent) !important;
+      font-weight: 800; font-size: .78rem; color: var(--v1);
+      padding: .55rem .9rem; border-bottom: 1.5px solid var(--border2);
+      position: sticky; top: 0; z-index: 2;
+    }
+
+    /* ── KEBAB ACTION MENU ── */
+    .kebab-wrap { position: relative; display: inline-block; }
+    .kebab-btn {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: .25rem .5rem; cursor: pointer; font-size: .9rem; color: var(--txt3);
+      transition: all .18s; line-height: 1;
+    }
+    .kebab-btn:hover { background: color-mix(in srgb, var(--v1) 8%, transparent); color: var(--v1); }
+    .kebab-menu {
+      display: none; position: absolute; right: 0; top: 100%; z-index: 50;
+      background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12); min-width: 160px;
+      padding: .3rem 0; margin-top: 2px;
+    }
+    .kebab-wrap.open .kebab-menu { display: block; }
+    .kebab-item {
+      padding: .45rem .8rem; font-size: .73rem; font-weight: 600; color: var(--txt2);
+      cursor: pointer; transition: background .15s; white-space: nowrap; display: block; width: 100%;
+      background: none; border: none; text-align: left; font-family: inherit;
+    }
+    .kebab-item:hover { background: color-mix(in srgb, var(--v1) 8%, transparent); color: var(--v1); }
+    .kebab-item.danger { color: #dc2626; }
+    .kebab-item.danger:hover { background: rgba(239,68,68,.08); }
+
+    /* ── FILTER BAR ── */
+    .filter-bar { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    .filter-bar select, .filter-bar input[type="date"], .filter-bar input[type="text"], .filter-bar input[type="number"] {
+      font-size: .78rem; padding: .35rem .65rem; border-radius: 8px;
+      border: 1px solid rgba(124,92,252,.25); background: var(--bg2); color: var(--txt);
+      font-family: inherit; outline: none; transition: border-color .18s;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--v1); box-shadow: 0 0 0 2px color-mix(in srgb, var(--v1) 10%, transparent); }
+
+    /* ── SESSION TIMELINE ── */
+    .session-timeline { margin-top: 1rem; }
+    .session-date-card {
+      border: 1px solid var(--border); border-radius: var(--r2); margin-bottom: .5rem;
+      background: var(--bg2); overflow: hidden; box-shadow: var(--shadow-card);
+    }
+    .session-date-header {
+      padding: .65rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      background: color-mix(in srgb, var(--v1) 4%, transparent); transition: background .18s; user-select: none;
+    }
+    .session-date-header:hover { background: color-mix(in srgb, var(--v1) 8%, transparent); }
+    .session-date-header h4 { font-size: .84rem; font-weight: 700; color: var(--txt2); margin: 0; display: flex; align-items: center; gap: .5rem; }
+    .session-date-body { display: none; padding: .6rem 1rem; border-top: 1px solid var(--border); }
+    .session-date-card.expanded .session-date-body { display: block; }
+    .session-mod-row {
+      display: flex; align-items: center; justify-content: space-between; padding: .4rem 0;
+      border-bottom: 1px solid var(--border); gap: .5rem;
+    }
+    .session-mod-row:last-child { border-bottom: none; }
+
     .action-btns { display: flex; gap: 0.28rem; flex-wrap: wrap; }
     .action-btn {
       background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
@@ -909,9 +990,63 @@
             <button class="btn-primary" onclick="openCourseForNew()">+ Add Course</button>
           </div>
         </div>
-        <div class="table-scroll"><table class="data-table">
-          <thead><tr><th>Name</th><th>Category</th><th>Mentor</th><th>Fee</th><th>Enrolled</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="course-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+        <div class="table-scroll"><table class="data-table" id="course-table">
+          <thead><tr>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Name <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="sortCourses('title','asc')">A → Z</div>
+                <div class="sort-dropdown-item" onclick="sortCourses('title','desc')">Z → A</div>
+              </div>
+            </th>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Category <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="sortCourses('category','asc')">A → Z</div>
+                <div class="sort-dropdown-item" onclick="sortCourses('category','desc')">Z → A</div>
+              </div>
+            </th>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Mentor <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="sortCourses('mentor','asc')">A → Z</div>
+                <div class="sort-dropdown-item" onclick="sortCourses('mentor','desc')">Z → A</div>
+              </div>
+            </th>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Fees <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="sortCourses('fee','asc')">Low → High</div>
+                <div class="sort-dropdown-item" onclick="sortCourses('fee','desc')">High → Low</div>
+              </div>
+            </th>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Enrollments <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="sortCourses('enrolled','desc')">Most First</div>
+                <div class="sort-dropdown-item" onclick="sortCourses('enrolled','asc')">Least First</div>
+              </div>
+            </th>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Ratings <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="sortCourses('rating','desc')">Highest First</div>
+                <div class="sort-dropdown-item" onclick="sortCourses('rating','asc')">Lowest First</div>
+              </div>
+            </th>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Status <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="filterCoursesByStatus('')">All</div>
+                <div class="sort-dropdown-item" onclick="filterCoursesByStatus('published')">Active</div>
+                <div class="sort-dropdown-item" onclick="filterCoursesByStatus('draft')">Draft</div>
+                <div class="sort-dropdown-item" onclick="filterCoursesByStatus('archived')">Inactive</div>
+              </div>
+            </th>
+            <th class="sortable-th" onclick="toggleSortDropdown(this)">Access <span class="sort-arrow">▾</span>
+              <div class="sort-dropdown">
+                <div class="sort-dropdown-item" onclick="filterCoursesByAccess('')">All</div>
+                <div class="sort-dropdown-item" onclick="filterCoursesByAccess('public')">Public</div>
+                <div class="sort-dropdown-item" onclick="filterCoursesByAccess('private')">Private</div>
+                <div class="sort-dropdown-item" onclick="filterCoursesByAccess('unlisted')">Unlisted</div>
+              </div>
+            </th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="course-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -954,7 +1089,7 @@
             <button class="btn-secondary" onclick="exportTable('users')">⬇ Export</button>
           </div>
         </div>
-        <div id="user-sync-banner" style="display:none;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.3);border-radius:10px;padding:.6rem 1rem;font-size:.82rem;color:#c4b5fd;margin-bottom:.75rem;"></div>
+        <div id="user-sync-banner" style="display:none;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.3);border-radius:10px;padding:.6rem 1rem;font-size:.82rem;color:var(--v2);margin-bottom:.75rem;"></div>
         <div class="table-scroll"><table class="data-table">
           <thead><tr><th style="width:32px;"><input type="checkbox" class="bulk-check" onchange="toggleSelectAll('user-tbody',this.checked,'users')"></th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Enrolled</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="user-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
@@ -987,6 +1122,7 @@
     <!-- ===== ENROLLMENTS ===== -->
     <div class="section" id="section-enrollments">
       <div class="table-card">
+        <div id="enrollment-summary" style="padding:.5rem 1rem;border-bottom:1px solid var(--border);"></div>
         <div class="table-header">
           <h3>Enrollment Management</h3>
           <div class="table-actions">
@@ -1026,10 +1162,20 @@
       <div class="table-card">
         <div class="table-header">
           <h3>Batch Management</h3>
-          <div class="table-actions">
+          <div class="table-actions filter-bar">
             <select id="batch-course-filter" onchange="loadBatches()" style="min-width:160px;">
               <option value="">All Courses / Skills</option>
             </select>
+            <select id="batch-mentor-filter" onchange="loadBatches()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+              <option value="">All Mentors</option>
+            </select>
+            <select id="batch-status-filter" onchange="loadBatches()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+              <option value="">All Status</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+            <input type="date" id="batch-start-filter" onchange="loadBatches()" title="Start date from" style="font-size:.78rem;padding:.35rem .5rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+            <input type="date" id="batch-end-filter" onchange="loadBatches()" title="Start date to" style="font-size:.78rem;padding:.35rem .5rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
             <button class="btn-primary" onclick="openBatchForNew()">+ New Batch</button>
           </div>
         </div>
@@ -2160,16 +2306,25 @@
         <div class="table-card">
           <div class="table-header">
             <h3>Project Modules</h3>
-            <div class="table-actions">
+            <div class="table-actions filter-bar">
+              <input type="text" id="mod-name-filter" placeholder="Search module…" oninput="loadProjectModules()" style="max-width:160px">
+              <input type="number" id="mod-order-filter" placeholder="Order #" oninput="loadProjectModules()" style="max-width:80px" min="0">
               <select id="mod-proj-filter" onchange="loadProjectModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);max-width:200px">
                 <option value="">All Projects</option>
+              </select>
+              <select id="mod-status-filter" onchange="loadProjectModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="inactive">Inactive</option>
+                <option value="not_completed">Not Completed</option>
               </select>
               <button class="btn-primary" onclick="openModuleModal()">+ New Module</button>
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Project</th><th>Module</th><th>Description</th><th>Deadline</th><th>Branch</th><th>Active</th><th>Actions</th></tr></thead>
-            <tbody id="mod-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+            <thead><tr><th>Date</th><th>Project</th><th>Module</th><th>Description</th><th>Deadline</th><th>Branch</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="mod-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2420,7 +2575,7 @@
         <div class="table-card">
           <div class="table-header">
             <h3>Internships</h3>
-            <div class="table-actions">
+            <div class="table-actions filter-bar">
               <select id="itnm-status-filter" onchange="loadAdminInternships()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
                 <option value="">All Status</option>
                 <option value="ongoing">Ongoing</option>
@@ -2432,6 +2587,10 @@
                 <option value="false">Free Only</option>
                 <option value="true">Paid Only</option>
               </select>
+              <select id="itnm-domain-filter" onchange="loadAdminInternships()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt)">
+                <option value="">All Domains</option>
+              </select>
+              <input type="date" id="itnm-date-from" onchange="loadAdminInternships()" title="Created from" style="font-size:.78rem;padding:.35rem .5rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);">
               <input class="tbl-search" placeholder="Search…" oninput="filterTable('itnm-tbody',this.value,[0,1,2])">
               <button class="btn-primary" style="background:linear-gradient(135deg,#f59e0b,#d97706)" onclick="openInternProjModal('internship')">+ New Internship</button>
             </div>
@@ -2702,16 +2861,25 @@
         <div class="table-card">
           <div class="table-header">
             <h3>Internship Modules</h3>
-            <div class="table-actions">
+            <div class="table-actions filter-bar">
+              <input type="text" id="ipm-name-filter" placeholder="Search module…" oninput="loadInternProgramModules()" style="max-width:160px">
+              <input type="number" id="ipm-order-filter" placeholder="Order #" oninput="loadInternProgramModules()" style="max-width:80px" min="0">
               <select id="ipm-internship-filter" onchange="loadInternProgramModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:200px">
                 <option value="">All Internships</option>
+              </select>
+              <select id="ipm-status-filter" onchange="loadInternProgramModules()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="inactive">Inactive</option>
+                <option value="not_completed">Not Completed</option>
               </select>
               <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)" onclick="openInternProgramModuleModal()">+ New Module</button>
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Internship</th><th>Module</th><th>Description</th><th>Deadline</th><th>Git Push Link</th><th>Active</th><th>Actions</th></tr></thead>
-            <tbody id="ipm-tbody"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+            <thead><tr><th>Date</th><th>Internship</th><th>Module</th><th>Description</th><th>Deadline</th><th>Git Link</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="ipm-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2767,6 +2935,10 @@
         <input type="text" id="ipm-name" placeholder="e.g. Database Design & Setup">
       </div>
       <div class="f-group">
+        <label>Scheduled Date</label>
+        <input type="date" id="ipm-scheduled-date">
+      </div>
+      <div class="f-group">
         <label>Deadline</label>
         <input type="date" id="ipm-deadline">
       </div>
@@ -2777,6 +2949,15 @@
       <div class="f-group" style="grid-column:1/-1">
         <label>Git Push Link</label>
         <input type="text" id="ipm-git-link" placeholder="e.g. https://github.com/org/repo">
+      </div>
+      <div class="f-group">
+        <label>Status</label>
+        <select id="ipm-status-sel">
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="inactive">Inactive</option>
+          <option value="not_completed">Not Completed</option>
+        </select>
       </div>
       <div class="f-group">
         <label>Active</label>
@@ -2954,7 +3135,7 @@
     <div class="modal-title" id="course-modal-title">Add New Course</div>
     <input type="hidden" id="course-id">
     <div class="form-row">
-      <div class="f-group"><label>Course Name *</label><input type="text" id="c-name" placeholder="e.g. AWS Solutions Architect"></div>
+      <div class="f-group"><label>Course Name *</label><input type="text" id="c-name" placeholder="e.g. AWS Solutions Architect" oninput="autoGenerateSlug(this.value)"><div id="c-slug-preview" style="font-size:.68rem;color:var(--txt4);margin-top:.2rem;font-family:monospace"></div></div>
       <div class="f-group"><label>Category *</label><select id="c-category"><option value="">Select…</option></select></div>
     </div>
     <div class="form-row">
@@ -3137,7 +3318,7 @@
     </div>
     <div class="f-group">
       <label>Description / Notes</label>
-      <textarea id="b-desc" placeholder="Batch goals, topics covered, or any notes for the mentor…" rows="2" style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:#c8bfff;border-radius:10px;padding:.65rem .9rem;font-size:.85rem;width:100%;resize:vertical;"></textarea>
+      <textarea id="b-desc" placeholder="Batch goals, topics covered, or any notes for the mentor…" rows="2" style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:var(--txt2);border-radius:10px;padding:.65rem .9rem;font-size:.85rem;width:100%;resize:vertical;"></textarea>
     </div>
     <div id="batch-save-err" style="color:#f87171;font-size:.8rem;margin-top:.25rem;display:none;"></div>
     <div class="modal-actions">
@@ -3158,12 +3339,12 @@
     <!-- Tabs -->
     <div style="display:flex;gap:0;background:rgba(255,255,255,.04);border-radius:10px;padding:3px;margin-bottom:.85rem">
       <button id="bsm-tab-btn-course" onclick="bsmTab('course')" style="flex:1;padding:.4rem;border-radius:8px;border:none;cursor:pointer;font-size:.8rem;font-weight:700;background:rgba(124,92,252,.7);color:#fff">Course Students</button>
-      <button id="bsm-tab-btn-search" onclick="bsmTab('search')" style="flex:1;padding:.4rem;border-radius:8px;border:none;cursor:pointer;font-size:.8rem;font-weight:700;background:transparent;color:rgba(200,191,255,.5)">Search All</button>
+      <button id="bsm-tab-btn-search" onclick="bsmTab('search')" style="flex:1;padding:.4rem;border-radius:8px;border:none;cursor:pointer;font-size:.8rem;font-weight:700;background:transparent;color:var(--txt3)">Search All</button>
     </div>
 
     <!-- Tab: Course students -->
     <div id="bsm-tab-course">
-      <div style="font-size:.75rem;color:rgba(200,191,255,.4);margin-bottom:.5rem">Students enrolled in this course — click Add to assign to batch</div>
+      <div style="font-size:.75rem;color:var(--txt4);margin-bottom:.5rem">Students enrolled in this course — click Add to assign to batch</div>
       <div id="bsm-course-students" style="max-height:180px;overflow-y:auto;margin-bottom:.75rem">
         <div class="table-empty">Loading…</div>
       </div>
@@ -3173,14 +3354,14 @@
     <div id="bsm-tab-search" style="display:none">
       <div style="display:flex;gap:.6rem;margin-bottom:.75rem;">
         <input type="text" id="bsm-search" placeholder="Search by name or email…"
-          style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:#c8bfff;border-radius:10px;padding:.6rem .9rem;font-size:.84rem;"
+          style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:var(--txt2);border-radius:10px;padding:.6rem .9rem;font-size:.84rem;"
           oninput="searchUsersForBatch()">
         <button class="action-btn" onclick="searchUsersForBatch()">Search</button>
       </div>
       <div id="bsm-search-results" style="max-height:180px;overflow-y:auto;margin-bottom:.75rem;"></div>
     </div>
 
-    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(200,191,255,.4);margin-bottom:.5rem;">
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt4);margin-bottom:.5rem;">
       Current Students <span id="bsm-count" style="color:#9b8fff;font-weight:800;"></span>
     </div>
     <div id="bsm-students-list" style="max-height:240px;overflow-y:auto;">
@@ -3209,9 +3390,9 @@
     <div class="f-group">
       <label>Meeting Link</label>
       <input type="url" id="sch-meet" placeholder="https://meet.jit.si/…">
-      <div style="font-size:.74rem;color:rgba(200,191,255,.4);margin-top:.3rem;">Leave blank to auto-generate a unique Jitsi link. You can still override it before class starts.</div>
+      <div style="font-size:.74rem;color:var(--txt4);margin-top:.3rem;">Leave blank to auto-generate a unique Jitsi link. You can still override it before class starts.</div>
     </div>
-    <div class="f-group"><label>Description / Agenda</label><textarea id="sch-desc" placeholder="Topics, materials, homework…" rows="2" style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:#c8bfff;border-radius:10px;padding:.65rem .9rem;font-size:.85rem;width:100%;resize:vertical;"></textarea></div>
+    <div class="f-group"><label>Description / Agenda</label><textarea id="sch-desc" placeholder="Topics, materials, homework…" rows="2" style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.2);color:var(--txt2);border-radius:10px;padding:.65rem .9rem;font-size:.85rem;width:100%;resize:vertical;"></textarea></div>
     <div id="sch-err" style="color:#f87171;font-size:.8rem;margin-top:.25rem;display:none;"></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('schedule-modal')">Cancel</button>
@@ -3242,14 +3423,14 @@
     </div>
     <div class="form-row">
       <div class="f-group"><label>List Price (₹) *</label><input type="number" id="pr-list" placeholder="e.g. 25000" min="0" step="100" oninput="previewPricing()"></div>
-      <div class="f-group"><label>Sale Price (₹) <span style="font-size:.7rem;color:rgba(200,191,255,.4)">(optional)</span></label><input type="number" id="pr-sale" placeholder="e.g. 19999" min="0" step="100" oninput="previewPricing()"></div>
+      <div class="f-group"><label>Sale Price (₹) <span style="font-size:.7rem;color:var(--txt4)">(optional)</span></label><input type="number" id="pr-sale" placeholder="e.g. 19999" min="0" step="100" oninput="previewPricing()"></div>
     </div>
     <!-- Live price preview -->
     <div id="pricing-preview" style="display:none;background:rgba(124,92,252,0.06);border:1px solid rgba(124,92,252,0.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.8rem;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><span style="color:rgba(200,191,255,.5)">Base (sale price)</span><span id="prev-base">—</span></div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><span style="color:rgba(200,191,255,.5)">GST @ 18%</span><span id="prev-gst">—</span></div>
-      <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(124,92,252,.2);padding-top:.3rem;font-weight:800;color:#b5adff;"><span>Total (incl. GST)</span><span id="prev-total">—</span></div>
-      <div style="display:flex;justify-content:space-between;margin-top:.4rem;font-size:.72rem;color:rgba(200,191,255,.4)"><span>Discount on list price</span><span id="prev-disc">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><span style="color:var(--txt3)">Base (sale price)</span><span id="prev-base">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><span style="color:var(--txt3)">GST @ 18%</span><span id="prev-gst">—</span></div>
+      <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(124,92,252,.2);padding-top:.3rem;font-weight:800;color:var(--v2);"><span>Total (incl. GST)</span><span id="prev-total">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:.4rem;font-size:.72rem;color:var(--txt4)"><span>Discount on list price</span><span id="prev-disc">—</span></div>
     </div>
     <div class="f-group" id="pr-emi-wrap" style="display:none">
       <label>EMI Installments</label>
@@ -3284,7 +3465,7 @@
     </div>
     <div class="form-row">
       <div class="f-group"><label>Min Purchase (₹)</label><input type="number" id="disc-min" placeholder="0 = no minimum" min="0"></div>
-      <div class="f-group"><label>Max Discount (₹) <span style="font-size:.7rem;color:rgba(200,191,255,.4)">(for % type)</span></label><input type="number" id="disc-max" placeholder="Optional cap" min="0"></div>
+      <div class="f-group"><label>Max Discount (₹) <span style="font-size:.7rem;color:var(--txt4)">(for % type)</span></label><input type="number" id="disc-max" placeholder="Optional cap" min="0"></div>
     </div>
     <div class="form-row">
       <div class="f-group"><label>Max Uses</label><input type="number" id="disc-maxuse" placeholder="0 = unlimited" min="0"></div>
@@ -3294,7 +3475,7 @@
       <div class="f-group"><label>Valid From</label><input type="datetime-local" id="disc-from"></div>
       <div class="f-group"><label>Expires At</label><input type="datetime-local" id="disc-until"></div>
     </div>
-    <div class="f-group"><label>Applicable Course <span style="font-size:.7rem;color:rgba(200,191,255,.4)">(leave blank = all courses)</span></label>
+    <div class="f-group"><label>Applicable Course <span style="font-size:.7rem;color:var(--txt4)">(leave blank = all courses)</span></label>
       <select id="disc-course"><option value="">All Courses</option></select>
     </div>
     <div class="modal-actions">
@@ -3309,11 +3490,11 @@
   <div class="modal-box" style="max-width:520px">
     <div class="modal-close" onclick="closeModal('user-modal')">✕</div>
     <div class="modal-title">User Details</div>
-    <div id="user-detail-content" style="font-size:.85rem;line-height:1.8;color:#c8bfff;"></div>
+    <div id="user-detail-content" style="font-size:.85rem;line-height:1.8;color:var(--txt2);"></div>
     <div id="user-role-change-row" style="display:none;margin-top:1rem;padding:.75rem 1rem;background:rgba(124,92,252,.06);border:1px solid rgba(124,92,252,.15);border-radius:10px;">
-      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(200,191,255,.5);margin-bottom:.5rem;">Change Role</div>
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--txt3);margin-bottom:.5rem;">Change Role</div>
       <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
-        <select id="user-role-select" style="background:rgba(20,15,40,.95);border:1px solid rgba(124,92,252,.3);color:#c8bfff;padding:.4rem .7rem;border-radius:8px;font-size:.82rem;">
+        <select id="user-role-select" style="background:rgba(20,15,40,.95);border:1px solid rgba(124,92,252,.3);color:var(--txt2);padding:.4rem .7rem;border-radius:8px;font-size:.82rem;">
           <option value="user">Student</option>
           <option value="mentor">Mentor</option>
           <option value="support">Support</option>
@@ -3336,11 +3517,11 @@
     <div class="modal-close" onclick="closeModal('mentor-reject-modal')">✕</div>
     <div class="modal-title">Reject Mentor Application</div>
     <input type="hidden" id="reject-mentor-id">
-    <p style="font-size:.84rem;color:rgba(200,191,255,.6);margin-bottom:1rem;">This message will be shown to the mentor so they understand why they were rejected.</p>
+    <p style="font-size:.84rem;color:var(--txt2);margin-bottom:1rem;">This message will be shown to the mentor so they understand why they were rejected.</p>
     <div class="f-group">
       <label>Rejection Reason <span style="color:#f87171">*</span></label>
       <textarea id="reject-reason" rows="4" placeholder="e.g. Incomplete qualifications, missing documents, expertise not matching platform needs…"
-        style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.25);color:#c8bfff;border-radius:10px;padding:.75rem 1rem;font-size:.85rem;width:100%;resize:vertical;"></textarea>
+        style="background:rgba(255,255,255,.04);border:1px solid rgba(124,92,252,.25);color:var(--txt2);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;width:100%;resize:vertical;"></textarea>
       <div id="reject-reason-err" style="color:#f87171;font-size:.78rem;margin-top:.35rem;display:none;"></div>
     </div>
     <div class="modal-actions">
@@ -3366,7 +3547,7 @@
       <select id="rec-session">
         <option value="">Standalone recording</option>
       </select>
-      <div style="font-size:.72rem;color:rgba(200,191,255,.4);margin-top:.25rem;">Link a class session to auto-save the recording back into that session and keep student timelines in sync.</div>
+      <div style="font-size:.72rem;color:var(--txt4);margin-top:.25rem;">Link a class session to auto-save the recording back into that session and keep student timelines in sync.</div>
     </div>
       <div class="f-group"><label>Provider *</label>
         <select id="rec-provider">
@@ -3380,12 +3561,12 @@
     </div>
     <!-- Pricing fields -->
     <div style="background:rgba(124,92,252,0.06);border:1px solid rgba(124,92,252,0.2);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <div style="font-size:.78rem;font-weight:700;color:#b5adff;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em;">💰 Access Pricing</div>
+      <div style="font-size:.78rem;font-weight:700;color:var(--v2);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em;">💰 Access Pricing</div>
       <div class="form-row">
         <div class="f-group">
           <label>Base Amount (₹)</label>
           <input type="number" id="rec-base-amount" placeholder="e.g. 999" min="0" step="0.01" oninput="calcRecGst()">
-          <div style="font-size:.72rem;color:rgba(200,191,255,.4);margin-top:.25rem;">Leave blank = use course pricing</div>
+          <div style="font-size:.72rem;color:var(--txt4);margin-top:.25rem;">Leave blank = use course pricing</div>
         </div>
         <div class="f-group">
           <label>GST %</label>
@@ -3393,8 +3574,8 @@
         </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem .75rem;background:rgba(124,92,252,0.12);border-radius:8px;font-size:.85rem;">
-        <span style="color:rgba(200,191,255,.6);">Total (incl. GST)</span>
-        <span id="rec-total-display" style="font-weight:800;color:#b5adff;">—</span>
+        <span style="color:var(--txt2);">Total (incl. GST)</span>
+        <span id="rec-total-display" style="font-weight:800;color:var(--v2);">—</span>
       </div>
     </div>
     <div class="modal-actions">
@@ -3762,11 +3943,13 @@ const fmtCurr = v => '₹' + Number(v||0).toLocaleString('en-IN');
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
 function statusBadge(s) {
   const map = { active:'green', approved:'green', completed:'green', paid:'green',
-                pending:'yellow', partial:'yellow', submitted:'yellow',
-                failed:'red', rejected:'red', overdue:'red', suspended:'red',
-                cancelled:'gray', paused:'gray', draft:'gray', scheduled:'blue', processing:'blue',
+                pending:'yellow', partial:'yellow', submitted:'yellow', assigned:'yellow', in_progress:'yellow',
+                failed:'red', rejected:'red', overdue:'red', suspended:'red', not_completed:'red', revoked:'red',
+                cancelled:'gray', paused:'gray', draft:'gray', inactive:'gray',
+                scheduled:'blue', processing:'blue',
                 open:'yellow', reviewed:'green', resolved:'green', archived:'gray' };
-  return `<span class="badge badge-${map[s]||'gray'}">${s}</span>`;
+  const label = (s||'').replace(/_/g,' ');
+  return `<span class="badge badge-${map[s]||'gray'}">${label}</span>`;
 }
 function filterTable(tbodyId, q, cols) {
   const rows = document.getElementById(tbodyId).querySelectorAll('tr');
@@ -4026,49 +4209,165 @@ async function loadDashboard() {
   }
 }
 
-// ===== COURSES =====
-async function loadCourses() {
-  const { data, error } = await db.client.from('courses')
-    .select('*, course_categories(name), course_pricing(id,list_price, sale_price, is_active)')
-    .order('created_at', { ascending: false });
-  if (error) { console.error('loadCourses:', error.message); return; }
+// ===== SLUG AUTO-GENERATION =====
+function autoGenerateSlug(name) {
+  const slug = (name||'').toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/^-|-$/g,'');
+  const el = document.getElementById('c-slug-preview');
+  if (el) el.textContent = slug ? 'slug: ' + slug : '';
+}
 
-  // Auto-fix: published courses that still have visibility='private' → set to 'public'
-  const privatePub = (data||[]).filter(c => c.course_status === 'published' && c.visibility === 'private');
-  if (privatePub.length) {
-    await db.client.from('courses').update({ visibility: 'public' }).in('id', privatePub.map(c => c.id));
-    privatePub.forEach(c => { c.visibility = 'public'; }); // update in-memory for render
-  }
-  document.getElementById('course-tbody').innerHTML = (data||[]).map(c => {
-    const pricing = (c.course_pricing||[]).find(p => p.is_active) || (c.course_pricing||[])[0];
-    const salePrice = pricing?.sale_price ?? pricing?.list_price ?? 0;
-    const listPrice = pricing?.list_price ?? 0;
+// ===== COURSES =====
+let _coursesCache = [];
+let _courseStatusFilter = '';
+let _courseAccessFilter = '';
+
+function toggleSortDropdown(th) {
+  const wasOpen = th.classList.contains('open');
+  document.querySelectorAll('.sortable-th.open').forEach(el => el.classList.remove('open'));
+  if (!wasOpen) th.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.sortable-th')) document.querySelectorAll('.sortable-th.open').forEach(el => el.classList.remove('open'));
+});
+
+function toggleKebab(btn) {
+  const wrap = btn.closest('.kebab-wrap');
+  const wasOpen = wrap.classList.contains('open');
+  document.querySelectorAll('.kebab-wrap.open').forEach(el => el.classList.remove('open'));
+  if (!wasOpen) wrap.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.kebab-wrap')) document.querySelectorAll('.kebab-wrap.open').forEach(el => el.classList.remove('open'));
+});
+
+function sortCourses(col, dir) {
+  document.querySelectorAll('.sortable-th.open').forEach(el => el.classList.remove('open'));
+  const sorted = [..._coursesCache];
+  sorted.sort((a, b) => {
+    let va, vb;
+    switch(col) {
+      case 'title': va = (a.title||'').toLowerCase(); vb = (b.title||'').toLowerCase(); break;
+      case 'category': va = (a._category||'').toLowerCase(); vb = (b._category||'').toLowerCase(); break;
+      case 'mentor': va = (a._mentor||'').toLowerCase(); vb = (b._mentor||'').toLowerCase(); break;
+      case 'fee': va = a._fee||0; vb = b._fee||0; break;
+      case 'enrolled': va = a._enrolled||0; vb = b._enrolled||0; break;
+      case 'rating': va = a._rating||0; vb = b._rating||0; break;
+      default: va = 0; vb = 0;
+    }
+    if (va < vb) return dir === 'asc' ? -1 : 1;
+    if (va > vb) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  renderCoursesTable(sorted);
+}
+
+function filterCoursesByStatus(status) {
+  document.querySelectorAll('.sortable-th.open').forEach(el => el.classList.remove('open'));
+  _courseStatusFilter = status;
+  renderCoursesTable(_coursesCache);
+}
+function filterCoursesByAccess(access) {
+  document.querySelectorAll('.sortable-th.open').forEach(el => el.classList.remove('open'));
+  _courseAccessFilter = access;
+  renderCoursesTable(_coursesCache);
+}
+
+function renderCoursesTable(courses) {
+  let filtered = courses;
+  if (_courseStatusFilter) filtered = filtered.filter(c => c.course_status === _courseStatusFilter);
+  if (_courseAccessFilter) filtered = filtered.filter(c => c.visibility === _courseAccessFilter);
+
+  document.getElementById('course-tbody').innerHTML = filtered.map(c => {
     const isTrending = !!c.is_trending;
     return `<tr>
-      <td style="font-weight:600">${c.title}${isTrending ? ' <span style="background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:.6rem;border-radius:50px;padding:.1rem .4rem;font-weight:700;vertical-align:middle">🔥 Trending</span>' : ''}</td>
-      <td>${c.course_categories?.name||'—'}</td>
-      <td>—</td>
+      <td style="font-weight:600">${_adm_esc(c.title)}${isTrending ? ' <span style="background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:.6rem;border-radius:50px;padding:.1rem .4rem;font-weight:700;vertical-align:middle">🔥 Trending</span>' : ''}</td>
+      <td>${_adm_esc(c._category)}</td>
+      <td>${_adm_esc(c._mentor)}</td>
       <td>
         <div style="display:flex;align-items:center;gap:.4rem;">
-          <span style="font-weight:700;color:#b5adff;">${fmtCurr(salePrice)}</span>
-          ${listPrice && listPrice !== salePrice ? `<span style="text-decoration:line-through;font-size:.72rem;color:rgba(200,191,255,.35);">${fmtCurr(listPrice)}</span>` : ''}
-          <button class="action-btn" style="padding:.15rem .5rem;font-size:.68rem" onclick="inlineEditPrice('${c.id}','${pricing?.id||''}',${salePrice},${listPrice})">✏</button>
+          <span style="font-weight:700;color:var(--v2);">${fmtCurr(c._fee)}</span>
+          ${c._listPrice && c._listPrice !== c._fee ? `<span style="text-decoration:line-through;font-size:.72rem;color:var(--txt4);">${fmtCurr(c._listPrice)}</span>` : ''}
+          <button class="action-btn" style="padding:.15rem .5rem;font-size:.68rem" onclick="inlineEditPrice('${c.id}','${c._pricingId||''}',${c._fee},${c._listPrice})">✏</button>
         </div>
       </td>
-      <td>—</td>
-      <td>—</td>
+      <td style="font-weight:600">${c._enrolled}</td>
+      <td>${c._rating > 0 ? `<span style="color:var(--txt);font-weight:600">${c._rating.toFixed(1)}</span> <span style="font-size:.68rem;color:var(--txt3)">/ 5</span>` : '<span style="color:var(--txt4)">—</span>'}</td>
       <td>${statusBadge(c.course_status === 'published' ? 'active' : c.course_status || 'draft')}</td>
-      <td><div class="action-btns">
-        <button class="action-btn" onclick="editCourse('${c.id}')">Edit</button>
-        <button class="action-btn" onclick="toggleCoursePublish('${c.id}','${c.course_status}')">${c.course_status === 'published' ? 'Unpublish' : 'Publish'}</button>
-        <button class="action-btn ${isTrending ? '' : ''}" style="${isTrending ? 'background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.3)' : ''}" onclick="toggleTrending('${c.id}',${isTrending})">${isTrending ? '🔥 Untrend' : 'Mark Trending'}</button>
-        <button class="action-btn" style="background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.3)" onclick="notifyInterestedUsers('${c.id}',${JSON.stringify(c.title).replace(/"/g,'&quot;')})">🔔 Notify Interested</button>
-        <button class="action-btn danger" onclick="deleteCourse('${c.id}')">Delete</button>
-      </div></td>
+      <td>${statusBadge(c.visibility || 'private')}</td>
+      <td>
+        <div class="kebab-wrap">
+          <button class="kebab-btn" onclick="toggleKebab(this)" title="Actions">⋮</button>
+          <div class="kebab-menu">
+            <button class="kebab-item" onclick="editCourse('${c.id}')">✏ Edit</button>
+            <button class="kebab-item" onclick="toggleCoursePublish('${c.id}','${c.course_status}')">${c.course_status === 'published' ? '⏸ Unpublish' : '▶ Publish'}</button>
+            <button class="kebab-item" onclick="toggleTrending('${c.id}',${isTrending})">${isTrending ? '🔥 Untrend' : '🔥 Mark Trending'}</button>
+            <button class="kebab-item" onclick="notifyInterestedUsers('${c.id}',${JSON.stringify(c.title).replace(/"/g,'&quot;')})">🔔 Notify Interested</button>
+            <button class="kebab-item danger" onclick="deleteCourse('${c.id}')">🗑 Delete</button>
+          </div>
+        </div>
+      </td>
     </tr>`;
-  }).join('') || '<tr><td colspan="8" class="table-empty">No courses yet</td></tr>';
+  }).join('') || '<tr><td colspan="9" class="table-empty">No courses yet</td></tr>';
+}
+
+async function loadCourses() {
+  const [coursesRes, enrollRes, reviewsRes, batchesRes] = await Promise.all([
+    db.client.from('courses')
+      .select('*, course_categories(name), course_pricing(id,list_price, sale_price, is_active)')
+      .order('created_at', { ascending: false }),
+    db.client.from('enrollments').select('course_id'),
+    db.client.from('reviews').select('course_id, rating'),
+    db.client.from('course_batches').select('course_id, primary_mentor_user_id, user_profiles:primary_mentor_user_id(full_name)')
+  ]);
+  if (coursesRes.error) { console.error('loadCourses:', coursesRes.error.message); return; }
+  const data = coursesRes.data || [];
+
+  // Auto-fix: published courses that still have visibility='private' → set to 'public'
+  const privatePub = data.filter(c => c.course_status === 'published' && c.visibility === 'private');
+  if (privatePub.length) {
+    await db.client.from('courses').update({ visibility: 'public' }).in('id', privatePub.map(c => c.id));
+    privatePub.forEach(c => { c.visibility = 'public'; });
+  }
+
+  // Build enrollment count map
+  const enrollMap = {};
+  (enrollRes.data || []).forEach(e => { enrollMap[e.course_id] = (enrollMap[e.course_id] || 0) + 1; });
+
+  // Build rating average map
+  const ratingMap = {};
+  const ratingCount = {};
+  (reviewsRes.data || []).forEach(r => {
+    if (!r.course_id || !r.rating) return;
+    ratingMap[r.course_id] = (ratingMap[r.course_id] || 0) + r.rating;
+    ratingCount[r.course_id] = (ratingCount[r.course_id] || 0) + 1;
+  });
+  Object.keys(ratingMap).forEach(k => { ratingMap[k] = ratingMap[k] / ratingCount[k]; });
+
+  // Build mentor map from batches
+  const mentorMap = {};
+  (batchesRes.data || []).forEach(b => {
+    if (!mentorMap[b.course_id] && b.user_profiles?.full_name) {
+      mentorMap[b.course_id] = b.user_profiles.full_name;
+    }
+  });
+
+  // Enrich and cache
+  _coursesCache = data.map(c => {
+    const pricing = (c.course_pricing||[]).find(p => p.is_active) || (c.course_pricing||[])[0];
+    c._category = c.course_categories?.name || '—';
+    c._mentor = mentorMap[c.id] || '—';
+    c._fee = pricing?.sale_price ?? pricing?.list_price ?? 0;
+    c._listPrice = pricing?.list_price ?? 0;
+    c._pricingId = pricing?.id || '';
+    c._enrolled = enrollMap[c.id] || 0;
+    c._rating = ratingMap[c.id] || 0;
+    return c;
+  });
+
+  renderCoursesTable(_coursesCache);
+
   // Refresh course dropdowns in other modals
-  const opts = (data||[]).map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  const opts = data.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   ['rec-course', 'b-course'].forEach(id => {
     const el = document.getElementById(id); if (el) el.innerHTML = '<option value="">Select…</option>' + opts;
   });
@@ -4179,8 +4478,14 @@ async function inlineEditPrice(courseId, pricingId, salePrice, listPrice) {
 }
 
 async function loadCategories() {
-  const { data, error } = await db.client.from('course_categories').select('*').order('sort_order');
+  const [{ data, error }, { data: courses }] = await Promise.all([
+    db.client.from('course_categories').select('*').order('sort_order'),
+    db.client.from('courses').select('category_id')
+  ]);
   if (error) { console.error('loadCategories:', error.message); return; }
+  // Build course count map
+  const countMap = {};
+  (courses || []).forEach(c => { if (c.category_id) countMap[c.category_id] = (countMap[c.category_id] || 0) + 1; });
   // Helper: clean slug by removing redundant "courses" segments
   const cleanSlug = s => (s || '').replace(/\bcourses[-_]?/gi, '').replace(/[-_]+/g, '-').replace(/^-|-$/g, '') || s;
   document.getElementById('category-tbody').innerHTML = (data||[]).map(c => {
@@ -4190,6 +4495,7 @@ async function loadCategories() {
     const iconHtml = iconInfo
       ? `<div style="width:36px;height:36px;border-radius:10px;background:${iconInfo.gradient};display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,.35);overflow:hidden;"><div style="width:24px;height:24px;">${iconInfo.svg}</div></div>`
       : `<div style="width:36px;height:36px;border-radius:10px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📚</div>`;
+    const courseCount = countMap[c.id] || 0;
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:.65rem;">
@@ -4198,7 +4504,7 @@ async function loadCategories() {
         </div>
       </td>
       <td><code style="background:rgba(124,92,252,.1);padding:.15rem .4rem;border-radius:4px;font-size:.78rem;">${slug}</code></td>
-      <td>—</td>
+      <td><span style="font-weight:700;color:var(--txt)">${courseCount}</span> <span style="font-size:.7rem;color:var(--txt3)">course${courseCount !== 1 ? 's' : ''}</span></td>
       <td>${statusBadge(c.is_active ? 'active' : 'draft')}</td>
       <td><div class="action-btns">
         <button class="action-btn" onclick="editCategory('${c.id}')">Edit</button>
@@ -4255,14 +4561,14 @@ async function loadUsers() {
       <td><input type="checkbox" class="bulk-check row-check" data-id="${u.user_id}" onchange="updateBulkBar('users')"></td>
       <td style="font-weight:600">${u.full_name || '—'}</td>
       <td style="font-size:.82rem">${u.email}</td>
-      <td>${u.phone ? `<span style="font-family:monospace;font-size:.82rem">${u.phone}</span>` : '<span style="color:rgba(200,191,255,.3)">—</span>'}</td>
+      <td>${u.phone ? `<span style="font-family:monospace;font-size:.82rem">${u.phone}</span>` : '<span style="color:var(--txt4)">—</span>'}</td>
       <td>${roleBadge(u.role)}</td>
       <td>${enrollmentCountMap[u.user_id] || 0}</td>
       <td>${fmtDate(u.account_created_at || u.created_at)}</td>
       <td>${statusBadge(u.is_active === false ? 'inactive' : 'active')}</td>
       <td><div class="action-btns">
         <button class="action-btn" onclick="viewUser('${u.user_id}')">View</button>
-        <button class="action-btn" style="background:rgba(124,92,252,.18);color:#c4b5fd;border-color:rgba(124,92,252,.35);" onclick="openAdminEnrollModal('${u.user_id}')">+ Enroll</button>
+        <button class="action-btn" style="background:rgba(124,92,252,.18);color:var(--v2);border-color:rgba(124,92,252,.35);" onclick="openAdminEnrollModal('${u.user_id}')">+ Enroll</button>
         <button class="action-btn danger" onclick="deleteUser('${u.user_id}', ${JSON.stringify(u.full_name || u.email || 'this user').replace(/"/g,'&quot;')})">Delete</button>
       </div></td>
     </tr>`).join('') || '<tr><td colspan="9" class="table-empty">No users</td></tr>';
@@ -4570,9 +4876,33 @@ async function loadEnrollments() {
   }
 
   const userIds = [...new Set(filtered.map(e => e.student_user_id).filter(Boolean))];
-  const { data: profiles } = await db.client.from('user_profiles')
-    .select('user_id, full_name, email').in('user_id', userIds);
+  const [{ data: profiles }, { data: completedPayments }] = await Promise.all([
+    db.client.from('user_profiles').select('user_id, full_name, email').in('user_id', userIds),
+    db.client.from('payments').select('enrollment_id, amount, payment_status').eq('payment_status', 'completed')
+  ]);
   const profileMap = Object.fromEntries((profiles||[]).map(p => [p.user_id, p]));
+
+  // Build accurate paid amount map from actual payments
+  const actualPaidMap = {};
+  (completedPayments || []).forEach(p => {
+    if (p.enrollment_id) actualPaidMap[p.enrollment_id] = (actualPaidMap[p.enrollment_id] || 0) + Number(p.amount || 0);
+  });
+  // Sync enrollment paid_amount with actual payments
+  filtered.forEach(e => {
+    const actualPaid = actualPaidMap[e.id];
+    if (actualPaid !== undefined) {
+      e.paid_amount = actualPaid;
+      e.due_amount = Math.max(0, (e.net_amount || 0) - actualPaid);
+    }
+  });
+
+  // Payment summary
+  const totalExpected = filtered.reduce((s, e) => s + Number(e.net_amount || 0), 0);
+  const totalCollected = filtered.reduce((s, e) => s + Number(e.paid_amount || 0), 0);
+  const summaryEl = document.getElementById('enrollment-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML = `<span style="font-size:.78rem;color:var(--txt3)">Total Expected: <strong style="color:var(--txt)">${fmtCurr(totalExpected)}</strong> | Collected: <strong style="color:#4ade80">${fmtCurr(totalCollected)}</strong> | Pending: <strong style="color:#f87171">${fmtCurr(totalExpected - totalCollected)}</strong></span>`;
+  }
 
   // Populate category and course filter dropdowns
   const usedCatIds = [...new Set((data||[]).map(e => e.courses?.category_id).filter(Boolean))];
@@ -4737,10 +5067,19 @@ function editEnrollmentById(safeEncoded) {
 
 async function loadBatches() {
   const courseFilter = document.getElementById('batch-course-filter')?.value || '';
+  const mentorFilter = document.getElementById('batch-mentor-filter')?.value || '';
+  const statusFilter = document.getElementById('batch-status-filter')?.value;
+  const startFilter = document.getElementById('batch-start-filter')?.value || '';
+  const endFilter = document.getElementById('batch-end-filter')?.value || '';
+
   let q = db.client.from('course_batches')
     .select('*, courses(title,id), mentor_profiles:primary_mentor_user_id(user_profiles(full_name))')
     .order('created_at', { ascending: false });
   if (courseFilter) q = q.eq('course_id', courseFilter);
+  if (mentorFilter) q = q.eq('primary_mentor_user_id', mentorFilter);
+  if (statusFilter === 'true' || statusFilter === 'false') q = q.eq('is_active', statusFilter === 'true');
+  if (startFilter) q = q.gte('starts_on', startFilter);
+  if (endFilter) q = q.lte('starts_on', endFilter);
   const { data } = await q;
 
   // Fetch student counts per batch
@@ -4754,7 +5093,7 @@ async function loadBatches() {
     (counts || []).forEach(r => { countMap[r.batch_id] = (countMap[r.batch_id] || 0) + 1; });
   }
 
-  // Populate filter dropdown on first load
+  // Populate filter dropdowns on first load
   const filterEl = document.getElementById('batch-course-filter');
   if (filterEl && filterEl.options.length <= 1 && data?.length) {
     const seen = new Map();
@@ -4766,6 +5105,20 @@ async function loadBatches() {
     });
     if (courseFilter) filterEl.value = courseFilter;
   }
+  const mentorEl = document.getElementById('batch-mentor-filter');
+  if (mentorEl && mentorEl.options.length <= 1 && data?.length) {
+    const mentors = new Map();
+    (data||[]).forEach(b => {
+      if (b.primary_mentor_user_id && b.mentor_profiles?.user_profiles?.full_name) {
+        mentors.set(b.primary_mentor_user_id, b.mentor_profiles.user_profiles.full_name);
+      }
+    });
+    mentors.forEach((name, uid) => {
+      const opt = document.createElement('option');
+      opt.value = uid; opt.textContent = name;
+      mentorEl.appendChild(opt);
+    });
+  }
 
   document.getElementById('batch-tbody').innerHTML = (data||[]).map(b => {
     const skills = (b.skill_tags || []).length
@@ -4775,7 +5128,7 @@ async function loadBatches() {
     return `<tr>
       <td>
         <div style="font-weight:600">${b.batch_name}</div>
-        ${b.batch_code ? `<code style="font-size:.68rem;color:rgba(200,191,255,.4)">${b.batch_code}</code>` : ''}
+        ${b.batch_code ? `<code style="font-size:.68rem;color:var(--txt4)">${b.batch_code}</code>` : ''}
       </td>
       <td>
         <div>${b.courses?.title||'—'}</div>
@@ -4832,7 +5185,7 @@ async function loadPayments() {
   document.getElementById('payment-tbody').innerHTML = (data||[]).map(p => {
     const invNum = p.invoices?.invoice_number || p.invoice_id || null;
     const invCell = invNum
-      ? `<code style="background:rgba(124,92,252,.1);padding:.15rem .4rem;border-radius:4px;font-size:.72rem;color:#b5adff;">${invNum}</code>`
+      ? `<code style="background:rgba(124,92,252,.1);padding:.15rem .4rem;border-radius:4px;font-size:.72rem;color:var(--v2);">${invNum}</code>`
       : `<button class="action-btn" style="font-size:.68rem;padding:.15rem .5rem" onclick="generateInvoice('${p.id}')">Generate</button>`;
     const methodLabel = { gateway_link:'Razorpay', card:'Card', upi:'UPI', cash:'Cash', bank_transfer:'Bank', net_banking:'Net Banking', wallet:'Wallet' }[p.payment_method] || p.payment_method || '—';
     const userName = p.student_profiles?.user_profiles?.full_name || '—';
@@ -4842,7 +5195,7 @@ async function loadPayments() {
       <td>${invCell}</td>
       <td>
         <div style="font-weight:600;font-size:.85rem">${userName}</div>
-        <div style="font-size:.72rem;color:rgba(200,191,255,.4)">${userEmail}</div>
+        <div style="font-size:.72rem;color:var(--txt4)">${userEmail}</div>
       </td>
       <td>${p.enrollments?.courses?.title||'—'}</td>
       <td style="font-weight:700">${fmtCurr(p.amount)}</td>
@@ -5544,7 +5897,7 @@ async function loadInterested() {
         ? `<span style="color:#4ade80;font-size:.78rem">✅ ${new Date(r.notified_at).toLocaleDateString('en-IN')}</span>`
         : `<span style="color:var(--txt4);font-size:.78rem">Not yet</span>`;
       const discCode = r.discount_code
-        ? `<code style="background:rgba(124,92,252,.15);color:#b5adff;padding:.15rem .45rem;border-radius:6px;font-size:.75rem">${r.discount_code}</code>`
+        ? `<code style="background:rgba(124,92,252,.15);color:var(--v2);padding:.15rem .45rem;border-radius:6px;font-size:.75rem">${r.discount_code}</code>`
         : '<span style="color:var(--txt4)">—</span>';
       return `<tr>
         <td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${course}">${course}</td>
@@ -7018,7 +7371,7 @@ function fullscreenQr() {
   win.document.write(`<html><head><title>QR Code - SkillUpNow</title><style>
     body{margin:0;background:#0d0920;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}
     img{border-radius:16px;border:4px solid #1a1a2e;box-shadow:0 16px 60px rgba(124,92,252,.35);max-width:90vw;}
-    p{color:#b5adff;margin-top:1.5rem;font-size:.9rem;word-break:break-all;max-width:90vw;text-align:center;}
+    p{color:var(--v2);margin-top:1.5rem;font-size:.9rem;word-break:break-all;max-width:90vw;text-align:center;}
     h2{color:#fff;margin-bottom:1.5rem;font-size:1.3rem;}
   </style></head><body>
     <h2>Scan to open form</h2>
@@ -7257,7 +7610,7 @@ async function loadCourseStudentsForBatch() {
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;background:rgba(255,255,255,.03);border:1px solid rgba(124,92,252,.1);border-radius:8px;margin-bottom:.3rem;">
       <div>
         <div style="font-size:.84rem;font-weight:600">${up.full_name||'—'}</div>
-        <div style="font-size:.72rem;color:rgba(200,191,255,.45)">${up.email||''}</div>
+        <div style="font-size:.72rem;color:var(--txt3)">${up.email||''}</div>
       </div>
       ${already
         ? '<span style="font-size:.72rem;color:#4ade80">✓ In batch</span>'
@@ -7297,7 +7650,7 @@ async function loadBatchStudents() {
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;background:rgba(255,255,255,.03);border:1px solid rgba(124,92,252,.1);border-radius:8px;margin-bottom:.4rem;gap:.5rem">
       <div style="flex:1;min-width:0">
         <div style="font-weight:600;font-size:.84rem">${up.full_name||'—'}</div>
-        <div style="font-size:.72rem;color:rgba(200,191,255,.45)">${up.email||''} ${up.phone ? '· '+up.phone : ''}</div>
+        <div style="font-size:.72rem;color:var(--txt3)">${up.email||''} ${up.phone ? '· '+up.phone : ''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
         <span style="font-size:.7rem;color:${accColor}">${e.access_status}</span>
@@ -7345,10 +7698,10 @@ async function searchUsersForBatch() {
     <div style="display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;background:rgba(255,255,255,.03);border:1px solid rgba(124,92,252,.1);border-radius:8px;margin-bottom:.3rem;">
       <div>
         <div style="font-size:.84rem;font-weight:600">${u.full_name||'—'}</div>
-        <div style="font-size:.72rem;color:rgba(200,191,255,.45)">${u.email}</div>
+        <div style="font-size:.72rem;color:var(--txt3)">${u.email}</div>
       </div>
       <button class="action-btn" style="font-size:.73rem;padding:.25rem .65rem;background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.3);" onclick="addStudentToBatch('${u.user_id}','${(u.full_name||'').replace(/'/g,"\\'")}')">Add</button>
-    </div>`).join('') || '<div style="font-size:.8rem;color:rgba(200,191,255,.4);padding:.4rem;">No students found.</div>';
+    </div>`).join('') || '<div style="font-size:.8rem;color:var(--txt4);padding:.4rem;">No students found.</div>';
 }
 
 async function addStudentToBatch(userId, name) {
@@ -7404,12 +7757,21 @@ function openScheduleForBatch(batchId, batchName) {
 let _viewingUserId = null;
 async function viewUser(id) {
   _viewingUserId = id;
-  const [{ data: profile }, { data: enrollments }] = await Promise.all([
+  const [{ data: profile }, { data: enrollments }, { data: internModules }, { data: internSessions }] = await Promise.all([
     db.client.from('user_profiles').select('*').eq('user_id', id).single(),
     db.client.from('enrollments')
       .select('id, enrollment_status, access_status, net_amount, paid_amount, due_amount, progress_percentage, notes, courses(title)')
       .eq('student_user_id', id)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: false }),
+    db.client.from('intern_modules')
+      .select('id, module_title, status, scheduled_date, due_date, day_number')
+      .eq('student_user_id', id)
+      .order('scheduled_date', { ascending: false }),
+    db.client.from('intern_work_sessions')
+      .select('session_date, total_work_mins, status')
+      .eq('student_user_id', id)
+      .order('session_date', { ascending: false })
+      .limit(30)
   ]);
   if (!profile) return;
   const roleLabel = r => ({ user:'Student',student:'Student',mentor:'Mentor',admin:'Admin',super_admin:'Super Admin',support:'Support' }[r] || r || 'Student');
@@ -7440,36 +7802,72 @@ async function viewUser(id) {
           <button class="action-btn" style="font-size:.7rem;padding:.22rem .5rem;" onclick="editEnrollmentById('${safeEnc}')">Edit</button>
           ${!hasAccess && !isCancelled ? `<button class="action-btn" style="background:rgba(74,222,128,.15);color:#4ade80;border-color:rgba(74,222,128,.3);font-size:.7rem;padding:.22rem .5rem;" onclick="_muGrantAccess('${e.id}')">Grant</button>` : ''}
           ${hasAccess ? `<button class="action-btn danger" style="font-size:.7rem;padding:.22rem .5rem;" onclick="_muRevokeAccess('${e.id}')">Revoke</button>` : ''}
-          ${e.due_amount > 0 ? `<button class="action-btn" style="background:rgba(124,92,252,.18);color:#c4b5fd;border-color:rgba(124,92,252,.35);font-size:.7rem;padding:.22rem .5rem;" onclick="_muRecordPayment('${e.id}',${e.due_amount})">+ Pay</button>` : ''}
+          ${e.due_amount > 0 ? `<button class="action-btn" style="background:rgba(124,92,252,.18);color:var(--v2);border-color:rgba(124,92,252,.35);font-size:.7rem;padding:.22rem .5rem;" onclick="_muRecordPayment('${e.id}',${e.due_amount})">+ Pay</button>` : ''}
           ${!isCancelled ? `<button class="action-btn danger" style="font-size:.7rem;padding:.22rem .5rem;" onclick="_muUnenroll('${e.id}','${(profile.full_name||'').replace(/'/g,'')}','${(e.courses?.title||'').replace(/'/g,'')}')">Unenroll</button>` : ''}
         </div>
       </div>
     </div>`;
-  }).join('') || '<div style="font-size:.8rem;color:rgba(200,191,255,.35);margin-top:.5rem;padding:.5rem 0;">No enrollments yet</div>';
+  }).join('') || '<div style="font-size:.8rem;color:var(--txt4);margin-top:.5rem;padding:.5rem 0;">No enrollments yet</div>';
+
+  // Group intern modules by scheduled_date — no duplication
+  const modulesByDate = new Map();
+  (internModules||[]).forEach(m => {
+    const dateKey = m.scheduled_date || m.due_date || 'No Date';
+    if (!modulesByDate.has(dateKey)) modulesByDate.set(dateKey, []);
+    modulesByDate.get(dateKey).push(m);
+  });
+
+  let sessionHtml = '';
+  if (modulesByDate.size > 0) {
+    sessionHtml = `<div style="margin-top:1rem;"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Module Sessions by Date</strong>
+    <div class="session-timeline">`;
+    for (const [date, mods] of modulesByDate) {
+      const dateLabel = date === 'No Date' ? 'No Date' : fmtDate(date);
+      const sessionInfo = (internSessions||[]).find(s => s.session_date === date);
+      const workMins = sessionInfo?.total_work_mins || 0;
+      const workLabel = workMins > 0 ? ` — ${Math.floor(workMins/60)}h ${workMins%60}m worked` : '';
+      sessionHtml += `<div class="session-date-card" onclick="this.classList.toggle('expanded')">
+        <div class="session-date-header">
+          <h4>${dateLabel}${workLabel} <span class="badge badge-blue" style="font-size:.6rem">${mods.length} module${mods.length>1?'s':''}</span></h4>
+          <span style="color:var(--txt3);font-size:.75rem">▼</span>
+        </div>
+        <div class="session-date-body">
+          ${mods.map(m => `<div class="session-mod-row">
+            <div style="min-width:0;flex:1">
+              <div style="font-weight:600;font-size:.82rem;color:var(--txt)">${_adm_esc(m.module_title)}</div>
+              ${m.day_number ? `<span style="font-size:.68rem;color:var(--txt3)">Day ${m.day_number}</span>` : ''}
+            </div>
+            ${statusBadge(m.status)}
+            <div class="action-btns" style="flex-shrink:0">
+              <button class="action-btn" style="font-size:.65rem;padding:.15rem .4rem" onclick="event.stopPropagation();revokeInternModule('${m.id}')">Revoke</button>
+              <button class="action-btn danger" style="font-size:.65rem;padding:.15rem .4rem" onclick="event.stopPropagation();deleteInternModule('${m.id}')">Delete</button>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    }
+    sessionHtml += '</div></div>';
+  }
 
   document.getElementById('user-detail-content').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'—'}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Role</strong><br><span id="um-role-display">${roleLabel(profile.role)}</span></div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Joined</strong><br>${fmtDate(profile.account_created_at||profile.created_at)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${profile.is_active!==false?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>'}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'—'}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Role</strong><br><span style="font-weight:600;color:var(--txt)">${roleLabel(profile.role)}</span></div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Joined</strong><br>${fmtDate(profile.account_created_at||profile.created_at)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${profile.is_active!==false?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>'}</div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
-      <strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Enrollments (${(enrollments||[]).length})</strong>
-      <button class="action-btn" style="background:rgba(124,92,252,.18);color:#c4b5fd;border-color:rgba(124,92,252,.35);font-size:.7rem;padding:.22rem .6rem;" onclick="closeModal('user-modal');openAdminEnrollModal('${id}')">+ Enroll in Course</button>
+      <strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Enrollments (${(enrollments||[]).length})</strong>
+      <button class="action-btn" style="background:rgba(124,92,252,.18);color:var(--v2);border-color:rgba(124,92,252,.35);font-size:.7rem;padding:.22rem .6rem;" onclick="closeModal('user-modal');openAdminEnrollModal('${id}')">+ Enroll in Course</button>
     </div>
-    ${enrollRows}`;
+    ${enrollRows}
+    ${sessionHtml}`;
 
-  // Show role-change row and pre-select current role
+  // Hide role-change row — role is now read-only
   const roleRow = document.getElementById('user-role-change-row');
-  const roleSelect = document.getElementById('user-role-select');
-  if (roleRow && roleSelect) {
-    roleRow.style.display = 'block';
-    const cur = profile.role || 'user';
-    roleSelect.value = ['mentor','support'].includes(cur) ? cur : 'user';
-  }
+  if (roleRow) roleRow.style.display = 'none';
   const msgEl = document.getElementById('user-role-msg');
   if (msgEl) msgEl.textContent = '';
   document.querySelector('#user-modal .modal-title').textContent = 'User Details';
@@ -7630,16 +8028,16 @@ async function viewMentor(id) {
   if (!m || !profile) return;
   document.getElementById('user-detail-content').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'—'}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${m.years_of_experience} yrs</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>⭐ ${(m.average_rating||0).toFixed(1)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'—'}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${m.years_of_experience} yrs</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>⭐ ${(m.average_rating||0).toFixed(1)}</div>
     </div>
-    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications}</div>
-    <div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas||[]).join(', ')||'—'}</div>
-    ${m.bio?`<div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>`:''}
+    <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications}</div>
+    <div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas||[]).join(', ')||'—'}</div>
+    ${m.bio?`<div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>`:''}
     ${m.linkedin_url?`<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile →</a></div>`:''}`;
   document.querySelector('#user-modal .modal-title').textContent = 'Mentor Details';
   openModal('user-modal');
@@ -7651,9 +8049,9 @@ async function viewFormData(id) {
   if (!f) return;
   const fdata = f.form_data || f.submission_data || {};
   document.getElementById('user-detail-content').innerHTML = `
-    <div style="margin-bottom:.75rem"><span class="badge badge-blue">${f.form_type?.replace(/_/g,' ')||'Form'}</span> &nbsp; <span style="font-size:.78rem;color:rgba(200,191,255,.4);">${fmtDate(f.created_at)}</span></div>
+    <div style="margin-bottom:.75rem"><span class="badge badge-blue">${f.form_type?.replace(/_/g,' ')||'Form'}</span> &nbsp; <span style="font-size:.78rem;color:var(--txt4);">${fmtDate(f.created_at)}</span></div>
     ${Object.entries(fdata).map(([k,v])=>`<div style="display:flex;gap:.75rem;padding:.3rem 0;border-bottom:1px solid rgba(124,92,252,.08);">
-      <div style="min-width:120px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:rgba(200,191,255,.4);">${k.replace(/_/g,' ')}</div>
+      <div style="min-width:120px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--txt4);">${k.replace(/_/g,' ')}</div>
       <div style="font-size:.85rem;">${v||'—'}</div>
     </div>`).join('')}`;
   document.querySelector('#user-modal .modal-title').textContent = 'Form Submission';
@@ -7869,7 +8267,7 @@ async function loadPricing() {
       <td>${fmtCurr(p.list_price)}</td>
       <td>
         <span style="font-weight:700">${fmtCurr(salePrice)}</span>${discLabel}
-        ${applicableDisc ? `<div style="font-size:.72rem;margin-top:.2rem"><span style="color:#4ade80;font-weight:700">→ ${fmtCurr(finalPrice)}</span> <span style="color:rgba(200,191,255,.35)">+GST = ${fmtCurr(totalWithGst)}</span></div>` : ''}
+        ${applicableDisc ? `<div style="font-size:.72rem;margin-top:.2rem"><span style="color:#4ade80;font-weight:700">→ ${fmtCurr(finalPrice)}</span> <span style="color:var(--txt4)">+GST = ${fmtCurr(totalWithGst)}</span></div>` : ''}
       </td>
       <td>${disc}</td>
       <td>${p.emi_installments ? p.emi_installments + ' months' : '—'}</td>
@@ -8097,7 +8495,7 @@ async function loadReferrals() {
       <td><strong>${i + 1}</strong></td>
       <td>${escHtml(u.full_name || '—')}</td>
       <td style="font-size:.8rem;">${escHtml(u.email || '—')}</td>
-      <td style="font-family:monospace;font-size:.8rem;">${u.phone ? escHtml(u.phone) : '<span style="color:rgba(200,191,255,.3)">—</span>'}</td>
+      <td style="font-family:monospace;font-size:.8rem;">${u.phone ? escHtml(u.phone) : '<span style="color:var(--txt4)">—</span>'}</td>
       <td><code style="background:rgba(124,92,252,.15);padding:.1rem .45rem;border-radius:6px;font-size:.82rem;">${escHtml(u.referral_code || '—')}</code></td>
       <td>${refCount}</td>
       <td><strong style="color:var(--v1)">${u.reward_points}</strong></td>
@@ -8126,11 +8524,11 @@ function renderRefCodesTable(rows) {
       : `${c.use_count || 0} / ∞`;
     const expiresStr = c.expires_at
       ? `<span title="${c.expires_at}">${fmtDate(c.expires_at)}</span>`
-      : '<span style="color:rgba(200,191,255,.3)">No expiry</span>';
+      : '<span style="color:var(--txt4)">No expiry</span>';
     return `<tr>
       <td><code style="background:rgba(124,92,252,.14);padding:.15rem .55rem;border-radius:7px;font-size:.84rem;letter-spacing:.05em;font-weight:700;">${escHtml(c.code)}</code></td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(c.description || '—')}</td>
-      <td>${referrer ? `<span title="${escHtml(referrer.email)}">${escHtml(referrer.full_name || referrer.email)}</span>` : '<span style="color:rgba(200,191,255,.3)">Promo (no referrer)</span>'}</td>
+      <td>${referrer ? `<span title="${escHtml(referrer.email)}">${escHtml(referrer.full_name || referrer.email)}</span>` : '<span style="color:var(--txt4)">Promo (no referrer)</span>'}</td>
       <td style="color:#4ade80;font-weight:700;">+${c.points_for_referrer || 0}</td>
       <td style="color:#60a5fa;font-weight:700;">+${c.points_for_referee || 0}</td>
       <td style="font-family:monospace;font-size:.8rem;">${usesStr}</td>
@@ -8288,8 +8686,8 @@ async function resetRefCodeUses() {
 function renderReferralTable(rows) {
   document.getElementById('referral-tbody').innerHTML = rows.map(r => `
     <tr>
-      <td>${escHtml(r.referrer?.full_name || '—')}<br><span style="font-size:.72rem;color:rgba(200,191,255,.4);">${escHtml(r.referrer?.email || '')}</span></td>
-      <td>${escHtml(r.referee?.full_name || '—')}<br><span style="font-size:.72rem;color:rgba(200,191,255,.4);">${escHtml(r.referee?.email || '')}</span></td>
+      <td>${escHtml(r.referrer?.full_name || '—')}<br><span style="font-size:.72rem;color:var(--txt4);">${escHtml(r.referrer?.email || '')}</span></td>
+      <td>${escHtml(r.referee?.full_name || '—')}<br><span style="font-size:.72rem;color:var(--txt4);">${escHtml(r.referee?.email || '')}</span></td>
       <td><code style="background:rgba(124,92,252,.12);padding:.1rem .4rem;border-radius:5px;">${escHtml(r.referral_code_used)}</code></td>
       <td style="color:#4ade80;font-weight:700;">+${r.points_to_referrer}</td>
       <td style="color:#60a5fa;font-weight:700;">+${r.points_to_referee}</td>
@@ -8501,16 +8899,16 @@ async function viewMentor(id) {
 
   document.getElementById('user-detail-content').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'â€”'}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${m.years_of_experience} yrs</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>â­ ${liveRating.toFixed(1)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone||'â€”'}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${m.years_of_experience} yrs</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>â­ ${liveRating.toFixed(1)}</div>
     </div>
-    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications || 'â€”'}</div>
-    <div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas||[]).join(', ')||'â€”'}</div>
-    ${m.bio?`<div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>`:''}
+    <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications || 'â€”'}</div>
+    <div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas||[]).join(', ')||'â€”'}</div>
+    ${m.bio?`<div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>`:''}
     ${m.linkedin_url?`<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile â†’</a></div>`:''}`;
 document.querySelector('#user-modal .modal-title').textContent = 'Mentor Details';
   openModal('user-modal');
@@ -8576,16 +8974,16 @@ async function viewMentor(id) {
 
   document.getElementById('user-detail-content').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone || '&mdash;'}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${Number(m.years_of_experience || 0)} yrs</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>&#9733; ${liveRating.toFixed(1)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${profile.full_name}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${profile.email}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${profile.phone || '&mdash;'}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${Number(m.years_of_experience || 0)} yrs</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>&#9733; ${liveRating.toFixed(1)}</div>
     </div>
-    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications || '&mdash;'}</div>
-    <div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas || []).join(', ') || '&mdash;'}</div>
-    ${m.bio ? `<div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>` : ''}
+    <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${m.qualifications || '&mdash;'}</div>
+    <div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${(m.expertise_areas || []).join(', ') || '&mdash;'}</div>
+    ${m.bio ? `<div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${m.bio}</div>` : ''}
     ${m.linkedin_url ? `<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile &rarr;</a></div>` : ''}`;
   document.querySelector('#user-modal .modal-title').textContent = 'Mentor Details';
   openModal('user-modal');
@@ -8652,7 +9050,7 @@ function adminBuildPremiumStars(ratingValue = 0) {
     .premium-rating-value{font-weight:800;color:#fef3c7;letter-spacing:.02em}
     .mentor-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
     .mentor-edit-grid .f-group{margin:0}
-    .mentor-inline-note{font-size:.74rem;color:rgba(200,191,255,.55);margin-top:.25rem}
+    .mentor-inline-note{font-size:.74rem;color:var(--txt3);margin-top:.25rem}
   `;
   document.head.appendChild(style);
 })();
@@ -8709,10 +9107,20 @@ async function saveMentorRealtime() {
       .eq('user_id', _viewingUserId);
     if (profileErr) throw profileErr;
 
+    const expertiseStr = document.getElementById('mentor-edit-expertise')?.value || '';
+    const expertise = expertiseStr.split(',').map(s => s.trim()).filter(Boolean);
+    const bio = document.getElementById('mentor-edit-bio')?.value.trim() || null;
+    const linkedinUrl = document.getElementById('mentor-edit-linkedin')?.value.trim() || null;
+    const designation = document.getElementById('mentor-edit-designation')?.value.trim() || null;
+
     const mentorPayload = {
       user_id: _viewingUserId,
       qualifications,
       years_of_experience: years || 0,
+      expertise_areas: expertise,
+      bio,
+      linkedin_url: linkedinUrl,
+      designation,
       updated_at: new Date().toISOString()
     };
 
@@ -8836,21 +9244,21 @@ async function viewMentor(id, editMode = false) {
 
   document.getElementById('user-detail-content').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${adminMentorText(profile.full_name)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${adminMentorText(profile.email)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${adminMentorText(profile.phone)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${adminMentorExperience(m.years_of_experience)}</div>
-      <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>${adminBuildPremiumStars(liveRating)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Name</strong><br>${adminMentorText(profile.full_name)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Email</strong><br>${adminMentorText(profile.email)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Phone</strong><br>${adminMentorText(profile.phone)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Status</strong><br>${statusBadge(m.status)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Experience</strong><br>${adminMentorExperience(m.years_of_experience)}</div>
+      <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Rating</strong><br>${adminBuildPremiumStars(liveRating)}</div>
     </div>
-    <div><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${adminMentorText(m.qualifications)}</div>
-    <div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${adminMentorText((m.expertise_areas || []).join(', '))}</div>
-    ${m.bio ? `<div style="margin-top:.5rem"><strong style="color:rgba(200,191,255,.45);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${adminEscapeHtml(m.bio)}</div>` : ''}
+    <div><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Qualifications</strong><br>${adminMentorText(m.qualifications)}</div>
+    <div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Expertise</strong><br>${adminMentorText((m.expertise_areas || []).join(', '))}</div>
+    ${m.bio ? `<div style="margin-top:.5rem"><strong style="color:var(--txt3);font-size:.7rem;text-transform:uppercase;">Bio</strong><br>${adminEscapeHtml(m.bio)}</div>` : ''}
     ${m.linkedin_url ? `<div style="margin-top:.5rem"><a href="${m.linkedin_url}" target="_blank" style="color:#9b8fff;">LinkedIn Profile &rarr;</a></div>` : ''}
     <div style="margin-top:1rem;padding:1rem;border:1px solid rgba(124,92,252,.18);border-radius:12px;background:rgba(124,92,252,.05);">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;">
         <div>
-          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(200,191,255,.52);">Mentor Editor</div>
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);">Mentor Editor</div>
           <div class="mentor-inline-note">Updates save directly to the live database and refresh the table immediately.</div>
         </div>
         ${!editMode ? `<button class="action-btn" onclick="editMentor('${id}')">Edit Mentor</button>` : '<span class="badge badge-green">Editing</span>'}
@@ -8877,10 +9285,26 @@ async function viewMentor(id, editMode = false) {
           <label>Experience (years)</label>
           <input type="number" id="mentor-edit-experience" min="0" value="${Number(m.years_of_experience || 0)}">
         </div>
+        <div class="f-group" style="grid-column:1/-1">
+          <label>Expertise Areas (comma-separated)</label>
+          <input type="text" id="mentor-edit-expertise" value="${adminEscapeHtml((m.expertise_areas || []).join(', '))}" placeholder="e.g. Python, Machine Learning, Data Science">
+        </div>
+        <div class="f-group" style="grid-column:1/-1">
+          <label>Bio</label>
+          <textarea id="mentor-edit-bio" rows="2" placeholder="Short bio…">${adminEscapeHtml(m.bio || '')}</textarea>
+        </div>
+        <div class="f-group">
+          <label>LinkedIn URL</label>
+          <input type="url" id="mentor-edit-linkedin" value="${adminEscapeHtml(m.linkedin_url || '')}" placeholder="https://linkedin.com/in/…">
+        </div>
+        <div class="f-group">
+          <label>Designation</label>
+          <input type="text" id="mentor-edit-designation" value="${adminEscapeHtml(m.designation || '')}" placeholder="e.g. Senior Developer">
+        </div>
       </div>
       <div style="display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;margin-top:1rem;">
         <button class="btn-primary" id="mentor-edit-save-btn" onclick="saveMentorRealtime()">Save Mentor</button>
-        <span id="mentor-edit-msg" style="font-size:.78rem;color:rgba(200,191,255,.62);">${editMode ? 'Edit the fields and save when ready.' : ''}</span>
+        <span id="mentor-edit-msg" style="font-size:.78rem;color:var(--txt2);">${editMode ? 'Edit the fields and save when ready.' : ''}</span>
       </div>
     </div>`;
 
@@ -9192,8 +9616,12 @@ async function loadAdminInternships() {
   let q = db.client.from('internship_projects').select('*').eq('project_type', 'internship');
   const statusF = document.getElementById('itnm-status-filter')?.value;
   const paidF   = document.getElementById('itnm-paid-filter')?.value;
+  const domainF = document.getElementById('itnm-domain-filter')?.value;
+  const dateFromF = document.getElementById('itnm-date-from')?.value;
   if (statusF) q = q.eq('internship_status', statusF);
   if (paidF !== '' && paidF !== undefined && paidF !== null) q = q.eq('is_paid', paidF === 'true');
+  if (domainF) q = q.eq('domain', domainF);
+  if (dateFromF) q = q.gte('created_at', dateFromF);
   q = q.order('created_at', { ascending: false });
 
   const { data, error } = await q;
@@ -9203,6 +9631,13 @@ async function loadAdminInternships() {
   const { data: counts } = await db.client.from('internship_enrollments').select('project_id').eq('approval_status','approved');
   const cmap = {};
   (counts||[]).forEach(c => { cmap[c.project_id] = (cmap[c.project_id]||0)+1; });
+
+  // Populate domain filter
+  const domainEl = document.getElementById('itnm-domain-filter');
+  if (domainEl && domainEl.options.length <= 1 && data?.length) {
+    const domains = [...new Set((data||[]).map(p => p.domain).filter(Boolean))].sort();
+    domains.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; domainEl.appendChild(opt); });
+  }
 
   const _statusStyle = {
     ongoing:   { bg:'rgba(16,185,129,.12)',  color:'#34d399', label:'Ongoing'   },
@@ -9464,30 +9899,54 @@ async function deleteInternProj(id, name) {
    ============================================================ */
 async function loadProjectModules() {
   const tbody = document.getElementById('mod-tbody');
-  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
   const projF = document.getElementById('mod-proj-filter')?.value;
+  const nameF = (document.getElementById('mod-name-filter')?.value || '').toLowerCase();
+  const orderF = document.getElementById('mod-order-filter')?.value;
+  const statusF = document.getElementById('mod-status-filter')?.value;
 
   let q = db.client.from('project_modules')
     .select('*, internship_projects(project_name)')
-    .order('order_num').order('created_at', { ascending: false });
+    .order('scheduled_date', { ascending: false }).order('order_num');
   if (projF) q = q.eq('project_id', projF);
+  if (statusF) q = q.eq('status', statusF);
 
   const { data, error } = await q;
-  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No modules yet. Click "+ New Module" to add one.</td></tr>'; return; }
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
 
-  tbody.innerHTML = data.map(m => `<tr>
-    <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
-    <td><strong>${_adm_esc(m.module_name)}</strong></td>
-    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_adm_esc(m.description||'—')}</td>
-    <td>${m.deadline ? new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
-    <td><code style="font-size:.75rem;background:rgba(124,92,252,.1);padding:.1rem .4rem;border-radius:4px">${_adm_esc(m.git_branch||'—')}</code></td>
-    <td><span class="badge" style="background:${m.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${m.is_active?'#4ade80':'#f87171'}">${m.is_active?'Active':'Inactive'}</span></td>
-    <td>
-      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editModule('${m.id}')">Edit</button>
-      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteModule('${m.id}','${_adm_esc(m.module_name)}')">Delete</button>
-    </td>
-  </tr>`).join('');
+  let filtered = data || [];
+  if (nameF) filtered = filtered.filter(m => (m.module_name||'').toLowerCase().includes(nameF));
+  if (orderF !== '' && orderF !== undefined) filtered = filtered.filter(m => m.order_num === parseInt(orderF,10));
+
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No modules found.</td></tr>'; return; }
+
+  // Group by scheduled_date
+  const grouped = new Map();
+  filtered.forEach(m => {
+    const dateKey = m.scheduled_date || 'No Date';
+    if (!grouped.has(dateKey)) grouped.set(dateKey, []);
+    grouped.get(dateKey).push(m);
+  });
+
+  let html = '';
+  for (const [date, modules] of grouped) {
+    const dateLabel = date === 'No Date' ? 'No Date Assigned' : fmtDate(date);
+    html += `<tr class="date-group-header"><td colspan="8">${dateLabel} — ${modules.length} module${modules.length>1?'s':''}</td></tr>`;
+    html += modules.map(m => `<tr>
+      <td style="font-size:.75rem;color:var(--txt3)">${m.scheduled_date ? fmtDate(m.scheduled_date) : '—'}</td>
+      <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
+      <td><strong>${_adm_esc(m.module_name)}</strong></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_adm_esc(m.description||'—')}</td>
+      <td>${m.deadline ? fmtDate(m.deadline) : '—'}</td>
+      <td><code style="font-size:.75rem;background:rgba(124,92,252,.1);padding:.1rem .4rem;border-radius:4px">${_adm_esc(m.git_branch||'—')}</code></td>
+      <td>${statusBadge(m.status || (m.is_active ? 'active' : 'inactive'))}</td>
+      <td>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editModule('${m.id}')">Edit</button>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteModule('${m.id}','${_adm_esc(m.module_name)}')">Delete</button>
+      </td>
+    </tr>`).join('');
+  }
+  tbody.innerHTML = html;
 }
 
 async function openModuleModal(existingId) {
@@ -9497,8 +9956,10 @@ async function openModuleModal(existingId) {
   if (!existingId) {
     ['mod-name','mod-desc','mod-branch'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('mod-deadline').value = '';
+    document.getElementById('mod-scheduled-date').value = '';
     document.getElementById('mod-order').value    = '0';
     document.getElementById('mod-active-sel').value = 'true';
+    document.getElementById('mod-status-sel').value = 'active';
     document.getElementById('mod-proj-sel').value = '';
   }
   openModal('module-modal');
@@ -9507,14 +9968,16 @@ async function openModuleModal(existingId) {
 async function editModule(id) {
   const { data: m } = await db.client.from('project_modules').select('*').eq('id',id).single();
   if (!m) return;
-  document.getElementById('mod-id').value          = m.id;
-  document.getElementById('mod-proj-sel').value    = m.project_id;
-  document.getElementById('mod-name').value        = m.module_name;
-  document.getElementById('mod-desc').value        = m.description||'';
-  document.getElementById('mod-deadline').value    = m.deadline||'';
-  document.getElementById('mod-order').value       = m.order_num;
-  document.getElementById('mod-branch').value      = m.git_branch||'';
-  document.getElementById('mod-active-sel').value  = String(m.is_active);
+  document.getElementById('mod-id').value            = m.id;
+  document.getElementById('mod-proj-sel').value      = m.project_id;
+  document.getElementById('mod-name').value          = m.module_name;
+  document.getElementById('mod-desc').value          = m.description||'';
+  document.getElementById('mod-deadline').value      = m.deadline||'';
+  document.getElementById('mod-scheduled-date').value = m.scheduled_date||'';
+  document.getElementById('mod-order').value         = m.order_num;
+  document.getElementById('mod-branch').value        = m.git_branch||'';
+  document.getElementById('mod-active-sel').value    = String(m.is_active);
+  document.getElementById('mod-status-sel').value    = m.status||'active';
   document.getElementById('mod-modal-title').textContent = 'Edit Module';
   openModal('module-modal');
 }
@@ -9525,13 +9988,15 @@ async function saveModule() {
   const name     = document.getElementById('mod-name').value.trim();
   const desc     = document.getElementById('mod-desc').value.trim();
   const deadline = document.getElementById('mod-deadline').value || null;
+  const schedDate = document.getElementById('mod-scheduled-date').value || null;
   const order    = parseInt(document.getElementById('mod-order').value,10) || 0;
   const branch   = document.getElementById('mod-branch').value.trim() || null;
   const active   = document.getElementById('mod-active-sel').value === 'true';
+  const status   = document.getElementById('mod-status-sel').value || 'active';
 
   if (!projId || !name) { _showAdminToast('Project and module name are required.','error'); return; }
   const { data: adm } = await db.client.auth.getUser();
-  const payload = { project_id:projId, module_name:name, description:desc, deadline, order_num:order, git_branch:branch, is_active:active, created_by:adm?.user?.id||null };
+  const payload = { project_id:projId, module_name:name, description:desc, deadline, scheduled_date:schedDate, order_num:order, git_branch:branch, is_active:active, status, created_by:adm?.user?.id||null };
 
   const { error } = id
     ? await db.client.from('project_modules').update(payload).eq('id',id)
@@ -10083,9 +10548,9 @@ function _renderProjUsers(users) {
         </div>
       </td>
       <td style="font-size:.82rem">${_adm_esc(u.email || '—')}</td>
-      <td style="font-size:.82rem;color:rgba(200,191,255,.5)">${_adm_esc(u.phone || '—')}</td>
+      <td style="font-size:.82rem;color:var(--txt3)">${_adm_esc(u.phone || '—')}</td>
       <td><span style="padding:.2rem .6rem;border-radius:999px;font-size:.65rem;font-weight:700;background:rgba(124,108,255,.1);color:${clr};border:1px solid rgba(124,108,255,.2)">${_adm_esc(role)}</span></td>
-      <td style="font-size:.78rem;color:rgba(200,191,255,.4)">${dt}</td>
+      <td style="font-size:.78rem;color:var(--txt4)">${dt}</td>
       <td>
         <button class="btn-small btn-secondary" onclick="openAssignModalFor('${_adm_esc(u.email || '')}','${_adm_esc(u.full_name || '')}')">Assign</button>
       </td>
@@ -10123,7 +10588,7 @@ async function _asgnUserSearch(val) {
       .or(`full_name.ilike.%${val}%,email.ilike.%${val}%`)
       .limit(15);
     if (!data?.length) {
-      dd.innerHTML = `<div style="padding:.75rem 1rem;color:rgba(200,191,255,.4);font-size:.82rem">No users found for "${_adm_esc(val)}"</div>`;
+      dd.innerHTML = `<div style="padding:.75rem 1rem;color:var(--txt4);font-size:.82rem">No users found for "${_adm_esc(val)}"</div>`;
       dd.style.display = 'block'; return;
     }
     dd.innerHTML = data.map(u => `
@@ -10135,7 +10600,7 @@ async function _asgnUserSearch(val) {
         </div>
         <div style="min-width:0">
           <div style="font-weight:600;font-size:.83rem;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_adm_esc(u.full_name||'—')}</div>
-          <div style="font-size:.72rem;color:rgba(200,191,255,.45)">${_adm_esc(u.email||'')}</div>
+          <div style="font-size:.72rem;color:var(--txt3)">${_adm_esc(u.email||'')}</div>
         </div>
       </div>`).join('');
     dd.style.display = 'block';
@@ -11248,10 +11713,11 @@ function exportTrackingPDF(){
 async function loadInternModules() {
   const tbody = document.getElementById('itnm-mod-tbody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
 
   let q = db.client.from('intern_modules')
     .select('*')
+    .order('scheduled_date', { ascending: false, nullsFirst: false })
     .order('day_number', { ascending: true, nullsFirst: false })
     .order('sort_order', { ascending: true })
     .limit(200);
@@ -11260,25 +11726,45 @@ async function loadInternModules() {
   if (studentF) q = q.eq('student_user_id', studentF);
 
   const { data, error } = await q;
-  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No modules assigned yet. Click "+ Assign Module" to get started.</td></tr>'; return; }
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No modules assigned yet. Click "+ Assign Module" to get started.</td></tr>'; return; }
 
   const pm = await _getProfileMap([...new Set(data.map(m => m.student_user_id).filter(Boolean))]);
-  const sBadge = { assigned:'badge-blue', in_progress:'badge-yellow', completed:'badge-green', reviewed:'badge-purple' };
-  const tBadge = { daily:'badge-gray', milestone:'badge-purple', review:'badge-blue', assessment:'badge-yellow' };
 
-  tbody.innerHTML = data.map(m => `<tr>
-    <td>${_adm_esc(pm[m.student_user_id]||'—')}</td>
-    <td style="font-weight:700;color:var(--v1)">${m.day_number ? 'Day ' + m.day_number : '—'}</td>
-    <td style="font-weight:600">${_adm_esc(m.module_title)}${m.estimated_hours ? ' <span style="font-size:.7rem;color:var(--txt3)">(~'+m.estimated_hours+'h)</span>' : ''}</td>
-    <td><span class="${tBadge[m.task_type]||'badge-gray'}">${m.task_type||'daily'}</span></td>
-    <td>${m.due_date||'—'}</td>
-    <td><span class="${sBadge[m.status]||'badge-gray'}">${m.status.replace('_',' ')}</span></td>
-    <td class="action-btns">
-      <button class="action-btn" onclick="editInternModule('${m.id}')">Edit</button>
-      <button class="action-btn danger" onclick="deleteInternModule('${m.id}')">Delete</button>
-    </td>
-  </tr>`).join('');
+  // Group by scheduled_date
+  const grouped = new Map();
+  data.forEach(m => {
+    const dateKey = m.scheduled_date || m.due_date || 'No Date';
+    if (!grouped.has(dateKey)) grouped.set(dateKey, []);
+    grouped.get(dateKey).push(m);
+  });
+
+  let html = '';
+  for (const [date, modules] of grouped) {
+    const dateLabel = date === 'No Date' ? 'No Date Assigned' : fmtDate(date);
+    html += `<tr class="date-group-header"><td colspan="8">${dateLabel} — ${modules.length} module${modules.length>1?'s':''}</td></tr>`;
+    html += modules.map(m => `<tr>
+      <td>${_adm_esc(pm[m.student_user_id]||'—')}</td>
+      <td style="font-weight:700;color:var(--v1)">${m.day_number ? 'Day ' + m.day_number : '—'}</td>
+      <td style="font-weight:600">${_adm_esc(m.module_title)}${m.estimated_hours ? ' <span style="font-size:.7rem;color:var(--txt3)">(~'+m.estimated_hours+'h)</span>' : ''}</td>
+      <td>${m.due_date ? fmtDate(m.due_date) : '—'}</td>
+      <td>${statusBadge(m.status)}</td>
+      <td class="action-btns">
+        <button class="action-btn" onclick="editInternModule('${m.id}')">Edit</button>
+        <button class="action-btn" style="background:rgba(245,158,11,.08);color:#f59e0b;border-color:rgba(245,158,11,.25)" onclick="revokeInternModule('${m.id}')">Revoke</button>
+        <button class="action-btn danger" onclick="deleteInternModule('${m.id}')">Delete</button>
+      </td>
+    </tr>`).join('');
+  }
+  tbody.innerHTML = html;
+}
+
+async function revokeInternModule(modId) {
+  if (!(await _adminModal({title:'Confirm',message:'Revoke this module? Status will be set to inactive.',type:'confirm'}))) return;
+  const { error } = await db.client.from('intern_modules').update({ status: 'inactive' }).eq('id', modId);
+  if (error) { _showAdminToast('Revoke failed: ' + error.message, 'error'); return; }
+  _showAdminToast('Module revoked.', 'success');
+  loadInternModules();
 }
 
 async function openInternModuleModal() {
@@ -12109,30 +12595,53 @@ async function _populateInternshipFilter(selectId, placeholder) {
 
 async function loadInternProgramModules() {
   const tbody = document.getElementById('ipm-tbody');
-  tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
   const internF = document.getElementById('ipm-internship-filter')?.value;
+  const nameF = (document.getElementById('ipm-name-filter')?.value || '').toLowerCase();
+  const orderF = document.getElementById('ipm-order-filter')?.value;
+  const statusF = document.getElementById('ipm-status-filter')?.value;
 
   let q = db.client.from('intern_program_modules')
     .select('*, internship_projects(project_name)')
-    .order('order_num').order('created_at', { ascending: false });
+    .order('scheduled_date', { ascending: false }).order('order_num');
   if (internF) q = q.eq('internship_id', internF);
+  if (statusF) q = q.eq('status', statusF);
 
   const { data, error } = await q;
-  if (error) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No modules yet. Click "+ New Module" to add one.</td></tr>'; return; }
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
 
-  tbody.innerHTML = data.map(m => `<tr>
-    <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
-    <td><strong>${_adm_esc(m.module_name)}</strong></td>
-    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_adm_esc(m.description||'—')}</td>
-    <td>${m.deadline ? new Date(m.deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
-    <td>${m.git_push_link ? `<a href="${_adm_esc(m.git_push_link)}" target="_blank" style="color:var(--v1);font-size:.78rem;text-decoration:underline">${_adm_esc(m.git_push_link.replace(/^https?:\/\/(www\.)?/,'').slice(0,30))}…</a>` : '—'}</td>
-    <td><span class="badge" style="background:${m.is_active?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)'};color:${m.is_active?'#4ade80':'#f87171'}">${m.is_active?'Active':'Inactive'}</span></td>
-    <td>
-      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editInternProgramModule('${m.id}')">Edit</button>
-      <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteInternProgramModule('${m.id}','${_adm_esc(m.module_name)}')">Delete</button>
-    </td>
-  </tr>`).join('');
+  let filtered = data || [];
+  if (nameF) filtered = filtered.filter(m => (m.module_name||'').toLowerCase().includes(nameF));
+  if (orderF !== '' && orderF !== undefined) filtered = filtered.filter(m => m.order_num === parseInt(orderF,10));
+
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No modules found.</td></tr>'; return; }
+
+  const grouped = new Map();
+  filtered.forEach(m => {
+    const dateKey = m.scheduled_date || 'No Date';
+    if (!grouped.has(dateKey)) grouped.set(dateKey, []);
+    grouped.get(dateKey).push(m);
+  });
+
+  let html = '';
+  for (const [date, modules] of grouped) {
+    const dateLabel = date === 'No Date' ? 'No Date Assigned' : fmtDate(date);
+    html += `<tr class="date-group-header"><td colspan="8">${dateLabel} — ${modules.length} module${modules.length>1?'s':''}</td></tr>`;
+    html += modules.map(m => `<tr>
+      <td style="font-size:.75rem;color:var(--txt3)">${m.scheduled_date ? fmtDate(m.scheduled_date) : '—'}</td>
+      <td>${_adm_esc(m.internship_projects?.project_name || '—')}</td>
+      <td><strong>${_adm_esc(m.module_name)}</strong></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_adm_esc(m.description||'—')}</td>
+      <td>${m.deadline ? fmtDate(m.deadline) : '—'}</td>
+      <td>${m.git_push_link ? `<a href="${_adm_esc(m.git_push_link)}" target="_blank" style="color:var(--v1);font-size:.78rem;text-decoration:underline">${_adm_esc(m.git_push_link.replace(/^https?:\/\/(www\.)?/,'').slice(0,30))}…</a>` : '—'}</td>
+      <td>${statusBadge(m.status || (m.is_active ? 'active' : 'inactive'))}</td>
+      <td>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem" onclick="editInternProgramModule('${m.id}')">Edit</button>
+        <button class="btn-secondary" style="font-size:.75rem;padding:.25rem .55rem;background:rgba(248,113,113,.08);color:#f87171;margin-left:.25rem" onclick="deleteInternProgramModule('${m.id}','${_adm_esc(m.module_name)}')">Delete</button>
+      </td>
+    </tr>`).join('');
+  }
+  tbody.innerHTML = html;
 }
 
 async function openInternProgramModuleModal(existingId) {
@@ -12142,8 +12651,10 @@ async function openInternProgramModuleModal(existingId) {
   if (!existingId) {
     ['ipm-name','ipm-desc','ipm-git-link'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('ipm-deadline').value = '';
+    const schedEl = document.getElementById('ipm-scheduled-date'); if (schedEl) schedEl.value = '';
     document.getElementById('ipm-order').value = '0';
     document.getElementById('ipm-active-sel').value = 'true';
+    const statusEl = document.getElementById('ipm-status-sel'); if (statusEl) statusEl.value = 'active';
     document.getElementById('ipm-internship-sel').value = '';
   }
   openModal('ipm-modal');
@@ -12152,17 +12663,19 @@ async function openInternProgramModuleModal(existingId) {
 async function editInternProgramModule(id) {
   const { data: m } = await db.client.from('intern_program_modules').select('*').eq('id',id).single();
   if (!m) return;
-  document.getElementById('ipm-id').value             = m.id;
-  document.getElementById('ipm-internship-sel').value = m.internship_id;
-  document.getElementById('ipm-name').value           = m.module_name;
-  document.getElementById('ipm-desc').value           = m.description||'';
-  document.getElementById('ipm-deadline').value       = m.deadline||'';
-  document.getElementById('ipm-order').value          = m.order_num;
-  document.getElementById('ipm-git-link').value       = m.git_push_link||'';
-  document.getElementById('ipm-active-sel').value     = String(m.is_active);
+  document.getElementById('ipm-id').value              = m.id;
+  document.getElementById('ipm-internship-sel').value  = m.internship_id;
+  document.getElementById('ipm-name').value            = m.module_name;
+  document.getElementById('ipm-desc').value            = m.description||'';
+  document.getElementById('ipm-deadline').value        = m.deadline||'';
+  const schedEl = document.getElementById('ipm-scheduled-date'); if (schedEl) schedEl.value = m.scheduled_date||'';
+  document.getElementById('ipm-order').value           = m.order_num;
+  document.getElementById('ipm-git-link').value        = m.git_push_link||'';
+  document.getElementById('ipm-active-sel').value      = String(m.is_active);
+  const statusEl = document.getElementById('ipm-status-sel'); if (statusEl) statusEl.value = m.status||'active';
   document.getElementById('ipm-modal-title').textContent = 'Edit Internship Module';
   await _populateInternshipFilter('ipm-internship-sel', '— select internship —');
-  document.getElementById('ipm-internship-sel').value = m.internship_id;
+  document.getElementById('ipm-internship-sel').value  = m.internship_id;
   openModal('ipm-modal');
 }
 
@@ -12172,15 +12685,18 @@ async function saveInternProgramModule() {
   const name      = document.getElementById('ipm-name').value.trim();
   const desc      = document.getElementById('ipm-desc').value.trim();
   const deadline  = document.getElementById('ipm-deadline').value || null;
+  const schedDate = document.getElementById('ipm-scheduled-date')?.value || null;
   const order     = parseInt(document.getElementById('ipm-order').value,10) || 0;
   const gitLink   = document.getElementById('ipm-git-link').value.trim() || null;
   const active    = document.getElementById('ipm-active-sel').value === 'true';
+  const status    = document.getElementById('ipm-status-sel')?.value || 'active';
 
   if (!internId || !name) { _showAdminToast('Internship and module name are required.','error'); return; }
   const { data: adm } = await db.client.auth.getUser();
   const payload = {
     internship_id: internId, module_name: name, description: desc,
-    deadline, order_num: order, git_push_link: gitLink, is_active: active,
+    deadline, scheduled_date: schedDate, order_num: order, git_push_link: gitLink,
+    is_active: active, status,
     created_by: adm?.user?.id || null
   };
 
@@ -12986,6 +13502,10 @@ function exportAdminDayReport(dateStr,fmt){
         <input type="text" id="mod-name" placeholder="e.g. Database Design & Setup">
       </div>
       <div class="f-group">
+        <label>Scheduled Date</label>
+        <input type="date" id="mod-scheduled-date">
+      </div>
+      <div class="f-group">
         <label>Deadline</label>
         <input type="date" id="mod-deadline">
       </div>
@@ -12996,6 +13516,15 @@ function exportAdminDayReport(dateStr,fmt){
       <div class="f-group">
         <label>Git Branch</label>
         <input type="text" id="mod-branch" placeholder="e.g. feature/module-1">
+      </div>
+      <div class="f-group">
+        <label>Status</label>
+        <select id="mod-status-sel">
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="inactive">Inactive</option>
+          <option value="not_completed">Not Completed</option>
+        </select>
       </div>
       <div class="f-group">
         <label>Active</label>
@@ -13021,7 +13550,7 @@ function exportAdminDayReport(dateStr,fmt){
   <div class="modal-box" style="max-width:460px">
     <div class="modal-close" onclick="closeModal('add-student-modal')">✕</div>
     <div class="modal-title">Add New Student</div>
-    <div style="background:rgba(124,108,255,.07);border:1px solid rgba(124,108,255,.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.82rem;color:rgba(200,191,255,.7);line-height:1.5">
+    <div style="background:rgba(124,108,255,.07);border:1px solid rgba(124,108,255,.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--txt2);line-height:1.5">
       Creates a student login account. Share the temporary password with the student so they can sign in.
     </div>
     <div class="f-group">
@@ -13042,7 +13571,7 @@ function exportAdminDayReport(dateStr,fmt){
         <input type="text" id="ns-password" readonly style="flex:1;font-family:monospace;font-size:.9rem;letter-spacing:.04em">
         <button class="btn-secondary" onclick="_genStudentPwd()" style="white-space:nowrap;flex-shrink:0">🔄 New</button>
       </div>
-      <div style="font-size:.72rem;color:rgba(200,191,255,.4);margin-top:.3rem">Copy and share this with the student before closing.</div>
+      <div style="font-size:.72rem;color:var(--txt4);margin-top:.3rem">Copy and share this with the student before closing.</div>
     </div>
     <div style="display:flex;gap:.75rem;margin-top:.75rem">
       <button class="btn-primary" id="ns-save-btn" onclick="saveNewStudent()">Create Account</button>
@@ -13070,7 +13599,7 @@ function exportAdminDayReport(dateStr,fmt){
       </select>
     </div>
     <div class="f-group" style="position:relative">
-      <label>Student * <small style="color:rgba(200,191,255,.4);font-weight:400">— type name or email</small></label>
+      <label>Student * <small style="color:var(--txt4);font-weight:400">— type name or email</small></label>
       <input type="text" id="asgn-student-search" placeholder="Search by name or email…"
         oninput="_asgnUserSearch(this.value)"
         onfocus="if(this.value.length>=2)_asgnUserSearch(this.value)"
