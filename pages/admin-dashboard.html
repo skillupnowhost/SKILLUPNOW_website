@@ -3719,6 +3719,9 @@ async function checkAdminAuth() {
   document.getElementById('admin-name').textContent = name;
   document.getElementById('admin-role').textContent = role.replace('_', ' ');
   document.getElementById('admin-initial').textContent = name[0].toUpperCase();
+
+  // Auto-sync admin role assignments to ensure RLS policies work
+  try { await db.client.rpc('sync_admin_role_assignments'); } catch(e) { console.warn('Admin role sync skipped:', e.message); }
 }
 
 // ===== NAVIGATION =====
