@@ -179,11 +179,11 @@ img{-webkit-user-drag:none}
 .iw-att-hdr{font-size:.55rem;font-weight:700;color:var(--txt3);text-align:center;padding:.3rem 0}
 .iw-att-day{width:100%;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;background:transparent;border:2px solid transparent;color:var(--txt3);cursor:default;transition:all .2s;position:relative}
 .iw-att-day.other-month{opacity:.2}
-.iw-att-day.present{color:var(--iw-e);font-weight:800;cursor:pointer}
-.iw-att-day.present .iw-att-dot{width:4px;height:4px;border-radius:50%;background:var(--iw-e);margin-top:1px}
+.iw-att-day.present{background:var(--iw-e);color:#fff!important;font-weight:800;cursor:pointer;border-color:var(--iw-e);box-shadow:0 2px 8px rgba(16,185,129,.25)}
+.iw-att-day.present .iw-att-dot{display:none}
 .iw-att-day.today{background:var(--iw-v);color:#fff;font-weight:800;border-color:var(--iw-v);box-shadow:0 2px 10px rgba(124,58,237,.35)}
 .iw-att-day.today.present{background:var(--iw-e);border-color:var(--iw-e);color:#fff;box-shadow:0 2px 10px rgba(16,185,129,.35)}
-.iw-att-day.today .iw-att-dot{background:#fff}
+.iw-att-day.today .iw-att-dot{display:none}
 .iw-att-day.sunday{color:#ef4444}
 .iw-att-day.sunday.today{background:var(--iw-v);color:#fff}
 .iw-att-day.leave{color:#a855f7;font-weight:700}
@@ -253,6 +253,10 @@ img{-webkit-user-drag:none}
 .iw-log-hidden{display:none!important}
 .iw-log-item:hover{background:rgba(124,58,237,.03);border-radius:8px}
 .iw-empty{text-align:center;padding:1.5rem .8rem;color:var(--txt3);font-size:.82rem;font-weight:600}
+
+/* ── Hidden scrollbar + smooth scroll for all pop-ups ── */
+.iw-modal,.iw-log,.iw-att-log,.iw-chk-list,.iw-md-subs,.iw-day-detail{overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth}
+.iw-modal::-webkit-scrollbar,.iw-log::-webkit-scrollbar,.iw-att-log::-webkit-scrollbar,.iw-chk-list::-webkit-scrollbar,.iw-md-subs::-webkit-scrollbar,.iw-day-detail::-webkit-scrollbar{display:none}
 
 @media(max-width:640px){.iw-mod{flex-direction:column}.iw-mod-side{flex-direction:row;width:100%}}
 
@@ -856,6 +860,12 @@ async function loadSession(){
   _session=data||null;
   if(_session){
     const dayPill=document.getElementById('iw-day-pill');dayPill.style.display='';dayPill.textContent='Day '+_session.day_number;
+
+    // Auto-sync attendance on load — always ensure today is marked present in DB
+    const checkInTime=_session.start_time?new Date(_session.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}):null;
+    const checkOutTime=_session.end_time?new Date(_session.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}):null;
+    upsertAttendance(today,'present',checkInTime,checkOutTime);
+
     if(_session.status==='active'){
       showWorking();startTimer();startAppTracking();
       _brkState=[];
@@ -1204,7 +1214,9 @@ async function toggleBreakWithType(){
     if(error){toast('Failed to end break: '+error.message,'err');return}
     activeBreak.break_end=now;
     activeBreak.duration_mins=mins;
-    logNotification('Break Ended',`${BRK_LABELS[activeBreak.break_type]||'Break'} ended — ${mins}m`);
+    const bInT=new Date(activeBreak.break_start).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+    const bOutT=new Date(now).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+    logNotification('Break',`${BRK_LABELS[activeBreak.break_type]||'Break'} — In: ${bInT} | Out: ${bOutT} | ${mins}m`);
     toast(`${BRK_LABELS[activeBreak.break_type]||'Break'} ended (${mins}m)`,'ok');
     loadActivityLog();
   } else {
@@ -1221,7 +1233,6 @@ async function toggleBreakWithType(){
     const{data,error}=await c.from('intern_breaks').insert({session_id:_session.id,student_user_id:_user.id,break_number:breakNum,break_start:new Date().toISOString(),break_type:breakType}).select().single();
     if(error){toast('Break failed: '+error.message,'err');return}
     _brkState.push(data);
-    logNotification('Break Started',`${BRK_LABELS[breakType]} started (max ${maxForType}m, ${fmtMins(remainingBreakTime)} remaining today)`);
     toast(`${BRK_LABELS[breakType]} started (max ${maxForType}m)`,'ok');
     loadActivityLog();
   }
@@ -2045,11 +2056,13 @@ async function loadActivityLog(){
     }
     const breaks=_brkState;
     breaks.forEach(b=>{
-      if(b.break_start){
-        syntheticEntries.push({title:'Break Started',message:`${BRK_LABELS[b.break_type]||'Break'} started`,created_at:b.break_start,_synthetic:true});
-      }
-      if(b.break_end){
-        syntheticEntries.push({title:'Break Ended',message:`${BRK_LABELS[b.break_type]||'Break'} ended — ${b.duration_mins!=null?b.duration_mins:0}m`,created_at:b.break_end,_synthetic:true});
+      if(b.break_start&&b.break_end){
+        const bIn=new Date(b.break_start).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+        const bOut=new Date(b.break_end).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+        syntheticEntries.push({title:'Break',message:`${BRK_LABELS[b.break_type]||'Break'} — In: ${bIn} | Out: ${bOut} | ${b.duration_mins!=null?b.duration_mins:0}m`,created_at:b.break_end,_synthetic:true});
+      } else if(b.break_start){
+        const bIn=new Date(b.break_start).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+        syntheticEntries.push({title:'On Break',message:`${BRK_LABELS[b.break_type]||'Break'} — In: ${bIn} | Active`,created_at:b.break_start,_synthetic:true});
       }
     });
     if(_session.end_time&&_session.status==='completed'){
@@ -2146,13 +2159,14 @@ function exportActivityLog(fmt){
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const pw=210,ph=297,alMl=4,alMr=4,alCw=pw-alMl-alMr;let y=0;
 
-  doc.setFillColor(124,58,237);doc.rect(0,0,pw,28,'F');
-  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(255);
-  doc.text('Activity Log Report',pw/2,11,{align:'center'});
-  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(220,220,255);
-  doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}  |  Filter: ${filter}`,pw/2,19,{align:'center'});
-  doc.setFontSize(6);doc.setTextColor(200,200,240);
-  doc.text('Skill-Up Now Private Limited',pw/2,24,{align:'center'});
+  doc.setFillColor(30,15,60);doc.rect(0,0,pw,28,'F');
+  doc.setFillColor(124,58,237);doc.rect(0,28,pw,1,'F');
+  doc.setFontSize(16);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('SkillUpNow',pw/2,11,{align:'center'});
+  doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(220,215,255);
+  doc.text('Report',pw/2,18,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(180,170,220);
+  doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}  |  Filter: ${filter}`,pw/2,24,{align:'center'});
   y=32;
 
   doc.setFontSize(6.5);doc.setFont('helvetica','bold');
@@ -2273,22 +2287,22 @@ async function generateReport(){
   function sectionTitle(text){
     checkPage(14);
     doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(124,58,237);
-    doc.text(text,pw/2,y,{align:'center'});
+    doc.text(text,ml+2,y);
     y+=2;doc.setDrawColor(124,58,237);doc.setLineWidth(0.4);
     const tw=doc.getTextWidth(text);
-    doc.line(pw/2-tw/2,y,pw/2+tw/2,y);
+    doc.line(ml+2,y,ml+2+tw,y);
     y+=6;
   }
 
-  // ── HEADER ──
+  // ── HEADER — SkillUpNow + Report centered ──
   doc.setFillColor(30,15,60);doc.rect(0,0,pw,34,'F');
   doc.setFillColor(124,58,237);doc.rect(0,34,pw,1,'F');
-  doc.setFontSize(16);doc.setFont('helvetica','bold');doc.setTextColor(255);
-  doc.text(companyName,pw/2,12,{align:'center'});
-  doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
-  doc.text('Internship Performance Report',pw/2,20,{align:'center'});
+  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(255);
+  doc.text('SkillUpNow',pw/2,13,{align:'center'});
+  doc.setFontSize(12);doc.setFont('helvetica','normal');doc.setTextColor(220,215,255);
+  doc.text('Report',pw/2,21,{align:'center'});
   doc.setFontSize(7);doc.setTextColor(180,170,220);
-  doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`,pw/2,27,{align:'center'});
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`,pw/2,28,{align:'center'});
   y=38;
 
   // ── STUDENT INFO ──
@@ -2331,17 +2345,17 @@ async function generateReport(){
   if(checks.includes('attendance')&&(sessions||[]).length){
     sectionTitle('Attendance & Work Log');
     doc.setFontSize(6.5);doc.setFont('helvetica','bold');
-    const colW=[24,12,20,20,16,16,38,30,26];
+    const colW=[22,10,20,20,16,16,30,20];
     const totalCW=colW.reduce((s,w)=>s+w,0);const colScale=cw/totalCW;
     const scaledColW=colW.map(w=>Math.round(w*colScale));
     const colX=[ml];for(let i=1;i<scaledColW.length;i++)colX.push(colX[i-1]+scaledColW[i-1]);
     doc.setFillColor(124,58,237);doc.rect(ml,y-3.5,cw,5.5,'F');
     doc.setTextColor(255);
-    ['Date','Day','Login','Logout','Work','Breaks','Break Types','IP / Network','Status'].forEach((h,i)=>doc.text(h,colX[i]+1,y));
+    ['Date','Day','Login','Logout','Work','Breaks','Break Types','Status'].forEach((h,i)=>doc.text(h,colX[i]+1,y));
     y+=5;doc.setFont('helvetica','normal');
     let rowAlt=false;
     (sessions||[]).forEach(s=>{
-      checkPage(5);
+      checkPage(9);
       if(rowAlt){doc.setFillColor(248,247,255);doc.rect(ml,y-3,cw,4.5,'F')}
       rowAlt=!rowAlt;
       doc.setFontSize(6.5);doc.setTextColor(50);
@@ -2357,14 +2371,19 @@ async function generateReport(){
       doc.text(fmtMins(brk),colX[5]+1,y);
       doc.setFontSize(5.5);
       const brkTypes=(s.intern_breaks||[]).map(br=>{const l=BRK_LABELS[br.break_type]||'Brk';return l.split(' ')[0]+':'+(br.duration_mins!=null?br.duration_mins:0)+'m'}).join(', ');
-      doc.text((brkTypes||'None').substring(0,32),colX[6]+1,y);
-      doc.setFontSize(5);
-      const ipNet=(s.ip_address||'N/A')+(s.network_info?' | '+s.network_info.split(' | ').slice(0,2).join(', '):'');
-      doc.text(ipNet.substring(0,28),colX[7]+1,y);
+      doc.text((brkTypes||'None').substring(0,24),colX[6]+1,y);
       doc.setFontSize(6.5);
       const status=s.status==='completed'?'Done':(s.status==='active'?'Active':'Closed');
-      doc.text(status,colX[8]+1,y);
-      y+=4.5;doc.setDrawColor(235,230,250);doc.line(ml,y-1,pw-mr,y-1);
+      doc.text(status,colX[7]+1,y);
+      y+=4.5;
+      // IP on its own line — clean, no overlap
+      if(s.ip_address){
+        doc.setFontSize(5.5);doc.setTextColor(100);
+        doc.text('IP: '+s.ip_address,colX[0]+1,y);
+        doc.setFontSize(6.5);
+        y+=3.5;
+      }
+      doc.setDrawColor(235,230,250);doc.line(ml,y-1,pw-mr,y-1);
     });
     y+=5;
   }
@@ -2452,21 +2471,31 @@ async function generateReport(){
   // ── APP USAGE ──
   if(checks.includes('app_usage')&&appUsage.length){
     sectionTitle('App Usage & Network');
+
+    // Deduplicate IP — show once at top
+    const uniqueIPs=new Set();
+    appUsage.forEach(a=>{if(a.ip_address)uniqueIPs.add(a.ip_address)});
+    if(uniqueIPs.size){
+      doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(50);
+      doc.text('IP Address: ',[...uniqueIPs].join(', '),ml+2,y);
+      y+=5;
+    }
+
     const appSummary={};
     appUsage.forEach(a=>{
       if(a.app_name==='User Activity'||a.app_name==='Clipboard')return;
-      if(!appSummary[a.app_name])appSummary[a.app_name]={secs:0,cat:a.category||'',ip:a.ip_address||''};
+      if(!appSummary[a.app_name])appSummary[a.app_name]={secs:0,cat:a.category||''};
       appSummary[a.app_name].secs+=a.active_seconds||0;
     });
     const sortedApps=Object.entries(appSummary).sort((a,b)=>b[1].secs-a[1].secs);
     doc.setFontSize(6.5);doc.setFont('helvetica','bold');
-    const aColW=[55,30,30,87];
+    const aColW=[70,40,40];
     const aTotalW=aColW.reduce((s,w)=>s+w,0);const aScale=cw/aTotalW;
     const saColW=aColW.map(w=>Math.round(w*aScale));
     const aColX=[ml];for(let i=1;i<saColW.length;i++)aColX.push(aColX[i-1]+saColW[i-1]);
     doc.setFillColor(6,182,212);doc.rect(ml,y-3.5,cw,5.5,'F');
     doc.setTextColor(255);
-    ['App Name','Category','Time Used','IP / Network'].forEach((h,i)=>doc.text(h,aColX[i]+1,y));
+    ['App Name','Category','Time Used'].forEach((h,i)=>doc.text(h,aColX[i]+1,y));
     y+=5;doc.setFont('helvetica','normal');doc.setTextColor(60);
     let aAlt=false;
     sortedApps.slice(0,30).forEach(([app,d])=>{
@@ -2474,14 +2503,11 @@ async function generateReport(){
       if(aAlt){doc.setFillColor(245,252,255);doc.rect(ml,y-3,cw,4.5,'F')}
       aAlt=!aAlt;
       doc.setFontSize(6.5);doc.setTextColor(50);
-      doc.text(app.substring(0,35),aColX[0]+1,y);
-      doc.text((d.cat||'—').substring(0,18),aColX[1]+1,y);
+      doc.text(app.substring(0,45),aColX[0]+1,y);
+      doc.text((d.cat||'—').substring(0,24),aColX[1]+1,y);
       doc.setFont('helvetica','bold');
       doc.text(fmtMins(Math.round(d.secs/60)),aColX[2]+1,y);
       doc.setFont('helvetica','normal');
-      doc.setFontSize(5.5);
-      doc.text((d.ip||'N/A').substring(0,50),aColX[3]+1,y);
-      doc.setFontSize(6.5);
       y+=4.5;doc.setDrawColor(235);doc.line(ml,y-1,pw-mr,y-1);
     });
     y+=5;
