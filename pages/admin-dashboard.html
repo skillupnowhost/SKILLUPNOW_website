@@ -346,9 +346,13 @@
     [data-theme="dark"] .badge-blue   { color:#60a5fa; }
     [data-theme="dark"] .badge-purple { color:#a78bfa; }
     [data-theme="dark"] .badge-gray   { color:#94a3b8; }
+    /* ── FILTER ROW ── */
+    .filter-row td { background: color-mix(in srgb, var(--v1) 2%, transparent); border-bottom: 1.5px solid var(--border); }
+    .filter-row .tbl-search:focus { border-color: var(--v1); box-shadow: 0 0 0 2px color-mix(in srgb, var(--v1) 10%, transparent); }
+
     /* ── SORTABLE TABLE HEADERS ── */
     .sortable-th { position: relative; cursor: pointer; user-select: none; }
-    .sortable-th:hover { color: var(--v1); }
+    .sortable-th:hover { color: var(--v1); background: color-mix(in srgb, var(--v1) 6%, transparent); }
     .sort-arrow { font-size: .58rem; margin-left: .2rem; opacity: .5; transition: opacity .18s; }
     .sortable-th:hover .sort-arrow { opacity: 1; }
     .sort-dropdown {
@@ -13898,6 +13902,173 @@ function exportAdminDayReport(dateStr,fmt){
     </div>
   </div>
 </div>
+
+<script>
+/* ══════════════════════════════════════════
+   GENERIC TABLE SORTING & FILTERING
+   Auto-attaches to all .data-table elements
+══════════════════════════════════════════ */
+(function(){
+  const _sortState={};
+
+  function _parseVal(text){
+    const t=(text||'').trim().toLowerCase();
+    if(!t||t==='—'||t==='-')return{type:'text',val:t};
+    const dateMatch=t.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/)||t.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if(dateMatch){const d=new Date(t);if(!isNaN(d))return{type:'date',val:d.getTime()}}
+    const monthDate=t.match(/^(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i);
+    if(monthDate){const d=new Date(t);if(!isNaN(d))return{type:'date',val:d.getTime()}}
+    const numClean=t.replace(/[₹$,\s%hm]/g,'');
+    const num=parseFloat(numClean);
+    if(!isNaN(num)&&numClean.length>0)return{type:'number',val:num};
+    return{type:'text',val:t};
+  }
+
+  window._admSortTable=function(th,colIdx){
+    const table=th.closest('table');
+    if(!table)return;
+    const tbody=table.querySelector('tbody');
+    if(!tbody)return;
+    const tbodyId=tbody.id||'anon-'+Math.random();
+    const key=tbodyId+'-'+colIdx;
+
+    if(!_sortState[key])_sortState[key]='none';
+    const nextDir=_sortState[key]==='asc'?'desc':'asc';
+    _sortState[key]=nextDir;
+
+    // Reset all sort arrows in this table
+    table.querySelectorAll('.sort-arrow').forEach(a=>a.textContent='↕');
+    const arrow=th.querySelector('.sort-arrow');
+    if(arrow)arrow.textContent=nextDir==='asc'?'▲':'▼';
+
+    const rows=Array.from(tbody.querySelectorAll('tr:not(.filter-row):not(.date-group-header)'));
+    if(rows.length<=1&&rows[0]?.querySelector('.table-empty'))return;
+
+    rows.sort((a,b)=>{
+      const aCell=a.cells[colIdx];
+      const bCell=b.cells[colIdx];
+      if(!aCell||!bCell)return 0;
+      const aText=aCell.textContent;
+      const bText=bCell.textContent;
+      const aP=_parseVal(aText);
+      const bP=_parseVal(bText);
+      let cmp=0;
+      if(aP.type==='number'&&bP.type==='number')cmp=aP.val-bP.val;
+      else if(aP.type==='date'&&bP.type==='date')cmp=aP.val-bP.val;
+      else cmp=String(aP.val).localeCompare(String(bP.val),'en',{numeric:true,sensitivity:'base'});
+      return nextDir==='asc'?cmp:-cmp;
+    });
+
+    rows.forEach(r=>tbody.appendChild(r));
+  };
+
+  window._admFilterCol=function(input,colIdx){
+    const table=input.closest('table');
+    if(!table)return;
+    const tbody=table.querySelector('tbody');
+    if(!tbody)return;
+    const val=(input.value||'').trim().toLowerCase();
+    const rows=tbody.querySelectorAll('tr:not(.filter-row):not(.date-group-header)');
+    let visCount=0;
+    rows.forEach(r=>{
+      if(r.querySelector('.table-empty')){r.style.display='';return}
+      const cell=r.cells[colIdx];
+      if(!cell){r.style.display='';return}
+      const text=(cell.textContent||'').toLowerCase();
+      const match=!val||text.includes(val);
+      // Check all filter inputs for this table
+      const filterInputs=table.querySelectorAll('.adm-col-filter');
+      let allMatch=true;
+      filterInputs.forEach(fi=>{
+        const fiVal=(fi.value||'').trim().toLowerCase();
+        if(!fiVal)return;
+        const fiCol=parseInt(fi.dataset.col,10);
+        const fiCell=r.cells[fiCol];
+        if(fiCell&&!(fiCell.textContent||'').toLowerCase().includes(fiVal))allMatch=false;
+      });
+      r.style.display=allMatch?'':'none';
+      if(allMatch)visCount++;
+    });
+  };
+
+  function _initSortFilter(){
+    document.querySelectorAll('.data-table').forEach(table=>{
+      const thead=table.querySelector('thead');
+      if(!thead)return;
+      const headerRow=thead.querySelector('tr');
+      if(!headerRow)return;
+      const ths=headerRow.querySelectorAll('th');
+      if(!ths.length)return;
+      if(headerRow.dataset.sortInit)return;
+      headerRow.dataset.sortInit='1';
+
+      const filterRow=document.createElement('tr');
+      filterRow.className='filter-row';
+
+      ths.forEach((th,idx)=>{
+        const text=th.textContent.trim();
+        const isAction=text.toLowerCase()==='actions'||text.toLowerCase()==='action'||text==='';
+
+        if(!isAction){
+          th.classList.add('sortable-th');
+          th.style.cursor='pointer';
+          th.style.userSelect='none';
+          const arrow=document.createElement('span');
+          arrow.className='sort-arrow';
+          arrow.textContent='↕';
+          arrow.style.cssText='font-size:.62rem;margin-left:.25rem;opacity:.45;transition:opacity .18s';
+          th.appendChild(arrow);
+          th.addEventListener('click',function(){window._admSortTable(this,idx)});
+          th.addEventListener('mouseenter',function(){arrow.style.opacity='1'});
+          th.addEventListener('mouseleave',function(){arrow.style.opacity='.45'});
+        }
+
+        const ftd=document.createElement('td');
+        ftd.style.padding='.25rem .3rem';
+        if(!isAction){
+          const inp=document.createElement('input');
+          inp.type='text';
+          inp.className='tbl-search adm-col-filter';
+          inp.placeholder='Filter…';
+          inp.dataset.col=idx;
+          inp.style.cssText='width:100%;font-size:.68rem;padding:.22rem .4rem;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--txt);outline:none;font-family:inherit';
+          inp.addEventListener('input',function(){window._admFilterCol(this,idx)});
+          ftd.appendChild(inp);
+        }
+        filterRow.appendChild(ftd);
+      });
+
+      thead.appendChild(filterRow);
+    });
+  }
+
+  // Run on load and periodically to catch dynamically rendered tables
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{_initSortFilter();setTimeout(_initSortFilter,3000);setTimeout(_initSortFilter,8000)});
+  }else{
+    _initSortFilter();setTimeout(_initSortFilter,3000);setTimeout(_initSortFilter,8000);
+  }
+
+  // Re-init when sections or tabs are switched
+  ['loadSection','switchInternTab','switchInternMgmtTab'].forEach(fnName=>{
+    const orig=window[fnName];
+    if(typeof orig==='function'){
+      window[fnName]=function(){
+        orig.apply(this,arguments);
+        setTimeout(_initSortFilter,500);
+      };
+    }
+  });
+
+  // Observe for new tables added dynamically (debounced)
+  let _sfDebounce=null;
+  const obs=new MutationObserver(()=>{
+    clearTimeout(_sfDebounce);
+    _sfDebounce=setTimeout(_initSortFilter,400);
+  });
+  obs.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 
 </body>
 </html>

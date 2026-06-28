@@ -121,6 +121,23 @@ img{-webkit-user-drag:none}
 .iw-target-bar{height:4px;background:rgba(124,58,237,.08);border-radius:4px;overflow:hidden;margin-top:.3rem;width:100%}
 .iw-target-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--iw-v),var(--iw-e));transition:width .5s ease}
 
+/* ── Time Calculations Box (under start time) ── */
+.iw-time-calc-box{display:none;margin-top:.6rem;padding:.65rem .85rem;border-radius:14px;background:rgba(255,255,255,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.12);box-shadow:0 2px 10px rgba(0,0,0,.04);animation:iwSlideUp .35s ease both}
+[data-theme="dark"] .iw-time-calc-box{background:rgba(30,20,50,.35);border-color:rgba(255,255,255,.08)}
+.iw-time-calc-box.active{display:block}
+.iw-time-calc-row{display:flex;justify-content:space-between;align-items:center;padding:.25rem 0;font-size:.76rem}
+.iw-time-calc-row:not(:last-child){border-bottom:1px solid rgba(124,58,237,.06)}
+.iw-time-calc-label{color:var(--txt3);font-weight:600}
+.iw-time-calc-val{font-weight:800;font-variant-numeric:tabular-nums}
+.iw-time-calc-val.green{color:#10b981}
+.iw-time-calc-val.amber{color:#f59e0b}
+.iw-time-calc-val.violet{color:var(--iw-v)}
+.iw-time-calc-val.rose{color:#f43f5e}
+.iw-time-calc-target{margin-top:.3rem;padding-top:.3rem;border-top:1.5px solid rgba(124,58,237,.1)}
+.iw-time-calc-target .iw-time-calc-val{font-size:.82rem}
+.iw-time-calc-progress{height:4px;background:rgba(124,58,237,.08);border-radius:4px;overflow:hidden;margin-top:.3rem;width:100%}
+.iw-time-calc-progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--iw-v),var(--iw-e));transition:width .5s ease}
+
 /* ── Stats row ── */
 .iw-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem}
 @media(max-width:640px){.iw-stats{grid-template-columns:repeat(2,1fr)}}
@@ -402,6 +419,30 @@ img{-webkit-user-drag:none}
             <div class="iw-timer"><span class="iw-timer-dot" id="iw-timer-dot"></span><span id="iw-timer-val">00:00:00</span></div>
             <div class="iw-timer-sub" id="iw-started-at"></div>
             <div class="iw-brk-live" id="iw-brk-live"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> On Break: <span class="iw-brk-live-timer" id="iw-brk-live-timer">0:00</span></div>
+            <!-- Time Calculations Box -->
+            <div class="iw-time-calc-box" id="iw-time-calc-box">
+              <div class="iw-time-calc-row">
+                <span class="iw-time-calc-label">Total Session</span>
+                <span class="iw-time-calc-val violet" id="iw-tc-session">0:00</span>
+              </div>
+              <div class="iw-time-calc-row">
+                <span class="iw-time-calc-label">Break Time</span>
+                <span class="iw-time-calc-val amber" id="iw-tc-breaks">0:00</span>
+              </div>
+              <div class="iw-time-calc-row">
+                <span class="iw-time-calc-label">Active Work</span>
+                <span class="iw-time-calc-val green" id="iw-tc-active">0:00</span>
+              </div>
+              <div class="iw-time-calc-row">
+                <span class="iw-time-calc-label">Idle / Gap</span>
+                <span class="iw-time-calc-val rose" id="iw-tc-idle">0:00</span>
+              </div>
+              <div class="iw-time-calc-row iw-time-calc-target">
+                <span class="iw-time-calc-label" id="iw-tc-target-label">Remaining</span>
+                <span class="iw-time-calc-val violet" id="iw-tc-target">8h 0m</span>
+              </div>
+              <div class="iw-time-calc-progress"><div class="iw-time-calc-progress-fill" id="iw-tc-progress-fill" style="width:0%"></div></div>
+            </div>
           </div>
         </div>
         <div id="iw-working-controls" style="display:none" class="iw-timer-right">
@@ -904,6 +945,7 @@ function showWorking(){
   document.getElementById('iw-sess-status').style.color='var(--iw-e)';
   if(_session?.start_time){document.getElementById('iw-started-at').textContent='Started '+new Date(_session.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}
   const lsBar=document.getElementById('iw-live-bar');if(lsBar)lsBar.classList.add('active');
+  const tcBox=document.getElementById('iw-time-calc-box');if(tcBox)tcBox.classList.add('active');
 }
 
 function showCompleted(){
@@ -913,6 +955,7 @@ function showCompleted(){
   document.getElementById('iw-working-controls').style.display='none';
   document.getElementById('iw-completed').style.display='flex';
   document.getElementById('iw-completed-action').style.display='flex';
+  const tcBox=document.getElementById('iw-time-calc-box');if(tcBox)tcBox.classList.remove('active');
   const totalMins=_session?.total_work_mins||0;
   const breakMins=_session?.total_break_mins||_brkState.reduce((s,b)=>s+(b.duration_mins||0),0);
   const gapMins=_session?.gap_mins||0;
@@ -1191,6 +1234,31 @@ function startTimer(){
         if(targetLbl)targetLbl.textContent='Remaining';
         if(targetBox)targetBox.className='iw-live-stat deficit';
       }
+    }
+
+    // Time Calculations Box (under start time)
+    const tcSession=document.getElementById('iw-tc-session');
+    const tcBreaks=document.getElementById('iw-tc-breaks');
+    const tcActive=document.getElementById('iw-tc-active');
+    const tcIdle=document.getElementById('iw-tc-idle');
+    const tcTarget=document.getElementById('iw-tc-target');
+    const tcTargetLbl=document.getElementById('iw-tc-target-label');
+    const tcFill=document.getElementById('iw-tc-progress-fill');
+    if(tcSession)tcSession.textContent=_fmtShort(Math.floor(totalElapsedSecs/60));
+    if(tcBreaks)tcBreaks.textContent=_fmtShort(Math.floor(totalBrkSecs/60));
+    if(tcActive)tcActive.textContent=_fmtShort(Math.floor(activeWorkSecs/60));
+    if(tcIdle)tcIdle.textContent=_fmtShort(Math.floor(gapSecs/60));
+    const tcWorkMins=Math.floor(activeWorkSecs/60);
+    const tcPct=Math.min(100,Math.round((tcWorkMins/TARGET_MINS)*100));
+    if(tcFill)tcFill.style.width=tcPct+'%';
+    if(tcWorkMins>=TARGET_MINS){
+      if(tcTarget)tcTarget.textContent='+'+_fmtShort(tcWorkMins-TARGET_MINS);
+      if(tcTargetLbl)tcTargetLbl.textContent='Overtime';
+      if(tcTarget)tcTarget.className='iw-time-calc-val green';
+    }else{
+      if(tcTarget)tcTarget.textContent=_fmtShort(TARGET_MINS-tcWorkMins);
+      if(tcTargetLbl)tcTargetLbl.textContent='Remaining to 8h';
+      if(tcTarget)tcTarget.className='iw-time-calc-val amber';
     }
   };
   update();_timerInt=setInterval(update,1000);
