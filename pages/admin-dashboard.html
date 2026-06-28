@@ -4561,7 +4561,7 @@ async function loadUsers() {
     q,
     db.client.from('enrollments').select('student_user_id')
   ]);
-  if (usersError) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">RLS Error: ${usersError.message}. Run v39-admin-rls-sync-fix.sql in Supabase SQL Editor.</td></tr>`; return; }
+  if (usersError) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">RLS Error: ${usersError.message}. Run v50-fix-rls-recursion-final.sql in Supabase SQL Editor.</td></tr>`; return; }
   if (enrollmentsError) console.warn('Enrollments query error:', enrollmentsError.message);
 
   const enrollmentCountMap = {};
