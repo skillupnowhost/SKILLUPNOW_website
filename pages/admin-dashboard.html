@@ -4331,6 +4331,7 @@ function renderCoursesTable(courses) {
 }
 
 async function loadCourses() {
+  try {
   const [coursesRes, enrollRes, reviewsRes, batchesRes] = await Promise.all([
     db.client.from('courses')
       .select('*, course_categories(name), course_pricing(id,list_price, sale_price, is_active)')
@@ -4339,7 +4340,7 @@ async function loadCourses() {
     db.client.from('reviews').select('course_id, rating'),
     db.client.from('course_batches').select('course_id, primary_mentor_user_id, user_profiles:primary_mentor_user_id(full_name)')
   ]);
-  if (coursesRes.error) { console.error('loadCourses:', coursesRes.error.message); return; }
+  if (coursesRes.error) { console.error('loadCourses:', coursesRes.error.message); const ct=document.getElementById('course-tbody'); if(ct)ct.innerHTML=`<tr><td colspan="10" class="table-empty" style="color:#f87171">RLS Error: ${coursesRes.error.message}</td></tr>`; return; }
   const data = coursesRes.data || [];
 
   // Auto-fix: published courses that still have visibility='private' → set to 'public'
@@ -4393,6 +4394,7 @@ async function loadCourses() {
   });
   const prEl = document.getElementById('pr-course');
   if (prEl) prEl.innerHTML = '<option value="">Select course…</option>' + opts;
+  } catch(e) { console.error('loadCourses error:', e); const ct=document.getElementById('course-tbody'); if(ct)ct.innerHTML=`<tr><td colspan="10" class="table-empty" style="color:#f87171">Error: ${e.message}</td></tr>`; }
 }
 
 async function toggleTrending(courseId, currentState) {
@@ -4543,24 +4545,24 @@ async function loadCategories() {
 }
 
 async function loadUsers() {
+  const tbody = document.getElementById('user-tbody');
+  try {
   const roleFilter = document.getElementById('user-role-filter')?.value || '';
   let q = db.client.from('user_profiles')
     .select('user_id, full_name, email, phone, role, is_active, created_at, account_created_at')
     .order('account_created_at', { ascending: false })
     .limit(200);
-  // Users section ALWAYS shows only students — mentors/admins are in their own sections
   if (roleFilter === 'user' || roleFilter === 'student') {
     q = q.eq('role', roleFilter);
   } else {
-    // Default & "All Students": both 'user' and 'student' role values
     q = q.in('role', ['user', 'student']);
   }
   const [{ data: users, error: usersError }, { data: enrollments, error: enrollmentsError }] = await Promise.all([
     q,
     db.client.from('enrollments').select('student_user_id')
   ]);
-  if (usersError) throw usersError;
-  if (enrollmentsError) throw enrollmentsError;
+  if (usersError) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">RLS Error: ${usersError.message}. Run v39-admin-rls-sync-fix.sql in Supabase SQL Editor.</td></tr>`; return; }
+  if (enrollmentsError) console.warn('Enrollments query error:', enrollmentsError.message);
 
   const enrollmentCountMap = {};
   (enrollments || []).forEach(item => {
@@ -4596,6 +4598,7 @@ async function loadUsers() {
   // Update sidebar badge
   const ubadge = document.getElementById('users-badge');
   if (ubadge) ubadge.textContent = rows.length;
+  } catch(e) { console.error('loadUsers error:', e); if(tbody) tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">Error: ${e.message}</td></tr>`; }
 }
 
 // ── Admin manually enroll a user ──────────────────────────────
@@ -9225,11 +9228,12 @@ async function deleteMentor(userId, name) {
 }
 
 async function loadMentors() {
-  const statusFilter = document.getElementById('mentor-status-filter').value;
+  try {
+  const statusFilter = document.getElementById('mentor-status-filter')?.value || '';
   let q = db.client.from('mentor_profiles').select('*');
   if (statusFilter) q = q.eq('status', statusFilter);
   const { data, error } = await q.order('created_at', { ascending: false });
-  if (error) throw error;
+  if (error) { const mt=document.getElementById('mentor-tbody'); if(mt)mt.innerHTML=`<tr><td colspan="8" class="table-empty" style="color:#f87171">RLS Error: ${error.message}</td></tr>`; return; }
 
   const mentors = data || [];
   const profileMap = await fetchProfileMap(mentors.map(item => item.user_id));
@@ -9285,6 +9289,7 @@ async function loadMentors() {
     mbadge2.style.background = pendingCount > 0 ? 'rgba(239,68,68,.35)' : 'rgba(239,68,68,.18)';
     mbadge2.title = pendingCount > 0 ? `${pendingCount} pending approval` : `${total} total mentors`;
   }
+  } catch(e) { console.error('loadMentors error:', e); const mt=document.getElementById('mentor-tbody'); if(mt)mt.innerHTML=`<tr><td colspan="8" class="table-empty" style="color:#f87171">Error: ${e.message}</td></tr>`; }
 }
 
 async function viewMentor(id, editMode = false) {
