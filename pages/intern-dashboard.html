@@ -156,28 +156,30 @@ img{-webkit-user-drag:none}
 .iw-prog-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--iw-v),var(--iw-e));transition:width .6s cubic-bezier(.22,1,.36,1)}
 
 /* ── Modules ── */
-.iw-mods{display:flex;flex-direction:column;gap:.6rem}
-.iw-mod{display:flex;align-items:flex-start;gap:.7rem;padding:.8rem .9rem;border-radius:var(--iw-rd2);background:rgba(255,255,255,.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.12);transition:all .25s}
-[data-theme="dark"] .iw-mod{background:rgba(30,20,50,.25);border-color:rgba(255,255,255,.06)}
-.iw-mod:hover{border-color:rgba(124,58,237,.25);box-shadow:0 6px 20px rgba(124,58,237,.08);transform:translateY(-1px)}
-.iw-mod-ico{width:34px;height:34px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.iw-mod-ico.s-active{background:rgba(16,185,129,.1);color:#10b981}
-.iw-mod-ico.s-progress{background:rgba(245,158,11,.1);color:#f59e0b}
-.iw-mod-ico.s-done{background:rgba(124,58,237,.1);color:#a78bfa}
+.iw-mods{display:flex;flex-direction:column;gap:.7rem}
+.iw-mod{display:flex;align-items:center;gap:.8rem;padding:.85rem 1rem;border-radius:16px;background:rgba(255,255,255,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);transition:all .25s cubic-bezier(.22,1,.36,1);position:relative}
+[data-theme="dark"] .iw-mod{background:rgba(30,20,50,.3);border-color:rgba(255,255,255,.08)}
+.iw-mod:hover{border-color:rgba(124,58,237,.28);box-shadow:0 8px 24px rgba(124,58,237,.1);transform:translateY(-2px)}
+.iw-mod-ico{width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.iw-mod:hover .iw-mod-ico{transform:scale(1.08)}
+.iw-mod-ico.s-active{background:rgba(16,185,129,.12);color:#10b981}
+.iw-mod-ico.s-progress{background:rgba(245,158,11,.12);color:#f59e0b}
+.iw-mod-ico.s-done{background:rgba(124,58,237,.12);color:#a78bfa}
 .iw-mod-body{flex:1;min-width:0}
-.iw-mod-name{font-size:.84rem;font-weight:800;color:var(--txt);margin-bottom:.1rem}
-.iw-mod-desc{font-size:.74rem;color:var(--txt3);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.iw-mod-meta{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.3rem;font-size:.68rem;color:var(--txt3);font-weight:600}
+.iw-mod-name{font-size:.84rem;font-weight:800;color:var(--txt);margin-bottom:.15rem;display:flex;align-items:center;gap:.3rem}
+.iw-mod-desc{font-size:.74rem;color:var(--txt3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.iw-mod-meta{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.35rem;font-size:.68rem;color:var(--txt3);font-weight:600;align-items:center}
 .iw-mod-meta a{color:var(--iw-v);text-decoration:underline}
-.iw-mod-side{display:flex;flex-direction:column;gap:.3rem;align-items:flex-end;flex-shrink:0}
-.iw-badge{padding:.2rem .6rem;border-radius:999px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;backdrop-filter:blur(4px)}
-.iw-badge.s-active{background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.18)}
-.iw-badge.s-progress{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.18)}
-.iw-badge.s-done{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.18)}
-.iw-sm-btn{padding:.3rem .75rem;border-radius:12px;font-size:.68rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;white-space:nowrap;transition:all .2s}
-.iw-sm-btn:hover{transform:scale(1.05)}
+.iw-mod-side{display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;flex-shrink:0;min-width:90px}
+.iw-badge{padding:.22rem .65rem;border-radius:999px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;backdrop-filter:blur(4px)}
+.iw-badge.s-active{background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+.iw-badge.s-progress{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+.iw-badge.s-done{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
+.iw-sm-btn{padding:.35rem .85rem;border-radius:12px;font-size:.68rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;color:#fff;white-space:nowrap;transition:all .2s;display:inline-flex;align-items:center;gap:.3rem}
+.iw-sm-btn:hover{transform:scale(1.06);box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .iw-sm-btn.start{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 2px 10px rgba(16,185,129,.25)}
 .iw-sm-btn.done{background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 2px 10px rgba(124,58,237,.25)}
+@media(max-width:480px){.iw-mod{flex-wrap:wrap;gap:.6rem}.iw-mod-side{flex-direction:row;width:100%;justify-content:flex-end;min-width:auto}}
 
 /* ── Git section ── */
 .iw-git-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:var(--iw-rd2);background:rgba(255,255,255,.3);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);margin-bottom:.45rem}
@@ -205,18 +207,22 @@ img{-webkit-user-drag:none}
 .iw-att-day.sunday.today{background:var(--iw-v);color:#fff}
 .iw-att-day.leave{color:#a855f7;font-weight:700}
 .iw-att-day.holiday{color:#ef4444;font-weight:700}
-/* Day detail popup */
-.iw-day-detail{position:fixed;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(124,58,237,.12);border-radius:16px;padding:.8rem 1rem;width:260px;max-height:360px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth;box-shadow:0 12px 40px rgba(0,0,0,.18);z-index:10000;font-size:.7rem;display:none;text-align:left}
+/* Day detail overlay */
+.iw-day-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1rem}
+.iw-day-overlay.show{display:flex}
+.iw-day-detail{background:rgba(255,255,255,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(124,58,237,.15);border-radius:20px;padding:1.2rem 1.4rem;width:320px;max-width:92vw;max-height:80vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;box-shadow:0 24px 80px rgba(0,0,0,.2),0 0 0 1px rgba(255,255,255,.2) inset;font-size:.74rem;text-align:left;animation:iwPop .25s cubic-bezier(.22,1,.36,1) both}
 .iw-day-detail::-webkit-scrollbar{display:none}
-[data-theme="dark"] .iw-day-detail{background:rgba(30,20,50,.92);border-color:rgba(255,255,255,.1)}
-.iw-day-detail.show{display:block}
-.iw-day-detail::after{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:rgba(124,58,237,.12)}
-.iw-day-detail h4{font-size:.72rem;font-weight:800;margin-bottom:.35rem;color:var(--txt)}
-.iw-day-detail .iw-dd-row{display:flex;justify-content:space-between;gap:.4rem;padding:.2rem 0;font-size:.66rem}
-.iw-day-detail .iw-dd-label{color:var(--txt3);white-space:nowrap;flex-shrink:0}
-.iw-day-detail .iw-dd-val{font-weight:700;color:var(--txt);text-align:right;word-break:break-word;overflow-wrap:break-word;max-width:150px}
+[data-theme="dark"] .iw-day-detail{background:rgba(30,20,50,.92);border-color:rgba(255,255,255,.12)}
+.iw-day-close{position:absolute;top:.6rem;right:.6rem;width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(124,58,237,.15);background:rgba(255,255,255,.8);color:var(--iw-v);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.8rem;font-weight:700;transition:all .2s;z-index:1}
+.iw-day-close:hover{background:rgba(124,58,237,.1);border-color:var(--iw-v);transform:scale(1.1)}
+[data-theme="dark"] .iw-day-close{background:rgba(30,20,50,.6);border-color:rgba(255,255,255,.15);color:#c8bfff}
+.iw-day-detail h4{font-size:.78rem;font-weight:800;margin-bottom:.35rem;color:var(--txt)}
+.iw-day-detail .iw-dd-row{display:flex;justify-content:space-between;gap:.6rem;padding:.3rem 0;font-size:.72rem;border-bottom:1px solid rgba(124,58,237,.04)}
+.iw-day-detail .iw-dd-row:last-child{border-bottom:none}
+.iw-day-detail .iw-dd-label{color:var(--txt3);white-space:nowrap;flex-shrink:0;font-weight:500}
+.iw-day-detail .iw-dd-val{font-weight:700;color:var(--txt);text-align:right;word-break:break-word;overflow-wrap:break-word;max-width:180px}
 .iw-day-detail .iw-dd-val.green{color:#10b981}
-.iw-day-detail .iw-dd-full{font-size:.58rem;color:var(--txt3);word-break:break-all;overflow-wrap:break-word;padding:.2rem 0;line-height:1.4;border-top:1px solid rgba(124,58,237,.06);margin-top:.15rem}
+.iw-day-detail .iw-dd-full{font-size:.62rem;color:var(--txt3);word-break:break-all;overflow-wrap:break-word;padding:.3rem 0;line-height:1.5;border-top:1px solid rgba(124,58,237,.06);margin-top:.2rem}
 /* Attendance log */
 .iw-att-log{margin-top:.8rem;max-height:200px;overflow-y:auto;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth}
 .iw-att-log::-webkit-scrollbar{display:none}
@@ -1889,15 +1895,15 @@ function renderCalendar(){
 }
 
 let _openDayPopup=null;
+function closeDayDetail(){
+  const ov=document.querySelector('.iw-day-overlay');
+  if(ov)ov.remove();
+  _openDayPopup=null;
+}
 function toggleDayDetail(dateStr,event){
   event.stopPropagation();
-  // Toggle: if same date popup is open, close it
-  if(_openDayPopup&&_openDayPopup.dataset.date===dateStr){
-    _openDayPopup.remove();_openDayPopup=null;return;
-  }
-  // Close any existing popup
-  document.querySelectorAll('.iw-day-detail').forEach(el=>el.remove());
-  _openDayPopup=null;
+  if(_openDayPopup&&_openDayPopup.dataset.date===dateStr){closeDayDetail();return;}
+  closeDayDetail();
 
   const sess=_attData.sessions[dateStr];
   const att=_attData.attendance[dateStr];
@@ -1912,14 +1918,29 @@ function toggleDayDetail(dateStr,event){
   const dateFmt=new Date(dateStr+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
   const breakDetails=(sess.intern_breaks||[]).map(b=>`<div class="iw-dd-row"><span class="iw-dd-label">${BRK_LABELS[b.break_type]||'Break '+b.break_number}</span><span class="iw-dd-val">${b.break_end?(b.duration_mins!=null?b.duration_mins:0)+'m':'Active'}</span></div>`).join('');
 
+  const overlay=document.createElement('div');
+  overlay.className='iw-day-overlay show';
+  overlay.addEventListener('click',(e)=>{if(e.target===overlay)closeDayDetail();});
+
   const popup=document.createElement('div');
-  popup.className='iw-day-detail show';
+  popup.className='iw-day-detail';
   popup.dataset.date=dateStr;
+  popup.style.position='relative';
   popup.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem">
-      <h4 style="margin:0">${dateFmt} — Day ${sess.day_number||'—'}</h4>
-      <button onclick="exportDayReport('${dateStr}')" title="Download day report" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--iw-v);display:flex;align-items:center">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <button class="iw-day-close" onclick="closeDayDetail()" title="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;padding-right:2rem">
+      <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--iw-v),var(--iw-e));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div>
+        <h4 style="margin:0;font-size:.82rem">${dateFmt}</h4>
+        <div style="font-size:.65rem;color:var(--txt3);font-weight:600">Day ${sess.day_number||'—'}</div>
+      </div>
+      <button onclick="exportDayReport('${dateStr}')" title="Download day report" style="margin-left:auto;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;cursor:pointer;padding:.3rem .5rem;color:var(--iw-v);display:flex;align-items:center;gap:.3rem;font-size:.62rem;font-weight:700;font-family:inherit;transition:all .2s">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
       </button>
     </div>
     <div class="iw-dd-row"><span class="iw-dd-label">Login</span><span class="iw-dd-val green">${loginTime}</span></div>
@@ -1928,7 +1949,7 @@ function toggleDayDetail(dateStr,event){
     <div class="iw-dd-row"><span class="iw-dd-label">Break Time</span><span class="iw-dd-val">${fmtMins(breakMins)}</span></div>
     ${breakDetails}
     ${(sess.gap_mins||0)>0?`<div class="iw-dd-row"><span class="iw-dd-label">Idle/Gap</span><span class="iw-dd-val" style="color:var(--iw-r)">${fmtMins(sess.gap_mins)}</span></div>`:''}
-    <div class="iw-dd-row" style="border-top:1px solid rgba(124,58,237,.12);padding-top:.2rem;margin-top:.1rem"><span class="iw-dd-label" style="font-weight:700">Active Work</span><span class="iw-dd-val green" style="font-size:.8rem">${fmtMins(Math.max(0,workMins-breakMins-(sess.gap_mins||0)))} / 8h</span></div>
+    <div class="iw-dd-row" style="border-top:1.5px solid rgba(124,58,237,.1);padding-top:.3rem;margin-top:.2rem"><span class="iw-dd-label" style="font-weight:700">Active Work</span><span class="iw-dd-val green" style="font-size:.82rem">${fmtMins(Math.max(0,workMins-breakMins-(sess.gap_mins||0)))} / 8h</span></div>
     ${(()=>{const aw=Math.max(0,workMins-breakMins-(sess.gap_mins||0));return aw>=480?`<div class="iw-dd-row"><span class="iw-dd-label">Overtime</span><span class="iw-dd-val" style="color:#10b981">+${fmtMins(aw-480)}</span></div>`:`<div class="iw-dd-row"><span class="iw-dd-label">Remaining</span><span class="iw-dd-val" style="color:var(--iw-g)">${fmtMins(480-aw)}</span></div>`;})()}
     ${sess.ip_address?`<div class="iw-dd-row"><span class="iw-dd-label">IP Address</span><span class="iw-dd-val">${esc(sess.ip_address)}</span></div>`:''}
     <div class="iw-dd-row"><span class="iw-dd-label">Status</span><span class="iw-dd-val">${status}</span></div>
@@ -1936,20 +1957,9 @@ function toggleDayDetail(dateStr,event){
     ${att?.notes?`<div class="iw-dd-full">Note: ${esc(att.notes)}</div>`:''}
   `;
 
-  const target=event.currentTarget;
-  const rect=target.getBoundingClientRect();
-  document.body.appendChild(popup);
-  let popLeft=rect.left+rect.width/2-130;
-  let popTop=rect.bottom+6;
-  if(popLeft<8) popLeft=8;
-  if(popLeft+260>window.innerWidth-8) popLeft=window.innerWidth-268;
-  if(popTop+popup.offsetHeight>window.innerHeight-8) popTop=rect.top-popup.offsetHeight-6;
-  popup.style.left=popLeft+'px';
-  popup.style.top=popTop+'px';
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
   _openDayPopup=popup;
-
-  const closePopup=(e)=>{if(!popup.contains(e.target)&&!target.contains(e.target)){popup.remove();_openDayPopup=null;document.removeEventListener('click',closePopup)}};
-  setTimeout(()=>document.addEventListener('click',closePopup),10);
 }
 
 function exportDayReport(dateStr){
