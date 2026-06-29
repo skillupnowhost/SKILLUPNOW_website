@@ -565,6 +565,42 @@
       background: var(--panel2); border: 1px solid var(--border); border-radius: 8px;
       padding: 0.36rem 0.68rem; color: var(--txt); font-size: 0.8rem; outline: none; font-family: inherit;
     }
+
+    /* ── CREATE REPORT MODAL ── */
+    #create-report-modal .modal-box { max-width: 620px; }
+    .cr-section { margin-bottom: 1rem; }
+    .cr-section-title {
+      font-size: 0.78rem; font-weight: 700; color: var(--v1);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .cr-modules-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 1rem;
+    }
+    .cr-check-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.6rem; border-radius: 8px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .cr-check-item:hover { background: color-mix(in srgb, var(--v1) 6%, transparent); }
+    .cr-check-item input[type="checkbox"] {
+      accent-color: var(--v1); width: 16px; height: 16px; cursor: pointer;
+    }
+    .cr-check-item label {
+      font-size: 0.82rem; font-weight: 500; color: var(--txt2); cursor: pointer; user-select: none;
+    }
+    .cr-date-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+    .cr-date-row .f-group { flex: 1; min-width: 140px; }
+    .cr-progress {
+      display: none; flex-direction: column; align-items: center; gap: 0.8rem; padding: 2rem 1rem;
+    }
+    .cr-progress.active { display: flex; }
+    .cr-spinner {
+      width: 40px; height: 40px; border: 3px solid var(--border);
+      border-top-color: var(--v1); border-radius: 50%;
+      animation: adm-spin 0.8s linear infinite;
+    }
+    .cr-progress-text { font-size: 0.84rem; color: var(--txt3); font-weight: 600; }
     .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1.25rem; }
     .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--r); padding: 1.1rem; }
     .chart-card h4 { font-size: 0.82rem; margin-bottom: 0.85rem; color: var(--txt2); font-weight: 700; }
@@ -1481,6 +1517,10 @@
         <input type="month" id="rpt-to" title="To Month">
         <button class="btn-primary" onclick="loadReports()">Apply</button>
         <button class="btn-secondary" onclick="downloadReport()">⬇ Download PDF</button>
+        <button class="btn-primary" onclick="openCreateReportModal()" style="margin-left:auto;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;display:flex;align-items:center;gap:.4rem">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
+          Create Student Report
+        </button>
       </div>
 
       <div class="stats-grid">
@@ -1507,6 +1547,74 @@
           <thead><tr><th>Course</th><th>Category</th><th>Enrolled</th><th>Revenue</th><th>Outstanding</th><th>Avg Rating</th></tr></thead>
           <tbody id="rpt-table"><tr><td colspan="6" class="table-empty">Apply filters to view report</td></tr></tbody>
         </table></div>
+      </div>
+    </div>
+
+    <!-- ===== CREATE STUDENT REPORT MODAL ===== -->
+    <div class="modal-overlay" id="create-report-modal">
+      <div class="modal-box">
+        <div class="modal-close" onclick="closeModal('create-report-modal')">✕</div>
+        <div class="modal-title" style="display:flex;align-items:center;gap:.5rem">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="var(--v1)" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="1" width="14" height="18" rx="2"/><path d="M7 5h6M7 9h6M7 13h4"/></svg>
+          Create Student Activity Report
+        </div>
+
+        <!-- Form Content -->
+        <div id="cr-form-content">
+          <div class="cr-section">
+            <div class="cr-section-title">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="6" r="4"/><path d="M2 18c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+              Select Student
+            </div>
+            <div class="f-group" style="margin-bottom:0">
+              <select id="cr-student-select" style="width:100%">
+                <option value="">— Loading students… —</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cr-section">
+            <div class="cr-section-title">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="2" width="16" height="16" rx="3"/><path d="M6 10l3 3 5-5"/></svg>
+              Modules &amp; Activities to Track
+            </div>
+            <div class="cr-modules-grid">
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-activity" checked><label for="cr-mod-activity">Activity Logs</label></div>
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-appusage" checked><label for="cr-mod-appusage">App Usage</label></div>
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-sessions" checked><label for="cr-mod-sessions">Work Sessions</label></div>
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-attendance" checked><label for="cr-mod-attendance">Attendance</label></div>
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-submissions" checked><label for="cr-mod-submissions">Submissions</label></div>
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-screenshots" checked><label for="cr-mod-screenshots">Screenshots</label></div>
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-reports" checked><label for="cr-mod-reports">Daily Reports</label></div>
+              <div class="cr-check-item"><input type="checkbox" id="cr-mod-enrollments" checked><label for="cr-mod-enrollments">Enrollments</label></div>
+            </div>
+          </div>
+
+          <div class="cr-section">
+            <div class="cr-section-title">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="14" height="14" rx="2"/><path d="M3 8h14M7 4V2M13 4V2"/></svg>
+              Date Range
+            </div>
+            <div class="cr-date-row">
+              <div class="f-group"><label>From</label><input type="date" id="cr-date-from"></div>
+              <div class="f-group"><label>To</label><input type="date" id="cr-date-to"></div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('create-report-modal')">Cancel</button>
+            <button class="btn-primary" onclick="generateStudentActivityReport()" style="background:linear-gradient(135deg,#10b981,#06b6d4);border:none;display:flex;align-items:center;gap:.4rem">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 10l3 3 5-6"/></svg>
+              Generate PDF Report
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress indicator -->
+        <div class="cr-progress" id="cr-progress">
+          <div class="cr-spinner"></div>
+          <div class="cr-progress-text" id="cr-progress-text">Fetching student data…</div>
+        </div>
       </div>
     </div>
 
@@ -6864,6 +6972,597 @@ async function updateFormStatus(id, status) {
 
 async function downloadReport() {
   await _adminModal({title:'Notice',message:'PDF report download would be triggered here via a print/PDF generation function.',type:'info'});
+}
+
+/* ============================================================
+   CREATE STUDENT ACTIVITY REPORT
+   ============================================================ */
+const _CR_SUPABASE_ORIGIN = 'https://kenlnisfhrkgolvxitfc.supabase.co';
+
+async function openCreateReportModal() {
+  const sel = document.getElementById('cr-student-select');
+  sel.innerHTML = '<option value="">— Loading students… —</option>';
+  document.getElementById('cr-form-content').style.display = '';
+  document.getElementById('cr-progress').classList.remove('active');
+
+  const today = new Date().toISOString().slice(0, 10);
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  document.getElementById('cr-date-from').value = thirtyDaysAgo;
+  document.getElementById('cr-date-to').value = today;
+
+  openModal('create-report-modal');
+
+  try {
+    const { data: profiles } = await db.client
+      .from('user_profiles')
+      .select('user_id, full_name, email')
+      .order('full_name', { ascending: true });
+
+    if (!profiles?.length) {
+      sel.innerHTML = '<option value="">No students found</option>';
+      return;
+    }
+    sel.innerHTML = '<option value="">— Select a student —</option>' +
+      (profiles || []).map(p => {
+        const name = (p.full_name && p.full_name.trim()) || p.email || p.user_id.slice(0, 8);
+        return `<option value="${p.user_id}">${_adm_esc(name)} (${_adm_esc(p.email || '')})</option>`;
+      }).join('');
+  } catch (e) {
+    sel.innerHTML = '<option value="">Error loading students</option>';
+    console.error('openCreateReportModal:', e);
+  }
+}
+
+function _crSetProgress(msg) {
+  document.getElementById('cr-progress-text').textContent = msg;
+}
+
+function _crFmtTime(sec) {
+  sec = Number(sec) || 0;
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  if (h > 0) return h + 'h ' + m + 'm';
+  if (m > 0) return m + 'm';
+  return sec + 's';
+}
+
+function _crIsSupabaseUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.origin === _CR_SUPABASE_ORIGIN && parsed.protocol === 'https:';
+  } catch { return false; }
+}
+
+async function _crFetchImageAsBase64(url) {
+  if (!_crIsSupabaseUrl(url)) return null;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) return null;
+    const ct = resp.headers.get('content-type') || '';
+    if (!ct.startsWith('image/')) return null;
+    const blob = await resp.blob();
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch { return null; }
+}
+
+async function generateStudentActivityReport() {
+  const studentId = document.getElementById('cr-student-select')?.value;
+  if (!studentId) { _showAdminToast('Please select a student.', 'error'); return; }
+  if (!window.jspdf?.jsPDF) { _showAdminToast('jsPDF library not loaded.', 'error'); return; }
+
+  const dateFrom = document.getElementById('cr-date-from')?.value || '';
+  const dateTo = document.getElementById('cr-date-to')?.value || '';
+  const mods = {
+    activity:    document.getElementById('cr-mod-activity')?.checked,
+    appusage:    document.getElementById('cr-mod-appusage')?.checked,
+    sessions:    document.getElementById('cr-mod-sessions')?.checked,
+    attendance:  document.getElementById('cr-mod-attendance')?.checked,
+    submissions: document.getElementById('cr-mod-submissions')?.checked,
+    screenshots: document.getElementById('cr-mod-screenshots')?.checked,
+    reports:     document.getElementById('cr-mod-reports')?.checked,
+    enrollments: document.getElementById('cr-mod-enrollments')?.checked,
+  };
+
+  document.getElementById('cr-form-content').style.display = 'none';
+  document.getElementById('cr-progress').classList.add('active');
+
+  try {
+    _crSetProgress('Fetching student profile…');
+    const { data: profile } = await db.client
+      .from('user_profiles')
+      .select('user_id, full_name, email, phone, role, city, state, account_created_at')
+      .eq('user_id', studentId).single();
+    const studentName = profile?.full_name || profile?.email || 'Student';
+
+    const fetched = {};
+
+    if (mods.activity) {
+      _crSetProgress('Fetching activity logs…');
+      let q = db.client.from('activity_logs')
+        .select('action_name, entity_type, entity_id, user_agent, created_at, old_values, new_values')
+        .eq('actor_user_id', studentId)
+        .order('created_at', { ascending: false }).limit(500);
+      if (dateFrom) q = q.gte('created_at', dateFrom + 'T00:00:00');
+      if (dateTo)   q = q.lte('created_at', dateTo + 'T23:59:59');
+      const { data } = await q;
+      fetched.activity = data || [];
+    }
+
+    if (mods.appusage || mods.screenshots) {
+      _crSetProgress('Fetching app usage data…');
+      let q = db.client.from('intern_app_usage')
+        .select('app_name, window_title, active_seconds, recorded_at, ip_address, category, session_id')
+        .eq('student_user_id', studentId)
+        .order('recorded_at', { ascending: false }).limit(1000);
+      if (dateFrom) q = q.gte('recorded_at', dateFrom + 'T00:00:00');
+      if (dateTo)   q = q.lte('recorded_at', dateTo + 'T23:59:59');
+      const { data } = await q;
+      fetched.appUsage = data || [];
+    }
+
+    if (mods.sessions) {
+      _crSetProgress('Fetching work sessions…');
+      let q = db.client.from('intern_work_sessions')
+        .select('*, intern_breaks(*)')
+        .eq('student_user_id', studentId)
+        .order('session_date', { ascending: true });
+      if (dateFrom) q = q.gte('session_date', dateFrom);
+      if (dateTo)   q = q.lte('session_date', dateTo);
+      const { data } = await q;
+      fetched.sessions = data || [];
+    }
+
+    if (mods.attendance) {
+      _crSetProgress('Fetching attendance…');
+      const { data: enrols } = await db.client.from('internship_enrollments')
+        .select('id').eq('student_user_id', studentId);
+      const enrollIds = (enrols || []).map(e => e.id);
+      if (enrollIds.length) {
+        let q = db.client.from('internship_attendance')
+          .select('attendance_date, status, check_in_time, check_out_time, notes')
+          .in('enrollment_id', enrollIds)
+          .order('attendance_date', { ascending: true });
+        if (dateFrom) q = q.gte('attendance_date', dateFrom);
+        if (dateTo)   q = q.lte('attendance_date', dateTo);
+        const { data } = await q;
+        fetched.attendance = data || [];
+      } else {
+        fetched.attendance = [];
+      }
+    }
+
+    if (mods.submissions) {
+      _crSetProgress('Fetching submissions…');
+      let q = db.client.from('intern_submissions')
+        .select('submission_title, description, screenshot_url, report_file_url, report_file_type, commit_message, status, submitted_at')
+        .eq('student_user_id', studentId)
+        .order('submitted_at', { ascending: false });
+      if (dateFrom) q = q.gte('submitted_at', dateFrom + 'T00:00:00');
+      if (dateTo)   q = q.lte('submitted_at', dateTo + 'T23:59:59');
+      const { data } = await q;
+      fetched.submissions = data || [];
+    }
+
+    if (mods.reports) {
+      _crSetProgress('Fetching daily reports…');
+      const { data: enrols } = await db.client.from('internship_enrollments')
+        .select('id').eq('student_user_id', studentId);
+      const enrollIds = (enrols || []).map(e => e.id);
+      if (enrollIds.length) {
+        let q = db.client.from('intern_daily_reports')
+          .select('report_date, hours_worked, summary, challenges, status, mood')
+          .in('enrollment_id', enrollIds)
+          .order('report_date', { ascending: true });
+        if (dateFrom) q = q.gte('report_date', dateFrom);
+        if (dateTo)   q = q.lte('report_date', dateTo);
+        const { data } = await q;
+        fetched.dailyReports = data || [];
+      } else {
+        fetched.dailyReports = [];
+      }
+    }
+
+    if (mods.enrollments) {
+      _crSetProgress('Fetching enrollments…');
+      const { data } = await db.client.from('user_enrollments')
+        .select('course_name, course_category, enrollment_status, payment_status, total_fee, amount_paid, remaining_balance, enrollment_date')
+        .eq('user_id', studentId)
+        .order('enrollment_date', { ascending: false });
+      fetched.enrollments = data || [];
+    }
+
+    let screenshotImages = [];
+    if (mods.screenshots && fetched.appUsage) {
+      _crSetProgress('Processing screenshots (secure fetch)…');
+      const ssEntries = fetched.appUsage.filter(a => a.app_name === 'Screenshot' && a.window_title);
+      const validSS = ssEntries.filter(s => _crIsSupabaseUrl(s.window_title)).slice(0, 12);
+      for (let i = 0; i < validSS.length; i++) {
+        _crSetProgress(`Loading screenshot ${i + 1} of ${validSS.length}…`);
+        const b64 = await _crFetchImageAsBase64(validSS[i].window_title);
+        if (b64) {
+          screenshotImages.push({
+            dataUrl: b64,
+            time: validSS[i].recorded_at,
+            ip: validSS[i].ip_address || ''
+          });
+        }
+      }
+    }
+
+    _crSetProgress('Generating PDF…');
+    await _crBuildPDF(profile, studentName, dateFrom, dateTo, mods, fetched, screenshotImages);
+
+    _showAdminToast('Report generated and ready for download!', 'success');
+  } catch (e) {
+    console.error('generateStudentActivityReport error:', e);
+    _showAdminToast('Report generation failed: ' + (e.message || 'Unknown error'), 'error');
+  } finally {
+    document.getElementById('cr-form-content').style.display = '';
+    document.getElementById('cr-progress').classList.remove('active');
+  }
+}
+
+async function _crBuildPDF(profile, studentName, dateFrom, dateTo, mods, data, screenshotImages) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const ml = 12, mr = 12, cw = pw - ml - mr;
+  let y = 0;
+  let pageNum = 1;
+
+  function checkPage(needed) {
+    if (y + needed > ph - 14) {
+      doc.addPage();
+      pageNum++;
+      _crDrawFooter(doc, pw, ph, pageNum);
+      y = 12;
+    }
+  }
+
+  function sectionHeader(title) {
+    checkPage(14);
+    y += 3;
+    doc.setFillColor(68, 25, 152);
+    doc.roundedRect(ml, y, cw, 7, 1.5, 1.5, 'F');
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    doc.text(title.toUpperCase(), ml + 4, y + 5);
+    y += 10;
+    doc.setTextColor(40, 40, 40);
+  }
+
+  function tableHeader(cols, widths, startX) {
+    checkPage(8);
+    doc.setFillColor(235, 230, 250);
+    doc.rect(startX, y - 3, widths.reduce((a, b) => a + b, 0), 5.5, 'F');
+    doc.setFontSize(6);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(68, 25, 152);
+    let cx = startX;
+    cols.forEach((col, i) => { doc.text(col, cx + 1, y); cx += widths[i]; });
+    y += 4;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(40, 40, 40);
+  }
+
+  function truncate(str, maxLen) { str = String(str || ''); return str.length > maxLen ? str.slice(0, maxLen - 1) + '…' : str; }
+
+  // ── HEADER ──
+  doc.setFillColor(30, 15, 60);
+  doc.rect(0, 0, pw, 32, 'F');
+  doc.setFillColor(124, 58, 237);
+  doc.rect(0, 32, pw, 1.2, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Skill-Up Now Private Limited', pw / 2, 12, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(200, 190, 255);
+  doc.text('Student Activity Report — Admin Copy', pw / 2, 20, { align: 'center' });
+  doc.setFontSize(6.5);
+  doc.setTextColor(180, 170, 220);
+  const genDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  const genTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  doc.text(`Generated: ${genDate} at ${genTime}  |  CONFIDENTIAL`, pw / 2, 28, { align: 'center' });
+  _crDrawFooter(doc, pw, ph, pageNum);
+
+  // ── STUDENT INFO BOX ──
+  y = 38;
+  doc.setFillColor(248, 247, 255);
+  doc.roundedRect(ml, y, cw, 18, 2, 2, 'F');
+  doc.setDrawColor(200, 190, 240);
+  doc.setLineWidth(0.2);
+  doc.roundedRect(ml, y, cw, 18, 2, 2, 'S');
+  doc.setTextColor(20, 10, 50);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Student:', ml + 4, y + 5);
+  doc.text('Email:', ml + 4, y + 10);
+  doc.text('Phone:', ml + 4, y + 15);
+  doc.text('Period:', pw / 2, y + 5);
+  doc.text('City:', pw / 2, y + 10);
+  doc.text('Joined:', pw / 2, y + 15);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(50);
+  doc.text(truncate(studentName, 40), ml + 24, y + 5);
+  doc.text(truncate(profile?.email, 40), ml + 24, y + 10);
+  doc.text(truncate(profile?.phone || 'N/A', 20), ml + 24, y + 15);
+  const periodStr = (dateFrom || 'All') + ' to ' + (dateTo || 'Present');
+  doc.text(periodStr, pw / 2 + 18, y + 5);
+  doc.text(truncate((profile?.city || '') + (profile?.state ? ', ' + profile.state : '') || 'N/A', 25), pw / 2 + 18, y + 10);
+  doc.text(profile?.account_created_at ? new Date(profile.account_created_at).toLocaleDateString('en-IN') : 'N/A', pw / 2 + 18, y + 15);
+  y += 22;
+
+  // ── ENROLLMENTS ──
+  if (mods.enrollments && data.enrollments?.length) {
+    sectionHeader('Enrollments & Courses');
+    const ew = [50, 30, 22, 22, 22, 22, 22];
+    tableHeader(['Course', 'Category', 'Status', 'Payment', 'Fee', 'Paid', 'Balance'], ew, ml);
+    data.enrollments.forEach((e, i) => {
+      checkPage(5);
+      if (i % 2 === 0) { doc.setFillColor(250, 249, 255); doc.rect(ml, y - 3, cw, 4.5, 'F'); }
+      doc.setFontSize(6);
+      let cx = ml;
+      doc.text(truncate(e.course_name, 30), cx + 1, y); cx += ew[0];
+      doc.text(truncate(e.course_category || '—', 18), cx + 1, y); cx += ew[1];
+      doc.text(truncate(e.enrollment_status || '—', 12), cx + 1, y); cx += ew[2];
+      doc.text(truncate(e.payment_status || '—', 12), cx + 1, y); cx += ew[3];
+      doc.text('₹' + (Number(e.total_fee) || 0).toLocaleString('en-IN'), cx + 1, y); cx += ew[4];
+      doc.text('₹' + (Number(e.amount_paid) || 0).toLocaleString('en-IN'), cx + 1, y); cx += ew[5];
+      doc.text('₹' + (Number(e.remaining_balance) || 0).toLocaleString('en-IN'), cx + 1, y);
+      y += 4.5;
+    });
+    y += 3;
+  }
+
+  // ── WORK SESSIONS ──
+  if (mods.sessions && data.sessions?.length) {
+    sectionHeader('Work Sessions (' + data.sessions.length + ' sessions)');
+    const totalWork = data.sessions.reduce((s, x) => s + (x.total_work_mins || 0), 0);
+    const totalBreaks = data.sessions.reduce((s, x) => s + (x.intern_breaks || []).reduce((b, br) => b + (br.duration_mins || 0), 0), 0);
+    doc.setFontSize(7);
+    doc.text(`Total Work: ${Math.floor(totalWork / 60)}h ${totalWork % 60}m  |  Total Breaks: ${Math.floor(totalBreaks / 60)}h ${totalBreaks % 60}m  |  Net: ${Math.floor(Math.max(0, totalWork - totalBreaks) / 60)}h ${Math.max(0, totalWork - totalBreaks) % 60}m`, ml + 2, y);
+    y += 5;
+    const sw = [22, 14, 20, 20, 14, 14, 14, 36, 30];
+    tableHeader(['Date', 'Day', 'Login', 'Logout', 'Work', 'Break', 'Net', 'IP Address', 'Status'], sw, ml);
+    data.sessions.forEach((ws, i) => {
+      checkPage(5);
+      if (i % 2 === 0) { doc.setFillColor(250, 249, 255); doc.rect(ml, y - 3, cw, 4.5, 'F'); }
+      doc.setFontSize(5.8);
+      const login = ws.start_time ? new Date(ws.start_time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—';
+      const logout = ws.end_time ? new Date(ws.end_time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—';
+      const brk = (ws.intern_breaks || []).reduce((b, br) => b + (br.duration_mins || 0), 0);
+      const netW = Math.max(0, (ws.total_work_mins || 0) - brk);
+      let cx = ml;
+      doc.text(ws.session_date || '', cx + 1, y); cx += sw[0];
+      doc.text('Day ' + (ws.day_number || ''), cx + 1, y); cx += sw[1];
+      doc.setTextColor(16, 185, 129); doc.text(login, cx + 1, y); cx += sw[2];
+      doc.setTextColor(124, 58, 237); doc.text(logout, cx + 1, y); cx += sw[3];
+      doc.setTextColor(40);
+      doc.text((ws.total_work_mins || 0) + 'm', cx + 1, y); cx += sw[4];
+      doc.text(brk + 'm', cx + 1, y); cx += sw[5];
+      doc.setFont('helvetica', 'bold'); doc.text(netW + 'm', cx + 1, y); doc.setFont('helvetica', 'normal'); cx += sw[6];
+      doc.setFontSize(5); doc.text(truncate(ws.ip_address || 'N/A', 24), cx + 1, y); cx += sw[7];
+      doc.setFontSize(5.8); doc.text(ws.status === 'completed' ? 'Done' : (ws.status === 'active' ? 'Active' : ws.status || '—'), cx + 1, y);
+      y += 4.5;
+    });
+    y += 3;
+  }
+
+  // ── APP USAGE ──
+  if (mods.appusage && data.appUsage?.length) {
+    const nonScreenshot = data.appUsage.filter(a => a.app_name !== 'Screenshot');
+    if (nonScreenshot.length) {
+      sectionHeader('App Usage Tracking');
+      const appMap = {};
+      const ipSet = new Set();
+      nonScreenshot.forEach(a => {
+        appMap[a.app_name] = (appMap[a.app_name] || 0) + (a.active_seconds || 0);
+        if (a.ip_address) ipSet.add(a.ip_address);
+      });
+      const appEntries = Object.entries(appMap).sort((a, b) => b[1] - a[1]);
+      const totalAppSec = appEntries.reduce((s, [, v]) => s + v, 0);
+
+      doc.setFontSize(7);
+      doc.text(`Total tracked: ${_crFmtTime(totalAppSec)}  |  ${appEntries.length} apps  |  ${ipSet.size} unique IP(s): ${[...ipSet].slice(0, 3).join(', ')}${ipSet.size > 3 ? '…' : ''}`, ml + 2, y);
+      y += 5;
+
+      const aw = [50, 30, 30, 30, 46];
+      tableHeader(['Application', 'Time Spent', '% of Total', 'Category', 'IP Addresses'], aw, ml);
+      const ipsByApp = {};
+      nonScreenshot.forEach(a => {
+        if (!ipsByApp[a.app_name]) ipsByApp[a.app_name] = new Set();
+        if (a.ip_address) ipsByApp[a.app_name].add(a.ip_address);
+      });
+      const catByApp = {};
+      nonScreenshot.forEach(a => { if (!catByApp[a.app_name]) catByApp[a.app_name] = a.category || 'general'; });
+
+      appEntries.slice(0, 25).forEach(([ name, sec ], i) => {
+        checkPage(5);
+        if (i % 2 === 0) { doc.setFillColor(250, 249, 255); doc.rect(ml, y - 3, cw, 4.5, 'F'); }
+        doc.setFontSize(6);
+        let cx = ml;
+        doc.text(truncate(name, 30), cx + 1, y); cx += aw[0];
+        doc.setFont('helvetica', 'bold'); doc.text(_crFmtTime(sec), cx + 1, y); doc.setFont('helvetica', 'normal'); cx += aw[1];
+        doc.text((totalAppSec ? Math.round(sec / totalAppSec * 100) : 0) + '%', cx + 1, y); cx += aw[2];
+        doc.text(truncate(catByApp[name] || 'general', 18), cx + 1, y); cx += aw[3];
+        doc.setFontSize(5); doc.text(truncate([...(ipsByApp[name] || [])].join(', '), 30), cx + 1, y);
+        doc.setFontSize(6);
+        y += 4.5;
+      });
+
+      const aiTools = ['chatgpt', 'claude', 'copilot', 'gemini', 'bard', 'perplexity', 'cursor', 'phind', 'tabnine', 'codewhisperer', 'v0.dev'];
+      const aiUsage = {};
+      nonScreenshot.forEach(a => {
+        const title = (a.window_title || '').toLowerCase();
+        const found = aiTools.find(t => title.includes(t));
+        if (found) aiUsage[found] = (aiUsage[found] || 0) + (a.active_seconds || 0);
+      });
+      const aiEntries = Object.entries(aiUsage).sort((a, b) => b[1] - a[1]);
+      if (aiEntries.length) {
+        checkPage(8);
+        doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(124, 58, 237);
+        doc.text('AI Tools Detected:', ml + 2, y);
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(40);
+        doc.text(aiEntries.map(([t, s]) => t + ' (' + _crFmtTime(s) + ')').join(', '), ml + 36, y);
+        y += 5;
+      }
+      y += 3;
+    }
+  }
+
+  // ── ATTENDANCE ──
+  if (mods.attendance && data.attendance?.length) {
+    sectionHeader('Attendance (' + data.attendance.length + ' days)');
+    const present = data.attendance.filter(a => ['present', 'late'].includes(a.status)).length;
+    const absent = data.attendance.filter(a => a.status === 'absent').length;
+    const pct = data.attendance.length ? Math.round(present / data.attendance.length * 100) : 0;
+    doc.setFontSize(7);
+    doc.text(`Present: ${present}  |  Absent: ${absent}  |  Attendance: ${pct}%`, ml + 2, y);
+    y += 5;
+    const atw = [28, 20, 22, 22, 94];
+    tableHeader(['Date', 'Status', 'Check In', 'Check Out', 'Notes'], atw, ml);
+    data.attendance.forEach((a, i) => {
+      checkPage(5);
+      if (i % 2 === 0) { doc.setFillColor(250, 249, 255); doc.rect(ml, y - 3, cw, 4.5, 'F'); }
+      doc.setFontSize(6);
+      let cx = ml;
+      doc.text(a.attendance_date || '', cx + 1, y); cx += atw[0];
+      const sc = a.status === 'present' ? [16, 185, 129] : a.status === 'late' ? [245, 158, 11] : [239, 68, 68];
+      doc.setTextColor(sc[0], sc[1], sc[2]);
+      doc.text(a.status || '—', cx + 1, y);
+      doc.setTextColor(40); cx += atw[1];
+      doc.text(a.check_in_time || '—', cx + 1, y); cx += atw[2];
+      doc.text(a.check_out_time || '—', cx + 1, y); cx += atw[3];
+      doc.text(truncate(a.notes || '', 55), cx + 1, y);
+      y += 4.5;
+    });
+    y += 3;
+  }
+
+  // ── DAILY REPORTS ──
+  if (mods.reports && data.dailyReports?.length) {
+    sectionHeader('Daily Reports (' + data.dailyReports.length + ' entries)');
+    const totalH = data.dailyReports.reduce((s, r) => s + Number(r.hours_worked || 0), 0);
+    doc.setFontSize(7);
+    doc.text(`Total Hours Reported: ${totalH}h`, ml + 2, y);
+    y += 5;
+    const dw = [22, 14, 70, 50, 20];
+    tableHeader(['Date', 'Hours', 'Summary', 'Challenges', 'Status'], dw, ml);
+    data.dailyReports.forEach((r, i) => {
+      checkPage(5);
+      if (i % 2 === 0) { doc.setFillColor(250, 249, 255); doc.rect(ml, y - 3, cw, 4.5, 'F'); }
+      doc.setFontSize(5.8);
+      let cx = ml;
+      doc.text(r.report_date || '', cx + 1, y); cx += dw[0];
+      doc.text(String(r.hours_worked || 0), cx + 1, y); cx += dw[1];
+      doc.text(truncate(r.summary || '', 45), cx + 1, y); cx += dw[2];
+      doc.text(truncate(r.challenges || '', 32), cx + 1, y); cx += dw[3];
+      doc.text(r.status || '—', cx + 1, y);
+      y += 4.5;
+    });
+    y += 3;
+  }
+
+  // ── SUBMISSIONS ──
+  if (mods.submissions && data.submissions?.length) {
+    sectionHeader('Submissions (' + data.submissions.length + ' entries)');
+    const sw2 = [40, 56, 18, 24, 18, 30];
+    tableHeader(['Title', 'Commit', 'Screenshot', 'Report File', 'Status', 'Submitted'], sw2, ml);
+    data.submissions.forEach((s, i) => {
+      checkPage(5);
+      if (i % 2 === 0) { doc.setFillColor(250, 249, 255); doc.rect(ml, y - 3, cw, 4.5, 'F'); }
+      doc.setFontSize(5.8);
+      let cx = ml;
+      doc.text(truncate(s.submission_title, 24), cx + 1, y); cx += sw2[0];
+      doc.text(truncate(s.commit_message || '—', 34), cx + 1, y); cx += sw2[1];
+      doc.text(s.screenshot_url ? 'Yes' : 'No', cx + 1, y); cx += sw2[2];
+      doc.text(s.report_file_url ? (s.report_file_type || 'File') : 'None', cx + 1, y); cx += sw2[3];
+      const sbc = s.status === 'approved' ? [16, 185, 129] : s.status === 'rejected' ? [239, 68, 68] : [245, 158, 11];
+      doc.setTextColor(sbc[0], sbc[1], sbc[2]);
+      doc.text(s.status || '—', cx + 1, y);
+      doc.setTextColor(40); cx += sw2[4];
+      doc.text(s.submitted_at ? new Date(s.submitted_at).toLocaleDateString('en-IN') : '—', cx + 1, y);
+      y += 4.5;
+    });
+    y += 3;
+  }
+
+  // ── ACTIVITY LOGS ──
+  if (mods.activity && data.activity?.length) {
+    sectionHeader('Activity Logs (' + data.activity.length + ' actions)');
+    const alw = [34, 30, 30, 92];
+    tableHeader(['Timestamp', 'Action', 'Entity', 'User Agent'], alw, ml);
+    data.activity.forEach((a, i) => {
+      checkPage(5);
+      if (i % 2 === 0) { doc.setFillColor(250, 249, 255); doc.rect(ml, y - 3, cw, 4.5, 'F'); }
+      doc.setFontSize(5.5);
+      let cx = ml;
+      doc.text(a.created_at ? new Date(a.created_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) : '—', cx + 1, y); cx += alw[0];
+      doc.text(truncate(a.action_name || '', 18), cx + 1, y); cx += alw[1];
+      doc.text(truncate((a.entity_type || '') + (a.entity_id ? ':' + a.entity_id.slice(0, 8) : ''), 18), cx + 1, y); cx += alw[2];
+      doc.setFontSize(4.5);
+      doc.text(truncate(a.user_agent || 'N/A', 65), cx + 1, y);
+      doc.setFontSize(5.5);
+      y += 4.5;
+    });
+    y += 3;
+  }
+
+  // ── SCREENSHOTS ──
+  if (mods.screenshots && screenshotImages.length) {
+    sectionHeader('Screenshots (' + screenshotImages.length + ' captured)');
+    for (let i = 0; i < screenshotImages.length; i++) {
+      checkPage(48);
+      const ss = screenshotImages[i];
+      const timeStr = ss.time ? new Date(ss.time).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+      try {
+        doc.addImage(ss.dataUrl, 'JPEG', ml, y, 80, 42);
+      } catch {
+        doc.setFontSize(7); doc.text('[Image could not be embedded]', ml + 2, y + 20);
+      }
+      doc.setFontSize(6); doc.setTextColor(100);
+      doc.text(`Captured: ${timeStr}  |  IP: ${ss.ip || 'N/A'}`, ml + 84, y + 5);
+      doc.setTextColor(40);
+      y += 46;
+    }
+    y += 3;
+  }
+
+  // ── FOOTER STAMP ──
+  checkPage(16);
+  y += 4;
+  doc.setDrawColor(200, 190, 240);
+  doc.setLineWidth(0.3);
+  doc.line(ml, y, pw - mr, y);
+  y += 5;
+  doc.setFontSize(6.5);
+  doc.setTextColor(120);
+  doc.text('This report was generated from the SkillUpNow Admin Panel. All data sourced exclusively from the platform database.', pw / 2, y, { align: 'center' });
+  y += 3.5;
+  doc.text('No external requests were made during generation. Report is CONFIDENTIAL.', pw / 2, y, { align: 'center' });
+  y += 3.5;
+  doc.setFont('helvetica', 'bold');
+  doc.text(`© ${new Date().getFullYear()} Skill-Up Now Private Limited — All Rights Reserved`, pw / 2, y, { align: 'center' });
+
+  const safeName = studentName.replace(/[^a-zA-Z0-9_ ]/g, '').replace(/\s+/g, '_').slice(0, 30);
+  doc.save(`SkillUpNow_Report_${safeName}_${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+function _crDrawFooter(doc, pw, ph, pageNum) {
+  doc.setFontSize(5.5);
+  doc.setTextColor(160);
+  doc.text('SkillUpNow — Confidential Student Report', 12, ph - 5);
+  doc.text('Page ' + pageNum, pw - 12, ph - 5, { align: 'right' });
 }
 
 function downloadInvoice(id) {
