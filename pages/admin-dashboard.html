@@ -12899,9 +12899,18 @@ async function loadInternSubmissions() {
 }
 
 async function viewSubFile(path) {
-  const { data } = await db.client.storage.from('intern-submissions').createSignedUrl(path, 300);
+  if (!path) { _showAdminToast('No file path available.','error'); return; }
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    window.open(path, '_blank');
+    return;
+  }
+  const { data, error } = await db.client.storage.from('intern-submissions').createSignedUrl(path, 300);
   if (data?.signedUrl) window.open(data.signedUrl, '_blank');
-  else _showAdminToast('Could not generate file link.','error');
+  else {
+    const { data: pub } = db.client.storage.from('intern-submissions').getPublicUrl(path);
+    if (pub?.publicUrl) window.open(pub.publicUrl, '_blank');
+    else _showAdminToast('Could not generate file link.' + (error ? ' ' + error.message : ''), 'error');
+  }
 }
 
 async function openSubReview(subId) {
@@ -13221,9 +13230,18 @@ async function loadProjectSubmissions() {
 }
 
 async function viewProjSubFile(path){
-  const {data}=await db.client.storage.from('project-submissions').createSignedUrl(path,300);
-  if(data?.signedUrl)window.open(data.signedUrl,'_blank');
-  else _showAdminToast('Could not generate file link.','error');
+  if (!path) { _showAdminToast('No file path available.','error'); return; }
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    window.open(path, '_blank');
+    return;
+  }
+  const {data, error}=await db.client.storage.from('project-submissions').createSignedUrl(path,300);
+  if(data?.signedUrl) window.open(data.signedUrl,'_blank');
+  else {
+    const { data: pub } = db.client.storage.from('project-submissions').getPublicUrl(path);
+    if (pub?.publicUrl) window.open(pub.publicUrl, '_blank');
+    else _showAdminToast('Could not generate file link.' + (error ? ' ' + error.message : ''), 'error');
+  }
 }
 
 async function reviewProjectSubmission(subId){
