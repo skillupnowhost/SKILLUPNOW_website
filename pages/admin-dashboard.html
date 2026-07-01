@@ -13954,7 +13954,11 @@ async function exportDetailedReport(){
   doc.text(name,ml+4,y+8);
   doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...txt2);
   doc.text(`Email: ${profile?.email||'—'}  |  Phone: ${profile?.phone||'—'}`,ml+4,y+13);
-  doc.text(`Internship: ${enrol?.internship_projects?.project_name||'—'}  |  Enrolled: ${enrol?.enrolled_at?enrol.enrolled_at.slice(0,10):'—'}`,ml+4,y+18);
+  const _startD=enrol?.start_date, _endD=enrol?.end_date;
+  const _dDiff=(a,b)=>Math.round((new Date(b)-new Date(a))/(1000*60*60*24));
+  const _totIntern=_startD&&_endD?_dDiff(_startD,_endD):50;
+  const _elapsed=_startD?Math.min(_dDiff(_startD,new Date().toISOString().slice(0,10)),_totIntern):(sessions||[]).length;
+  doc.text(`Internship: ${enrol?.internship_projects?.project_name||'—'}  |  Enrolled: ${enrol?.enrolled_at?enrol.enrolled_at.slice(0,10):'—'}  |  Start: ${_startD||'—'}  End: ${_endD||'—'}`,ml+4,y+18);
   y+=26;
 
   // KPIs
@@ -13962,13 +13966,12 @@ async function exportDetailedReport(){
   const totalBreakMins=(sessions||[]).reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
   const totalGapMins=(sessions||[]).reduce((s,x)=>s+(x.gap_mins||0),0);
   const net=Math.max(0,totalWorkMins-totalBreakMins-totalGapMins);
-  const pct=Math.min(100,Math.round((net/((sessions||[]).length*480))*100));
   const presentDays=(attendance||[]).filter(a=>a.status==='present').length;
   const fm=m=>`${Math.floor(m/60)}h ${m%60}m`;
-  const kpis=[['Days Worked',`${(sessions||[]).length} / 50`],['Active Work',fm(net)],['Attendance',presentDays+' / '+(sessions||[]).length],['Modules Done',`${(progAssign||[]).filter(a=>a.status==='completed').length} / ${(progAssign||[]).length}`],['Submissions',(subs||[]).length],['Daily Reports',(dailyRpts||[]).length]];
-  const kw=(cw-5)/(kpis.length/2); let kx=ml;
+  const kpis=[['Days Worked',`${(sessions||[]).length} / ${_totIntern}`],['Days Elapsed',`${_elapsed} / ${_totIntern}`],['Active Work',fm(net)],['Attendance',presentDays+' / '+(sessions||[]).length],['Modules Done',`${(progAssign||[]).filter(a=>a.status==='completed').length} / ${(progAssign||[]).length}`],['Submissions',(subs||[]).length]];
+  const kCols=3; const kw=(cw-4)/kCols; let kx=ml;
   kpis.forEach(([l,v],i)=>{
-    if(i===3){kx=ml;y+=14;}
+    if(i>0&&i%kCols===0){kx=ml;y+=14;}
     doc.setFillColor(250,248,255); doc.roundedRect(kx,y,kw-2,12,2,2,'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...V1);
     doc.text(String(v),kx+kw/2-1,y+7,{align:'center'});
