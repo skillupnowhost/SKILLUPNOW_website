@@ -13896,7 +13896,7 @@ async function exportDetailedReport(){
     db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:false}),
     db.client.from('intern_modules').select('*').eq('student_user_id',studentId).order('day_number',{ascending:true}),
     db.client.from('intern_submissions').select('*').eq('student_user_id',studentId).order('submitted_at',{ascending:false}),
-    db.client.from('intern_app_usage').select('app_name,active_seconds').eq('student_user_id',studentId),
+    db.client.from('intern_app_usage').select('app_name,active_seconds,session_id,recorded_at').eq('student_user_id',studentId).order('recorded_at',{ascending:false}).limit(5000),
     db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name)').eq('student_user_id',studentId).order('assigned_at',{ascending:true}),
     db.client.from('internship_attendance').select('*').eq('student_user_id',studentId).order('attendance_date',{ascending:false}),
     db.client.from('internship_daily_reports').select('*').eq('student_user_id',studentId).order('report_date',{ascending:false}),
@@ -14069,23 +14069,37 @@ async function exportDetailedReport(){
   if(!(subs||[]).length){ doc.setTextColor(...txt3); doc.setFontSize(7); doc.text('No submissions.',ml+2,y); y+=6; }
   y+=2;
 
-  // App usage
-  const appMap={};
-  (appUsage||[]).forEach(a=>{ appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0); });
-  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]).slice(0,14);
-  if(appEntries.length){
-    sectionHead('APP USAGE (CONFIDENTIAL)');
+  // App usage — day-wise
+  const pdfSessDateMap={};
+  (sessions||[]).forEach(s=>{ pdfSessDateMap[s.id]=s.session_date; });
+  const pdfDateAppMap={};
+  (appUsage||[]).forEach(a=>{
+    const d=pdfSessDateMap[a.session_id]||(a.recorded_at?a.recorded_at.slice(0,10):'unknown');
+    if(!pdfDateAppMap[d])pdfDateAppMap[d]={};
+    pdfDateAppMap[d][a.app_name]=(pdfDateAppMap[d][a.app_name]||0)+(a.active_seconds||0);
+  });
+  const pdfDays=Object.entries(pdfDateAppMap).sort((a,b)=>b[0].localeCompare(a[0]));
+  if(pdfDays.length){
+    sectionHead('APP USAGE BY DAY (CONFIDENTIAL)');
     const aw=(cw-4)/2;
-    appEntries.forEach((([app,secs],i)=>{
-      if(i%2===0){ if(i>0) y+=5; checkPage(5); cx=ml+2; }
-      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...txt);
-      doc.text(`${app}: `,cx,y);
-      doc.setFont('helvetica','bold'); doc.setTextColor(...V1);
-      const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);
-      doc.text(h>0?`${h}h ${m}m`:m>0?`${m}m`:`${secs}s`,cx+aw-3,y,{align:'right'});
-      cx+=aw;
-    }));
-    y+=8;
+    pdfDays.forEach(([date,apps])=>{
+      checkPage(8);
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...txt2);
+      doc.text(date,ml+2,y); y+=4;
+      const dayEntries=Object.entries(apps).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      dayEntries.forEach(([app,secs],i)=>{
+        if(i%2===0){ if(i>0)y+=4.5; checkPage(5); cx=ml+4; }
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...txt);
+        doc.text(app.slice(0,22),cx,y);
+        doc.setFont('helvetica','bold'); doc.setTextColor(...V1);
+        const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);
+        doc.text(h>0?`${h}h ${m}m`:m>0?`${m}m`:`${secs}s`,cx+aw-4,y,{align:'right'});
+        cx+=aw;
+      });
+      y+=6;
+      doc.setDrawColor(...border); doc.line(ml,y-2,ml+cw,y-2);
+    });
+    y+=4;
   }
 
   footer();
