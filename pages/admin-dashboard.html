@@ -2811,6 +2811,7 @@
                 <option value="approved">Approved</option>
               </select>
               <button class="btn-secondary" onclick="exportInternReportsCSV()">⬇ CSV</button>
+              <button class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)" onclick="openAdminCreateReportModal()">+ Create Report</button>
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
@@ -2841,8 +2842,8 @@
             </div>
           </div>
           <div class="table-scroll"><table class="data-table">
-            <thead><tr><th>Date</th><th>Student</th><th>Internship</th><th>Check-In</th><th>Check-Out</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead>
-            <tbody id="itnm-atd-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+            <thead><tr><th>Date</th><th>Student</th><th>Internship</th><th>Login (Check-In)</th><th>Logout (Check-Out)</th><th>Total Hours</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead>
+            <tbody id="itnm-atd-tbody"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2955,6 +2956,9 @@
           .dr-list{list-style:none;padding:0;margin:0}
           .dr-list li{padding:.45rem .6rem;border-bottom:1px solid var(--border);font-size:.8rem;display:flex;justify-content:space-between;align-items:center}
           .dr-list li:last-child{border-bottom:none}
+          .dr-section-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--v1);padding:.4rem 0 .6rem;border-bottom:2px solid rgba(124,92,252,.2);margin-bottom:.75rem}
+          .dr-log-entry{padding:.65rem .8rem;border-radius:8px;background:rgba(124,92,252,.04);border:1px solid rgba(124,92,252,.12);margin-bottom:.45rem;font-size:.8rem;line-height:1.55}
+          .dr-log-meta{font-size:.68rem;color:var(--txt4);margin-top:.2rem}
           @media(max-width:640px){.dr-grid{grid-template-columns:1fr}}
         </style>
         <div class="table-card">
@@ -2962,7 +2966,7 @@
             <h3>Detailed Student Report</h3>
             <div class="table-actions">
               <select id="dr-student-select" onchange="loadDetailedReport()" style="font-size:.8rem;padding:.35rem .65rem;border-radius:8px;border:1px solid rgba(245,158,11,.25);background:var(--bg2);color:var(--txt);max-width:220px">
-                <option value="">Select student…</option>
+                <option value="">All Students</option>
               </select>
               <button class="btn-secondary" onclick="exportDetailedReport()">⬇ PDF</button>
             </div>
@@ -3730,7 +3734,7 @@
 
 <!-- Submission Review Modal -->
 <div class="modal-overlay" id="sub-review-modal" onclick="if(event.target===this)closeModal('sub-review-modal')">
-  <div class="modal-box" style="max-width:560px">
+  <div class="modal-box" style="max-width:580px;max-height:90vh;overflow-y:auto">
     <div class="modal-close" onclick="closeModal('sub-review-modal')">✕</div>
     <div class="modal-title">Review Submission</div>
     <input type="hidden" id="sub-review-id">
@@ -3738,7 +3742,24 @@
       <div style="font-size:.82rem;color:var(--txt3);margin-bottom:.4rem">Submission Details</div>
       <div id="sub-review-details" style="font-size:.86rem;color:var(--txt)"></div>
     </div>
-    <div id="sub-review-files" style="display:flex;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap"></div>
+    <div id="sub-review-files" style="display:flex;gap:.8rem;margin-bottom:.8rem;flex-wrap:wrap"></div>
+
+    <!-- Google Drive Links (Admin provides) -->
+    <div style="background:rgba(66,133,244,.05);border:1px solid rgba(66,133,244,.2);border-radius:10px;padding:.85rem;margin-bottom:.85rem">
+      <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(66,133,244,.9);margin-bottom:.55rem;display:flex;align-items:center;gap:.4rem">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.5"/><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Google Drive Links (Admin)
+      </div>
+      <div class="f-group" style="margin-bottom:.5rem">
+        <label style="font-size:.75rem">Screenshot / Screenshot Drive Link</label>
+        <input type="url" id="sub-gdrive-screenshot" placeholder="https://drive.google.com/file/d/..." style="width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid rgba(66,133,244,.25);background:var(--bg);color:var(--txt);font-family:inherit;font-size:.82rem">
+      </div>
+      <div class="f-group" style="margin-bottom:0">
+        <label style="font-size:.75rem">Report / PDF Drive Link</label>
+        <input type="url" id="sub-gdrive-report" placeholder="https://drive.google.com/file/d/..." style="width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid rgba(66,133,244,.25);background:var(--bg);color:var(--txt);font-family:inherit;font-size:.82rem">
+      </div>
+    </div>
+
     <div class="form-row">
       <div class="f-group">
         <label>Status *</label>
@@ -3840,7 +3861,10 @@ document.querySelectorAll('.nav-item[data-section]').forEach(item => {
     item.classList.add('active');
     const sec = item.dataset.section;
     document.getElementById('section-' + sec).classList.add('active');
-    document.getElementById('topbar-title').textContent = item.textContent.trim();
+    // Get just the text content, excluding badge spans
+    const clone = item.cloneNode(true);
+    clone.querySelectorAll('.badge, span.badge, [class*="badge"]').forEach(b => b.remove());
+    document.getElementById('topbar-title').textContent = clone.textContent.trim();
     loadSection(sec);
   });
 });
@@ -11767,13 +11791,103 @@ async function saveReportReview() {
   loadInternReports();
 }
 
+async function openAdminCreateReportModal() {
+  // Reset all fields
+  document.getElementById('acr-enrollment-id').value  = '';
+  document.getElementById('acr-student-id').value     = '';
+  document.getElementById('acr-date').value           = new Date().toISOString().slice(0, 10);
+  document.getElementById('acr-hours').value          = '';
+  document.getElementById('acr-summary').value        = '';
+  document.getElementById('acr-challenges').value     = '';
+  document.getElementById('acr-plan').value           = '';
+  document.getElementById('acr-mood').value           = '3';
+  document.getElementById('acr-status').value         = 'submitted';
+  document.getElementById('acr-admin-notes').value    = '';
+
+  // Populate enrollment dropdown
+  const sel = document.getElementById('acr-enrollment-sel');
+  sel.innerHTML = '<option value="">Loading…</option>';
+  const { data: enrols } = await db.client
+    .from('internship_enrollments')
+    .select('id, student_user_id, approval_status, internship_projects(project_name)')
+    .in('approval_status', ['approved', 'pending'])
+    .order('enrolled_at', { ascending: false });
+  const sIds = [...new Set((enrols || []).map(e => e.student_user_id).filter(Boolean))];
+  const pm = await _getProfileMap(sIds);
+  sel.innerHTML = '<option value="">— select student / internship —</option>' +
+    (enrols || []).map(e => {
+      const tag = e.approval_status === 'pending' ? ' [Pending]' : '';
+      return `<option value="${e.id}" data-uid="${e.student_user_id}">${_adm_esc(pm[e.student_user_id] || '—')} — ${_adm_esc(e.internship_projects?.project_name || '—')}${tag}</option>`;
+    }).join('');
+
+  openModal('admin-create-report-modal');
+}
+
+function _acrPickEnrollment(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  document.getElementById('acr-enrollment-id').value = sel.value;
+  document.getElementById('acr-student-id').value    = opt?.dataset.uid || '';
+}
+
+async function saveAdminCreateReport() {
+  const enrollId  = document.getElementById('acr-enrollment-id').value;
+  const stuId     = document.getElementById('acr-student-id').value;
+  const date      = document.getElementById('acr-date').value;
+  const hours     = parseFloat(document.getElementById('acr-hours').value);
+  const summary   = document.getElementById('acr-summary').value.trim();
+  const challenges= document.getElementById('acr-challenges').value.trim();
+  const plan      = document.getElementById('acr-plan').value.trim();
+  const mood      = parseInt(document.getElementById('acr-mood').value) || null;
+  const status    = document.getElementById('acr-status').value;
+  const notes     = document.getElementById('acr-admin-notes').value.trim();
+
+  if (!enrollId || !stuId) { _showAdminToast('Please select a student / internship.', 'error'); return; }
+  if (!date)               { _showAdminToast('Report date is required.', 'error'); return; }
+  if (!summary)            { _showAdminToast('Work summary is required.', 'error'); return; }
+  if (isNaN(hours) || hours < 0 || hours > 24) { _showAdminToast('Hours must be between 0 and 24.', 'error'); return; }
+
+  const { data: { user } } = await db.client.auth.getUser();
+  const payload = {
+    enrollment_id:  enrollId,
+    student_user_id: stuId,
+    report_date:    date,
+    hours_worked:   hours,
+    work_summary:   summary,
+    challenges:     challenges || null,
+    next_day_plan:  plan       || null,
+    mood_rating:    mood,
+    report_status:  status,
+    admin_notes:    notes      || null,
+    reviewed_by:    user?.id   || null,
+    reviewed_at:    new Date().toISOString(),
+  };
+
+  const { error } = await db.client.from('internship_daily_reports').insert(payload);
+  if (error) { _showAdminToast('Failed to create report: ' + error.message, 'error'); return; }
+  _showAdminToast('Report created successfully!', 'success');
+  closeModal('admin-create-report-modal');
+  loadInternReports();
+}
+
 /* ============================================================
    ATTENDANCE
    ============================================================ */
+function _atdCalcMins(checkIn, checkOut) {
+  if (!checkIn || !checkOut) return null;
+  const parse = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  let diff = parse(checkOut) - parse(checkIn);
+  if (diff < 0) diff += 1440;
+  return diff;
+}
+function _fmtMins(mins) {
+  if (mins === null || mins === undefined || isNaN(mins)) return '—';
+  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+}
+
 async function loadInternAttendance() {
   const tbody = document.getElementById('itnm-atd-tbody') || document.getElementById('intern-atd-tbody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading…</td></tr>';
   const projF = (document.getElementById('itnm-atd-proj-filter') || document.getElementById('intern-atd-proj-filter'))?.value;
   const dateF = document.getElementById('intern-atd-date-filter')?.value;
 
@@ -11785,32 +11899,58 @@ async function loadInternAttendance() {
   if (projF) q = q.eq('internship_enrollments.project_id', projF);
 
   const { data: records, error } = await q;
-  if (error) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
-  if (!records?.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No records yet. Use "Mark Attendance" to add records.</td></tr>'; return; }
+  if (error) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
+  if (!records?.length) { tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No records yet. Use "Mark Attendance" to add records.</td></tr>'; return; }
 
-  // Fetch student names
   const studentIds = [...new Set(records.map(a => a.student_user_id))];
   const { data: profiles } = await db.client
     .from('user_profiles').select('user_id,full_name,email').in('user_id', studentIds);
   const profMap = {};
   (profiles||[]).forEach(p => { profMap[p.user_id] = p.full_name || p.email || p.user_id.slice(0,8); });
 
+  // Group by student
+  const grouped = new Map();
+  records.forEach(a => {
+    const key = a.student_user_id || 'unknown';
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(a);
+  });
+
   const dotColor = { present:'#4ade80', absent:'#f87171', late:'#fbbf24', half_day:'#60a5fa', holiday:'#a5b4fc', excused:'rgba(200,191,255,.5)' };
-  tbody.innerHTML = records.map(a => {
-    const sName = profMap[a.student_user_id] || '—';
-    const pName = a.internship_enrollments?.internship_projects?.project_name || '—';
-    const col   = dotColor[a.status] || '#fff';
-    return `<tr>
-      <td>${a.attendance_date||'—'}</td>
-      <td>${_adm_esc(sName)}</td>
-      <td>${_adm_esc(pName)}</td>
-      <td><span style="width:9px;height:9px;border-radius:50%;background:${col};display:inline-block;margin-right:5px"></span>${a.status}</td>
-      <td>${a.check_in_time||'—'}</td>
-      <td>${a.check_out_time||'—'}</td>
-      <td style="font-size:.79rem;color:var(--txt2)">${_adm_esc(a.notes||'—')}</td>
-      <td><button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem" onclick="editAttendanceRecord('${a.id}')">Edit</button></td>
+  let html = '';
+  let gIdx = 0;
+  for (const [stuId, rows] of grouped) {
+    const sName  = profMap[stuId] || '—';
+    const gid    = 'atd-grp-' + (gIdx++);
+    const totalMins = rows.reduce((s, a) => s + (_atdCalcMins(a.check_in_time, a.check_out_time) ?? 0), 0);
+    const presentCount = rows.filter(a => a.status === 'present').length;
+
+    html += `<tr class="date-group-header" style="cursor:pointer" onclick="document.querySelectorAll('.${gid}').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.querySelector('.grp-arrow').classList.toggle('grp-open')">
+      <td colspan="9">
+        <span class="grp-arrow grp-open">▾</span>
+        👤 ${_adm_esc(sName)} — ${rows.length} record${rows.length > 1 ? 's' : ''} · Present: ${presentCount} · Total Hours: <strong>${_fmtMins(totalMins)}</strong>
+      </td>
     </tr>`;
-  }).join('');
+
+    html += rows.map(a => {
+      const col       = dotColor[a.status] || '#fff';
+      const pName     = a.internship_enrollments?.internship_projects?.project_name || '—';
+      const rowMins   = _atdCalcMins(a.check_in_time, a.check_out_time);
+      const fmtTime   = t => t ? t.slice(0, 5) : '—';
+      return `<tr class="${gid}">
+        <td>${a.attendance_date || '—'}</td>
+        <td>${_adm_esc(sName)}</td>
+        <td>${_adm_esc(pName)}</td>
+        <td style="font-weight:600;color:var(--v1)">${fmtTime(a.check_in_time)}</td>
+        <td style="font-weight:600;color:#4ade80">${fmtTime(a.check_out_time)}</td>
+        <td style="font-weight:700">${_fmtMins(rowMins)}</td>
+        <td><span style="width:9px;height:9px;border-radius:50%;background:${col};display:inline-block;margin-right:5px"></span>${a.status}</td>
+        <td style="font-size:.79rem;color:var(--txt2)">${_adm_esc(a.notes || '—')}</td>
+        <td><button class="btn-secondary" style="font-size:.72rem;padding:.25rem .55rem" onclick="editAttendanceRecord('${a.id}')">Edit</button></td>
+      </tr>`;
+    }).join('');
+  }
+  tbody.innerHTML = html;
 }
 
 async function openBulkAttendModal() {
@@ -12411,35 +12551,66 @@ async function loadInternTracking() {
 
   const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id).filter(Boolean))]);
   const statusBadge = { active:'badge-green', completed:'badge-blue', auto_closed:'badge-yellow' };
-
   const BRK_LBL={morning_break:'Morning',lunch_break:'Lunch',evening_break:'Evening',tea_break:'Tea',personal_break:'Personal',general:'Break'};
-  tbody.innerHTML = data.map(s => {
-    const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
-    const allBreaks=(s.intern_breaks||[]).sort((a,b)=>a.break_number-b.break_number);
-    const brkSummary=allBreaks.length?allBreaks.map(b=>`${BRK_LBL[b.break_type]||'Brk'}:${b.duration_mins!=null?b.duration_mins:0}m`).join(', '):'N/A';
-    const totalBrk=allBreaks.reduce((sum,b)=>sum+(b.duration_mins||0),0);
-    const gapM=s.gap_mins||0;
-    const netWork=Math.max(0,(s.total_work_mins||0)-totalBrk-gapM);
-    const targetPct=Math.min(100,Math.round((netWork/480)*100));
-    const targetClr=targetPct>=100?'#10b981':(targetPct>=50?'var(--v1)':'#f59e0b');
-    const targetLabel=netWork>=480?'Done'+(netWork>480?' +'+Math.round(netWork-480)+'m':''):(targetPct+'%');
-    return `<tr data-session-id="${s.id}">
-      <td><input type="checkbox" class="itnm-trk-cb" value="${s.id}" onchange="updateTrackingBulkBar()"></td>
-      <td><a href="#" onclick="openStudentDetail('${s.student_user_id}');return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(pm[s.student_user_id]||'—')}</a></td>
-      <td>${s.session_date}</td>
-      <td>${s.day_number}</td>
-      <td>${fmtTime(s.start_time)}</td>
-      <td>${fmtTime(s.end_time)}</td>
-      <td>${s.total_work_mins||0}m</td>
-      <td style="font-size:.72rem;max-width:140px" title="${brkSummary}">${totalBrk}m</td>
-      <td>${gapM}m</td>
-      <td style="font-weight:700;color:var(--v1)">${netWork}m</td>
-      <td style="font-weight:700;color:${targetClr}">${targetLabel}</td>
-      <td style="font-size:.68rem;max-width:100px;word-break:break-all">${s.ip_address||'N/A'}</td>
-      <td><span class="${statusBadge[s.status]||'badge-gray'}">${s.status}</span></td>
-      <td class="action-btns"><button class="action-btn danger" style="font-size:.7rem;padding:.2rem .4rem" onclick="deleteSingleSession('${s.id}')">Delete</button></td>
+  const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
+
+  // Group by student
+  const grouped = new Map();
+  data.forEach(s => {
+    const key = s.student_user_id || 'unknown';
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(s);
+  });
+
+  let html = '';
+  let gIdx = 0;
+  for (const [stuId, sessions] of grouped) {
+    const sName = pm[stuId] || '—';
+    const gid   = 'trk-grp-' + (gIdx++);
+    // Totals for this student
+    let totalNetWork = 0, totalDays = sessions.length;
+    sessions.forEach(s => {
+      const brks = (s.intern_breaks||[]).reduce((sum,b)=>sum+(b.duration_mins||0),0);
+      const gap  = s.gap_mins||0;
+      totalNetWork += Math.max(0,(s.total_work_mins||0)-brks-gap);
+    });
+    const totalH = Math.floor(totalNetWork/60), totalM = totalNetWork%60;
+
+    html += `<tr class="date-group-header" style="cursor:pointer" onclick="document.querySelectorAll('.${gid}').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.querySelector('.grp-arrow').classList.toggle('grp-open')">
+      <td colspan="14">
+        <span class="grp-arrow grp-open">▾</span>
+        👤 ${_adm_esc(sName)} — ${totalDays} session${totalDays>1?'s':''} · Total Active: <strong>${totalH}h ${totalM}m</strong>
+      </td>
     </tr>`;
-  }).join('');
+
+    html += sessions.map(s => {
+      const allBreaks=(s.intern_breaks||[]).sort((a,b)=>a.break_number-b.break_number);
+      const brkSummary=allBreaks.length?allBreaks.map(b=>`${BRK_LBL[b.break_type]||'Brk'}:${b.duration_mins!=null?b.duration_mins:0}m`).join(', '):'N/A';
+      const totalBrk=allBreaks.reduce((sum,b)=>sum+(b.duration_mins||0),0);
+      const gapM=s.gap_mins||0;
+      const netWork=Math.max(0,(s.total_work_mins||0)-totalBrk-gapM);
+      const targetPct=Math.min(100,Math.round((netWork/480)*100));
+      const targetClr=targetPct>=100?'#10b981':(targetPct>=50?'var(--v1)':'#f59e0b');
+      const targetLabel=netWork>=480?'Done'+(netWork>480?' +'+Math.round(netWork-480)+'m':''):(targetPct+'%');
+      return `<tr class="${gid}" data-session-id="${s.id}">
+        <td><input type="checkbox" class="itnm-trk-cb" value="${s.id}" onchange="updateTrackingBulkBar()"></td>
+        <td><a href="#" onclick="openStudentDetail('${s.student_user_id}');return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(sName)}</a></td>
+        <td>${s.session_date}</td>
+        <td>${s.day_number}</td>
+        <td>${fmtTime(s.start_time)}</td>
+        <td>${fmtTime(s.end_time)}</td>
+        <td>${s.total_work_mins||0}m</td>
+        <td style="font-size:.72rem;max-width:140px" title="${brkSummary}">${totalBrk}m</td>
+        <td>${gapM}m</td>
+        <td style="font-weight:700;color:var(--v1)">${netWork}m</td>
+        <td style="font-weight:700;color:${targetClr}">${targetLabel}</td>
+        <td style="font-size:.68rem;max-width:100px;word-break:break-all">${s.ip_address||'N/A'}</td>
+        <td><span class="${statusBadge[s.status]||'badge-gray'}">${s.status}</span></td>
+        <td class="action-btns"><button class="action-btn danger" style="font-size:.7rem;padding:.2rem .4rem" onclick="deleteSingleSession('${s.id}')">Delete</button></td>
+      </tr>`;
+    }).join('');
+  }
+  tbody.innerHTML = html;
 }
 
 /* ── Tracking Bulk Selection ── */
@@ -12463,9 +12634,13 @@ function clearTrackingSelection(){
 async function deleteSingleSession(sessionId){
   if(!(await _adminModal({title:'Delete Session',message:'Delete this work session and all associated data (breaks, app usage)? This cannot be undone.',type:'danger'})))return;
   try{
-    const{data,error}=await db.client.rpc('admin_remove_tracking',{p_session_id:sessionId,p_removal_type:'all_day',p_reason:'Admin manual delete'});
+    // Try RPC cleanup first (ignore if RPC doesn't exist)
+    await db.client.rpc('admin_remove_tracking',{p_session_id:sessionId,p_removal_type:'all_day',p_reason:'Admin manual delete'}).catch(()=>{});
+    // Delete breaks first (cascade may handle this, but ensure)
+    await db.client.from('intern_breaks').delete().eq('session_id',sessionId);
+    // Delete the session
+    const{error}=await db.client.from('intern_work_sessions').delete().eq('id',sessionId);
     if(error)throw error;
-    await db.client.from('intern_work_sessions').delete().eq('id',sessionId);
     _showAdminToast('Session deleted successfully.','success');
     loadInternTracking();
   }catch(e){_showAdminToast('Delete failed: '+(e.message||'Unknown error'),'error')}
@@ -12485,8 +12660,10 @@ async function executeBulkTrackingAction(){
     const sid=cb.value;
     try{
       if(action==='delete_all'){
-        await db.client.rpc('admin_remove_tracking',{p_session_id:sid,p_removal_type:'all_day',p_reason:reason});
-        await db.client.from('intern_work_sessions').delete().eq('id',sid);
+        await db.client.rpc('admin_remove_tracking',{p_session_id:sid,p_removal_type:'all_day',p_reason:reason}).catch(()=>{});
+        await db.client.from('intern_breaks').delete().eq('session_id',sid);
+        const{error:delErr}=await db.client.from('intern_work_sessions').delete().eq('id',sid);
+        if(delErr)throw delErr;
       }else if(action==='delete_app_usage'){
         await db.client.rpc('admin_remove_tracking',{p_session_id:sid,p_removal_type:'app_usage',p_reason:reason});
       }else if(action==='delete_breaks'){
@@ -12864,7 +13041,7 @@ async function loadInternSubmissions() {
   let q = db.client.from('intern_submissions')
     .select('*')
     .order('submitted_at', { ascending: false })
-    .limit(100);
+    .limit(300);
 
   const statusF = document.getElementById('itnm-sub-status-filter')?.value;
   if (statusF) q = q.eq('status', statusF);
@@ -12876,32 +13053,80 @@ async function loadInternSubmissions() {
   const pm = await _getProfileMap([...new Set(data.map(s => s.student_user_id).filter(Boolean))]);
   const sBadge = { submitted:'badge-yellow', reviewed:'badge-blue', approved:'badge-green', rejected:'badge-red' };
 
-  tbody.innerHTML = data.map(s => {
-    const screenshotLink = s.screenshot_url
-      ? `<a href="#" onclick="viewSubFile('${_adm_esc(s.screenshot_url)}');return false" style="color:var(--v1);font-size:.76rem">View</a>`
-      : '—';
-    const reportLink = s.report_file_url
-      ? `<a href="#" onclick="viewSubFile('${_adm_esc(s.report_file_url)}');return false" style="color:var(--v1);font-size:.76rem">${s.report_file_type||'File'}</a>`
-      : '—';
-    return `<tr>
-      <td>${_adm_esc(pm[s.student_user_id]||'—')}</td>
-      <td style="font-weight:600">${_adm_esc(s.submission_title)}</td>
-      <td>${screenshotLink}</td>
-      <td>${reportLink}</td>
-      <td style="font-size:.76rem">${_adm_esc(s.commit_message||'—')}</td>
-      <td><span class="${sBadge[s.status]||'badge-gray'}">${s.status}</span></td>
-      <td>${new Date(s.submitted_at).toLocaleDateString('en-IN')}</td>
-      <td class="action-btns">
-        <button class="action-btn" onclick="openSubReview('${s.id}')">Review</button>
+  // Group by student, keeping newest-first order within each group
+  const grouped = new Map();
+  data.forEach(s => {
+    const key = s.student_user_id || 'unknown';
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(s);
+  });
+
+  let html = '';
+  let gIdx = 0;
+  for (const [stuId, rows] of grouped) {
+    const sName = pm[stuId] || '—';
+    const gid   = 'sub-grp-' + (gIdx++);
+    const approved = rows.filter(r => r.status === 'approved').length;
+    const pending  = rows.filter(r => r.status === 'submitted').length;
+
+    html += `<tr class="date-group-header" style="cursor:pointer" onclick="document.querySelectorAll('.${gid}').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.querySelector('.grp-arrow').classList.toggle('grp-open')">
+      <td colspan="8">
+        <span class="grp-arrow grp-open">▾</span>
+        👤 ${_adm_esc(sName)} — ${rows.length} submission${rows.length > 1 ? 's' : ''} · Approved: ${approved} · Pending: ${pending}
       </td>
     </tr>`;
-  }).join('');
+
+    html += rows.map(s => {
+      const isDriveScreen = s.screenshot_url?.includes('drive.google.com');
+      const isDriveReport = s.report_file_url?.includes('drive.google.com');
+      const screenshotLink = s.screenshot_url
+        ? `<a href="${isDriveScreen ? _normalizeGDriveUrl(s.screenshot_url) : '#'}" ${isDriveScreen ? 'target="_blank"' : `onclick="viewSubFile('${_adm_esc(s.screenshot_url)}');return false"`} style="color:${isDriveScreen?'#4285f4':'var(--v1)'};font-size:.76rem;display:inline-flex;align-items:center;gap:.2rem">${isDriveScreen?'<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l3.43 5.5h15.84l3.43-5.5-3.43-5.5H7.71zm0 3l2.67 4.5H5.04L7.71 6.5zm8.58 0l2.67 4.5h-5.34l2.67-4.5z"/></svg>':''}View</a>`
+        : '—';
+      const reportLink = s.report_file_url
+        ? `<a href="${isDriveReport ? _normalizeGDriveUrl(s.report_file_url) : '#'}" ${isDriveReport ? 'target="_blank"' : `onclick="viewSubFile('${_adm_esc(s.report_file_url)}');return false"`} style="color:${isDriveReport?'#4285f4':'var(--v1)'};font-size:.76rem;display:inline-flex;align-items:center;gap:.2rem">${isDriveReport?'<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l3.43 5.5h15.84l3.43-5.5-3.43-5.5H7.71zm0 3l2.67 4.5H5.04L7.71 6.5zm8.58 0l2.67 4.5h-5.34l2.67-4.5z"/></svg>':''}${s.report_file_type || 'pdf'}</a>`
+        : '—';
+      return `<tr class="${gid}">
+        <td>${_adm_esc(sName)}</td>
+        <td style="font-weight:600">${_adm_esc(s.submission_title)}</td>
+        <td>${screenshotLink}</td>
+        <td>${reportLink}</td>
+        <td style="font-size:.76rem">${_adm_esc(s.commit_message || '—')}</td>
+        <td><span class="${sBadge[s.status] || 'badge-gray'}">${s.status}</span></td>
+        <td>${new Date(s.submitted_at).toLocaleDateString('en-IN')}</td>
+        <td class="action-btns" style="display:flex;gap:.3rem">
+          <button class="action-btn" onclick="openSubReview('${s.id}')">Review</button>
+          <button class="action-btn danger" onclick="deleteSubmission('${s.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  tbody.innerHTML = html;
+}
+
+async function deleteSubmission(subId) {
+  if (!(await _adminModal({ title:'Delete Submission', message:'Delete this submission permanently? This cannot be undone.', type:'danger' }))) return;
+  const { error } = await db.client.from('intern_submissions').delete().eq('id', subId);
+  if (error) { _showAdminToast('Delete failed: ' + error.message, 'error'); return; }
+  _showAdminToast('Submission deleted.', 'success');
+  loadInternSubmissions();
+}
+
+function _normalizeGDriveUrl(url) {
+  // Convert Google Drive share URL to direct view/embed URL
+  // e.g. https://drive.google.com/file/d/FILE_ID/view?usp=sharing → https://drive.google.com/file/d/FILE_ID/view
+  // e.g. https://drive.google.com/open?id=FILE_ID → https://drive.google.com/file/d/FILE_ID/view
+  if (!url || !url.includes('drive.google.com')) return url;
+  const openMatch = url.match(/[?&]id=([^&]+)/);
+  if (openMatch) return `https://drive.google.com/file/d/${openMatch[1]}/view`;
+  const fileMatch = url.match(/\/file\/d\/([^/]+)/);
+  if (fileMatch) return `https://drive.google.com/file/d/${fileMatch[1]}/view`;
+  return url;
 }
 
 async function viewSubFile(path) {
   if (!path) { _showAdminToast('No file path available.','error'); return; }
   if (path.startsWith('http://') || path.startsWith('https://')) {
-    window.open(path, '_blank');
+    window.open(_normalizeGDriveUrl(path), '_blank');
     return;
   }
   const { data, error } = await db.client.storage.from('intern-submissions').createSignedUrl(path, 300);
@@ -12929,24 +13154,33 @@ async function openSubReview(subId) {
 
   document.getElementById('sub-review-status').value = s.status === 'submitted' ? 'reviewed' : s.status;
   document.getElementById('sub-review-feedback').value = s.admin_feedback || '';
+  // Prefill Google Drive links if already stored
+  document.getElementById('sub-gdrive-screenshot').value = (s.screenshot_url?.startsWith('https://drive.google.com') ? s.screenshot_url : '') || '';
+  document.getElementById('sub-gdrive-report').value = (s.report_file_url?.startsWith('https://drive.google.com') ? s.report_file_url : '') || '';
   openModal('sub-review-modal');
 }
 
 async function saveSubReview() {
-  const subId = document.getElementById('sub-review-id').value;
-  const status = document.getElementById('sub-review-status').value;
+  const subId    = document.getElementById('sub-review-id').value;
+  const status   = document.getElementById('sub-review-status').value;
   const feedback = document.getElementById('sub-review-feedback').value.trim();
+  const driveScreenshot = document.getElementById('sub-gdrive-screenshot').value.trim();
+  const driveReport     = document.getElementById('sub-gdrive-report').value.trim();
   const { data: admin } = await db.client.auth.getUser();
 
-  const { error } = await db.client.from('intern_submissions').update({
+  const payload = {
     status,
     admin_feedback: feedback || null,
     reviewed_by: admin?.user?.id || null,
     reviewed_at: new Date().toISOString()
-  }).eq('id', subId);
+  };
+  // If admin provided a Google Drive link, store it as the canonical URL
+  if (driveScreenshot) payload.screenshot_url = driveScreenshot;
+  if (driveReport)     { payload.report_file_url = driveReport; payload.report_file_type = 'pdf'; }
 
+  const { error } = await db.client.from('intern_submissions').update(payload).eq('id', subId);
   if (error) { _showAdminToast('Review failed: ' + error.message, 'error'); return; }
-  _showAdminToast('Submission reviewed!', 'success');
+  _showAdminToast('Submission reviewed & links saved!', 'success');
   closeModal('sub-review-modal');
   loadInternSubmissions();
 }
@@ -12992,15 +13226,28 @@ async function loadAppUsage() {
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Loading…</td></tr>';
 
-  let q = db.client.from('intern_app_usage')
-    .select('*, intern_work_sessions(session_date, ip_address)')
-    .order('recorded_at', { ascending: false })
-    .limit(500);
-
   const studentF = document.getElementById('itnm-au-student-filter')?.value;
-  const dateF = document.getElementById('itnm-au-date-filter')?.value;
+  const dateF    = document.getElementById('itnm-au-date-filter')?.value;
+
+  // Fetch sessions first so we can map session_id → date/ip and apply date filter server-side
+  let sessQ = db.client.from('intern_work_sessions').select('id,session_date,ip_address,student_user_id').order('session_date',{ascending:false});
+  if (studentF) sessQ = sessQ.eq('student_user_id', studentF);
+  if (dateF)    sessQ = sessQ.eq('session_date', dateF);
+  const { data: sessions } = await sessQ;
+  const sessMap = {};
+  (sessions||[]).forEach(s => { sessMap[s.id] = { date: s.session_date, ip: s.ip_address }; });
+  const validSessIds = (sessions||[]).map(s => s.id);
+
+  let q = db.client.from('intern_app_usage')
+    .select('app_name,window_title,active_seconds,recorded_at,session_id,student_user_id,ip_address,category')
+    .order('recorded_at', { ascending: false })
+    .limit(5000);
   if (studentF) q = q.eq('student_user_id', studentF);
-  if (dateF) q = q.eq('intern_work_sessions.session_date', dateF);
+  if (dateF && validSessIds.length) q = q.in('session_id', validSessIds);
+  else if (dateF && !validSessIds.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No app usage for selected date.</td></tr>';
+    return;
+  }
 
   const { data, error } = await q;
   if (error) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty" style="color:#f87171">${error.message}</td></tr>`; return; }
@@ -13008,62 +13255,85 @@ async function loadAppUsage() {
 
   const pm = await _getProfileMap([...new Set(data.map(a => a.student_user_id).filter(Boolean))]);
 
-  /* Group by student_user_id + session_id */
-  const groups = {};
-  data.forEach(a => {
-    const key = (a.student_user_id||'') + '|' + (a.session_id||'');
-    if (!groups[key]) {
-      groups[key] = {
-        student_user_id: a.student_user_id,
-        session_id: a.session_id,
-        session_date: a.intern_work_sessions?.session_date || '',
-        ip_address: a.intern_work_sessions?.ip_address || '',
-        total_seconds: 0,
-        apps: {}
-      };
-    }
-    groups[key].total_seconds += (a.active_seconds || 0);
-    const appName = a.app_name || 'Unknown';
-    if (!groups[key].apps[appName]) groups[key].apps[appName] = 0;
-    groups[key].apps[appName] += (a.active_seconds || 0);
-  });
-
-  /* Sort groups by session_date descending */
-  const sorted = Object.values(groups).sort((a, b) => (b.session_date || '').localeCompare(a.session_date || ''));
-
-  function _fmtTime(sec) {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
+  function _fmtSec(sec) {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
     if (h > 0) return h + 'h ' + m + 'm';
     if (m > 0) return m + 'm';
     return sec + 's';
   }
 
-  tbody.innerHTML = sorted.map((g, idx) => {
-    const appEntries = Object.entries(g.apps).sort((a, b) => b[1] - a[1]);
-    const appSummary = appEntries.slice(0, 3).map(([n]) => _adm_esc(n)).join(', ') + (appEntries.length > 3 ? ' +' + (appEntries.length - 3) + ' more' : '');
-    const detailId = 'au-detail-' + idx;
-    const appDetail = appEntries.map(([n, s]) =>
-      '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)">' +
-        '<span style="font-weight:500">' + _adm_esc(n) + '</span>' +
-        '<span style="color:var(--v1);font-weight:600">' + _fmtTime(s) + '</span>' +
-      '</div>'
-    ).join('');
+  /* Build: student → day → apps */
+  const byStudent = {};
+  data.forEach(a => {
+    const stuId    = a.student_user_id || 'unknown';
+    const sessInfo = sessMap[a.session_id] || {};
+    const date     = sessInfo.date || (a.recorded_at ? a.recorded_at.slice(0,10) : 'Unknown Date');
+    const sid      = a.session_id || date;
+    const ip       = sessInfo.ip || a.ip_address || '—';
+    if (!byStudent[stuId]) byStudent[stuId] = { total: 0, sessions: {} };
+    byStudent[stuId].total += (a.active_seconds || 0);
+    if (!byStudent[stuId].sessions[sid]) byStudent[stuId].sessions[sid] = { date, ip, total: 0, apps: {} };
+    byStudent[stuId].sessions[sid].total += (a.active_seconds || 0);
+    const n = a.app_name || 'Unknown';
+    byStudent[stuId].sessions[sid].apps[n] = (byStudent[stuId].sessions[sid].apps[n] || 0) + (a.active_seconds || 0);
+  });
 
-    return `<tr style="cursor:pointer" onclick="var d=document.getElementById('${detailId}');d.style.display=d.style.display==='none'?'table-row':'none'">
-      <td><a href="#" onclick="openStudentDetail('${g.student_user_id}');event.stopPropagation();return false" style="color:var(--v1);font-weight:600;text-decoration:underline;cursor:pointer">${_adm_esc(pm[g.student_user_id]||'—')}</a></td>
-      <td>${_adm_esc(g.session_date || '—')}</td>
-      <td style="font-size:.8rem">${_adm_esc(g.ip_address || '—')}</td>
-      <td style="font-size:.8rem">${appSummary}</td>
-      <td style="font-weight:600">${_fmtTime(g.total_seconds)}</td>
-    </tr>
-    <tr id="${detailId}" style="display:none">
-      <td colspan="5" style="padding:12px 20px;background:rgba(245,158,11,.04);border-left:3px solid var(--v1)">
-        <div style="font-weight:700;margin-bottom:8px;font-size:.82rem;color:var(--v1)">App Breakdown (${appEntries.length} app${appEntries.length!==1?'s':''})</div>
-        <div style="max-width:400px">${appDetail}</div>
+  let html = '';
+  let gIdx = 0;
+
+  // Sort students by their latest session date descending
+  const stuEntries = Object.entries(byStudent).sort(([,a],[,b]) => {
+    const aMax = Object.values(a.sessions).map(s=>s.date).sort().pop() || '';
+    const bMax = Object.values(b.sessions).map(s=>s.date).sort().pop() || '';
+    return bMax.localeCompare(aMax);
+  });
+
+  for (const [stuId, stuData] of stuEntries) {
+    const sName = pm[stuId] || '—';
+    const gid   = 'au-stu-' + (gIdx++);
+    const days  = Object.values(stuData.sessions).length;
+
+    // Student-level header row (click to expand/collapse all days)
+    html += `<tr class="date-group-header" style="cursor:pointer" onclick="document.querySelectorAll('.${gid}').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.querySelector('.grp-arrow').classList.toggle('grp-open')">
+      <td colspan="5">
+        <span class="grp-arrow grp-open">▾</span>
+        👤 ${_adm_esc(sName)} — ${days} day${days>1?'s':''} · Total: <strong>${_fmtSec(stuData.total)}</strong>
       </td>
     </tr>`;
-  }).join('');
+
+    // Sort sessions by date descending
+    const sessions = Object.values(stuData.sessions).sort((a,b) => b.date.localeCompare(a.date));
+
+    sessions.forEach((sess, sIdx) => {
+      const dayRowId  = gid + '-day-' + sIdx;
+      const appDetailId = gid + '-apps-' + sIdx;
+      const appEntries  = Object.entries(sess.apps).sort((a,b) => b[1]-a[1]);
+      const appSummary  = appEntries.slice(0,3).map(([n])=>_adm_esc(n)).join(', ') + (appEntries.length>3?' +'+(appEntries.length-3)+' more':'');
+      const appDetail   = appEntries.map(([n,s]) =>
+        `<div style="display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid rgba(255,255,255,.06)">
+          <span style="font-weight:500">${_adm_esc(n)}</span>
+          <span style="color:var(--v1);font-weight:600">${_fmtSec(s)}</span>
+        </div>`
+      ).join('');
+
+      // Day row (also clickable to expand app breakdown)
+      html += `<tr class="${gid} ${dayRowId}" style="cursor:pointer" onclick="var d=document.getElementById('${appDetailId}');if(d){d.style.display=d.style.display==='none'?'table-row':'none'}">
+        <td style="padding-left:2rem;font-size:.82rem">📅 ${_adm_esc(sess.date)}</td>
+        <td style="font-size:.78rem;color:var(--txt3)">${_adm_esc(sess.ip)}</td>
+        <td colspan="2" style="font-size:.78rem;color:var(--txt2)">${appSummary} <span style="font-size:.7rem;color:var(--txt4)">(click to expand)</span></td>
+        <td style="font-weight:700;color:var(--v1)">${_fmtSec(sess.total)}</td>
+      </tr>`;
+
+      // App breakdown row (hidden by default)
+      html += `<tr id="${appDetailId}" class="${gid}" style="display:none">
+        <td colspan="5" style="padding:10px 2.5rem;background:rgba(245,158,11,.04);border-left:3px solid var(--v1)">
+          <div style="font-weight:700;margin-bottom:6px;font-size:.79rem;color:var(--v1)">App Breakdown — ${_adm_esc(sess.date)} (${appEntries.length} app${appEntries.length!==1?'s':''})</div>
+          <div style="max-width:420px">${appDetail}</div>
+        </td>
+      </tr>`;
+    });
+  }
+  tbody.innerHTML = html;
 }
 
 /* ── Generic CSV export helper ── */
@@ -13338,165 +13608,486 @@ async function saveClientPayment(){
    DETAILED STUDENT REPORT (Internships)
    ============================================================ */
 async function loadDetailedReport(){
-  const studentId=document.getElementById('dr-student-select')?.value;
-  const el=document.getElementById('dr-content');
-  if(!studentId){el.innerHTML='<p style="text-align:center;color:var(--txt3);font-size:.88rem">Select a student to view their detailed report.</p>';return;}
-  el.innerHTML='<p style="text-align:center;color:var(--txt3)">Loading report…</p>';
+  const studentId = document.getElementById('dr-student-select')?.value;
+  const el = document.getElementById('dr-content');
+  if (!studentId) { el.innerHTML='<p style="text-align:center;color:var(--txt3);font-size:.88rem">Select a student to view their detailed report.</p>'; return; }
+  el.innerHTML = '<p style="text-align:center;color:var(--txt3);padding:2rem">Loading report…</p>';
+
   const [
-    {data:enrol},{data:sessions},{data:mods},{data:subs},{data:appUsage},{data:progAssign}
+    {data:enrol}, {data:sessions}, {data:mods}, {data:subs},
+    {data:appUsage}, {data:progAssign}, {data:attendance}, {data:dailyRpts}, {data:profile}
   ] = await Promise.all([
     db.client.from('internship_enrollments').select('*,internship_projects(*)').eq('student_user_id',studentId).eq('approval_status','approved').limit(1).maybeSingle(),
-    db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:true}),
+    db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:false}),
     db.client.from('intern_modules').select('*').eq('student_user_id',studentId).order('day_number',{ascending:true}),
     db.client.from('intern_submissions').select('*').eq('student_user_id',studentId).order('submitted_at',{ascending:false}),
-    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at,ip_address,category').eq('student_user_id',studentId),
-    db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name,git_push_link)').eq('student_user_id',studentId).order('assigned_at',{ascending:true})
+    db.client.from('intern_app_usage').select('app_name,window_title,active_seconds,recorded_at,ip_address,category,session_id').eq('student_user_id',studentId).order('recorded_at',{ascending:false}),
+    db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name,git_push_link)').eq('student_user_id',studentId).order('assigned_at',{ascending:true}),
+    db.client.from('internship_attendance').select('*').eq('student_user_id',studentId).order('attendance_date',{ascending:false}),
+    db.client.from('internship_daily_reports').select('*').eq('student_user_id',studentId).order('report_date',{ascending:false}),
+    db.client.from('user_profiles').select('full_name,email,phone,created_at').eq('user_id',studentId).maybeSingle()
   ]);
-  const pm=await _getProfileMap([studentId]);
-  const name=pm[studentId]||'Student';
-  const proj=enrol?.internship_projects;
-  const totalDays=(sessions||[]).length;
-  const totalWorkMins=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
-  const totalBreakMins=(sessions||[]).reduce((s,x)=>{
-    return s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
-  },0);
-  const totalGapMins=(sessions||[]).reduce((s,x)=>s+(x.gap_mins||0),0);
-  const netCodingMins=Math.max(0,totalWorkMins-totalBreakMins-totalGapMins);
-  const targetTotalMins=totalDays*480;
-  const isOverTarget=netCodingMins>=targetTotalMins&&targetTotalMins>0;
-  const completedMods=(mods||[]).filter(m=>m.status==='completed'||m.status==='reviewed').length;
-  const completedProg=(progAssign||[]).filter(a=>a.status==='completed').length;
 
-  const appMap={};
+  const pm = await _getProfileMap([studentId]);
+  const name = pm[studentId] || 'Student';
+  const proj = enrol?.internship_projects;
+
+  // ── Computed stats ──
+  const fmtM = m => `${Math.floor(m/60)}h ${m%60}m`;
+  const fmtSec = s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'m':m>0?m+'m':s+'s'; };
+  const fmtDate2 = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+  const fmtTime2 = t => t ? new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) : '—';
+
+  const totalDays      = (sessions||[]).length;
+  const totalWorkMins  = (sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+  const totalBreakMins = (sessions||[]).reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
+  const totalGapMins   = (sessions||[]).reduce((s,x)=>s+(x.gap_mins||0),0);
+  const netMins        = Math.max(0,totalWorkMins-totalBreakMins-totalGapMins);
+  const target         = totalDays*480;
+  const isOver         = netMins>=target&&target>0;
+  const presentDays    = (attendance||[]).filter(a=>a.status==='present').length;
+  const atdPct         = totalDays ? Math.round((presentDays/totalDays)*100) : 0;
+  const completedMods  = (mods||[]).filter(m=>m.status==='completed'||m.status==='reviewed').length;
+  const completedProg  = (progAssign||[]).filter(a=>a.status==='completed').length;
+
+  // ── App usage aggregation ──
+  const appMap={}, aiUsage={};
   const aiTools=['chatgpt','claude','copilot','gemini','bard','perplexity','phind','cursor'];
-  const aiUsage={};
   (appUsage||[]).forEach(a=>{
     appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0);
-    const title=(a.window_title||'').toLowerCase();
-    const foundAI=aiTools.find(t=>title.includes(t));
-    if(foundAI) aiUsage[foundAI]=(aiUsage[foundAI]||0)+(a.active_seconds||0);
+    const t=(a.window_title||'').toLowerCase();
+    const ai=aiTools.find(k=>t.includes(k));
+    if(ai) aiUsage[ai]=(aiUsage[ai]||0)+(a.active_seconds||0);
   });
-  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]).slice(0,12);
   const aiEntries=Object.entries(aiUsage).sort((a,b)=>b[1]-a[1]);
 
-  let teamHtml='';
-  let teamNames=[];
-  if(enrol?.project_id){
-    const {data:teamEnrols}=await db.client.from('internship_enrollments').select('student_user_id').eq('project_id',enrol.project_id).eq('approval_status','approved');
-    const teamIds=(teamEnrols||[]).map(t=>t.student_user_id).filter(Boolean);
-    if(teamIds.length>0){
-      const teamPm=await _getProfileMap(teamIds);
-      teamNames=teamIds.map(id=>teamPm[id]||'Unknown');
-      teamHtml=`<div style="margin-top:.7rem;padding:.6rem 1rem;background:var(--panel);border:1px solid var(--border);border-radius:10px;display:inline-block">
-        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt4);margin-bottom:.3rem">Team Members</div>
-        <div style="font-size:.82rem;font-weight:600;color:var(--txt2)">${teamNames.map(n=>_adm_esc(n)).join(' &bull; ')}</div>
-      </div>`;
-    }
-  }
-
-  const isPaid=proj?.is_paid;
-  const sb={submitted:'badge-yellow',reviewed:'badge-blue',approved:'badge-green',rejected:'badge-red',pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red',assigned:'badge-blue',active:'badge-blue'};
-  const fmtMins=m=>`${Math.floor(m/60)}h ${m%60}m`;
-
-  // Date-wise app usage for per-date breakdown
+  // date-wise app grouping — use session_date from sessions for accuracy
+  const sessDateMap={};
+  (sessions||[]).forEach(s=>{ sessDateMap[s.id]=s.session_date; });
   const dateAppMap={};
   (appUsage||[]).forEach(a=>{
-    const d=a.recorded_at?new Date(a.recorded_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Unknown';
-    if(!dateAppMap[d])dateAppMap[d]=[];
-    dateAppMap[d].push({app:a.app_name,title:a.window_title,secs:a.active_seconds||0});
+    const d=sessDateMap[a.session_id]||(a.recorded_at?a.recorded_at.slice(0,10):'unknown');
+    if(!dateAppMap[d])dateAppMap[d]={};
+    dateAppMap[d][a.app_name]=(dateAppMap[d][a.app_name]||0)+(a.active_seconds||0);
   });
 
+  // Internship duration from enrollment dates
+  const _dayDiff=(a,b)=>Math.round((new Date(b)-new Date(a))/(1000*60*60*24));
+  const internStart=enrol?.start_date;
+  const internEnd=enrol?.end_date;
+  const totalInternDays=internStart&&internEnd?_dayDiff(internStart,internEnd):50;
+  const daysElapsed=internStart?Math.min(_dayDiff(internStart,new Date().toISOString().slice(0,10)),totalInternDays):totalDays;
+
+  const sb={submitted:'badge-yellow',reviewed:'badge-blue',approved:'badge-green',rejected:'badge-red',pending:'badge-gray',in_progress:'badge-yellow',completed:'badge-green',blocked:'badge-red',assigned:'badge-blue',active:'badge-blue',present:'badge-green',absent:'badge-red',late:'badge-yellow',half_day:'badge-blue'};
+  const moodEmoji={1:'😤',2:'😕',3:'😐',4:'😊',5:'🤩'};
+  const dotCol={present:'#4ade80',absent:'#f87171',late:'#fbbf24',half_day:'#60a5fa',holiday:'#a5b4fc'};
+
   el.innerHTML=`
-  <div style="text-align:center;margin-bottom:2rem;padding:1.5rem 1rem;border-bottom:3px solid var(--border);background:linear-gradient(180deg,rgba(68,25,152,.03),transparent);border-radius:var(--r) var(--r) 0 0">
-    <h2 style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--v1),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem;letter-spacing:-.02em">SkillUpNow</h2>
-    <p style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--txt4);margin-bottom:.6rem">Internship Progress Report</p>
-    <div style="font-size:.95rem;font-weight:800;color:var(--txt);margin-top:.5rem">${_adm_esc(proj?.project_name||'N/A')} ${isPaid?'<span class="badge-yellow" style="margin-left:.4rem">Paid</span>':'<span class="badge-green" style="margin-left:.4rem">Free</span>'}</div>
-    ${teamHtml}
+  <!-- ── Report Header ── -->
+  <div style="padding:1.5rem 1.2rem 1.2rem;background:linear-gradient(135deg,rgba(68,25,152,.06),rgba(245,158,11,.04));border:1px solid rgba(124,92,252,.15);border-radius:12px;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <div style="width:60px;height:60px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4rem;font-weight:900;flex-shrink:0;box-shadow:0 6px 18px rgba(68,25,152,.3)">${name.charAt(0).toUpperCase()}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:1.15rem;font-weight:900;color:var(--txt)">${_adm_esc(name)}</div>
+      <div style="font-size:.76rem;color:var(--txt3);margin-top:.1rem">${_adm_esc(profile?.email||'—')} ${profile?.phone?'· '+_adm_esc(profile.phone):''}</div>
+      <div style="font-size:.76rem;color:var(--txt4);margin-top:.1rem">Enrolled: ${fmtDate2(enrol?.enrolled_at)}${internStart?' · Start: '+internStart:''}${internEnd?' · End: '+internEnd:''} · Generated: ${fmtDate2(new Date())} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:.75rem;font-weight:700;color:var(--txt4);text-transform:uppercase;letter-spacing:.08em">${_adm_esc(proj?.project_name||'—')}</div>
+    </div>
   </div>
 
-  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding:0 .5rem;flex-wrap:wrap">
-    <div style="width:52px;height:52px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;font-weight:800;flex-shrink:0;box-shadow:0 4px 14px rgba(68,25,152,.25)">${name.charAt(0).toUpperCase()}</div>
-    <div style="flex:1"><div style="font-size:1.1rem;font-weight:800">${_adm_esc(name)}</div><div style="font-size:.76rem;color:var(--txt3)">Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div></div>
+  <!-- ── KPI Strip ── -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.6rem;margin-bottom:1.2rem">
+    ${[
+      ['Days Worked',totalDays+' / '+totalInternDays,'#7c3aed'],
+      ['Days Elapsed',daysElapsed+' / '+totalInternDays,daysElapsed>=totalInternDays?'#f59e0b':'#10b981'],
+      ['Active Work',fmtM(netMins),'#10b981'],
+      ['Avg / Day',totalDays?fmtM(Math.round(netMins/totalDays)):'—','#7c3aed'],
+      ['Attendance',presentDays+' / '+totalDays,atdPct>=75?'#10b981':'#f59e0b'],
+      ['Modules Done',`${completedMods+completedProg} / ${(mods||[]).length+(progAssign||[]).length}`,'#7c3aed'],
+      ['Submissions',(subs||[]).length,'#f59e0b'],
+      ['Daily Reports',(dailyRpts||[]).length,'#60a5fa'],
+    ].map(([lbl,val,clr])=>`
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;text-align:center">
+        <div style="font-size:1rem;font-weight:900;color:${clr}">${val}</div>
+        <div style="font-size:.64rem;font-weight:700;color:var(--txt4);text-transform:uppercase;letter-spacing:.06em;margin-top:.15rem">${lbl}</div>
+      </div>`).join('')}
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:1rem">
-    <div class="dr-card"><h4>Overview</h4>
-      <div class="dr-stat"><span class="dr-stat-label">Total Days Worked</span><span class="dr-stat-val">${totalDays} / 50</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Total Work Time</span><span class="dr-stat-val">${fmtMins(totalWorkMins)}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Total Break Time</span><span class="dr-stat-val">${fmtMins(totalBreakMins)}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Total Gap/Idle Time</span><span class="dr-stat-val" style="color:#f43f5e">${fmtMins(totalGapMins)}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Active Working Time</span><span class="dr-stat-val" style="color:var(--v1);font-size:1rem">${fmtMins(netCodingMins)}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Avg Active Work / Day</span><span class="dr-stat-val">${totalDays?fmtMins(Math.round(netCodingMins/totalDays)):'—'}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Target (8h/day)</span><span class="dr-stat-val">${fmtMins(targetTotalMins)}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">${isOverTarget?'Overtime':'Hours Remaining'}</span><span class="dr-stat-val" style="color:${isOverTarget?'#10b981':'#f59e0b'}">${isOverTarget?'+'+fmtMins(netCodingMins-targetTotalMins):fmtMins(Math.max(0,targetTotalMins-netCodingMins))}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Modules Assigned</span><span class="dr-stat-val">${(mods||[]).length + (progAssign||[]).length}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Modules Completed</span><span class="dr-stat-val">${completedMods + completedProg}</span></div>
-      <div class="dr-stat"><span class="dr-stat-label">Submissions</span><span class="dr-stat-val">${(subs||[]).length}</span></div>
+  <!-- ── Admin Notes ── -->
+  <div class="dr-card">
+    <h4>📝 Admin Notes & Observations</h4>
+    <textarea id="dr-admin-notes" style="width:100%;min-height:100px;padding:.65rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg);color:var(--txt);font-family:inherit;font-size:.84rem;resize:vertical;line-height:1.6" placeholder="Write observations, feedback, performance notes, red flags, or achievements about this student…">${_adm_esc(enrol?.admin_notes||'')}</textarea>
+    <div style="display:flex;gap:.6rem;margin-top:.6rem;align-items:center">
+      <button class="btn-primary" style="font-size:.78rem;padding:.3rem .8rem" onclick="saveDrAdminNotes('${enrol?.id||''}','${studentId}')">Save Notes</button>
+      <span id="dr-notes-saved" style="font-size:.74rem;color:#10b981;display:none">✓ Saved</span>
     </div>
+  </div>
 
-    <div class="dr-card"><h4>Daily Work Log</h4>
-      ${(sessions||[]).length?`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;border-collapse:collapse">
-        <thead><tr style="border-bottom:2px solid var(--border)">
-          <th style="text-align:left;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Date</th>
-          <th style="text-align:center;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Login</th>
-          <th style="text-align:center;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Logout</th>
-          <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Work</th>
-          <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Break</th>
-          <th style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">Net Coding</th>
-          <th style="text-align:center;padding:.4rem .5rem;font-weight:700;color:var(--txt2)">IP Address</th>
-        </tr></thead>
-        <tbody>${(sessions||[]).map(s=>{
-          const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
-          const net=Math.max(0,(s.total_work_mins||0)-brk);
-          const login=s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-          const logout=s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}):'—';
-          return `<tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:.4rem .5rem">${s.session_date?new Date(s.session_date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—'}</td>
-            <td style="text-align:center;padding:.4rem .5rem;color:#10b981;font-weight:600">${login}</td>
-            <td style="text-align:center;padding:.4rem .5rem;color:var(--v1);font-weight:600">${logout}</td>
-            <td style="text-align:right;padding:.4rem .5rem">${s.total_work_mins||0}m</td>
-            <td style="text-align:right;padding:.4rem .5rem">${brk}m</td>
-            <td style="text-align:right;padding:.4rem .5rem;font-weight:700;color:var(--v1)">${net}m</td>
-            <td style="text-align:center;padding:.4rem .5rem;font-size:.7rem">${s.ip_address||'N/A'}</td>
-          </tr>`;
-        }).join('')}</tbody>
-      </table></div>`:'<p style="color:var(--txt3);font-size:.82rem">No work sessions recorded.</p>'}
+  <!-- ── Attendance ── -->
+  <div class="dr-card">
+    <h4>📅 Attendance Record</h4>
+    ${(attendance||[]).length ? `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.4rem;margin-bottom:.75rem">
+      ${['present','absent','late','half_day'].map(s=>{const c=(attendance||[]).filter(a=>a.status===s).length;return c?`<div style="padding:.45rem .7rem;border-radius:8px;background:${dotCol[s]||'#fff'}18;border:1px solid ${dotCol[s]||'#fff'}33;font-size:.78rem;font-weight:700"><span style="color:${dotCol[s]||'#fff'}">${s.replace('_',' ')}</span>: ${c}</div>`:''}).join('')}
     </div>
+    <div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;border-collapse:collapse">
+      <thead><tr style="border-bottom:2px solid var(--border)">
+        <th style="text-align:left;padding:.35rem .5rem;color:var(--txt2)">Date</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Status</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Login</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Logout</th>
+        <th style="text-align:right;padding:.35rem .5rem;color:var(--txt2)">Hours</th>
+        <th style="text-align:left;padding:.35rem .5rem;color:var(--txt2)">Notes</th>
+      </tr></thead>
+      <tbody>${(attendance||[]).map(a=>{
+        const col=dotCol[a.status]||'#fff';
+        const mins=_atdCalcMins(a.check_in_time,a.check_out_time);
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:.35rem .5rem">${a.attendance_date||'—'}</td>
+          <td style="text-align:center;padding:.35rem .5rem"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.74rem;font-weight:600;color:${col}"><span style="width:7px;height:7px;border-radius:50%;background:${col};display:inline-block"></span>${a.status}</span></td>
+          <td style="text-align:center;padding:.35rem .5rem;color:#10b981;font-weight:600">${a.check_in_time?a.check_in_time.slice(0,5):'—'}</td>
+          <td style="text-align:center;padding:.35rem .5rem;color:var(--v1);font-weight:600">${a.check_out_time?a.check_out_time.slice(0,5):'—'}</td>
+          <td style="text-align:right;padding:.35rem .5rem;font-weight:700">${_fmtMins(mins)}</td>
+          <td style="padding:.35rem .5rem;font-size:.73rem;color:var(--txt3)">${_adm_esc(a.notes||'—')}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>` : '<p style="color:var(--txt3);font-size:.82rem">No attendance records.</p>'}
+  </div>
 
-    ${aiEntries.length?`<div class="dr-card"><h4>AI Tool Usage (Confidential)</h4>
-      <ul class="dr-list">${aiEntries.map(([tool,secs])=>`<li><span style="font-weight:600;text-transform:capitalize">${_adm_esc(tool)}</span><span style="color:var(--v1);font-weight:700">${Math.floor(secs/60)}m</span></li>`).join('')}</ul>
-    </div>`:''}
+  <!-- ── Daily Work Sessions ── -->
+  <div class="dr-card">
+    <h4>⏱ Daily Work Sessions</h4>
+    ${(sessions||[]).length ? `<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;border-collapse:collapse">
+      <thead><tr style="border-bottom:2px solid var(--border)">
+        <th style="text-align:left;padding:.35rem .5rem;color:var(--txt2)">Date</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Day#</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Login</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Logout</th>
+        <th style="text-align:right;padding:.35rem .5rem;color:var(--txt2)">Session</th>
+        <th style="text-align:right;padding:.35rem .5rem;color:var(--txt2)">Breaks</th>
+        <th style="text-align:right;padding:.35rem .5rem;color:var(--txt2)">Gaps</th>
+        <th style="text-align:right;padding:.35rem .5rem;color:var(--txt2)">Net Work</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Target%</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">IP</th>
+        <th style="text-align:center;padding:.35rem .5rem;color:var(--txt2)">Status</th>
+      </tr></thead>
+      <tbody>${(sessions||[]).map(s=>{
+        const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
+        const gap=s.gap_mins||0;
+        const net=Math.max(0,(s.total_work_mins||0)-brk-gap);
+        const pct=Math.min(100,Math.round((net/480)*100));
+        const pctClr=pct>=100?'#10b981':pct>=50?'var(--v1)':'#f59e0b';
+        const statClr={active:'#10b981',completed:'#a5b4fc',auto_closed:'#f59e0b'};
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:.35rem .5rem">${s.session_date||'—'}</td>
+          <td style="text-align:center;padding:.35rem .5rem;color:var(--txt3)">${s.day_number||'—'}</td>
+          <td style="text-align:center;padding:.35rem .5rem;color:#10b981;font-weight:600">${fmtTime2(s.start_time)}</td>
+          <td style="text-align:center;padding:.35rem .5rem;color:var(--v1);font-weight:600">${fmtTime2(s.end_time)}</td>
+          <td style="text-align:right;padding:.35rem .5rem">${s.total_work_mins||0}m</td>
+          <td style="text-align:right;padding:.35rem .5rem">${brk}m</td>
+          <td style="text-align:right;padding:.35rem .5rem;color:#f43f5e">${gap}m</td>
+          <td style="text-align:right;padding:.35rem .5rem;font-weight:800;color:var(--v1)">${net}m</td>
+          <td style="text-align:center;padding:.35rem .5rem;font-weight:700;color:${pctClr}">${pct>=100?'Done ✓':pct+'%'}</td>
+          <td style="text-align:center;padding:.35rem .5rem;font-size:.68rem;color:var(--txt3)">${s.ip_address||'—'}</td>
+          <td style="text-align:center;padding:.35rem .5rem"><span style="font-size:.7rem;font-weight:700;color:${statClr[s.status]||'var(--txt3)'}">${s.status}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>` : '<p style="color:var(--txt3);font-size:.82rem">No work sessions recorded.</p>'}
+  </div>
 
-    <div class="dr-card"><h4>App Usage by Date (Confidential)</h4>
-      ${Object.keys(dateAppMap).length?Object.entries(dateAppMap).sort((a,b)=>new Date(b[0])-new Date(a[0])).slice(0,15).map(([date,apps])=>{
-        const grouped={};apps.forEach(a=>{grouped[a.app]=(grouped[a.app]||0)+a.secs});
-        return `<div style="margin-bottom:.6rem"><div style="font-size:.74rem;font-weight:700;color:var(--txt2);margin-bottom:.2rem">${_adm_esc(date)}</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">${Object.entries(grouped).map(([app,s])=>`<span style="font-size:.72rem;padding:.15rem .5rem;border-radius:6px;background:var(--panel);border:1px solid var(--border);font-weight:600">${_adm_esc(app)} <span style="color:var(--v1)">${Math.floor(s/60)}m</span></span>`).join('')}</div></div>`;
-      }).join(''):'<p style="color:var(--txt3);font-size:.82rem">No app usage recorded.</p>'}
-    </div>
+  <!-- ── Daily Reports ── -->
+  <div class="dr-card">
+    <h4>📋 Daily Work Reports</h4>
+    ${(dailyRpts||[]).length ? (dailyRpts||[]).map(r=>`
+      <div class="dr-log-entry">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+          <span style="font-weight:800;font-size:.83rem">${r.report_date||'—'}</span>
+          <span style="display:flex;align-items:center;gap:.4rem">
+            <span style="font-size:.75rem;color:var(--v1);font-weight:700">${Number(r.hours_worked||0).toFixed(1)}h</span>
+            <span style="font-size:.7rem">${moodEmoji[r.mood_rating]||''}</span>
+            <span class="${sb[r.report_status]||'badge-gray'}" style="font-size:.65rem">${r.report_status}</span>
+          </span>
+        </div>
+        <div style="font-size:.8rem;color:var(--txt2);margin-bottom:.3rem">${_adm_esc(r.work_summary||'—')}</div>
+        ${r.challenges?`<div style="font-size:.74rem;color:#f87171;margin-bottom:.2rem">⚡ Challenges: ${_adm_esc(r.challenges)}</div>`:''}
+        ${r.next_day_plan?`<div style="font-size:.74rem;color:#4ade80">📌 Next: ${_adm_esc(r.next_day_plan)}</div>`:''}
+        ${r.admin_notes?`<div style="font-size:.73rem;color:var(--v1);margin-top:.3rem;padding:.3rem .5rem;background:rgba(124,92,252,.06);border-radius:6px;border-left:2px solid var(--v1)">Admin: ${_adm_esc(r.admin_notes)}</div>`:''}
+      </div>`).join('') : '<p style="color:var(--txt3);font-size:.82rem">No daily reports submitted.</p>'}
+  </div>
 
-    <div class="dr-card"><h4>Module Progress</h4>
-      ${(progAssign||[]).length?`<ul class="dr-list">${(progAssign||[]).map((a,i)=>`<li><span>${i+1}. ${_adm_esc(a.intern_program_modules?.module_name||'Module')}</span><span class="${sb[a.status]||'badge-gray'}">${a.status.replace('_',' ')}</span></li>`).join('')}</ul>`:(mods||[]).length?`<ul class="dr-list">${(mods||[]).map(m=>`<li><span>${m.day_number?'Day '+m.day_number+': ':''}${_adm_esc(m.module_title)}</span><span class="${sb[m.status]||'badge-gray'}">${m.status.replace('_',' ')}</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No modules assigned.</p>'}
-    </div>
+  <!-- ── Module Progress ── -->
+  <div class="dr-card">
+    <h4>📦 Module Progress</h4>
+    ${(progAssign||[]).length ? `<ul class="dr-list">${(progAssign||[]).map((a,i)=>{
+      const git=a.git_push_link||a.intern_program_modules?.git_push_link||'';
+      return `<li style="flex-wrap:wrap;gap:.3rem">
+        <span>${i+1}. ${_adm_esc(a.intern_program_modules?.module_name||'Module')}<br>
+        <small style="color:var(--txt4)">${fmtDate2(a.assigned_at)}${git?` · <a href="${_adm_esc(git)}" target="_blank" style="color:var(--v1);font-size:.7rem">Git ↗</a>`:''}</small></span>
+        <span class="${sb[a.status]||'badge-gray'}">${a.status.replace('_',' ')}</span>
+      </li>`;}).join('')}</ul>`
+    : (mods||[]).length ? `<ul class="dr-list">${(mods||[]).map(m=>`<li><span>${m.day_number?'Day '+m.day_number+': ':''}${_adm_esc(m.module_title)}</span><span class="${sb[m.status]||'badge-gray'}">${m.status.replace('_',' ')}</span></li>`).join('')}</ul>`
+    : '<p style="color:var(--txt3);font-size:.82rem">No modules assigned.</p>'}
+  </div>
 
-    <div class="dr-card"><h4>Submissions</h4>
-      ${(subs||[]).length?`<ul class="dr-list">${(subs||[]).map(s=>`<li><span>${_adm_esc(s.submission_title)}<br><small style="color:var(--txt3)">${new Date(s.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</small></span><span class="${sb[s.status]||'badge-gray'}">${s.status}</span></li>`).join('')}</ul>`:'<p style="color:var(--txt3);font-size:.82rem">No submissions.</p>'}
-    </div>
-  </div>`;
+  <!-- ── Submissions ── -->
+  <div class="dr-card">
+    <h4>📎 Submissions</h4>
+    ${(subs||[]).length ? `<ul class="dr-list">${(subs||[]).map(s=>`<li style="flex-wrap:wrap;gap:.3rem">
+      <span style="flex:1;min-width:0">
+        <strong>${_adm_esc(s.submission_title)}</strong><br>
+        <small style="color:var(--txt3)">${fmtDate2(s.submitted_at)}</small>
+        ${s.commit_message?`<br><code style="font-size:.68rem;background:var(--panel);padding:.1rem .35rem;border-radius:4px">${_adm_esc(s.commit_message.slice(0,80))}</code>`:''}
+      </span>
+      <span class="${sb[s.status]||'badge-gray'}">${s.status}</span>
+    </li>`).join('')}</ul>` : '<p style="color:var(--txt3);font-size:.82rem">No submissions.</p>'}
+  </div>
+
+  <!-- ── App Usage Day-wise ── -->
+  ${Object.keys(dateAppMap).length ? `<div class="dr-card">
+    <h4>🖥 App Usage by Day (Confidential)</h4>
+    ${Object.entries(dateAppMap).sort((a,b)=>b[0].localeCompare(a[0])).map(([date,apps],di)=>{
+      const dayEntries=Object.entries(apps).sort((a,b)=>b[1]-a[1]);
+      const totalSecs=dayEntries.reduce((s,[,v])=>s+v,0);
+      const gid='drapp_'+di;
+      return `<div style="margin-bottom:.45rem;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.45rem .75rem;background:var(--panel);cursor:pointer;user-select:none" onclick="const p=this.nextElementSibling;p.style.display=p.style.display==='none'?'block':'none';this.querySelector('.grp-arrow').classList.toggle('grp-open')">
+          <span style="font-size:.8rem;font-weight:800;color:var(--txt2)">📅 ${date}</span>
+          <span style="display:flex;align-items:center;gap:.5rem">
+            <span style="font-size:.72rem;color:var(--v1);font-weight:700">${fmtSec(totalSecs)} total</span>
+            <span style="font-size:.68rem;color:var(--txt4)">${dayEntries.length} apps</span>
+            <span class="grp-arrow" style="font-size:.6rem;color:var(--txt3)">▶</span>
+          </span>
+        </div>
+        <div style="display:none;padding:.5rem .75rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem">
+            ${dayEntries.map(([app,secs])=>`<div style="display:flex;justify-content:space-between;padding:.25rem .4rem;border-radius:5px;background:var(--bg2);border:1px solid var(--border);font-size:.74rem"><span style="font-weight:600;color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${_adm_esc(app)}</span><span style="color:var(--v1);font-weight:700;flex-shrink:0">${fmtSec(secs)}</span></div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>` : ''}
+  `;
+}
+
+async function saveDrAdminNotes(enrollId, studentId) {
+  const notes = document.getElementById('dr-admin-notes')?.value || '';
+  if (!enrollId) { _showAdminToast('No enrollment found for this student.', 'error'); return; }
+  const { error } = await db.client.from('internship_enrollments').update({ admin_notes: notes }).eq('id', enrollId);
+  if (error) { _showAdminToast('Save failed: ' + error.message, 'error'); return; }
+  const saved = document.getElementById('dr-notes-saved');
+  if (saved) { saved.style.display = 'inline'; setTimeout(() => saved.style.display = 'none', 2500); }
 }
 
 async function exportDetailedReport(){
-  const studentId=document.getElementById('dr-student-select')?.value;
-  if(!studentId){_showAdminToast('Select a student first.','error');return;}
-  const pm=await _getProfileMap([studentId]);
-  const {data:enrol}=await db.client.from('internship_enrollments').select('*,internship_projects(project_name)').eq('student_user_id',studentId).eq('approval_status','approved').maybeSingle();
-  let teamNames='';
-  if(enrol?.project_id){
-    const {data:teamEnrols}=await db.client.from('internship_enrollments').select('student_user_id').eq('project_id',enrol.project_id).eq('approval_status','approved');
-    const teamIds=(teamEnrols||[]).map(t=>t.student_user_id).filter(Boolean);
-    if(teamIds.length>1){const teamPm=await _getProfileMap(teamIds);teamNames=teamIds.map(id=>teamPm[id]||'Unknown').join(', ');}
+  const studentId = document.getElementById('dr-student-select')?.value;
+  if (!studentId) { _showAdminToast('Select a student first.', 'error'); return; }
+  _showAdminToast('Generating PDF…', 'success');
+
+  const pm = await _getProfileMap([studentId]);
+  const name = pm[studentId] || 'Student';
+
+  const [
+    {data:enrol},{data:sessions},{data:mods},{data:subs},
+    {data:appUsage},{data:progAssign},{data:attendance},{data:dailyRpts},{data:profile}
+  ] = await Promise.all([
+    db.client.from('internship_enrollments').select('*,internship_projects(project_name)').eq('student_user_id',studentId).eq('approval_status','approved').maybeSingle(),
+    db.client.from('intern_work_sessions').select('*,intern_breaks(*)').eq('student_user_id',studentId).order('session_date',{ascending:false}),
+    db.client.from('intern_modules').select('*').eq('student_user_id',studentId).order('day_number',{ascending:true}),
+    db.client.from('intern_submissions').select('*').eq('student_user_id',studentId).order('submitted_at',{ascending:false}),
+    db.client.from('intern_app_usage').select('app_name,active_seconds').eq('student_user_id',studentId),
+    db.client.from('intern_program_assignments').select('*,intern_program_modules(module_name)').eq('student_user_id',studentId).order('assigned_at',{ascending:true}),
+    db.client.from('internship_attendance').select('*').eq('student_user_id',studentId).order('attendance_date',{ascending:false}),
+    db.client.from('internship_daily_reports').select('*').eq('student_user_id',studentId).order('report_date',{ascending:false}),
+    db.client.from('user_profiles').select('full_name,email,phone').eq('user_id',studentId).maybeSingle()
+  ]);
+
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit:'mm',format:'a4'});
+  const pw=210, ml=14, mr=14, cw=pw-ml-mr;
+  let y=0;
+
+  const V1=[124,58,237], GOLD=[245,158,11], GREEN=[16,185,129], RED=[248,113,113];
+  const txt=[30,20,60], txt2=[80,70,110], txt3=[140,130,165], border=[220,215,240];
+
+  function header(){
+    doc.setFillColor(20,10,50); doc.rect(0,0,pw,22,'F');
+    doc.setFillColor(...V1); doc.rect(0,22,pw,1,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+    doc.text('SkillUpNow — Student Internship Report',pw/2,10,{align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(200,190,255);
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}  |  admin@skillupnow.in`,pw/2,17,{align:'center'});
+    y=28;
   }
-  generateStudentReport(enrol?.id,pm[studentId]||'Student',enrol?.internship_projects?.project_name||'Internship',teamNames);
+  function footer(){
+    const ph=297;
+    doc.setFontSize(6); doc.setTextColor(...txt3);
+    doc.text('SkillUpNow Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com  |  CONFIDENTIAL',pw/2,ph-4,{align:'center'});
+  }
+  function checkPage(need=10){
+    if(y+need>280){ footer(); doc.addPage(); header(); }
+  }
+  function sectionHead(title){
+    y+=3;
+    checkPage(12);
+    doc.setFillColor(...V1); doc.rect(ml,y,cw,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(255,255,255);
+    doc.text(title,ml+2,y+5); y+=10;
+  }
+  function row2col(label,val,clr){
+    checkPage(6);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...txt2);
+    doc.text(label,ml+1,y);
+    doc.setFont('helvetica','bold'); doc.setTextColor(...(clr||txt));
+    doc.text(String(val),ml+cw-1,y,{align:'right'});
+    doc.setDrawColor(...border); doc.line(ml,y+1.5,ml+cw,y+1.5);
+    y+=5;
+  }
+
+  // Page 1
+  header();
+
+  // Student profile
+  doc.setFillColor(245,243,255); doc.roundedRect(ml,y,cw,22,3,3,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...V1);
+  doc.text(name,ml+4,y+8);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...txt2);
+  doc.text(`Email: ${profile?.email||'—'}  |  Phone: ${profile?.phone||'—'}`,ml+4,y+13);
+  doc.text(`Internship: ${enrol?.internship_projects?.project_name||'—'}  |  Enrolled: ${enrol?.enrolled_at?enrol.enrolled_at.slice(0,10):'—'}`,ml+4,y+18);
+  y+=26;
+
+  // KPIs
+  const totalWorkMins=(sessions||[]).reduce((s,x)=>s+(x.total_work_mins||0),0);
+  const totalBreakMins=(sessions||[]).reduce((s,x)=>s+(x.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0),0);
+  const totalGapMins=(sessions||[]).reduce((s,x)=>s+(x.gap_mins||0),0);
+  const net=Math.max(0,totalWorkMins-totalBreakMins-totalGapMins);
+  const pct=Math.min(100,Math.round((net/((sessions||[]).length*480))*100));
+  const presentDays=(attendance||[]).filter(a=>a.status==='present').length;
+  const fm=m=>`${Math.floor(m/60)}h ${m%60}m`;
+  const kpis=[['Days Worked',`${(sessions||[]).length} / 50`],['Active Work',fm(net)],['Attendance',presentDays+' / '+(sessions||[]).length],['Modules Done',`${(progAssign||[]).filter(a=>a.status==='completed').length} / ${(progAssign||[]).length}`],['Submissions',(subs||[]).length],['Daily Reports',(dailyRpts||[]).length]];
+  const kw=(cw-5)/(kpis.length/2); let kx=ml;
+  kpis.forEach(([l,v],i)=>{
+    if(i===3){kx=ml;y+=14;}
+    doc.setFillColor(250,248,255); doc.roundedRect(kx,y,kw-2,12,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...V1);
+    doc.text(String(v),kx+kw/2-1,y+7,{align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(...txt3);
+    doc.text(l,kx+kw/2-1,y+11,{align:'center'});
+    kx+=kw;
+  });
+  y+=18;
+
+  // Admin notes
+  const notes = document.getElementById('dr-admin-notes')?.value || enrol?.admin_notes || '';
+  if(notes){
+    sectionHead('ADMIN NOTES & OBSERVATIONS');
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...txt);
+    const lines=doc.splitTextToSize(notes,cw-4);
+    lines.forEach(ln=>{ checkPage(5); doc.text(ln,ml+2,y); y+=4.5; });
+    y+=3;
+  }
+
+  // Attendance
+  sectionHead('ATTENDANCE RECORD');
+  const atdCols=[['Date',28],['Status',22],['Login',24],['Logout',24],['Hours',20],['Notes',cw-118]];
+  let cx=ml; doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...txt2);
+  atdCols.forEach(([h,w])=>{ doc.text(h,cx,y); cx+=w; }); y+=4; doc.setDrawColor(...border); doc.line(ml,y-1,ml+cw,y-1);
+  (attendance||[]).forEach(a=>{
+    checkPage(5);
+    const mins=_atdCalcMins(a.check_in_time,a.check_out_time);
+    const cells=[a.attendance_date||'—',a.status,a.check_in_time?a.check_in_time.slice(0,5):'—',a.check_out_time?a.check_out_time.slice(0,5):'—',_fmtMins(mins),a.notes||'—'];
+    cx=ml; doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...txt);
+    cells.forEach((v,i)=>{ doc.text(String(v).slice(0,atdCols[i][1]/2),cx,y); cx+=atdCols[i][1]; });
+    doc.setDrawColor(...border); doc.line(ml,y+1.5,ml+cw,y+1.5); y+=4.5;
+  });
+  if(!(attendance||[]).length){ doc.setTextColor(...txt3); doc.setFontSize(7); doc.text('No attendance records.',ml+2,y); y+=6; }
+  y+=3;
+
+  // Work sessions
+  sectionHead('DAILY WORK SESSIONS');
+  const sCols=[['Date',22],['Day',12],['Login',22],['Logout',22],['Session',18],['Breaks',16],['Gaps',14],['Net Work',20],['Target%',16],['IP',cw-162]];
+  cx=ml; doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...txt2);
+  sCols.forEach(([h,w])=>{ doc.text(h,cx,y); cx+=w; }); y+=4; doc.setDrawColor(...border); doc.line(ml,y-1,ml+cw,y-1);
+  (sessions||[]).forEach(s=>{
+    checkPage(5);
+    const brk=(s.intern_breaks||[]).reduce((b,br)=>b+(br.duration_mins||0),0);
+    const gap=s.gap_mins||0;
+    const nw=Math.max(0,(s.total_work_mins||0)-brk-gap);
+    const tp=Math.min(100,Math.round((nw/480)*100));
+    const cells=[s.session_date||'—',String(s.day_number||'—'),s.start_time?new Date(s.start_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—',s.end_time?new Date(s.end_time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—',`${s.total_work_mins||0}m`,`${brk}m`,`${gap}m`,`${nw}m`,tp>=100?'Done':tp+'%',s.ip_address||'—'];
+    cx=ml; doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...txt);
+    cells.forEach((v,i)=>{ doc.text(v.slice(0,sCols[i][1]/1.8),cx,y); cx+=sCols[i][1]; });
+    doc.setDrawColor(...border); doc.line(ml,y+1.5,ml+cw,y+1.5); y+=4.2;
+  });
+  if(!(sessions||[]).length){ doc.setTextColor(...txt3); doc.setFontSize(7); doc.text('No sessions.',ml+2,y); y+=6; }
+  y+=3;
+
+  // Daily reports
+  sectionHead('DAILY WORK REPORTS');
+  (dailyRpts||[]).forEach(r=>{
+    const lns=doc.splitTextToSize(`${r.report_date||'—'} (${Number(r.hours_worked||0).toFixed(1)}h) — ${r.report_status} — ${r.work_summary||''}`,cw-8);
+    checkPage(lns.length*4+6);
+    doc.setFillColor(248,246,255); doc.rect(ml,y-2,cw,lns.length*4+4,'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...txt);
+    lns.forEach(ln=>{ doc.text(ln,ml+3,y); y+=4; });
+    if(r.challenges){ const cl=doc.splitTextToSize('⚡ '+r.challenges,cw-8); cl.forEach(ln=>{ checkPage(5); doc.setTextColor(...RED); doc.text(ln,ml+3,y); y+=3.8; }); }
+    if(r.admin_notes){ const al=doc.splitTextToSize('Admin: '+r.admin_notes,cw-8); al.forEach(ln=>{ checkPage(5); doc.setTextColor(...V1); doc.text(ln,ml+3,y); y+=3.8; }); }
+    doc.setTextColor(...txt); y+=3;
+  });
+  if(!(dailyRpts||[]).length){ doc.setTextColor(...txt3); doc.setFontSize(7); doc.text('No daily reports submitted.',ml+2,y); y+=6; }
+  y+=2;
+
+  // Module progress
+  sectionHead('MODULE PROGRESS');
+  const allMods=[...(progAssign||[]).map(a=>({name:a.intern_program_modules?.module_name||'Module',status:a.status,date:a.assigned_at})),...(mods||[]).map(m=>({name:m.module_title,status:m.status,date:m.due_date}))];
+  allMods.forEach((m,i)=>{
+    checkPage(5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...txt);
+    doc.text(`${i+1}. ${m.name}`,ml+2,y);
+    doc.setFont('helvetica','bold'); doc.setTextColor(m.status==='completed'?GREEN[0]:m.status==='active'?V1[0]:txt2[0],m.status==='completed'?GREEN[1]:m.status==='active'?V1[1]:txt2[1],m.status==='completed'?GREEN[2]:m.status==='active'?V1[2]:txt2[2]);
+    doc.text(m.status.replace('_',' '),ml+cw-2,y,{align:'right'});
+    doc.setDrawColor(...border); doc.line(ml,y+1.5,ml+cw,y+1.5); y+=4.5;
+  });
+  if(!allMods.length){ doc.setTextColor(...txt3); doc.setFontSize(7); doc.text('No modules.',ml+2,y); y+=6; }
+  y+=2;
+
+  // Submissions
+  sectionHead('SUBMISSIONS');
+  (subs||[]).forEach(s=>{
+    checkPage(7);
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...txt);
+    doc.text(s.submission_title||'—',ml+2,y);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...txt2);
+    doc.text((s.submitted_at||'').slice(0,10),ml+cw-2,y,{align:'right'});
+    if(s.commit_message){ checkPage(4); doc.setFontSize(6.5); doc.setTextColor(...txt3); doc.text(s.commit_message.slice(0,90),ml+4,y+3.5); y+=3.5; }
+    doc.setDrawColor(...border); doc.line(ml,y+2,ml+cw,y+2); y+=5;
+  });
+  if(!(subs||[]).length){ doc.setTextColor(...txt3); doc.setFontSize(7); doc.text('No submissions.',ml+2,y); y+=6; }
+  y+=2;
+
+  // App usage
+  const appMap={};
+  (appUsage||[]).forEach(a=>{ appMap[a.app_name]=(appMap[a.app_name]||0)+(a.active_seconds||0); });
+  const appEntries=Object.entries(appMap).sort((a,b)=>b[1]-a[1]).slice(0,14);
+  if(appEntries.length){
+    sectionHead('APP USAGE (CONFIDENTIAL)');
+    const aw=(cw-4)/2;
+    appEntries.forEach((([app,secs],i)=>{
+      if(i%2===0){ if(i>0) y+=5; checkPage(5); cx=ml+2; }
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...txt);
+      doc.text(`${app}: `,cx,y);
+      doc.setFont('helvetica','bold'); doc.setTextColor(...V1);
+      const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);
+      doc.text(h>0?`${h}h ${m}m`:m>0?`${m}m`:`${secs}s`,cx+aw-3,y,{align:'right'});
+      cx+=aw;
+    }));
+    y+=8;
+  }
+
+  footer();
+  doc.save(`intern-report-${name.replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`);
+  _showAdminToast('PDF downloaded!', 'success');
 }
 
 /* ============================================================
@@ -13670,28 +14261,50 @@ async function loadInternProgramAssignments() {
   const pm = await _getProfileMap(stuIds);
   const statColors = { active:'#4ade80', in_progress:'#f59e0b', completed:'#a5b4fc', revoked:'#f87171' };
 
-  tbody.innerHTML = data.map(a => {
-    const sc = statColors[a.status]||'#fff';
-    const dt = a.assigned_at ? new Date(a.assigned_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
-    const gitLink = a.git_push_link || a.intern_program_modules?.git_push_link || '';
-    const studentName = a.student_user_id ? (pm[a.student_user_id] || '(Unknown — ' + a.student_user_id.slice(0,8) + ')') : '(No Student ID)';
-    const hasMissing = !a.student_user_id || !pm[a.student_user_id];
-    return `<tr${hasMissing?' style="background:rgba(245,158,11,.05)"':''}>
-      <td>${hasMissing?'<span style="color:#f59e0b" title="Missing user profile">⚠</span> ':''}${_adm_esc(studentName)}</td>
-      <td>${_adm_esc(a.internship_projects?.project_name||'—')}</td>
-      <td>${_adm_esc(a.intern_program_modules?.module_name||'All Modules')}</td>
-      <td>${dt}</td>
-      <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}44">${a.status.replace('_',' ')}</span></td>
-      <td>${gitLink ? `<a href="${_adm_esc(gitLink)}" target="_blank" style="color:var(--v1);font-size:.76rem;text-decoration:underline">Link</a>` : '—'}</td>
-      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;font-size:.78rem;color:var(--txt2)">${_adm_esc(a.notes||'—')}</td>
-      <td>
-        <div style="display:flex;gap:.3rem;align-items:center;justify-content:flex-end">
-          ${a.status==='active'?`<button class="btn-secondary" style="font-size:.72rem;padding:.25rem .6rem;background:rgba(245,158,11,.06);color:#f59e0b;border-color:rgba(245,158,11,.2);display:inline-flex;align-items:center;gap:.25rem" onclick="revokeInternProgramAssignment('${a.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Revoke</button>`:''}
-          <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .6rem;background:rgba(239,68,68,.06);color:#ef4444;border-color:rgba(239,68,68,.2);display:inline-flex;align-items:center;gap:.25rem" onclick="deleteInternProgramAssignment('${a.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</button>
-        </div>
+  // Group by assigned date (YYYY-MM-DD)
+  const grouped = new Map();
+  data.forEach(a => {
+    const dateKey = a.assigned_at ? a.assigned_at.slice(0, 10) : 'no-date';
+    if (!grouped.has(dateKey)) grouped.set(dateKey, []);
+    grouped.get(dateKey).push(a);
+  });
+
+  let html = '';
+  let gIdx = 0;
+  for (const [dateKey, rows] of grouped) {
+    const gid = 'ipa-grp-' + (gIdx++);
+    const dateLabel = dateKey === 'no-date' ? 'No Date' :
+      new Date(dateKey + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    html += `<tr class="date-group-header" style="cursor:pointer" onclick="document.querySelectorAll('.${gid}').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.querySelector('.grp-arrow').classList.toggle('grp-open')">
+      <td colspan="8">
+        <span class="grp-arrow grp-open">▾</span>
+        📅 ${dateLabel} — ${rows.length} assignment${rows.length > 1 ? 's' : ''}
       </td>
     </tr>`;
-  }).join('');
+    html += rows.map(a => {
+      const sc = statColors[a.status] || '#fff';
+      const dt = a.assigned_at ? new Date(a.assigned_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      const gitLink = a.git_push_link || a.intern_program_modules?.git_push_link || '';
+      const studentName = a.student_user_id ? (pm[a.student_user_id] || '(Unknown — ' + a.student_user_id.slice(0, 8) + ')') : '(No Student ID)';
+      const hasMissing = !a.student_user_id || !pm[a.student_user_id];
+      return `<tr class="${gid}"${hasMissing ? ' style="background:rgba(245,158,11,.05)"' : ''}>
+        <td>${hasMissing ? '<span style="color:#f59e0b" title="Missing user profile">⚠</span> ' : ''}${_adm_esc(studentName)}</td>
+        <td>${_adm_esc(a.internship_projects?.project_name || '—')}</td>
+        <td>${_adm_esc(a.intern_program_modules?.module_name || 'All Modules')}</td>
+        <td>${dt}</td>
+        <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}44">${a.status.replace('_', ' ')}</span></td>
+        <td>${gitLink ? `<a href="${_adm_esc(gitLink)}" target="_blank" style="color:var(--v1);font-size:.76rem;text-decoration:underline">Link</a>` : '—'}</td>
+        <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;font-size:.78rem;color:var(--txt2)">${_adm_esc(a.notes || '—')}</td>
+        <td>
+          <div style="display:flex;gap:.3rem;align-items:center;justify-content:flex-end">
+            ${a.status === 'active' ? `<button class="btn-secondary" style="font-size:.72rem;padding:.25rem .6rem;background:rgba(245,158,11,.06);color:#f59e0b;border-color:rgba(245,158,11,.2);display:inline-flex;align-items:center;gap:.25rem" onclick="revokeInternProgramAssignment('${a.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Revoke</button>` : ''}
+            <button class="btn-secondary" style="font-size:.72rem;padding:.25rem .6rem;background:rgba(239,68,68,.06);color:#ef4444;border-color:rgba(239,68,68,.2);display:inline-flex;align-items:center;gap:.25rem" onclick="deleteInternProgramAssignment('${a.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  tbody.innerHTML = html;
 }
 
 async function _loadIpaModules() {
@@ -14387,6 +15000,81 @@ function exportAdminDayReport(dateStr,fmt){
 </div>
 
 <!-- Report Review Modal -->
+<!-- Admin Create Report Modal -->
+<div class="modal-overlay" id="admin-create-report-modal" onclick="if(event.target===this)closeModal('admin-create-report-modal')">
+  <div class="modal-box" style="max-width:580px;max-height:90vh;overflow-y:auto">
+    <div class="modal-close" onclick="closeModal('admin-create-report-modal')">✕</div>
+    <div class="modal-title">Create Daily Report</div>
+    <input type="hidden" id="acr-enrollment-id">
+    <input type="hidden" id="acr-student-id">
+
+    <div class="f-group">
+      <label>Student & Internship *</label>
+      <select id="acr-enrollment-sel" onchange="_acrPickEnrollment(this)" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+        <option value="">— select student / internship —</option>
+      </select>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group">
+        <label>Report Date *</label>
+        <input type="date" id="acr-date">
+      </div>
+      <div class="f-group">
+        <label>Hours Worked *</label>
+        <input type="number" id="acr-hours" min="0" max="24" step="0.5" placeholder="e.g. 7.5">
+      </div>
+    </div>
+
+    <div class="f-group">
+      <label>Work Summary *</label>
+      <textarea id="acr-summary" style="min-height:90px" placeholder="What did the student work on today?"></textarea>
+    </div>
+
+    <div class="f-group">
+      <label>Challenges Faced</label>
+      <textarea id="acr-challenges" style="min-height:60px" placeholder="Any blockers or difficulties?"></textarea>
+    </div>
+
+    <div class="f-group">
+      <label>Plan for Next Day</label>
+      <textarea id="acr-plan" style="min-height:60px" placeholder="What will be worked on next?"></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="f-group">
+        <label>Mood Rating</label>
+        <select id="acr-mood" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+          <option value="1">😤 1 — Frustrated</option>
+          <option value="2">😕 2 — Uncertain</option>
+          <option value="3" selected>😐 3 — Okay</option>
+          <option value="4">😊 4 — Good</option>
+          <option value="5">🤩 5 — Excellent</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label>Report Status</label>
+        <select id="acr-status" style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(124,92,252,.25);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:.87rem">
+          <option value="submitted">Submitted</option>
+          <option value="reviewed">Reviewed</option>
+          <option value="approved">Approved</option>
+          <option value="flagged">Flagged</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="f-group">
+      <label>Admin Notes / Feedback</label>
+      <textarea id="acr-admin-notes" style="min-height:60px" placeholder="Optional feedback or internal notes…"></textarea>
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn-primary" onclick="saveAdminCreateReport()">Create Report</button>
+      <button class="btn-secondary" onclick="closeModal('admin-create-report-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="intern-report-review-modal" onclick="if(event.target===this)closeModal('intern-report-review-modal')">
   <div class="modal-box" style="max-width:560px;max-height:88vh;overflow-y:auto">
     <div class="modal-close" onclick="closeModal('intern-report-review-modal')">✕</div>
