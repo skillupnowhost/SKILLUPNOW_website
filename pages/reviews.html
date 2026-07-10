@@ -1222,6 +1222,8 @@ let _wrVideo = null; // { file, url }
 function openWriteReview() {
   document.getElementById('wr-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  wrRenderPhotos();
+  wrRenderVideo();
 }
 function closeWriteReview() {
   document.getElementById('wr-modal').classList.remove('open');
