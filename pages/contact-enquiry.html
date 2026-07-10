@@ -619,11 +619,13 @@
       gap:1.5rem; flex-wrap:wrap; margin-bottom:1.75rem;
     }
     .ce-rv-kicker {
-      display:inline-block; font-size:.7rem; font-weight:800;
+      display:inline-flex; align-items:center; gap:.38rem; font-size:.7rem; font-weight:800;
       letter-spacing:.14em; text-transform:uppercase; color:var(--v1);
       background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
-      border-radius:999px; padding:.25rem .85rem; margin-bottom:.75rem;
+      border-radius:999px; padding:.25rem .85rem .25rem .75rem; margin-bottom:.75rem;
     }
+    .ce-rv-kicker-ico { display:inline-flex; align-items:center; }
+    .ce-rv-kicker-ico svg { width:12px; height:12px; overflow:visible; color:#fbbf24; }
     .ce-rv-title { font-size:clamp(1.5rem,3vw,2rem); font-weight:900; line-height:1.18; color:var(--txt); margin:0 0 .4rem; }
     .ce-rv-sub { font-size:.88rem; color:var(--txt3); line-height:1.65; margin:0; max-width:400px; }
     .ce-rv-cta {
@@ -638,27 +640,35 @@
     .ce-rv-cta:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,92,252,.5); }
 
     /* Filters */
-    .ce-rv-filters { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+    .ce-rv-filters { position:relative; display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+    .ce-rv-glide {
+      position:absolute; top:0; height:100%; border-radius:999px;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      box-shadow:0 4px 14px rgba(124,92,252,.35);
+      transition:left .4s cubic-bezier(.34,1.56,.64,1), width .4s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+      z-index:0; pointer-events:none; opacity:0;
+    }
+    .ce-rv-glide.ready { opacity:1; }
     .ce-rv-filter {
+      position:relative; z-index:1;
       display:inline-flex; align-items:center; gap:.38rem;
       padding:.36rem .9rem; border-radius:999px;
       border:1.5px solid var(--border); background:transparent;
       font-size:.77rem; font-weight:700; color:var(--txt3);
       cursor:pointer; font-family:inherit;
-      transition:all .2s cubic-bezier(.4,0,.2,1);
+      transition:color .2s cubic-bezier(.4,0,.2,1), border-color .2s cubic-bezier(.4,0,.2,1), transform .2s cubic-bezier(.4,0,.2,1);
     }
-    .ce-rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
-    .ce-rv-filter.active {
-      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
-      border-color:transparent; color:#fff;
-      box-shadow:0 4px 14px rgba(124,92,252,.35);
-    }
-    .ce-rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; }
-    .ce-rv-filt-ico svg { width:13px; height:13px; flex-shrink:0; overflow:visible; }
+    .ce-rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); transform:translateY(-1px); }
+    .ce-rv-filter:active { transform:translateY(0) scale(.96); }
+    .ce-rv-filter.active { border-color:transparent; color:#fff; }
+    .ce-rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+    .ce-rv-filt-ico svg { width:13px; height:13px; flex-shrink:0; overflow:visible; transition:filter .25s; }
+    .ce-rv-filter:hover .ce-rv-filt-ico { transform:scale(1.2) translateY(-1px); }
+    .ce-rv-filter:hover .ce-rv-filt-ico svg { filter:drop-shadow(0 0 5px color-mix(in srgb, currentColor 85%, transparent)); }
     .ce-ico-violet { stroke:#7c5cfc; } .ce-ico-amber { stroke:#f59e0b; }
     .ce-ico-cyan   { stroke:#06b6d4; } .ce-ico-emerald { stroke:#10b981; }
     .ce-ico-rose   { stroke:#f43f5e; }
-    .ce-rv-filter.active .ce-rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; }
+    .ce-rv-filter.active .ce-rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; filter:drop-shadow(0 0 4px rgba(255,255,255,.55)); }
 
     /* Empty */
     .ce-rv-empty {
@@ -668,74 +678,36 @@
     }
     .ce-rv-empty.show { display:block; }
 
-    /* Carousel */
-    .ce-rv-carousel-outer { position:relative; margin-bottom:1.25rem; }
-    .ce-rv-clip { overflow:hidden; padding:.5rem .25rem 1rem; margin:0 46px; }
-    .ce-rv-track {
-      display:flex; gap:1.25rem;
-      transition:transform .45s cubic-bezier(.4,0,.2,1); will-change:transform;
-    }
+    /* Responsive grid (replaces the old peek-carousel) */
+    .ce-rv-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1.25rem; }
+    @media(max-width:640px) { .ce-rv-grid { grid-template-columns:1fr; gap:1rem; } }
 
-    /* Crystal nav buttons */
-    .ce-rv-nav {
-      position:absolute; top:50%; transform:translateY(-50%);
-      z-index:10; width:44px; height:44px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
-      backdrop-filter:blur(22px) saturate(1.8); -webkit-backdrop-filter:blur(22px) saturate(1.8);
-      box-shadow:0 4px 18px rgba(124,92,252,.18), inset 0 1px 0 rgba(255,255,255,.14);
-      cursor:pointer; color:rgba(255,255,255,.85);
-      transition:all .28s cubic-bezier(.34,1.56,.64,1);
+    /* Show more */
+    .ce-rv-more-wrap { text-align:center; margin-top:1.75rem; }
+    .ce-rv-more-wrap.hidden { display:none; }
+    .ce-rv-more-btn {
+      display:inline-flex; align-items:center; gap:.55rem;
+      padding:.7rem 1.8rem; border-radius:14px;
+      background:var(--panel); border:1.5px solid var(--border);
+      color:var(--txt2); font-size:.88rem; font-weight:700; cursor:pointer;
+      font-family:inherit; transition:all .22s;
     }
-    :root[data-theme="light"] .ce-rv-nav {
-      background:rgba(255,255,255,.72); border-color:rgba(124,92,252,.2);
-      box-shadow:0 4px 18px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.9); color:var(--txt2);
-    }
-    .ce-rv-nav:hover:not(:disabled) {
-      background:rgba(124,92,252,.22); border-color:rgba(124,92,252,.55);
-      box-shadow:0 8px 32px rgba(124,92,252,.42); transform:translateY(-50%) scale(1.1); color:#fff;
-    }
-    :root[data-theme="light"] .ce-rv-nav:hover:not(:disabled) {
-      background:rgba(124,92,252,.12); color:var(--v1); box-shadow:0 8px 28px rgba(124,92,252,.22);
-    }
-    .ce-rv-nav:disabled { opacity:.28; pointer-events:none; }
-    .ce-rv-prev { left:0; } .ce-rv-next { right:0; }
-    .ce-rv-nav svg { width:17px; height:17px; }
-
-    /* Dots */
-    .ce-rv-dots { display:flex; justify-content:center; align-items:center; gap:0; margin-top:.5rem; }
-    .ce-rv-dot {
-      width:12px; height:20px; border-radius:0;
-      background:transparent; border:none; padding:0; cursor:pointer;
-      appearance:none; -webkit-appearance:none;
-      display:flex; align-items:center; justify-content:center;
-      flex-shrink:0; outline:none;
-    }
-    .ce-rv-dot::before {
-      content:''; display:block;
-      width:6px; height:6px; border-radius:50%;
-      background:var(--v4);
-      transition:all .32s cubic-bezier(.4,0,.2,1);
-    }
-    .ce-rv-dot:not(.active):hover::before { background:var(--v3); transform:scale(1.35); }
-    .ce-rv-dot.active::before {
-      width:18px; height:6px; border-radius:3px;
-      background:var(--v1);
-      box-shadow:0 2px 8px rgba(124,92,252,.4);
-    }
+    .ce-rv-more-btn:hover { border-color:var(--v1); color:var(--v1); transform:translateY(-2px); }
 
     /* Review card (same as homepage rv-card) */
     .ce-rv-card {
-      flex:0 0 300px; background:var(--panel); border:1.5px solid var(--border);
+      background:linear-gradient(160deg,rgba(124,92,252,.055) 0%,var(--panel) 45%,rgba(6,182,212,.035) 100%);
+      border:1.5px solid var(--border);
       border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
       display:flex; flex-direction:column;
       position:relative; overflow:hidden;
-      animation:rvCardIn .4s both;
-      transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+      opacity:0; transform:translateY(18px) scale(.97);
+      animation:rvCardIn .5s cubic-bezier(.22,1,.36,1) both;
+      transition:transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
     }
     @keyframes rvCardIn {
-      from { opacity:0; transform:translateX(20px) scale(.97); }
-      to   { opacity:1; transform:translateX(0) scale(1); }
+      from { opacity:0; transform:translateY(18px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
     }
     .ce-rv-card::before {
       content:''; position:absolute; top:0; left:0; right:0; height:3px;
@@ -818,15 +790,14 @@
 
     @media(max-width:640px) {
       .ce-rv-head { flex-direction:column; align-items:flex-start; }
-      .ce-rv-card { flex:0 0 min(260px, calc(100vw - 88px)); }
-      .ce-rv-clip { margin:0 36px; }
-      .ce-rv-nav { width:36px; height:36px; }
       .ce-rv-section { padding:2rem 4vw 2.5rem; }
+      .ce-rv-filters { gap:.38rem; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:.15rem; }
+      .ce-rv-filters::-webkit-scrollbar { display:none; }
+      .ce-rv-filter { flex-shrink:0; white-space:nowrap; }
+      .ce-rv-card { padding:1.25rem 1.15rem 1.1rem; }
     }
     @media(max-width:380px) {
-      .ce-rv-card { flex:0 0 calc(100vw - 64px); }
-      .ce-rv-clip { margin:0 26px; }
-      .ce-rv-nav { width:28px; height:28px; }
+      .ce-rv-more-btn { font-size:.82rem; padding:.6rem 1.4rem; }
     }
   </style>
 </head>
@@ -1326,7 +1297,12 @@
   <div class="ce-rv-inner">
     <div class="ce-rv-head">
       <div>
-        <div class="ce-rv-kicker">⭐ Student Reviews</div>
+        <div class="ce-rv-kicker">
+          <span class="ce-rv-kicker-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path class="si-pulse" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </span>
+          Student Reviews
+        </div>
         <h2 class="ce-rv-title">What our learners say</h2>
         <p class="ce-rv-sub">Real feedback from students who've experienced our courses and mentors.</p>
       </div>
@@ -1337,6 +1313,7 @@
     </div>
 
     <div class="ce-rv-filters" id="ce-rv-filters">
+      <span class="ce-rv-glide" id="ce-rv-glide" aria-hidden="true"></span>
       <button type="button" class="ce-rv-filter active" data-cat="all">
         <span class="ce-rv-filt-ico">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ce-ico-violet">
@@ -1393,18 +1370,14 @@
       No reviews yet — be the first to share your experience!
     </div>
 
-    <div class="ce-rv-carousel-outer" id="ce-rv-carousel-outer">
-      <button class="ce-rv-nav ce-rv-prev" id="ce-rv-prev" onclick="ceRvNav(-1)" aria-label="Previous" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div class="ce-rv-clip">
-        <div class="ce-rv-track" id="ce-rv-track"></div>
-      </div>
-      <button class="ce-rv-nav ce-rv-next" id="ce-rv-next" onclick="ceRvNav(1)" aria-label="Next">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    <div class="ce-rv-grid" id="ce-rv-grid"></div>
+
+    <div class="ce-rv-more-wrap hidden" id="ce-rv-more-wrap">
+      <button type="button" class="ce-rv-more-btn" id="ce-rv-more-btn" onclick="ceRvShowMore()">
+        Show more reviews
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
       </button>
     </div>
-    <div class="ce-rv-dots" id="ce-rv-dots"></div>
   </div>
 </section>
 
@@ -1613,13 +1586,16 @@ document.getElementById('emi-form').addEventListener('submit', async (e) => {
 /* ── Review Carousel ── */
 const _ceRvGrads=['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#06b6d4,#0284c7)','linear-gradient(135deg,#a855f7,#7c3aed)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
 const _ceRvTypeColors={course:'#7c5cfc',mentor:'#3d6bff',website:'#06b6d4',admin:'#f59e0b',general:'#10b981'};
-const _ceRvTypeIcons={course:'📚',mentor:'👨‍🏫',website:'🌐',admin:'🏛',general:'💬'};
+const _ceRvTypeIcons={
+  course:`<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>`,
+  mentor:`<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>`,
+  website:`<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='10'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/><path d='M2 12h20'/></svg>`,
+  admin:`<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>`,
+  general:`<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>`,
+};
 const _ceRvTypeLabels={course:'Course',mentor:'Mentor',website:'Website',admin:'Admin',general:'General'};
-let _ceRvAll=[],_ceRvFiltered=[],_ceRvIdx=0;const _ceRvModalStore={};
+let _ceRvAll=[],_ceRvFiltered=[],_ceRvVisibleCount=6;const _CE_RV_PAGE_SIZE=6;const _ceRvModalStore={};
 function _ceEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-const _CE_RV_CARD_W=300,_CE_RV_GAP=20;
-function _ceRvStep(){const card=document.querySelector('#ce-rv-track .ce-rv-card');return(card&&card.offsetWidth>0?card.offsetWidth:_CE_RV_CARD_W)+_CE_RV_GAP;}
-function _ceRvPerPage(){const c=document.querySelector('.ce-rv-clip');if(!c||!c.offsetWidth)return 3;return Math.max(1,Math.floor((c.offsetWidth+_CE_RV_GAP)/_ceRvStep()));}
 function _ceRvCleanText(text,type){
   if(!text)return'';
   const posM=text.match(/\[Positives\]:\s*([\s\S]*?)(?=\[Improvements\]:|$)/i);
@@ -1653,26 +1629,26 @@ function _ceRvBuildCard(f,idx){
     <div class="ce-rv-footer"><div class="ce-rv-avatar" style="background:${grad}">${initials}</div><div><div class="ce-rv-author-name">${_ceEsc(name)}</div><div class="ce-rv-author-sub">${course?_ceEsc(course.substring(0,32)+(course.length>32?'…':'')):typeLabel+' Review'}</div></div></div>
   </div>`;
 }
-function ceRvNav(dir){const p=_ceRvPerPage(),mx=Math.max(0,_ceRvFiltered.length-p);_ceRvIdx=Math.max(0,Math.min(_ceRvIdx+dir,mx));_ceRvUpdateCarousel();}
-function ceRvGoToPage(page){_ceRvIdx=page*_ceRvPerPage();_ceRvUpdateCarousel();}
+function _ceRvMoveGlide(){
+  const group=document.getElementById('ce-rv-filters'),glide=document.getElementById('ce-rv-glide');
+  const active=group?.querySelector('.ce-rv-filter.active');
+  if(!group||!glide||!active)return;
+  glide.style.left=active.offsetLeft+'px';glide.style.width=active.offsetWidth+'px';glide.classList.add('ready');
+}
 function ceRvSetFilter(cat){
-  _ceRvIdx=0;
+  _ceRvVisibleCount=_CE_RV_PAGE_SIZE;
   document.querySelectorAll('.ce-rv-filter').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
   _ceRvFiltered=cat==='all'?[..._ceRvAll]:_ceRvAll.filter(f=>{const t=f.feedback_type||(f.source==='review'?'course':'general');return t===cat;});
-  _ceRvRenderTrack();_ceRvUpdateCarousel();
+  _ceRvRenderGrid();_ceRvMoveGlide();
 }
-function _ceRvRenderTrack(){const t=document.getElementById('ce-rv-track');if(t)t.innerHTML=_ceRvFiltered.map((f,i)=>_ceRvBuildCard(f,i)).join('');}
-function _ceRvUpdateCarousel(){
-  const track=document.getElementById('ce-rv-track');if(!track)return;
-  const p=_ceRvPerPage(),mx=Math.max(0,_ceRvFiltered.length-p);
-  _ceRvIdx=Math.min(_ceRvIdx,mx);
-  track.style.transform=`translateX(${-_ceRvIdx*_ceRvStep()}px)`;
-  const prev=document.getElementById('ce-rv-prev'),next=document.getElementById('ce-rv-next');
-  if(prev)prev.disabled=_ceRvIdx<=0;if(next)next.disabled=_ceRvIdx>=mx;
-  const td=Math.ceil(_ceRvFiltered.length/Math.max(1,p)),ad=Math.min(Math.floor(_ceRvIdx/Math.max(1,p)),td-1);
-  const dots=document.getElementById('ce-rv-dots');
-  if(dots)dots.innerHTML=Array.from({length:td},(_,i)=>`<button class="ce-rv-dot${i===ad?' active':''}" onclick="ceRvGoToPage(${i})" aria-label="Page ${i+1}"></button>`).join('');
+function _ceRvRenderGrid(){
+  const g=document.getElementById('ce-rv-grid');if(!g)return;
+  const visible=_ceRvFiltered.slice(0,_ceRvVisibleCount);
+  g.innerHTML=visible.map((f,i)=>_ceRvBuildCard(f,i)).join('');
+  const moreWrap=document.getElementById('ce-rv-more-wrap');
+  if(moreWrap)moreWrap.classList.toggle('hidden',_ceRvVisibleCount>=_ceRvFiltered.length);
 }
+function ceRvShowMore(){_ceRvVisibleCount+=_CE_RV_PAGE_SIZE;_ceRvRenderGrid();}
 function ceRvOpenModal(key){
   const d=_ceRvModalStore[key];if(!d)return;
   const m=document.getElementById('ce-rv-modal');if(!m)return;
@@ -1686,8 +1662,9 @@ function ceRvOpenModal(key){
 }
 function closeCERvModal(){const m=document.getElementById('ce-rv-modal');if(m)m.classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCERvModal();});
-window.addEventListener('resize',()=>_ceRvUpdateCarousel());
+window.addEventListener('resize',()=>{clearTimeout(window._ceRvGlideResizeT);window._ceRvGlideResizeT=setTimeout(_ceRvMoveGlide,120);});
 document.querySelectorAll('.ce-rv-filter').forEach(b=>b.addEventListener('click',()=>ceRvSetFilter(b.dataset.cat)));
+_ceRvMoveGlide();
 
 /* ── Load reviews ── */
 (async function loadEnqReviews(){
@@ -1706,8 +1683,13 @@ document.querySelectorAll('.ce-rv-filter').forEach(b=>b.addEventListener('click'
     reviews.forEach(r=>{r._name=r.user_id?nameMap[r.user_id]||'Student':'Student';});
     feedback.forEach(f=>{f._name=f.user_id?nameMap[f.user_id]||f.full_name||'Student':f.full_name||'Student';});
     _ceRvAll=[...reviews,...feedback].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-    if(!_ceRvAll.length){if(empty)empty.classList.add('show');const o=document.getElementById('ce-rv-carousel-outer');if(o)o.style.display='none';return;}
-    _ceRvFiltered=[..._ceRvAll];_ceRvRenderTrack();_ceRvUpdateCarousel();
+    if(!_ceRvAll.length){
+      if(empty)empty.classList.add('show');
+      document.getElementById('ce-rv-filters')?.style.setProperty('display','none');
+      document.getElementById('ce-rv-grid')?.style.setProperty('display','none');
+      return;
+    }
+    _ceRvFiltered=[..._ceRvAll];_ceRvRenderGrid();requestAnimationFrame(_ceRvMoveGlide);
   }catch(e){if(empty)empty.classList.add('show');}
 })();
 

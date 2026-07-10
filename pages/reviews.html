@@ -4,30 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Student Reviews & Testimonials — SkillUpNow IT Training Chennai</title>
-  <meta name="description" content="Read real reviews from 12,000+ SkillUpNow students. See what learners say about our Cloud, DevOps, AI/ML and Cybersecurity courses, mentors, and placement support.">
-  <meta name="keywords" content="SkillUpNow reviews, IT training testimonials, student feedback, course reviews Chennai">
+  <title>Reviews & Testimonials — SkillUpNow IT Training Chennai</title>
+  <meta name="description" content="Read real reviews from SkillUpNow students and clients. See what people say about our courses, software development work, projects, and internships — with photos and video testimonials.">
+  <meta name="keywords" content="SkillUpNow reviews, IT training testimonials, development reviews, project reviews, internship reviews Chennai">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://skillupnowadmin.org/reviews">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SkillUpNow">
-  <meta property="og:title" content="Student Reviews & Testimonials — SkillUpNow">
-  <meta property="og:description" content="Real reviews from 12,000+ learners. Cloud, DevOps, AI/ML, Cybersecurity training at SkillUpNow Chennai.">
+  <meta property="og:title" content="Reviews & Testimonials — SkillUpNow">
+  <meta property="og:description" content="Real reviews of our courses, development work, projects, and internships — with photos and video.">
   <meta property="og:url" content="https://skillupnowadmin.org/reviews">
   <meta property="og:image" content="https://skillupnowadmin.org/assets/og-image.png">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Student Reviews — SkillUpNow">
-  <meta name="twitter:description" content="Real reviews from 12,000+ learners of SkillUpNow IT training courses.">
+  <meta name="twitter:title" content="Reviews — SkillUpNow">
+  <meta name="twitter:description" content="Real reviews of SkillUpNow courses, development work, projects, and internships.">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "ItemPage",
-    "name": "Student Reviews — SkillUpNow",
+    "name": "Reviews — SkillUpNow",
     "url": "https://skillupnowadmin.org/reviews",
-    "description": "Verified student reviews and testimonials for SkillUpNow IT training courses.",
+    "description": "Verified reviews and testimonials for SkillUpNow courses, development work, projects, and internships.",
     "publisher": {
       "@type": "EducationalOrganization",
       "name": "SkillUpNow",
@@ -43,7 +43,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ══ PAGE SHELL ══ */
-    .page-wrap { position:relative; z-index:1; padding-top:0; min-height:100vh; }
+    .page-wrap {
+      position:relative; z-index:1; padding-top:0; min-height:100vh;
+      opacity:0; transform:translateY(8px);
+      transition:opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);
+    }
+    .page-wrap.rv-loaded { opacity:1; transform:translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .page-wrap { opacity:1; transform:none; transition:none; }
+    }
 
     /* ══ HERO ══ */
     .rv-hero {
@@ -71,7 +79,7 @@
       -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
       mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
     }
-    .rv-hero-inner { position:relative; z-index:2; max-width:640px; }
+    .rv-hero-inner { position:relative; z-index:2; max-width:680px; }
     .rv-hero-kicker {
       display:inline-flex; align-items:center; gap:.45rem;
       background:rgba(124,92,252,.14); border:1px solid rgba(124,92,252,.35);
@@ -87,8 +95,16 @@
     :root[data-theme="light"] .rv-hero h1 { color:#1e1b4b; }
     .rv-hero-accent { background:linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
     :root[data-theme="light"] .rv-hero-accent { background:linear-gradient(135deg,#7c5cfc,#3d6bff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    .rv-hero p { font-size:.95rem; color:rgba(255,255,255,.62); max-width:480px; line-height:1.65; margin:0 auto; }
+    .rv-hero p { font-size:.95rem; color:rgba(255,255,255,.62); max-width:520px; line-height:1.65; margin:0 auto; }
     :root[data-theme="light"] .rv-hero p { color:rgba(30,27,75,.58); }
+    .rv-hero-cta {
+      margin-top:1.5rem; display:inline-flex; align-items:center; gap:.5rem;
+      padding:.75rem 1.7rem; border-radius:999px; border:none; cursor:pointer;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff); color:#fff;
+      font-size:.88rem; font-weight:800; font-family:inherit;
+      box-shadow:0 8px 28px rgba(124,92,252,.4); transition:transform .25s, box-shadow .25s;
+    }
+    .rv-hero-cta:hover { transform:translateY(-2px); box-shadow:0 12px 36px rgba(124,92,252,.55); }
 
     /* ══ STATS BAR ══ */
     .rv-stats {
@@ -100,7 +116,16 @@
       padding:1rem 2.5rem; border-right:1px solid var(--border);
     }
     .rv-stat:last-child { border-right:none; }
-    .rv-stat-icon { font-size:1.4rem; }
+    .rv-stat-icon { font-size:1.4rem; display:flex; align-items:center; justify-content:center; }
+    .rv-stat-icon svg {
+      width:30px; height:30px; overflow:visible;
+      filter:drop-shadow(0 0 7px color-mix(in srgb, currentColor 55%, transparent));
+      transition:filter .3s, transform .32s cubic-bezier(.22,1,.36,1);
+    }
+    .rv-stat:hover .rv-stat-icon svg {
+      filter:drop-shadow(0 0 15px color-mix(in srgb, currentColor 85%, transparent));
+      transform:scale(1.14) translateY(-2px);
+    }
     .rv-stat-num { font-size:1.2rem; font-weight:900; color:var(--txt); line-height:1; }
     .rv-stat-lbl { font-size:.72rem; color:var(--txt3); font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
 
@@ -108,42 +133,59 @@
     .rv-main { max-width:1260px; margin:0 auto; padding:2rem 1.5rem 3rem; }
 
     /* ══ FILTER BAR ══ */
-    .rv-filter-bar {
-      display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
-      margin-bottom:2rem; padding-bottom:1.5rem;
-      border-bottom:1.5px solid var(--border);
-    }
-    .rv-filter-group { display:flex; gap:.45rem; flex-wrap:wrap; }
-    .rv-filter-btn {
-      display:inline-flex; align-items:center; gap:.35rem;
-      padding:.38rem .95rem; border-radius:999px;
-      border:1.5px solid var(--border); background:transparent;
-      font-size:.78rem; font-weight:700; color:var(--txt3);
-      cursor:pointer; font-family:inherit;
-      transition:all .2s cubic-bezier(.4,0,.2,1);
-    }
-    .rv-filter-btn:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
-    .rv-filter-btn.active {
-      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
-      border-color:transparent; color:#fff;
-      box-shadow:0 4px 14px rgba(124,92,252,.35);
-    }
-    .rv-filter-sep { width:1px; height:28px; background:var(--border); flex-shrink:0; }
+    @keyframes rvFilterIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
 
-    /* ══ CATEGORY SECTION ══ */
-    .rv-cat-section { margin-bottom:3rem; }
-    .rv-cat-header {
-      display:flex; align-items:center; gap:.85rem;
-      margin-bottom:1.5rem; padding-bottom:.75rem;
-      border-bottom:1px solid var(--border);
+    .rv-filter-panel {
+      position:relative; display:flex; flex-direction:column; gap:.9rem;
+      margin-bottom:1.75rem; padding:1.15rem 1.3rem;
+      border-radius:20px;
+      background:linear-gradient(160deg,rgba(124,92,252,.055) 0%,var(--panel) 55%,rgba(6,182,212,.03) 100%);
+      border:1.5px solid var(--border);
+      box-shadow:0 4px 20px rgba(0,0,0,.04);
+      opacity:0; transform:translateY(14px);
+      animation:rvFilterIn .5s cubic-bezier(.22,1,.36,1) .05s both;
     }
-    .rv-cat-icon { font-size:1.5rem; }
-    .rv-cat-title { font-size:1.1rem; font-weight:800; color:var(--txt); }
-    .rv-cat-count {
-      display:inline-flex; align-items:center;
-      padding:.15rem .65rem; border-radius:999px;
-      background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.2);
-      font-size:.7rem; font-weight:800; color:var(--v1);
+    .rv-filter-row { display:flex; align-items:center; gap:.7rem; min-width:0; }
+    .rv-filter-divider {
+      height:1px; margin:0 -.2rem;
+      background:linear-gradient(90deg,transparent,var(--border) 12%,var(--border) 88%,transparent);
+    }
+    .rv-filter-row-lbl {
+      flex-shrink:0; display:inline-flex; align-items:center;
+      font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.09em;
+      color:var(--txt4);
+    }
+    .rv-filter-scroll { position:relative; flex:1 1 auto; min-width:0; }
+    .rv-filter-group {
+      position:relative; display:flex; align-items:center; gap:.45rem;
+      overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    }
+    .rv-filter-group::-webkit-scrollbar { display:none; }
+    .rv-glide {
+      position:absolute; top:0; height:100%; border-radius:999px;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      box-shadow:0 4px 16px rgba(124,92,252,.4), inset 0 0 0 1px rgba(255,255,255,.08);
+      transition:left .42s cubic-bezier(.34,1.56,.64,1), width .42s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+      z-index:0; pointer-events:none; opacity:0;
+    }
+    .rv-glide.ready { opacity:1; }
+    .rv-filter-btn {
+      position:relative; z-index:1; flex-shrink:0;
+      display:inline-flex; align-items:center; gap:.4rem; white-space:nowrap;
+      padding:.46rem 1.05rem; border-radius:999px;
+      border:1.5px solid var(--border); background:var(--bg);
+      font-size:.79rem; font-weight:700; color:var(--txt3);
+      cursor:pointer; font-family:inherit;
+      transition:color .2s cubic-bezier(.4,0,.2,1), border-color .2s cubic-bezier(.4,0,.2,1), transform .2s cubic-bezier(.4,0,.2,1), background .2s;
+    }
+    .rv-filter-btn:hover { border-color:rgba(124,92,252,.4); color:var(--txt); transform:translateY(-2px); background:rgba(124,92,252,.06); }
+    .rv-filter-btn:active { transform:translateY(0) scale(.95); }
+    .rv-filter-btn.active { border-color:transparent; color:#fff; background:transparent; }
+    .rv-result-count {
+      flex-shrink:0; display:inline-flex; align-items:center;
+      padding:.32rem .75rem; border-radius:999px;
+      font-size:.72rem; font-weight:700; color:var(--txt3);
+      background:var(--bg-secondary); border:1px solid var(--border);
     }
 
     /* ══ REVIEW GRID ══ */
@@ -151,9 +193,11 @@
       display:grid;
       grid-template-columns:repeat(auto-fill, minmax(300px,1fr));
       gap:1.4rem;
+      transition:opacity .22s ease, transform .22s ease, filter .22s ease;
     }
+    .rv-grid.rv-grid-transitioning { opacity:0; transform:scale(.98); filter:blur(3px); pointer-events:none; }
 
-    /* ══ REVIEW CARD (full page version — same design as carousel) ══ */
+    /* ══ REVIEW CARD ══ */
     @keyframes rvCardFadeUp {
       from { opacity:0; transform:translateY(20px) scale(.98); }
       to   { opacity:1; transform:translateY(0) scale(1); }
@@ -164,7 +208,8 @@
     }
 
     .rv-full-card {
-      background:var(--panel); border:1.5px solid var(--border);
+      background:linear-gradient(160deg,rgba(124,92,252,.055) 0%,var(--panel) 45%,rgba(6,182,212,.035) 100%);
+      border:1.5px solid var(--border);
       border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
       display:flex; flex-direction:column;
       position:relative; overflow:hidden;
@@ -181,8 +226,14 @@
       border-color:rgba(124,92,252,.45);
       box-shadow:0 20px 55px rgba(124,92,252,.18), 0 4px 12px rgba(0,0,0,.08);
     }
+    .rv-full-card::after {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,.09) 50%, transparent 60%);
+      transform:translateX(-120%);
+      transition:transform .75s cubic-bezier(.4,0,.2,1);
+    }
+    .rv-full-card:hover::after { transform:translateX(120%); }
 
-    /* Stars */
     .rv-full-card-top {
       display:flex; align-items:flex-start; justify-content:space-between;
       gap:.5rem; margin-bottom:.95rem;
@@ -192,7 +243,6 @@
     :root[data-theme="light"] .rv-full-star:not(.on) { color:rgba(0,0,0,.1); }
     .rv-full-star.on { color:#fbbf24; animation:rvStarPulse 3.5s ease-in-out infinite; }
 
-    /* Badge */
     .rv-full-badge {
       display:inline-flex; align-items:center; gap:.28rem; flex-shrink:0;
       padding:.17rem .6rem; border-radius:999px;
@@ -204,7 +254,6 @@
     @supports not (color:color-mix(in srgb,red,blue)){.rv-full-badge{background:rgba(124,92,252,.1);border-color:rgba(124,92,252,.25);}}
     .rv-full-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--rvf-dot,#7c5cfc);}
 
-    /* Quote */
     .rv-full-quote-wrap { position:relative; flex:1; margin-bottom:.75rem; }
     .rv-full-quote-icon {
       position:absolute; top:-10px; left:-5px;
@@ -215,7 +264,7 @@
     .rv-full-text {
       font-size:.875rem; line-height:1.78; color:var(--txt2);
       padding-left:1.4rem; margin:0;
-      display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden;
+      display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden;
     }
     .rv-full-text.expanded { -webkit-line-clamp:unset; }
     .rv-full-readmore {
@@ -225,6 +274,22 @@
       display:inline-block; transition:background .2s, transform .2s;
     }
     .rv-full-readmore:hover { background:rgba(124,92,252,.1); transform:scale(1.04); }
+
+    .rv-full-title { font-size:.92rem; font-weight:800; color:var(--txt); margin:0 0 .3rem; padding-left:1.4rem; }
+
+    /* ══ MEDIA ══ */
+    .rv-media-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.4rem; margin:.6rem 0 .8rem; }
+    .rv-media-thumb {
+      position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden;
+      border:1px solid var(--border); cursor:pointer; background:var(--bg);
+    }
+    .rv-media-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s; }
+    .rv-media-thumb:hover img { transform:scale(1.08); }
+    .rv-media-video-wrap {
+      margin:.6rem 0 .8rem; border-radius:12px; overflow:hidden;
+      border:1px solid var(--border); background:#000;
+    }
+    .rv-media-video-wrap video { width:100%; display:block; max-height:220px; }
 
     /* Meta row */
     .rv-full-meta {
@@ -284,180 +349,161 @@
       animation:rvSkelShimmer 1.6s ease-in-out infinite;
     }
 
-    /* ══ MODAL ══ */
+    /* ══ READ-MORE MODAL ══ */
     @keyframes rvModalIn { from{opacity:0;transform:translateY(32px) scale(.95)} to{opacity:1;transform:none} }
-    #rvp-modal {
+    .rv-modal-overlay {
       position:fixed; inset:0; z-index:99995;
       background:rgba(6,3,18,.72);
       backdrop-filter:blur(22px) saturate(1.6); -webkit-backdrop-filter:blur(22px) saturate(1.6);
       display:flex; align-items:center; justify-content:center; padding:1.2rem;
       opacity:0; visibility:hidden; transition:opacity .28s, visibility .28s;
     }
-    #rvp-modal.open { opacity:1; visibility:visible; }
-    #rvp-modal-box {
+    .rv-modal-overlay.open { opacity:1; visibility:visible; }
+    .rv-modal-box {
       background:var(--panel); border:1.5px solid rgba(124,92,252,.28);
       border-radius:28px; padding:2.4rem 2rem 2rem;
       max-width:540px; width:94vw; position:relative;
       box-shadow:0 40px 80px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.06);
+      max-height:88vh; overflow-y:auto;
     }
-    #rvp-modal.open #rvp-modal-box { animation:rvModalIn .32s cubic-bezier(.22,1,.36,1) both; }
-    .rvp-modal-close {
+    .rv-modal-overlay.open .rv-modal-box { animation:rvModalIn .32s cubic-bezier(.22,1,.36,1) both; }
+    .rv-modal-close {
       position:absolute; top:1rem; right:1rem; width:32px; height:32px; border-radius:50%;
       border:1.5px solid rgba(124,92,252,.3); background:rgba(124,92,252,.1); color:var(--v1);
       font-size:.85rem; font-weight:700; display:flex; align-items:center; justify-content:center;
-      cursor:pointer; font-family:inherit; transition:background .2s, transform .2s;
+      cursor:pointer; font-family:inherit; transition:background .2s, transform .2s; z-index:2;
     }
-    .rvp-modal-close:hover { background:var(--v1); color:#fff; transform:rotate(90deg); }
+    .rv-modal-close:hover { background:var(--v1); color:#fff; transform:rotate(90deg); }
     #rvp-modal-stars { display:flex; gap:.28rem; margin-bottom:1.2rem; }
     #rvp-modal-stars .rv-full-star { font-size:1.4rem; }
-    #rvp-modal-body { font-size:.93rem; color:var(--txt2); line-height:1.85; margin:0 0 1.5rem; max-height:55vh; overflow-y:auto; }
+    #rvp-modal-body { font-size:.93rem; color:var(--txt2); line-height:1.85; margin:0 0 1.5rem; }
     .rvp-modal-author { display:flex; align-items:center; gap:.75rem; padding-top:1rem; border-top:1px solid var(--border); }
-    :root[data-theme="light"] #rvp-modal-box { background:rgba(255,255,255,.97); }
+    :root[data-theme="light"] .rv-modal-box { background:rgba(255,255,255,.97); }
 
-    /* ══ LIQUID GLASS SORT DROPDOWN ══ */
-    .rv-sort-wrap { position:relative; }
-    .rv-sort-trigger {
-      display:inline-flex; align-items:center; gap:.5rem;
-      padding:.38rem .9rem;
-      border-radius:999px;
-      border:1px solid rgba(124,92,252,.28);
-      background:rgba(124,92,252,.08);
-      -webkit-backdrop-filter:blur(16px) saturate(180%);
-      backdrop-filter:blur(16px) saturate(180%);
-      color:var(--txt); font-size:.78rem; font-weight:700;
-      font-family:inherit; cursor:pointer; white-space:nowrap;
-      box-shadow:0 1px 0 rgba(255,255,255,.08) inset;
-      transition:background .2s, border-color .2s, box-shadow .2s;
+    /* ══ IMAGE LIGHTBOX ══ */
+    .rv-lightbox {
+      position:fixed; inset:0; z-index:99998; background:rgba(0,0,0,.9);
+      display:flex; align-items:center; justify-content:center; padding:1.5rem;
+      opacity:0; visibility:hidden; transition:opacity .25s, visibility .25s;
     }
-    .rv-sort-trigger:hover {
-      background:rgba(124,92,252,.15); border-color:rgba(124,92,252,.5);
-      box-shadow:0 4px 16px rgba(124,92,252,.18), 0 1px 0 rgba(255,255,255,.1) inset;
-    }
-    .rv-sort-trigger .rv-sort-chevron { transition:transform .25s cubic-bezier(.34,1.56,.64,1); flex-shrink:0; }
-    .rv-sort-wrap.open .rv-sort-chevron { transform:rotate(180deg); }
-    .rv-sort-wrap.open .rv-sort-trigger {
-      background:rgba(124,92,252,.18); border-color:rgba(124,92,252,.55);
-      box-shadow:0 6px 24px rgba(124,92,252,.24), 0 1px 0 rgba(255,255,255,.12) inset;
-    }
-    :root[data-theme="light"] .rv-sort-trigger {
-      background:rgba(255,255,255,.82); border-color:rgba(124,92,252,.22);
-      box-shadow:0 2px 8px rgba(124,92,252,.09), 0 1px 0 rgba(255,255,255,.95) inset;
-      color:var(--txt);
-    }
-    :root[data-theme="light"] .rv-sort-trigger:hover {
-      background:rgba(124,92,252,.07); border-color:rgba(124,92,252,.42);
-    }
-    :root[data-theme="light"] .rv-sort-wrap.open .rv-sort-trigger {
-      background:rgba(124,92,252,.09); border-color:rgba(124,92,252,.48);
-    }
+    .rv-lightbox.open { opacity:1; visibility:visible; }
+    .rv-lightbox img { max-width:92vw; max-height:88vh; border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.6); }
 
-    /* Dropdown panel */
-    .rv-sort-panel {
-      position:absolute; top:calc(100% + .5rem); right:0; z-index:400;
-      min-width:178px; border-radius:18px; padding:.4rem;
-      background:rgba(12,6,32,.93);
-      -webkit-backdrop-filter:blur(32px) saturate(200%);
-      backdrop-filter:blur(32px) saturate(200%);
-      border:1px solid rgba(124,92,252,.34);
-      box-shadow:0 24px 64px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.07) inset;
-      opacity:0; visibility:hidden;
-      transform:translateY(-8px) scale(.96);
-      transition:opacity .22s, visibility .22s, transform .22s cubic-bezier(.22,1,.36,1);
-      pointer-events:none;
+    /* ══ WRITE-REVIEW MODAL ══ */
+    .wr-cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-bottom:1.1rem; }
+    .wr-cat-card {
+      display:flex; flex-direction:column; gap:.25rem; text-align:left;
+      padding:.85rem .95rem; border-radius:16px; border:1.5px solid var(--border);
+      background:var(--bg); cursor:pointer; font-family:inherit;
+      transition:all .2s cubic-bezier(.4,0,.2,1);
     }
-    :root[data-theme="light"] .rv-sort-panel {
-      background:rgba(255,255,255,.97);
-      border-color:rgba(124,92,252,.18);
-      box-shadow:0 16px 48px rgba(124,92,252,.15), 0 2px 8px rgba(0,0,0,.06),
-                 0 2px 0 rgba(255,255,255,.95) inset;
+    .wr-cat-card:hover { border-color:rgba(124,92,252,.4); transform:translateY(-2px); }
+    .wr-cat-card.sel {
+      border-color:#7c5cfc; background:rgba(124,92,252,.1);
+      box-shadow:0 4px 16px rgba(124,92,252,.2);
     }
-    .rv-sort-wrap.open .rv-sort-panel {
-      opacity:1; visibility:visible;
-      transform:translateY(0) scale(1); pointer-events:auto;
+    .wr-cat-card svg { width:20px; height:20px; color:var(--v1); }
+    .wr-cat-card .wr-cat-name { font-size:.86rem; font-weight:800; color:var(--txt); }
+    .wr-cat-card .wr-cat-desc { font-size:.72rem; color:var(--txt4); }
+
+    .wr-star-row { display:flex; gap:.3rem; margin-bottom:.3rem; }
+    .wr-star-btn {
+      background:none; border:none; cursor:pointer; padding:0; font-size:2rem;
+      color:var(--border2); transition:color .12s, transform .18s cubic-bezier(.34,1.56,.64,1);
+      line-height:1;
     }
-    .rv-sort-opt {
-      display:flex; align-items:center; width:100%; text-align:left;
-      padding:.54rem .88rem; border-radius:11px; border:none;
-      background:transparent; color:var(--txt2);
-      font-size:.8rem; font-weight:600; font-family:inherit; cursor:pointer;
-      transition:background .15s, color .15s; position:relative;
+    .wr-star-btn.on { color:#f59e0b; filter:drop-shadow(0 2px 6px rgba(245,158,11,.5)); }
+    .wr-star-btn:hover { transform:scale(1.2); }
+
+    .wr-media-row { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.5rem; }
+    .wr-photo-thumb { position:relative; width:64px; height:64px; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+    .wr-photo-thumb img { width:100%; height:100%; object-fit:cover; }
+    .wr-photo-remove, .wr-video-remove {
+      position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%;
+      background:rgba(0,0,0,.65); color:#fff; border:none; font-size:.7rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; line-height:1;
     }
-    .rv-sort-opt:hover { background:rgba(124,92,252,.12); color:var(--txt); }
-    .rv-sort-opt.active {
-      background:linear-gradient(135deg,rgba(124,92,252,.22),rgba(61,107,255,.16));
-      color:var(--v1); font-weight:800;
+    .wr-upload-btn {
+      width:64px; height:64px; border-radius:10px; border:1.5px dashed var(--border);
+      background:var(--bg); color:var(--txt4); cursor:pointer; font-family:inherit;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.15rem;
+      font-size:.62rem; font-weight:700; transition:border-color .2s, color .2s;
     }
-    .rv-sort-opt.active::after {
-      content:'✓'; position:absolute; right:.88rem;
-      font-size:.72rem; color:var(--v1); font-weight:900;
-    }
-    :root[data-theme="light"] .rv-sort-opt { color:var(--txt2); }
-    :root[data-theme="light"] .rv-sort-opt:hover { background:rgba(124,92,252,.08); color:var(--txt); }
-    :root[data-theme="light"] .rv-sort-opt.active {
-      background:rgba(124,92,252,.1); color:var(--v1);
+    .wr-upload-btn:hover { border-color:var(--v1); color:var(--v1); }
+    .wr-video-preview { position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--border); background:#000; max-width:220px; }
+    .wr-video-preview video { width:100%; display:block; max-height:160px; }
+
+    .wr-submit-note { font-size:.75rem; color:var(--txt4); margin-top:.6rem; text-align:center; }
+    .wr-success { display:none; text-align:center; padding:2.5rem 1rem; }
+    .wr-success.show { display:block; }
+    .wr-success .wr-success-icon { font-size:3rem; margin-bottom:.75rem; }
+    .wr-success h3 { font-size:1.3rem; font-weight:800; color:var(--txt); margin-bottom:.4rem; }
+    .wr-success p { font-size:.88rem; color:var(--txt3); line-height:1.6; }
+
+    /* ══ RESPONSIVE ══ (breakpoints match css/responsive.css site-wide convention) ══ */
+
+    /* Tablet landscape / narrow desktop */
+    @media(max-width:991px){
+      .rv-main { padding:1.75rem 1.25rem 2.75rem; }
+      .rv-grid { grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:1.1rem; }
+      .rv-hero { min-height:220px; padding:2.5rem 1.5rem 1.75rem; }
     }
 
-    /* Sort + count meta row */
-    .rv-filter-meta-row {
-      display:flex; align-items:center; gap:.75rem;
-      flex-shrink:0; margin-left:auto;
+    /* Tablet portrait / large phone */
+    @media(max-width:767px){
+      .rv-modal-box { padding:2rem 1.5rem 1.75rem; }
+      .wr-cat-grid { gap:.55rem; }
     }
-    .rv-result-count { font-size:.82rem; color:var(--txt3); white-space:nowrap; }
 
-    /* ══ RESPONSIVE — FULL MOBILE REDESIGN ══ */
-    @media(max-width:700px){
+    /* Phone */
+    @media(max-width:599px){
       .rv-hero { padding:2rem 1.25rem 1.5rem; }
       .rv-main { padding:1.5rem 1rem 2.5rem; }
 
-      /* Stats: 2×2 grid */
-      .rv-stats {
-        display:grid; grid-template-columns:1fr 1fr;
-      }
-      .rv-stat {
-        padding:.85rem 1.1rem; border-right:none;
-        border-bottom:1px solid var(--border);
-      }
+      .rv-stats { display:grid; grid-template-columns:1fr 1fr; }
+      .rv-stat { padding:.85rem 1.1rem; border-right:none; border-bottom:1px solid var(--border); }
       .rv-stat:nth-child(odd)  { border-right:1px solid var(--border); }
       .rv-stat:nth-last-child(-n+2) { border-bottom:none; }
 
-      /* Filter bar: stacked */
-      .rv-filter-bar {
-        flex-direction:column; align-items:stretch;
-        gap:.65rem; padding-bottom:1.25rem;
-      }
-      .rv-filter-group {
-        width:100%; min-width:0;
-        flex-wrap:nowrap; overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-        scrollbar-width:none; padding-bottom:.2rem;
-      }
-      .rv-filter-group::-webkit-scrollbar { display:none; }
-      .rv-filter-btn { flex-shrink:0; white-space:nowrap; }
-      .rv-filter-sep { display:none; }
+      .rv-filter-panel { padding:1rem 1rem 1.1rem; gap:.7rem; border-radius:18px; }
+      .rv-filter-row { gap:.5rem; }
+      .rv-filter-row-lbl { font-size:.62rem; }
+      .rv-result-count { font-size:.68rem; padding:.28rem .6rem; }
+      .rv-filter-btn { padding:.4rem .85rem; font-size:.75rem; }
 
-      /* Sort + count: own row, right-aligned */
-      .rv-filter-meta-row { margin-left:0; justify-content:space-between; width:100%; }
-
-      /* Grid: single column */
-      .rv-grid { grid-template-columns:1fr; }
-
-      /* Sort panel: left-aligned on mobile */
-      .rv-sort-panel { right:auto; left:0; }
+      .rv-grid { grid-template-columns:1fr; gap:1rem; }
+      .wr-cat-grid { grid-template-columns:1fr; }
+      .rv-modal-box { width:96vw; max-height:92vh; border-radius:22px; padding:1.75rem 1.25rem 1.5rem; }
+      .rv-hero-cta { width:100%; justify-content:center; }
+      .f-row { grid-template-columns:1fr !important; }
     }
-    @media(max-width:480px){
+
+    /* Small phone */
+    @media(max-width:479px){
       .rv-full-card { padding:1.2rem 1rem 1rem; }
       .rv-stat { padding:.75rem .9rem; }
       .rv-stat-icon svg { width:26px; height:26px; }
       .rv-stat-num { font-size:1.05rem; }
       .rv-stat-lbl { font-size:.66rem; }
       .rv-hero h1 { font-size:clamp(1.55rem,5vw,2.1rem); }
-    }
-    @media(max-width:380px){
-      .rv-filter-btn { padding:.3rem .68rem; font-size:.71rem; gap:.26rem; }
-      .rv-filt-ico svg { width:12px; height:12px; }
+      .rv-media-grid { grid-template-columns:repeat(3,1fr); gap:.3rem; }
+      .wr-photo-thumb, .wr-upload-btn { width:56px; height:56px; }
+      .rv-modal-close { top:.75rem; right:.75rem; }
     }
 
-    /* ===== ANIMATED SVG ICONS — PROJECT-PAGE STYLE ===== */
+    /* Very small phone */
+    @media(max-width:360px){
+      .rv-hero-kicker { font-size:.64rem; padding:.25rem .8rem; }
+      .rv-filter-panel { padding:.85rem .85rem .95rem; border-radius:16px; }
+      .rv-filter-btn { padding:.36rem .7rem; font-size:.71rem; gap:.3rem; }
+      .rv-filter-row-lbl { font-size:.58rem; }
+      .rv-result-count { font-size:.64rem; padding:.24rem .5rem; }
+      .wr-cat-card { padding:.7rem .75rem; }
+      .wr-cat-card .wr-cat-desc { display:none; }
+      .rv-modal-box { padding:1.5rem 1rem 1.25rem; }
+    }
+
+    /* ===== ANIMATED SVG ICONS ===== */
     @keyframes siBob   { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-2.5px)} }
     @keyframes siFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-3px) scale(1.04)} }
     @keyframes siBlink { 0%,44%,56%,100%{opacity:1} 50%{opacity:.08} }
@@ -467,7 +513,6 @@
     @keyframes siPulse { 0%,100%{opacity:.6;transform:scale(.88)} 50%{opacity:1;transform:scale(1.08)} }
 
     .si-bob   { animation:siBob   2.8s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
-    .si-bob2  { animation:siBob   2.8s ease-in-out infinite .55s; transform-box:fill-box; transform-origin:center; }
     .si-float { animation:siFloat 3.2s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
     .si-blink { animation:siBlink 1.6s ease-in-out infinite; }
     .si-spin  { animation:siSpin  9s linear infinite;             transform-box:fill-box; transform-origin:center; }
@@ -475,44 +520,66 @@
     .si-drop  { animation:siDrop  2.4s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
     .si-pulse { animation:siPulse 2.2s ease-in-out infinite;      transform-box:fill-box; transform-origin:center; }
 
-    /* Delay helpers */
-    .ad-1 { animation-delay:.14s; }
-    .ad-2 { animation-delay:.28s; }
-    .ad-3 { animation-delay:.42s; }
-    .ad-4 { animation-delay:.56s; }
-    .ad-5 { animation-delay:.8s;  }
-    .ad-6 { animation-delay:.9s;  }
+    .ad-1 { animation-delay:.14s; } .ad-2 { animation-delay:.28s; } .ad-3 { animation-delay:.42s; }
+    .ad-4 { animation-delay:.56s; } .ad-5 { animation-delay:.8s;  } .ad-6 { animation-delay:.9s;  }
 
-    /* Icon colour classes */
     .rv-ico-violet  { color:#7c5cfc; }
     .rv-ico-amber   { color:#f59e0b; }
     .rv-ico-cyan    { color:#06b6d4; }
     .rv-ico-emerald { color:#10b981; }
-    .rv-ico-rose    { color:#f43f5e; }
     .rv-ico-star    { color:#fbbf24; }
 
-    /* Stats bar animated icons */
-    .rv-stat-icon { font-size:1.4rem; display:flex; align-items:center; justify-content:center; }
-    .rv-stat-icon svg {
-      width:30px; height:30px; overflow:visible;
-      filter:drop-shadow(0 0 7px color-mix(in srgb, currentColor 55%, transparent));
-      transition:filter .3s, transform .32s cubic-bezier(.22,1,.36,1);
-    }
-    .rv-stat:hover .rv-stat-icon svg {
-      filter:drop-shadow(0 0 15px color-mix(in srgb, currentColor 85%, transparent));
-      transform:scale(1.14) translateY(-2px);
-    }
-
-    /* Filter button animated icons */
     .rv-filt-ico { display:inline-flex; align-items:center; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
     .rv-filt-ico svg { width:14px; height:14px; overflow:visible; transition:filter .25s; }
     .rv-filter-btn:hover .rv-filt-ico { transform:scale(1.22) translateY(-1px); }
     .rv-filter-btn:hover .rv-filt-ico svg { filter:drop-shadow(0 0 5px color-mix(in srgb, currentColor 85%, transparent)); }
     .rv-filter-btn.active .rv-filt-ico svg { filter:drop-shadow(0 0 4px rgba(255,255,255,.55)); }
 
-    /* Hero kicker icon */
     .rv-kicker-ico { display:inline-flex; align-items:center; }
     .rv-kicker-ico svg { width:13px; height:13px; overflow:visible; }
+
+    /* ══ SHARED FORM / ALERT / BUTTON PRIMITIVES (modal-local, page has no global equivalents) ══ */
+    .f-group { margin-bottom:1.1rem; }
+    .f-group label { display:block; font-size:.8rem; font-weight:700; color:var(--txt3); margin-bottom:.45rem; }
+    .f-group input, .f-group textarea {
+      width:100%; background:var(--bg); color:var(--txt);
+      border:1.5px solid var(--border); border-radius:12px;
+      padding:.7rem 1rem; font-size:.88rem; font-family:inherit;
+      outline:none; transition:border-color .22s, box-shadow .22s, background .22s;
+    }
+    .f-group input:focus, .f-group textarea:focus {
+      border-color:var(--v1); box-shadow:0 0 0 4px rgba(124,92,252,.12);
+      background:rgba(124,92,252,.04);
+    }
+    .f-group textarea { resize:vertical; min-height:100px; line-height:1.6; }
+
+    .alert {
+      padding:.75rem 1rem; border-radius:12px; font-size:.83rem;
+      font-weight:600; margin-bottom:1rem; display:none;
+    }
+    .alert.error { background:rgba(239,68,68,.1); border:1.5px solid rgba(239,68,68,.3); color:#f87171; }
+    .alert.show { display:block; }
+
+    .btn-submit {
+      position:relative; overflow:hidden;
+      background:linear-gradient(135deg, #7c5cfc 0%, #3d6bff 60%, #7c5cfc 100%);
+      background-size:200% 100%; color:#fff; border:none;
+      border-radius:14px; padding:.85rem 2rem;
+      font-size:.92rem; font-weight:800; cursor:pointer;
+      font-family:inherit; letter-spacing:.01em;
+      transition:all .28s cubic-bezier(.4,0,.2,1);
+      box-shadow:0 6px 24px rgba(124,92,252,.38);
+    }
+    .btn-submit:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 36px rgba(124,92,252,.5); }
+    .btn-submit:disabled { opacity:.6; cursor:not-allowed; }
+
+    .action-btn {
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:.6rem 1.4rem; border-radius:12px; border:1.5px solid var(--border);
+      background:var(--bg); color:var(--txt); font-size:.85rem; font-weight:700;
+      cursor:pointer; font-family:inherit; transition:all .2s;
+    }
+    .action-btn:hover { border-color:var(--v1); color:var(--v1); }
   </style>
 </head>
 <body>
@@ -533,8 +600,12 @@
         </span>
         Verified Reviews
       </div>
-      <h1>What Our Students <span class="rv-hero-accent">Really Think</span></h1>
-      <p>All reviews are verified and approved by our team. Explore feedback across courses, mentors, admin, and platform.</p>
+      <h1>What People <span class="rv-hero-accent">Really Think</span></h1>
+      <p>Real reviews of our courses, our software development work, our projects, and our internships — verified and approved by our team, with photos and videos where shared.</p>
+      <button type="button" class="rv-hero-cta" onclick="openWriteReview()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Write a Review
+      </button>
     </div>
   </section>
 
@@ -542,34 +613,11 @@
   <div class="rv-stats" id="rv-stats">
     <div class="rv-stat">
       <span class="rv-stat-icon" aria-hidden="true">
-        <svg class="rv-ico-star" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <path class="si-pulse" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path class="si-bob" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
       </span>
       <div><div class="rv-stat-num" id="stat-total">—</div><div class="rv-stat-lbl">Total Reviews</div></div>
-    </div>
-    <div class="rv-stat">
-      <span class="rv-stat-icon" aria-hidden="true">
-        <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-          <line class="si-slide" x1="5" y1="8" x2="9" y2="8"/>
-          <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
-          <line class="si-slide ad-1" x1="15" y1="8" x2="19" y2="8"/>
-          <line class="si-slide ad-3" x1="15" y1="12" x2="19" y2="12"/>
-        </svg>
-      </span>
-      <div><div class="rv-stat-num" id="stat-courses">—</div><div class="rv-stat-lbl">Course Reviews</div></div>
-    </div>
-    <div class="rv-stat">
-      <span class="rv-stat-icon" aria-hidden="true">
-        <svg class="rv-ico-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path class="si-bob" d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-          <line class="si-drop" x1="22" y1="10" x2="22" y2="16"/>
-        </svg>
-      </span>
-      <div><div class="rv-stat-num" id="stat-mentors">—</div><div class="rv-stat-lbl">Mentor Reviews</div></div>
     </div>
     <div class="rv-stat">
       <span class="rv-stat-icon" aria-hidden="true">
@@ -581,110 +629,103 @@
       </span>
       <div><div class="rv-stat-num" id="stat-avg">—</div><div class="rv-stat-lbl">Avg Rating</div></div>
     </div>
+    <div class="rv-stat">
+      <span class="rv-stat-icon" aria-hidden="true">
+        <svg class="rv-ico-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon class="si-bob" points="12,2 22,7 12,12 2,7"/>
+          <path d="M6 10.5v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5"/>
+        </svg>
+      </span>
+      <div><div class="rv-stat-num" id="stat-fivestar">—</div><div class="rv-stat-lbl">5-Star Reviews</div></div>
+    </div>
+    <div class="rv-stat">
+      <span class="rv-stat-icon" aria-hidden="true">
+        <svg class="rv-ico-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="15" height="14" rx="2"/>
+          <path class="si-slide" d="M17 9.5l5-3v11l-5-3z"/>
+        </svg>
+      </span>
+      <div><div class="rv-stat-num" id="stat-video">—</div><div class="rv-stat-lbl">Video Stories</div></div>
+    </div>
   </div>
 
   <!-- Main -->
   <div class="rv-main">
 
     <!-- Filter bar -->
-    <div class="rv-filter-bar">
-      <div class="rv-filter-group" id="rvp-filters">
-
-        <!-- All — 4-app grid, each square bobs at staggered delay -->
-        <button type="button" class="rv-filter-btn active" data-cat="all">
-          <span class="rv-filt-ico" aria-hidden="true">
-            <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect class="si-bob"     x="3"  y="3"  width="7" height="7" rx="1.5"/>
-              <rect class="si-bob ad-2" x="14" y="3"  width="7" height="7" rx="1.5"/>
-              <rect class="si-bob ad-4" x="3"  y="14" width="7" height="7" rx="1.5"/>
-              <rect class="si-bob ad-6" x="14" y="14" width="7" height="7" rx="1.5"/>
-            </svg>
-          </span> All
-        </button>
-
-        <!-- Courses — open book: left page static, right page bobs, 3 text lines slide -->
-        <button type="button" class="rv-filter-btn" data-cat="course">
-          <span class="rv-filt-ico" aria-hidden="true">
-            <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-              <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-              <line class="si-slide"     x1="5" y1="8"  x2="9" y2="8"/>
-              <line class="si-slide ad-2" x1="5" y1="12" x2="9" y2="12"/>
-              <line class="si-slide ad-4" x1="5" y1="16" x2="8" y2="16"/>
-            </svg>
-          </span> Courses
-        </button>
-
-        <!-- Mentors — mortarboard cap bobs, tassel cord static, tassel end drops -->
-        <button type="button" class="rv-filter-btn" data-cat="mentor">
-          <span class="rv-filt-ico" aria-hidden="true">
-            <svg class="rv-ico-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon class="si-bob" points="12,2 22,7 12,12 2,7"/>
-              <path d="M6 10.5v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5"/>
-              <line x1="22" y1="7" x2="22" y2="13"/>
-              <circle class="si-drop" cx="22" cy="14.5" r="1.5" fill="currentColor" stroke="none"/>
-            </svg>
-          </span> Mentors
-        </button>
-
-        <!-- Admin — building: roofline bobs, 3 windows blink at different delays -->
-        <button type="button" class="rv-filter-btn" data-cat="admin">
-          <span class="rv-filt-ico" aria-hidden="true">
-            <svg class="rv-ico-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path class="si-bob" d="M3 10L12 3l9 7"/>
-              <rect x="3" y="10" width="18" height="11" rx="1"/>
-              <line x1="12" y1="10" x2="12" y2="21"/>
-              <rect class="si-blink"     x="5"   y="13" width="3"   height="2.5" rx=".5"/>
-              <rect class="si-blink ad-3" x="9.5" y="13" width="2"   height="2.5" rx=".5"/>
-              <rect class="si-blink ad-6" x="16"  y="13" width="3"   height="2.5" rx=".5"/>
-            </svg>
-          </span> Admin
-        </button>
-
-        <!-- Website — globe: oval meridian spins, 2 latitude arcs frame it, equator static -->
-        <button type="button" class="rv-filter-btn" data-cat="website">
-          <span class="rv-filt-ico" aria-hidden="true">
-            <svg class="rv-ico-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path class="si-spin" d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-              <path d="M2 12h20"/>
-              <path d="M4.5 7.5C7 8.7 9.5 9 12 9s5-.3 7.5-1.5"/>
-              <path d="M4.5 16.5C7 15.3 9.5 15 12 15s5 .3 7.5 1.5"/>
-            </svg>
-          </span> Website
-        </button>
-
-        <!-- General — chat bubble bobs, 3 typing dots blink sequentially -->
-        <button type="button" class="rv-filter-btn" data-cat="general">
-          <span class="rv-filt-ico" aria-hidden="true">
-            <svg class="rv-ico-rose" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path class="si-bob" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              <circle class="si-blink"     cx="8"  cy="10" r="1.3" fill="currentColor" stroke="none"/>
-              <circle class="si-blink ad-2" cx="12" cy="10" r="1.3" fill="currentColor" stroke="none"/>
-              <circle class="si-blink ad-4" cx="16" cy="10" r="1.3" fill="currentColor" stroke="none"/>
-            </svg>
-          </span> General
-        </button>
-
+    <div class="rv-filter-panel">
+      <div class="rv-filter-row">
+        <div class="rv-filter-scroll">
+          <div class="rv-filter-group" id="rvp-cat-filters">
+            <span class="rv-glide" id="rvp-cat-glide" aria-hidden="true"></span>
+            <button type="button" class="rv-filter-btn active" data-cat="all">
+              <span class="rv-filt-ico" aria-hidden="true">
+                <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect class="si-bob"     x="3"  y="3"  width="7" height="7" rx="1.5"/>
+                  <rect class="si-bob ad-2" x="14" y="3"  width="7" height="7" rx="1.5"/>
+                  <rect class="si-bob ad-4" x="3"  y="14" width="7" height="7" rx="1.5"/>
+                  <rect class="si-bob ad-6" x="14" y="14" width="7" height="7" rx="1.5"/>
+                </svg>
+              </span> All Categories
+            </button>
+            <button type="button" class="rv-filter-btn" data-cat="courses">
+              <span class="rv-filt-ico" aria-hidden="true">
+                <svg class="rv-ico-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path class="si-bob" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+              </span> Courses
+            </button>
+            <button type="button" class="rv-filter-btn" data-cat="development">
+              <span class="rv-filt-ico" aria-hidden="true">
+                <svg class="rv-ico-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline class="si-slide" points="8 6 2 12 8 18"/>
+                  <polyline class="si-slide ad-2" points="16 6 22 12 16 18"/>
+                </svg>
+              </span> Development
+            </button>
+            <button type="button" class="rv-filter-btn" data-cat="projects">
+              <span class="rv-filt-ico" aria-hidden="true">
+                <svg class="rv-ico-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path class="si-bob" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                </svg>
+              </span> Projects
+            </button>
+            <button type="button" class="rv-filter-btn" data-cat="internship">
+              <span class="rv-filt-ico" aria-hidden="true">
+                <svg class="rv-ico-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect class="si-bob" x="2" y="7" width="20" height="14" rx="2"/>
+                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                </svg>
+              </span> Internship
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="rv-filter-meta-row">
-        <!-- Liquid glass sort dropdown -->
-        <div class="rv-sort-wrap" id="rvp-sort-wrap">
-          <button type="button" class="rv-sort-trigger" id="rvp-sort-trigger"
-                  onclick="rvpToggleSort(event)"
-                  aria-haspopup="listbox" aria-expanded="false">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 6h18M7 12h10M11 18h2"/>
-            </svg>
-            <span id="rvp-sort-label">Newest First</span>
-            <svg class="rv-sort-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          </button>
-          <div class="rv-sort-panel" id="rvp-sort-panel" role="listbox" aria-label="Sort reviews">
-            <button type="button" class="rv-sort-opt active" data-val="newest" onclick="rvpSelectSort('newest','Newest First',this)" role="option">Newest First</button>
-            <button type="button" class="rv-sort-opt" data-val="highest" onclick="rvpSelectSort('highest','Highest Rated',this)" role="option">Highest Rated</button>
-            <button type="button" class="rv-sort-opt" data-val="lowest" onclick="rvpSelectSort('lowest','Lowest Rated',this)" role="option">Lowest Rated</button>
+
+      <div class="rv-filter-divider" aria-hidden="true"></div>
+
+      <div class="rv-filter-row">
+        <span class="rv-filter-row-lbl">Media</span>
+        <div class="rv-filter-scroll">
+          <div class="rv-filter-group" id="rvp-media-filters">
+            <span class="rv-glide" id="rvp-media-glide" aria-hidden="true"></span>
+            <button type="button" class="rv-filter-btn active" data-media="all">All Media</button>
+            <button type="button" class="rv-filter-btn" data-media="photo">
+              <span class="rv-filt-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                </svg>
+              </span> With Photos
+            </button>
+            <button type="button" class="rv-filter-btn" data-media="video">
+              <span class="rv-filt-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 9.5l5-3v11l-5-3z"/>
+                </svg>
+              </span> With Video
+            </button>
+            <button type="button" class="rv-filter-btn" data-media="text">Text Only</button>
           </div>
         </div>
         <span class="rv-result-count" id="rvp-count"></span>
@@ -693,7 +734,6 @@
 
     <!-- Grid -->
     <div class="rv-grid" id="rvp-grid">
-      <!-- skeletons -->
       <div class="rv-skel"></div><div class="rv-skel"></div>
       <div class="rv-skel"></div><div class="rv-skel"></div>
       <div class="rv-skel"></div><div class="rv-skel"></div>
@@ -709,10 +749,10 @@
 
 </div><!-- /page-wrap -->
 
-<!-- Review modal -->
-<div id="rvp-modal" onclick="if(event.target===this)rvpCloseModal()">
-  <div id="rvp-modal-box">
-    <button type="button" class="rvp-modal-close" onclick="rvpCloseModal()">✕</button>
+<!-- Read-more modal -->
+<div id="rvp-modal" class="rv-modal-overlay" onclick="if(event.target===this)rvpCloseModal()">
+  <div class="rv-modal-box">
+    <button type="button" class="rv-modal-close" onclick="rvpCloseModal()">✕</button>
     <div id="rvp-modal-stars"></div>
     <p id="rvp-modal-body"></p>
     <div class="rvp-modal-author">
@@ -725,6 +765,112 @@
   </div>
 </div>
 
+<!-- Image lightbox -->
+<div id="rv-lightbox" class="rv-lightbox" onclick="closeLightbox()">
+  <img id="rv-lightbox-img" src="" alt="Review attachment">
+</div>
+
+<!-- Write-a-review modal -->
+<div id="wr-modal" class="rv-modal-overlay" onclick="if(event.target===this)closeWriteReview()">
+  <div class="rv-modal-box">
+    <button type="button" class="rv-modal-close" onclick="closeWriteReview()">✕</button>
+
+    <div id="wr-form-wrap">
+      <h2 style="font-size:1.35rem;font-weight:800;color:var(--txt);margin-bottom:.2rem;">Write a Review</h2>
+      <p style="font-size:.85rem;color:var(--txt3);margin-bottom:1.25rem;">Tell us about your experience. Reviews go live after admin approval.</p>
+
+      <div class="alert error" id="wr-error"></div>
+
+      <label style="display:block;font-size:.8rem;font-weight:700;color:var(--txt3);margin-bottom:.5rem;">What is this review about? <span style="color:var(--v1)">*</span></label>
+      <div class="wr-cat-grid" id="wr-cat-grid">
+        <button type="button" class="wr-cat-card" data-cat="courses" onclick="wrSelectCategory('courses',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span class="wr-cat-name">Courses</span>
+          <span class="wr-cat-desc">A course you took with us</span>
+        </button>
+        <button type="button" class="wr-cat-card" data-cat="development" onclick="wrSelectCategory('development',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/></svg>
+          <span class="wr-cat-name">Development</span>
+          <span class="wr-cat-desc">Our website / app development</span>
+        </button>
+        <button type="button" class="wr-cat-card" data-cat="projects" onclick="wrSelectCategory('projects',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span class="wr-cat-name">Projects</span>
+          <span class="wr-cat-desc">A project you built with us</span>
+        </button>
+        <button type="button" class="wr-cat-card" data-cat="internship" onclick="wrSelectCategory('internship',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          <span class="wr-cat-name">Internship</span>
+          <span class="wr-cat-desc">Your internship experience</span>
+        </button>
+      </div>
+
+      <div class="f-row" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="f-group" style="margin-bottom:0;">
+          <label>Your Name <span style="color:var(--v1)">*</span></label>
+          <input type="text" id="wr-name" placeholder="Full name">
+        </div>
+        <div class="f-group" style="margin-bottom:0;">
+          <label>Email <span style="color:var(--txt4);font-weight:400;">(optional)</span></label>
+          <input type="email" id="wr-email" placeholder="you@example.com">
+        </div>
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:.8rem;font-weight:700;color:var(--txt3);margin-bottom:.4rem;">Rating <span style="color:var(--v1)">*</span></label>
+        <div class="wr-star-row" id="wr-star-row">
+          <button type="button" class="wr-star-btn" data-val="1" onclick="wrSetRating(1)">★</button>
+          <button type="button" class="wr-star-btn" data-val="2" onclick="wrSetRating(2)">★</button>
+          <button type="button" class="wr-star-btn" data-val="3" onclick="wrSetRating(3)">★</button>
+          <button type="button" class="wr-star-btn" data-val="4" onclick="wrSetRating(4)">★</button>
+          <button type="button" class="wr-star-btn" data-val="5" onclick="wrSetRating(5)">★</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label>Title <span style="color:var(--txt4);font-weight:400;">(optional)</span></label>
+        <input type="text" id="wr-title" placeholder="Sum it up in a few words">
+      </div>
+
+      <div class="f-group">
+        <label>Your Review <span style="color:var(--v1)">*</span></label>
+        <textarea id="wr-comment" rows="4" placeholder="Share the details of your experience..."></textarea>
+      </div>
+
+      <div class="f-group">
+        <label>Photos <span style="color:var(--txt4);font-weight:400;">(optional, up to 6)</span></label>
+        <div class="wr-media-row" id="wr-photo-row">
+          <button type="button" class="wr-upload-btn" id="wr-photo-add" onclick="document.getElementById('wr-photo-input').click()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add
+          </button>
+        </div>
+        <input type="file" id="wr-photo-input" accept="image/png,image/jpeg,image/webp" multiple style="display:none" onchange="wrHandlePhotos(this.files)">
+      </div>
+
+      <div class="f-group">
+        <label>Video <span style="color:var(--txt4);font-weight:400;">(optional, max 90MB)</span></label>
+        <div id="wr-video-row"></div>
+        <input type="file" id="wr-video-input" accept="video/mp4,video/webm,video/quicktime" style="display:none" onchange="wrHandleVideo(this.files)">
+      </div>
+
+      <button type="button" class="btn-submit" id="wr-submit-btn" onclick="submitWriteReview()" style="width:100%;justify-content:center;display:flex;align-items:center;gap:.5rem;">
+        Submit Review
+      </button>
+      <p class="wr-submit-note">✨ Reviews are checked by our team before going live.</p>
+    </div>
+
+    <div class="wr-success" id="wr-success">
+      <div class="wr-success-icon">⭐</div>
+      <h3>Review submitted!</h3>
+      <p>Thank you — it will appear once our team approves it.</p>
+      <div style="margin-top:1.5rem;">
+        <button type="button" class="action-btn" onclick="closeWriteReview()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -732,80 +878,125 @@
 <script src="../js/theme.js"></script>
 <script src="../js/profile-nav.js"></script>
 <script>
+/* Fade the page in on first paint instead of popping in unstyled/abruptly. */
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  document.querySelector('.page-wrap')?.classList.add('rv-loaded');
+}));
+
 /* ── Constants ── */
 const RVP_GRADS = ['linear-gradient(135deg,#7c5cfc,#3d6bff)','linear-gradient(135deg,#06b6d4,#0284c7)','linear-gradient(135deg,#a855f7,#7c3aed)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
-const RVP_TYPE_COLORS = { course:'#7c5cfc', mentor:'#3d6bff', website:'#06b6d4', admin:'#f59e0b', general:'#10b981' };
-const RVP_TYPE_ICONS  = {
-  course:  `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
-  mentor:  `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
-  website: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>`,
-  admin:   `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M3 10L12 3l9 7"/><line x1="12" y1="10" x2="12" y2="21"/></svg>`,
-  general: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
-};
-const RVP_TYPE_LABELS = { course:'Course', mentor:'Mentor', website:'Website', admin:'Admin', general:'General' };
-const RVP_PAGE_SIZE   = 12;
+const RVP_CAT_COLORS = { courses:'#7c5cfc', development:'#06b6d4', projects:'#10b981', internship:'#f59e0b' };
+const RVP_CAT_LABELS = { courses:'Courses', development:'Development', projects:'Projects', internship:'Internship' };
+const RVP_PAGE_SIZE = 12;
+const REVIEW_BUCKET = 'review-media';
+const MAX_PHOTOS = 6;
+const MAX_PHOTO_MB = 8;
+const MAX_VIDEO_MB = 90;
 
-let _rvpAll      = [];   // all loaded data
-let _rvpFiltered = [];   // after category filter
-let _rvpSorted   = [];   // after sort
-let _rvpPage     = 0;
-let _rvpCat      = 'all';
-let _rvpSortVal  = 'newest';
+let _rvpAll = [], _rvpFiltered = [], _rvpSorted = [], _rvpPage = 0;
+let _rvpCat = 'all', _rvpMedia = 'all';
 const _rvpModalStore = {};
 
+/* Animated count-up for the stats bar — eases toward the target instead of popping in. */
+function rvpCountUp(elId, target, decimals) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.textContent = decimals ? target.toFixed(decimals) : Math.round(target);
+    return;
+  }
+  const duration = 900;
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3); // ease-out-cubic
+    const val = target * eased;
+    el.textContent = decimals ? val.toFixed(decimals) : Math.round(val);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function _rvpEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* Legacy feedback rows carry bracketed metadata tags ([Positives]:, [Mentor]:, etc.)
+   inline in the message — strip those so old entries read like normal reviews. */
 function _rvpCleanText(text) {
   if (!text) return '';
   const posM = text.match(/\[Positives\]:\s*([\s\S]*?)(?=\[Improvements\]:|$)/i);
   const impM = text.match(/\[Improvements\]:\s*([\s\S]*?)(?=\[Aspect Ratings\]:|$)/i);
   if (posM || impM) {
-    const p = [];
-    if (posM && posM[1].trim()) p.push(posM[1].trim());
-    if (impM && impM[1].trim()) p.push(impM[1].trim());
-    if (p.length) return p.join(' ');
+    const parts = [];
+    if (posM && posM[1].trim()) parts.push(posM[1].trim());
+    if (impM && impM[1].trim()) parts.push(impM[1].trim());
+    if (parts.length) return parts.join(' ');
   }
   const cleaned = text.replace(/\[(?:Mentor|Course\/Batch|Topic|Priority|Category|Device\/Browser|Site Rating|Aspect Ratings)[^\]]*\]:[^\n]*/gi, '').replace(/\n{3,}/g, '\n\n').trim();
   return cleaned || text.trim();
 }
 
-function _rvpBuildCard(f, idx) {
-  const type = f.feedback_type || (f.source === 'review' ? 'course' : 'general');
-  const comment = _rvpCleanText(f.comment || f.message || '');
-  const isLong = comment.length > 280;
-  const preview = isLong ? comment.slice(0, 280).trimEnd() + '…' : comment;
-  const name = f._name || 'Student';
+// Legacy feedback_type -> new 4-category taxonomy. Course/mentor feedback is
+// about the learning experience, so it folds into "courses"; admin/website
+// feedback is about how we run and build the platform, so it folds into
+// "development". There's no lossless 1:1 mapping since the old system used a
+// different taxonomy — this is the closest reasonable bucket for each.
+const RVP_LEGACY_FEEDBACK_CAT = { course: 'courses', mentor: 'courses', admin: 'development', website: 'development' };
+
+function _rvpMatchesMedia(r, filter) {
+  const hasPhoto = (r.image_urls||[]).length > 0;
+  const hasVideo = !!r.video_url;
+  if (filter === 'photo') return hasPhoto;
+  if (filter === 'video') return hasVideo;
+  if (filter === 'text') return !hasPhoto && !hasVideo;
+  return true;
+}
+
+function _rvpBuildCard(r, idx) {
+  const comment = String(r.comment || '');
+  const isLong = comment.length > 260;
+  const preview = isLong ? comment.slice(0, 260).trimEnd() + '…' : comment;
+  const name = r.name || 'Anonymous';
   const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-  const course = f.course_title || '';
-  const dotColor = RVP_TYPE_COLORS[type] || '#7c5cfc';
+  const dotColor = RVP_CAT_COLORS[r.category] || '#7c5cfc';
   const grad = RVP_GRADS[idx % RVP_GRADS.length];
-  const rating = Math.min(5, Math.max(0, parseInt(f.rating) || 0));
-  const typeLabel = RVP_TYPE_LABELS[type] || type;
-  const typeIcon  = RVP_TYPE_ICONS[type]  || '💬';
-  const dateStr = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '';
+  const rating = Math.min(5, Math.max(0, parseInt(r.rating) || 0));
+  const catLabel = RVP_CAT_LABELS[r.category] || r.category;
+  const dateStr = r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '';
   const starsHtml = Array.from({length:5}, (_, i) =>
     `<span class="rv-full-star${i < rating ? ' on' : ''}" ${i < rating ? `style="animation-delay:${(i*.12).toFixed(2)}s"` : ''} aria-hidden="true">★</span>`
   ).join('');
   const rvpKey = 'rvp_' + idx;
-  _rvpModalStore[rvpKey] = { comment, rating, name, typeLabel, grad };
+  _rvpModalStore[rvpKey] = { comment, rating, name, catLabel, grad };
+
+  const images = r.image_urls || [];
+  const mediaHtml = images.length
+    ? `<div class="rv-media-grid">${images.slice(0,6).map(url => `<div class="rv-media-thumb" onclick="openLightbox('${_rvpEsc(url)}')"><img src="${_rvpEsc(url)}" alt="Review photo" loading="lazy"></div>`).join('')}</div>`
+    : '';
+  const videoHtml = r.video_url
+    ? `<div class="rv-media-video-wrap"><video src="${_rvpEsc(r.video_url)}" controls playsinline preload="metadata"></video></div>`
+    : '';
+
   return `<div class="rv-full-card" style="animation-delay:${(idx%RVP_PAGE_SIZE*.04).toFixed(2)}s">
     <div class="rv-full-card-top">
       <div class="rv-full-stars" aria-label="${rating} out of 5">${starsHtml}</div>
-      <span class="rv-full-badge" style="--rvf-dot:${dotColor}">${typeIcon} ${typeLabel}</span>
+      <span class="rv-full-badge" style="--rvf-dot:${dotColor}">${catLabel}</span>
     </div>
+    ${r.title ? `<div class="rv-full-title">${_rvpEsc(r.title)}</div>` : ''}
     <div class="rv-full-quote-wrap">
       <div class="rv-full-quote-icon">❝</div>
       <p class="rv-full-text" id="rvp-t-${idx}">${_rvpEsc(preview)}</p>
     </div>
     ${isLong ? `<button class="rv-full-readmore" onclick="rvpOpenModal('${rvpKey}')">Read full review →</button>` : ''}
+    ${mediaHtml}
+    ${videoHtml}
     <div class="rv-full-meta">
-      ${course ? `<div class="rv-full-meta-item"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>${_rvpEsc(course.substring(0,36)+(course.length>36?'…':''))}</div>` : ''}
       ${dateStr ? `<div class="rv-full-meta-item"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>${dateStr}</div>` : ''}
     </div>
     <div class="rv-full-footer">
       <div class="rv-full-avatar" style="background:${grad}">${initials}</div>
       <div>
         <div class="rv-full-author-name">${_rvpEsc(name)}</div>
-        <div class="rv-full-author-sub">${course ? _rvpEsc(course.substring(0,32)+(course.length>32?'…':'')) : typeLabel+' Review'}</div>
+        <div class="rv-full-author-sub">${catLabel} Review</div>
       </div>
     </div>
   </div>`;
@@ -819,9 +1010,9 @@ function rvpRender(append) {
   const hasMore = totalShown < _rvpSorted.length;
   if (!append) grid.innerHTML = '';
   if (!_rvpSorted.length) {
-    grid.innerHTML = '<div class="rv-full-empty show"><div class="rv-full-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><p>No reviews found for this filter.</p></div>';
+    grid.innerHTML = '<div class="rv-full-empty show"><div class="rv-full-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><p>No reviews match these filters yet.</p></div>';
   } else {
-    grid.insertAdjacentHTML('beforeend', slice.map((f, i) => _rvpBuildCard(f, start + i)).join(''));
+    grid.insertAdjacentHTML('beforeend', slice.map((r, i) => _rvpBuildCard(r, start + i)).join(''));
   }
   const lmWrap = document.getElementById('rvp-load-more-wrap');
   const lmBtn  = document.getElementById('rvp-load-more');
@@ -833,61 +1024,71 @@ function rvpRender(append) {
 
 function rvpApplyFilters() {
   _rvpPage = 0;
-  _rvpFiltered = _rvpCat === 'all' ? [..._rvpAll] : _rvpAll.filter(f => {
-    const t = f.feedback_type || (f.source === 'review' ? 'course' : 'general');
-    return t === _rvpCat;
-  });
-  _rvpSorted = [..._rvpFiltered].sort((a, b) => {
-    if (_rvpSortVal === 'highest') return (b.rating || 0) - (a.rating || 0);
-    if (_rvpSortVal === 'lowest')  return (a.rating || 0) - (b.rating || 0);
-    return new Date(b.created_at) - new Date(a.created_at);
-  });
-  rvpRender(false);
+  const grid = document.getElementById('rvp-grid');
+  const doFilter = () => {
+    _rvpFiltered = _rvpAll.filter(r =>
+      (_rvpCat === 'all' || r.category === _rvpCat) && _rvpMatchesMedia(r, _rvpMedia)
+    );
+    _rvpSorted = [..._rvpFiltered];
+    rvpRender(false);
+    requestAnimationFrame(() => grid?.classList.remove('rv-grid-transitioning'));
+  };
+  // Skip the fade on the very first render (skeleton -> content) — only
+  // crossfade when swapping one rendered set of cards for another.
+  const alreadyRendered = grid && grid.children.length && !grid.querySelector('.rv-skel');
+  if (alreadyRendered && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    grid.classList.add('rv-grid-transitioning');
+    setTimeout(doFilter, 180);
+  } else {
+    doFilter();
+  }
 }
-
-function rvpSetFilter(cat) {
-  _rvpCat = cat;
-  document.querySelectorAll('.rv-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-  rvpApplyFilters();
-}
-
-function rvpSort(val) {
-  _rvpSortVal = val;
-  rvpApplyFilters();
-}
-
-/* ── Liquid glass sort dropdown ── */
-function rvpToggleSort(e) {
-  e.stopPropagation();
-  const wrap = document.getElementById('rvp-sort-wrap');
-  const open = wrap.classList.toggle('open');
-  document.getElementById('rvp-sort-trigger').setAttribute('aria-expanded', open);
-}
-function rvpSelectSort(val, label, el) {
-  _rvpSortVal = val;
-  document.getElementById('rvp-sort-label').textContent = label;
-  document.querySelectorAll('.rv-sort-opt').forEach(o =>
-    o.classList.toggle('active', o.dataset.val === val)
-  );
-  const wrap = document.getElementById('rvp-sort-wrap');
-  wrap.classList.remove('open');
-  document.getElementById('rvp-sort-trigger').setAttribute('aria-expanded', 'false');
-  rvpApplyFilters();
-}
-document.addEventListener('click', function() {
-  const wrap = document.getElementById('rvp-sort-wrap');
-  if (!wrap) return;
-  wrap.classList.remove('open');
-  const trigger = document.getElementById('rvp-sort-trigger');
-  if (trigger) trigger.setAttribute('aria-expanded', 'false');
-});
 
 function rvpLoadMore() {
   _rvpPage++;
   rvpRender(true);
 }
 
-/* Modal */
+/* Sliding "glide" pill behind the active filter button — measures the active
+   button's position within its (possibly horizontally-scrolling) group. */
+function rvpMoveGlide(groupSel, glideId) {
+  const group = document.querySelector(groupSel);
+  const glide = document.getElementById(glideId);
+  const active = group?.querySelector('.rv-filter-btn.active');
+  if (!group || !glide || !active) return;
+  glide.style.left = active.offsetLeft + 'px';
+  glide.style.width = active.offsetWidth + 'px';
+  glide.classList.add('ready');
+}
+function rvpMoveAllGlides() {
+  rvpMoveGlide('#rvp-cat-filters', 'rvp-cat-glide');
+  rvpMoveGlide('#rvp-media-filters', 'rvp-media-glide');
+}
+
+document.querySelectorAll('#rvp-cat-filters .rv-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    _rvpCat = btn.dataset.cat;
+    document.querySelectorAll('#rvp-cat-filters .rv-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+    rvpMoveGlide('#rvp-cat-filters', 'rvp-cat-glide');
+    rvpApplyFilters();
+  });
+});
+document.querySelectorAll('#rvp-media-filters .rv-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    _rvpMedia = btn.dataset.media;
+    document.querySelectorAll('#rvp-media-filters .rv-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+    rvpMoveGlide('#rvp-media-filters', 'rvp-media-glide');
+    rvpApplyFilters();
+  });
+});
+window.addEventListener('load', rvpMoveAllGlides);
+window.addEventListener('resize', () => {
+  clearTimeout(window._rvpGlideResizeT);
+  window._rvpGlideResizeT = setTimeout(rvpMoveAllGlides, 120);
+});
+rvpMoveAllGlides();
+
+/* Read-more modal */
 function rvpOpenModal(key) {
   const d = _rvpModalStore[key]; if (!d) return;
   const m = document.getElementById('rvp-modal'); if (!m) return;
@@ -895,26 +1096,33 @@ function rvpOpenModal(key) {
     `<span class="rv-full-star${i<d.rating?' on':''}" ${i<d.rating?`style="animation-delay:${(i*.12).toFixed(2)}s"`:''} aria-hidden="true">★</span>`
   ).join('');
   document.getElementById('rvp-modal-stars').innerHTML = starsHtml;
-  document.getElementById('rvp-modal-body').textContent = '\u201c' + d.comment + '\u201d';
+  document.getElementById('rvp-modal-body').textContent = '“' + d.comment + '”';
   const initials = d.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
   const av = document.getElementById('rvp-modal-avatar');
   av.style.background = d.grad; av.textContent = initials;
   document.getElementById('rvp-modal-name').textContent = d.name;
-  document.getElementById('rvp-modal-type').textContent = d.typeLabel + ' Review';
+  document.getElementById('rvp-modal-type').textContent = d.catLabel + ' Review';
   m.classList.add('open'); document.body.style.overflow = 'hidden';
 }
 function rvpCloseModal() {
   const m = document.getElementById('rvp-modal'); if (m) m.classList.remove('open');
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') rvpCloseModal(); });
-
-/* Filter button wiring */
-document.querySelectorAll('.rv-filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => rvpSetFilter(btn.dataset.cat));
+function openLightbox(src) {
+  document.getElementById('rv-lightbox-img').src = src;
+  document.getElementById('rv-lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('rv-lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  rvpCloseModal(); closeLightbox();
 });
 
-/* Main data load */
+/* ── Main data load ── */
 async function rvpLoad() {
   let tries = 0;
   while (!window.supabaseConfig?.getClient() && tries++ < 20)
@@ -923,59 +1131,272 @@ async function rvpLoad() {
   if (!client) { document.getElementById('rvp-grid').innerHTML = '<p style="color:var(--txt4);text-align:center;grid-column:1/-1;padding:3rem">Unable to connect. Please refresh.</p>'; return; }
 
   try {
-    const [rvRes, fbRes] = await Promise.all([
+    const [srRes, legacyRvRes, legacyFbRes] = await Promise.all([
+      client.from('site_reviews')
+        .select('id,category,name,rating,title,comment,image_urls,video_url,is_featured,created_at')
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false })
+        .limit(300),
       client.from('reviews')
-        .select('id,comment,rating,created_at,user_id,course_id')
+        .select('id,comment,title,rating,created_at,user_id')
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(200),
       client.from('feedback')
-        .select('id,message,rating,full_name,course_title,feedback_type,created_at,user_id')
+        .select('id,message,subject,rating,full_name,feedback_type,created_at,user_id')
         .not('rating', 'is', null)
         .in('status', ['reviewed', 'resolved'])
         .order('created_at', { ascending: false })
         .limit(100)
     ]);
 
-    const rvRows = rvRes.data || [];
-    const fbRows = fbRes.data || [];
+    const siteReviews = srRes.data || [];
+    const legacyReviews = legacyRvRes.data || [];
+    const legacyFeedback = legacyFbRes.data || [];
 
-    // Fetch user names and course titles separately
-    const uids = [...new Set([...rvRows, ...fbRows].map(r => r.user_id).filter(Boolean))];
-    const cids = [...new Set(rvRows.map(r => r.course_id).filter(Boolean))];
-    const [psRes, csRes] = await Promise.all([
-      uids.length ? client.from('user_profiles').select('user_id,full_name').in('user_id', uids) : Promise.resolve({ data: [] }),
-      cids.length ? client.from('courses').select('id,title').in('id', cids) : Promise.resolve({ data: [] })
-    ]);
-    const nameMap   = Object.fromEntries((psRes.data || []).map(p => [p.user_id, p.full_name]));
-    const courseMap = Object.fromEntries((csRes.data  || []).map(c => [c.id, c.title]));
+    // Legacy rows only store user_id — resolve display names in one batch.
+    const uids = [...new Set([...legacyReviews, ...legacyFeedback].map(r => r.user_id).filter(Boolean))];
+    const nameMap = {};
+    if (uids.length) {
+      const { data: profiles } = await client.from('user_profiles').select('user_id,full_name').in('user_id', uids);
+      (profiles || []).forEach(p => { nameMap[p.user_id] = p.full_name; });
+    }
 
-    const reviews  = rvRows.map(r => ({ ...r, source:'review', feedback_type:'course', course_title: courseMap[r.course_id] || '' }));
-    const feedback = fbRows.map(f => ({ ...f, source:'feedback', comment: f.message }));
+    const normalizedLegacyReviews = legacyReviews.map(r => ({
+      id: 'rv_' + r.id,
+      category: 'courses',
+      name: (r.user_id && nameMap[r.user_id]) || 'Student',
+      rating: r.rating,
+      title: r.title || null,
+      comment: _rvpCleanText(r.comment || ''),
+      image_urls: [],
+      video_url: null,
+      is_featured: false,
+      created_at: r.created_at
+    }));
 
-    reviews.forEach(r  => { r._name = r.user_id ? nameMap[r.user_id] || 'Student' : 'Student'; });
-    feedback.forEach(f => { f._name = f.user_id ? nameMap[f.user_id] || f.full_name || 'Student' : f.full_name || 'Student'; });
+    const normalizedLegacyFeedback = legacyFeedback.map(f => ({
+      id: 'fb_' + f.id,
+      category: RVP_LEGACY_FEEDBACK_CAT[f.feedback_type] || 'courses',
+      name: (f.user_id && nameMap[f.user_id]) || f.full_name || 'Student',
+      rating: f.rating,
+      title: f.subject || null,
+      comment: _rvpCleanText(f.message || ''),
+      image_urls: [],
+      video_url: null,
+      is_featured: false,
+      created_at: f.created_at
+    }));
 
-    _rvpAll = [...reviews, ...feedback].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    _rvpAll = [...siteReviews, ...normalizedLegacyReviews, ...normalizedLegacyFeedback]
+      .sort((a, b) => {
+        if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
 
-    // Stats
     const total = _rvpAll.length;
-    const courseCount  = _rvpAll.filter(f => (f.feedback_type||'course') === 'course').length;
-    const mentorCount  = _rvpAll.filter(f => (f.feedback_type||'') === 'mentor').length;
-    const withRatings  = _rvpAll.filter(f => f.rating);
-    const avgRating    = withRatings.length ? (withRatings.reduce((s,f) => s + (f.rating||0), 0) / withRatings.length).toFixed(1) : '—';
-    document.getElementById('stat-total').textContent   = total;
-    document.getElementById('stat-courses').textContent = courseCount;
-    document.getElementById('stat-mentors').textContent = mentorCount;
-    document.getElementById('stat-avg').textContent     = avgRating + (avgRating !== '—' ? '★' : '');
+    const withRatings = _rvpAll.filter(r => r.rating);
+    const avgRating = withRatings.length ? (withRatings.reduce((s,r) => s + (r.rating||0), 0) / withRatings.length) : 0;
+    const fiveStar  = _rvpAll.filter(r => r.rating === 5).length;
+    const videoCount = _rvpAll.filter(r => r.video_url).length;
+
+    rvpCountUp('stat-total', total);
+    rvpCountUp('stat-avg', avgRating, 1);
+    rvpCountUp('stat-fivestar', fiveStar);
+    rvpCountUp('stat-video', videoCount);
 
     rvpApplyFilters();
   } catch(e) {
-    document.getElementById('rvp-grid').innerHTML = '<p style="color:var(--txt4);text-align:center;grid-column:1/-1;padding:3rem">Failed to load reviews. Please try again.</p>';
+    console.error('rvpLoad error:', e);
+    document.getElementById('rvp-grid').innerHTML = '<p style="color:var(--txt4);text-align:center;grid-column:1/-1;padding:3rem">Couldn\'t load reviews right now. Please try again shortly.</p>';
+  }
+}
+rvpLoad();
+
+/* ══════════════════════ WRITE A REVIEW ══════════════════════ */
+let _wrCategory = null;
+let _wrRating = 0;
+let _wrPhotos = []; // { file, url }
+let _wrVideo = null; // { file, url }
+
+function openWriteReview() {
+  document.getElementById('wr-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeWriteReview() {
+  document.getElementById('wr-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  wrResetForm();
+}
+function wrResetForm() {
+  _wrCategory = null;
+  _wrRating = 0;
+  _wrPhotos.forEach(p => URL.revokeObjectURL(p.url));
+  _wrPhotos = [];
+  if (_wrVideo) URL.revokeObjectURL(_wrVideo.url);
+  _wrVideo = null;
+  document.querySelectorAll('.wr-cat-card').forEach(c => c.classList.remove('sel'));
+  document.querySelectorAll('.wr-star-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('wr-name').value = '';
+  document.getElementById('wr-email').value = '';
+  document.getElementById('wr-title').value = '';
+  document.getElementById('wr-comment').value = '';
+  document.getElementById('wr-error').classList.remove('show');
+  wrRenderPhotos();
+  wrRenderVideo();
+  document.getElementById('wr-form-wrap').style.display = '';
+  document.getElementById('wr-success').classList.remove('show');
+  setButtonState(document.getElementById('wr-submit-btn'), 'Submitting...', 'Submit Review', false);
+}
+
+function wrSelectCategory(cat, btn) {
+  _wrCategory = cat;
+  document.querySelectorAll('.wr-cat-card').forEach(c => c.classList.toggle('sel', c === btn));
+}
+
+function wrSetRating(val) {
+  _wrRating = val;
+  document.querySelectorAll('.wr-star-btn').forEach(b => b.classList.toggle('on', parseInt(b.dataset.val,10) <= val));
+}
+
+function wrShowError(msg) {
+  const el = document.getElementById('wr-error');
+  el.textContent = msg; el.classList.add('show');
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function wrRenderPhotos() {
+  const row = document.getElementById('wr-photo-row');
+  const addBtn = document.getElementById('wr-photo-add');
+  row.querySelectorAll('.wr-photo-thumb').forEach(el => el.remove());
+  _wrPhotos.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'wr-photo-thumb';
+    div.innerHTML = `<img src="${p.url}" alt="Preview ${i+1}"><button type="button" class="wr-photo-remove" onclick="wrRemovePhoto(${i})">✕</button>`;
+    row.insertBefore(div, addBtn);
+  });
+  addBtn.style.display = _wrPhotos.length >= MAX_PHOTOS ? 'none' : 'flex';
+}
+function wrHandlePhotos(fileList) {
+  const room = MAX_PHOTOS - _wrPhotos.length;
+  if (room <= 0) { wrShowError(`You can attach up to ${MAX_PHOTOS} photos.`); return; }
+  Array.from(fileList).slice(0, room).forEach(file => {
+    if (file.size > MAX_PHOTO_MB * 1024 * 1024) { wrShowError(`"${file.name}" is over ${MAX_PHOTO_MB}MB.`); return; }
+    _wrPhotos.push({ file, url: URL.createObjectURL(file) });
+  });
+  wrRenderPhotos();
+  document.getElementById('wr-photo-input').value = '';
+}
+function wrRemovePhoto(i) {
+  URL.revokeObjectURL(_wrPhotos[i].url);
+  _wrPhotos.splice(i, 1);
+  wrRenderPhotos();
+}
+
+function wrRenderVideo() {
+  const row = document.getElementById('wr-video-row');
+  if (!_wrVideo) {
+    row.innerHTML = `<button type="button" class="wr-upload-btn" style="width:auto;padding:.9rem 1.4rem;flex-direction:row;gap:.5rem;font-size:.78rem;" onclick="document.getElementById('wr-video-input').click()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 9.5l5-3v11l-5-3z"/></svg>
+      Upload a short video
+    </button>`;
+    return;
+  }
+  row.innerHTML = `<div class="wr-video-preview"><video src="${_wrVideo.url}" controls playsinline></video><button type="button" class="wr-video-remove" onclick="wrRemoveVideo()">✕</button></div>`;
+}
+function wrHandleVideo(fileList) {
+  if (!fileList || !fileList.length) return;
+  const file = fileList[0];
+  if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+    wrShowError(`Video is over ${MAX_VIDEO_MB}MB. Please trim it and try again.`);
+    document.getElementById('wr-video-input').value = '';
+    return;
+  }
+  if (_wrVideo) URL.revokeObjectURL(_wrVideo.url);
+  _wrVideo = { file, url: URL.createObjectURL(file) };
+  wrRenderVideo();
+}
+function wrRemoveVideo() {
+  URL.revokeObjectURL(_wrVideo.url);
+  _wrVideo = null;
+  wrRenderVideo();
+  document.getElementById('wr-video-input').value = '';
+}
+
+function _wrSanitizeName(fileName) {
+  const dot = fileName.lastIndexOf('.');
+  const ext = dot >= 0 ? fileName.slice(dot).toLowerCase() : '';
+  return (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)) + ext;
+}
+
+async function _wrUploadFile(client, file, folder) {
+  const path = `${folder}/${_wrSanitizeName(file.name)}`;
+  const { error } = await client.storage.from(REVIEW_BUCKET).upload(path, file, { cacheControl: '3600', upsert: false });
+  if (error) throw error;
+  const { data } = client.storage.from(REVIEW_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function submitWriteReview() {
+  if (!_wrCategory) { wrShowError('Please choose what this review is about.'); return; }
+  const name = document.getElementById('wr-name').value.trim();
+  const email = document.getElementById('wr-email').value.trim();
+  const title = document.getElementById('wr-title').value.trim();
+  const comment = document.getElementById('wr-comment').value.trim();
+  if (!name) { wrShowError('Please enter your name.'); return; }
+  if (_wrRating === 0) { wrShowError('Please select a star rating.'); return; }
+  if (!comment) { wrShowError('Please write your review.'); return; }
+
+  const client = window.supabaseConfig?.getClient();
+  if (!client) { wrShowError('Unable to connect. Please refresh and try again.'); return; }
+
+  const btn = document.getElementById('wr-submit-btn');
+  setButtonState(btn, 'Uploading...', 'Submit Review', true);
+
+  try {
+    const sessionFolder = `pending/${crypto.randomUUID ? crypto.randomUUID() : Date.now()}`;
+    let imageUrls = [];
+    if (_wrPhotos.length) {
+      for (const p of _wrPhotos) {
+        imageUrls.push(await _wrUploadFile(client, p.file, `${sessionFolder}/images`));
+      }
+    }
+    let videoUrl = null;
+    if (_wrVideo) {
+      videoUrl = await _wrUploadFile(client, _wrVideo.file, `${sessionFolder}/video`);
+    }
+
+    setButtonState(btn, 'Saving...', 'Submit Review', true);
+    const { error } = await client.from('site_reviews').insert([{
+      category: _wrCategory,
+      name,
+      email: email || null,
+      rating: _wrRating,
+      title: title || null,
+      comment,
+      image_urls: imageUrls,
+      video_url: videoUrl,
+      status: 'pending',
+      is_featured: false
+    }]);
+    if (error) throw error;
+
+    document.getElementById('wr-form-wrap').style.display = 'none';
+    document.getElementById('wr-success').classList.add('show');
+  } catch (e) {
+    console.error('submitWriteReview error:', e);
+    wrShowError('Something went wrong submitting your review. Please try again.');
+  } finally {
+    setButtonState(btn, 'Submitting...', 'Submit Review', false);
   }
 }
 
-rvpLoad();
+function setButtonState(btn, loadingText, defaultText, isLoading) {
+  if (!btn) return;
+  btn.disabled = !!isLoading;
+  btn.textContent = isLoading ? loadingText : defaultText;
+}
 </script>
 </body>
 </html>

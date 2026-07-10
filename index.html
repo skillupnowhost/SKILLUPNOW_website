@@ -2151,7 +2151,12 @@
     <div class="rv-inner">
       <div class="rv-header">
         <div>
-          <div class="rv-kicker">⭐ Student Reviews</div>
+          <div class="rv-kicker">
+            <span class="rv-kicker-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path class="si-pulse" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </span>
+            Student Reviews
+          </div>
           <h2 class="rv-title">Real learner feedback<br>from our courses.</h2>
           <p class="rv-sub">Verified reviews from students who have completed our programmes.</p>
         </div>
@@ -2162,6 +2167,7 @@
       </div>
 
       <div class="rv-filters" id="rv-filters">
+        <span class="rv-glide" id="rv-glide" aria-hidden="true"></span>
         <button type="button" class="rv-filter active" data-cat="all">
           <span class="rv-filt-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rv-ico-violet">
@@ -2220,18 +2226,14 @@
         <a href="/feedback" class="rv-explore-btn" style="margin-top:.85rem;display:inline-flex;">Write a Review →</a>
       </div>
 
-      <div class="rv-carousel-outer" id="rv-carousel-outer">
-        <button class="rv-nav rv-prev" id="rv-prev" onclick="rvNav(-1)" aria-label="Previous" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="rv-carousel-clip">
-          <div class="rv-track" id="rv-track"></div>
-        </div>
-        <button class="rv-nav rv-next" id="rv-next" onclick="rvNav(1)" aria-label="Next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      <div class="rv-grid" id="rv-grid"></div>
+
+      <div class="rv-more-wrap hidden" id="rv-more-wrap">
+        <button type="button" class="rv-more-btn" id="rv-more-btn" onclick="rvShowMore()">
+          Show more reviews
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
         </button>
       </div>
-      <div class="rv-dots" id="rv-dots"></div>
     </div>
   </section>
 
@@ -2275,11 +2277,13 @@
       gap:1.5rem; flex-wrap:wrap; margin-bottom:1.75rem;
     }
     .rv-kicker {
-      display:inline-block; font-size:.72rem; font-weight:800;
+      display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:800;
       letter-spacing:.14em; text-transform:uppercase; color:var(--v1);
       background:rgba(124,92,252,.1); border:1px solid rgba(124,92,252,.22);
-      border-radius:999px; padding:.28rem .9rem; margin-bottom:.85rem;
+      border-radius:999px; padding:.28rem .9rem .28rem .8rem; margin-bottom:.85rem;
     }
+    .rv-kicker-ico { display:inline-flex; align-items:center; }
+    .rv-kicker-ico svg { width:13px; height:13px; overflow:visible; color:#fbbf24; }
     .rv-title {
       font-size:clamp(1.6rem,3vw,2.2rem); font-weight:900; line-height:1.15;
       color:var(--txt); margin:0 0 .5rem; letter-spacing:-.02em;
@@ -2297,26 +2301,34 @@
     .rv-explore-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,92,252,.5); }
 
     /* Category filters */
-    .rv-filters { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+    .rv-filters { position:relative; display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+    .rv-glide {
+      position:absolute; top:0; height:100%; border-radius:999px;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      box-shadow:0 4px 14px rgba(124,92,252,.35);
+      transition:left .4s cubic-bezier(.34,1.56,.64,1), width .4s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+      z-index:0; pointer-events:none; opacity:0;
+    }
+    .rv-glide.ready { opacity:1; }
     .rv-filter {
+      position:relative; z-index:1;
       display:inline-flex; align-items:center; gap:.4rem;
       padding:.38rem .95rem; border-radius:999px;
       border:1.5px solid var(--border); background:transparent;
       font-size:.78rem; font-weight:700; color:var(--txt3);
       cursor:pointer; font-family:inherit;
-      transition:all .2s cubic-bezier(.4,0,.2,1);
+      transition:color .2s cubic-bezier(.4,0,.2,1), border-color .2s cubic-bezier(.4,0,.2,1), transform .2s cubic-bezier(.4,0,.2,1);
     }
-    .rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
-    .rv-filter.active {
-      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
-      border-color:transparent; color:#fff;
-      box-shadow:0 4px 14px rgba(124,92,252,.35);
-    }
-    .rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; }
-    .rv-filt-ico svg { width:14px; height:14px; flex-shrink:0; overflow:visible; }
+    .rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); transform:translateY(-1px); }
+    .rv-filter:active { transform:translateY(0) scale(.96); }
+    .rv-filter.active { border-color:transparent; color:#fff; }
+    .rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+    .rv-filt-ico svg { width:14px; height:14px; flex-shrink:0; overflow:visible; transition:filter .25s; }
+    .rv-filter:hover .rv-filt-ico { transform:scale(1.2) translateY(-1px); }
+    .rv-filter:hover .rv-filt-ico svg { filter:drop-shadow(0 0 5px color-mix(in srgb, currentColor 85%, transparent)); }
     .rv-ico-violet  { stroke:#7c5cfc; } .rv-ico-amber   { stroke:#f59e0b; }
     .rv-ico-cyan    { stroke:#06b6d4; } .rv-ico-emerald { stroke:#10b981; }
-    .rv-filter.active .rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; }
+    .rv-filter.active .rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; filter:drop-shadow(0 0 4px rgba(255,255,255,.55)); }
 
     /* Empty state */
     .rv-empty {
@@ -2327,81 +2339,29 @@
     .rv-empty.show { display:block; }
     .rv-empty-icon { font-size:2.2rem; margin-bottom:.5rem; }
 
-    /* Carousel wrapper */
-    .rv-carousel-outer { position:relative; margin-bottom:1.25rem; }
-    .rv-carousel-clip {
-      overflow:hidden; padding:.5rem .25rem 1rem;
-      margin:0 46px;
+    /* Responsive review grid (replaces the old peek-carousel) */
+    .rv-grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1.25rem;
+      margin-bottom:0;
     }
-    .rv-track {
-      display:flex; gap:1.25rem;
-      transition:transform .45s cubic-bezier(.4,0,.2,1);
-      will-change:transform;
-    }
+    @media(max-width:640px) { .rv-grid { grid-template-columns:1fr; gap:1rem; } }
 
-    /* Crystal nav buttons */
-    .rv-nav {
-      position:absolute; top:50%; transform:translateY(-50%);
-      z-index:10; width:44px; height:44px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.16);
-      backdrop-filter:blur(22px) saturate(1.8);
-      -webkit-backdrop-filter:blur(22px) saturate(1.8);
-      box-shadow:0 4px 18px rgba(124,92,252,.18),
-                 0 0 0 1px rgba(255,255,255,.04) inset,
-                 inset 0 1px 0 rgba(255,255,255,.14);
-      cursor:pointer; color:rgba(255,255,255,.85);
-      transition:all .28s cubic-bezier(.34,1.56,.64,1);
+    /* Show more */
+    .rv-more-wrap { text-align:center; margin-top:1.75rem; }
+    .rv-more-wrap.hidden { display:none; }
+    .rv-more-btn {
+      display:inline-flex; align-items:center; gap:.55rem;
+      padding:.7rem 1.8rem; border-radius:14px;
+      background:var(--panel); border:1.5px solid var(--border);
+      color:var(--txt2); font-size:.88rem; font-weight:700; cursor:pointer;
+      font-family:inherit; transition:all .22s;
     }
-    :root[data-theme="light"] .rv-nav {
-      background:rgba(255,255,255,.72);
-      border-color:rgba(124,92,252,.2);
-      box-shadow:0 4px 18px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.9);
-      color:var(--txt2);
-    }
-    .rv-nav:hover:not(:disabled) {
-      background:rgba(124,92,252,.22);
-      border-color:rgba(124,92,252,.55);
-      box-shadow:0 8px 32px rgba(124,92,252,.42), inset 0 1px 0 rgba(255,255,255,.1);
-      transform:translateY(-50%) scale(1.1);
-      color:#fff;
-    }
-    :root[data-theme="light"] .rv-nav:hover:not(:disabled) {
-      background:rgba(124,92,252,.12); color:var(--v1);
-      box-shadow:0 8px 28px rgba(124,92,252,.22);
-    }
-    .rv-nav:disabled { opacity:.28; pointer-events:none; }
-    .rv-prev { left:0; }
-    .rv-next { right:0; }
-    .rv-nav svg { width:17px; height:17px; }
-
-    /* Dot indicators */
-    .rv-dots { display:flex; justify-content:center; align-items:center; gap:0; margin-top:.5rem; }
-    .rv-dot {
-      width:12px; height:20px; border-radius:0;
-      background:transparent; border:none; padding:0; cursor:pointer;
-      appearance:none; -webkit-appearance:none;
-      display:flex; align-items:center; justify-content:center;
-      flex-shrink:0; outline:none;
-    }
-    .rv-dot::before {
-      content:''; display:block;
-      width:6px; height:6px; border-radius:50%;
-      background:var(--v4);
-      transition:all .32s cubic-bezier(.4,0,.2,1);
-    }
-    .rv-dot:not(.active):hover::before { background:var(--v3); transform:scale(1.35); }
-    .rv-dot.active::before {
-      width:18px; height:6px; border-radius:3px;
-      background:var(--v1);
-      box-shadow:0 2px 8px rgba(124,92,252,.4);
-    }
+    .rv-more-btn:hover { border-color:var(--v1); color:var(--v1); transform:translateY(-2px); }
 
     /* ── Review Card ── */
     @keyframes rvCardIn {
-      from { opacity:0; transform:translateX(20px) scale(.97); }
-      to   { opacity:1; transform:translateX(0) scale(1); }
+      from { opacity:0; transform:translateY(18px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
     }
     @keyframes rvStarPulse {
       0%,70%,100% { filter:none; transform:scale(1); }
@@ -2409,12 +2369,14 @@
     }
 
     .rv-card {
-      flex:0 0 300px; background:var(--panel); border:1.5px solid var(--border);
+      background:linear-gradient(160deg,rgba(124,92,252,.055) 0%,var(--panel) 45%,rgba(6,182,212,.035) 100%);
+      border:1.5px solid var(--border);
       border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
       display:flex; flex-direction:column;
       position:relative; overflow:hidden;
-      animation:rvCardIn .4s both;
-      transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+      opacity:0; transform:translateY(18px) scale(.97);
+      animation:rvCardIn .5s cubic-bezier(.22,1,.36,1) both;
+      transition:transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
       cursor:default;
     }
     .rv-card::before {
@@ -2561,19 +2523,14 @@
       .rv-sub { font-size:.82rem; }
       .rv-header { flex-direction:column; align-items:flex-start; gap:1rem; }
       .rv-explore-btn { font-size:.78rem; padding:.5rem 1.1rem; }
-      .rv-card  { flex:0 0 min(260px, calc(100vw - 88px)); }
-      .rv-carousel-clip { margin:0 36px; }
-      .rv-nav { width:34px; height:34px; }
-      .rv-nav svg { width:14px; height:14px; }
-      .rv-filters { gap:.38rem; }
-      .rv-filter { font-size:.72rem; padding:.3rem .75rem; }
+      .rv-filters { gap:.38rem; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:.15rem; }
+      .rv-filters::-webkit-scrollbar { display:none; }
+      .rv-filter { flex-shrink:0; white-space:nowrap; font-size:.72rem; padding:.3rem .75rem; }
+      .rv-card { padding:1.25rem 1.15rem 1.1rem; }
       #rv-modal-box { padding:1.8rem 1.2rem 1.5rem; }
     }
     @media(max-width:380px) {
-      .rv-card { flex: 0 0 calc(100vw - 64px); }
-      .rv-carousel-clip { margin: 0 26px; }
-      .rv-nav { width: 28px; height: 28px; }
-      .rv-nav svg { width: 12px; height: 12px; }
+      .rv-more-btn { font-size:.82rem; padding:.6rem 1.4rem; }
     }
 
     /* ── 3D animations for home course cards ── */
@@ -3376,22 +3333,13 @@
 
     let _rvAllData   = [];
     let _rvFiltered  = [];
-    let _rvCurrentIdx = 0;
     let _rvActiveCat = 'all';
+    let _rvVisibleCount = 6;
+    const _RV_PAGE_SIZE = 6;
     const _rvModalStore = {};
 
     function _rvEsc(s) {
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    const _RV_CARD_W = 300, _RV_GAP = 20;
-    function _rvCardStep() {
-      const card = document.querySelector('#rv-track .rv-card');
-      return (card && card.offsetWidth > 0 ? card.offsetWidth : _RV_CARD_W) + _RV_GAP;
-    }
-    function _rvGetPerPage() {
-      const clip = document.querySelector('.rv-carousel-clip');
-      if (!clip || !clip.offsetWidth) return 3;
-      return Math.max(1, Math.floor((clip.offsetWidth + _RV_GAP) / _rvCardStep()));
     }
     function _rvCleanText(text, type) {
       if (!text) return '';
@@ -3452,49 +3400,39 @@
       </div>`;
     }
 
-    function rvNav(dir) {
-      const perPage = _rvGetPerPage();
-      const maxIdx  = Math.max(0, _rvFiltered.length - perPage);
-      _rvCurrentIdx = Math.max(0, Math.min(_rvCurrentIdx + dir, maxIdx));
-      _rvUpdateCarousel();
+    /* Sliding "glide" pill behind the active filter button. */
+    function rvMoveGlide() {
+      const group = document.getElementById('rv-filters');
+      const glide = document.getElementById('rv-glide');
+      const active = group?.querySelector('.rv-filter.active');
+      if (!group || !glide || !active) return;
+      glide.style.left = active.offsetLeft + 'px';
+      glide.style.width = active.offsetWidth + 'px';
+      glide.classList.add('ready');
     }
-    function rvGoToPage(page) {
-      _rvCurrentIdx = page * _rvGetPerPage();
-      _rvUpdateCarousel();
-    }
+
     function rvSetFilter(cat) {
       _rvActiveCat = cat;
-      _rvCurrentIdx = 0;
+      _rvVisibleCount = _RV_PAGE_SIZE;
       document.querySelectorAll('.rv-filter').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
       _rvFiltered = cat === 'all' ? [..._rvAllData] : _rvAllData.filter(f => {
         const t = f.feedback_type || (f.source === 'review' ? 'course' : 'general');
         return t === cat;
       });
-      _rvRenderTrack();
-      _rvUpdateCarousel();
+      _rvRenderGrid();
+      rvMoveGlide();
     }
-    function _rvRenderTrack() {
-      const track = document.getElementById('rv-track');
-      if (track) track.innerHTML = _rvFiltered.map((f,i) => _rvBuildCard(f,i)).join('');
+    function _rvRenderGrid() {
+      const grid = document.getElementById('rv-grid');
+      if (!grid) return;
+      const visible = _rvFiltered.slice(0, _rvVisibleCount);
+      grid.innerHTML = visible.map((f,i) => _rvBuildCard(f,i)).join('');
+      const moreWrap = document.getElementById('rv-more-wrap');
+      if (moreWrap) moreWrap.classList.toggle('hidden', _rvVisibleCount >= _rvFiltered.length);
     }
-    function _rvUpdateCarousel() {
-      const track = document.getElementById('rv-track');
-      if (!track) return;
-      const step = _rvCardStep();
-      const perPage = _rvGetPerPage();
-      const maxIdx  = Math.max(0, _rvFiltered.length - perPage);
-      _rvCurrentIdx = Math.min(_rvCurrentIdx, maxIdx);
-      track.style.transform = `translateX(${-_rvCurrentIdx * step}px)`;
-      const prev = document.getElementById('rv-prev');
-      const next = document.getElementById('rv-next');
-      if (prev) prev.disabled = _rvCurrentIdx <= 0;
-      if (next) next.disabled = _rvCurrentIdx >= maxIdx;
-      const totalDots = Math.ceil(_rvFiltered.length / Math.max(1, perPage));
-      const activeDot = Math.min(Math.floor(_rvCurrentIdx / Math.max(1, perPage)), totalDots-1);
-      const dotsWrap = document.getElementById('rv-dots');
-      if (dotsWrap) dotsWrap.innerHTML = Array.from({length:totalDots},(_,i)=>
-        `<button class="rv-dot${i===activeDot?' active':''}" onclick="rvGoToPage(${i})" aria-label="Page ${i+1}"></button>`
-      ).join('');
+    function rvShowMore() {
+      _rvVisibleCount += _RV_PAGE_SIZE;
+      _rvRenderGrid();
     }
 
     function rvOpenModal(key) {
@@ -3521,7 +3459,10 @@
       document.body.style.overflow = '';
     }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') rvCloseModal(); });
-    window.addEventListener('resize', () => _rvUpdateCarousel());
+    window.addEventListener('resize', () => {
+      clearTimeout(window._rvGlideResizeT);
+      window._rvGlideResizeT = setTimeout(rvMoveGlide, 120);
+    });
 
     async function loadTestimonials() {
       let tries = 0;
@@ -3559,13 +3500,13 @@
         if (!_rvAllData.length) {
           const e = document.getElementById('rv-empty');
           if (e) e.classList.add('show');
-          const o = document.getElementById('rv-carousel-outer');
-          if (o) o.style.display = 'none';
+          document.getElementById('rv-filters')?.style.setProperty('display', 'none');
+          document.getElementById('rv-grid')?.style.setProperty('display', 'none');
           return;
         }
         _rvFiltered = [..._rvAllData];
-        _rvRenderTrack();
-        _rvUpdateCarousel();
+        _rvRenderGrid();
+        requestAnimationFrame(rvMoveGlide);
       } catch(e) { /* leave empty state */ }
     }
 
@@ -3596,6 +3537,7 @@
       document.querySelectorAll('.rv-filter').forEach(btn => {
         btn.addEventListener('click', () => rvSetFilter(btn.dataset.cat));
       });
+      rvMoveGlide();
     });
 
     // ==================== HOME COURSES: STATE + THUMB FUNCTION ====================

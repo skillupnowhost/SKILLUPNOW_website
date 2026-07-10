@@ -875,6 +875,15 @@
         Reviews
         <span class="badge" id="review-badge" style="display:none">0</span>
       </div>
+      <div class="nav-item" data-section="site-reviews">
+        <span class="nav-icon indigo">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path class="adm-bob" d="M17 8.5a2 2 0 0 1-2 2H8l-3 3V5.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/>
+          </svg>
+        </span>
+        Site Reviews
+        <span class="badge" id="site-review-badge" style="display:none">0</span>
+      </div>
       <div class="nav-item" data-section="forms">
         <span class="nav-icon sky">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -1692,6 +1701,67 @@
         <div class="modal-actions">
           <button class="action-btn" type="button" onclick="saveReviewEdit()">Save Changes</button>
           <button class="action-btn danger" type="button" onclick="closeReviewEditModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SITE REVIEWS (Courses / Development / Projects / Internship) ===== -->
+    <div class="section" id="section-site-reviews">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Site Reviews</h3>
+          <div class="table-actions">
+            <select id="sr-status-filter" onchange="loadSiteReviews()">
+              <option value="pending">Pending Approval</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="">All</option>
+            </select>
+            <select id="sr-cat-filter" onchange="loadSiteReviews()">
+              <option value="">All Categories</option>
+              <option value="courses">Courses</option>
+              <option value="development">Development</option>
+              <option value="projects">Projects</option>
+              <option value="internship">Internship</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-scroll"><table class="data-table">
+          <thead><tr><th>Name</th><th>Category</th><th>Rating</th><th>Review</th><th>Media</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="sr-tbody"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="sr-edit-modal-overlay" class="modal-overlay" onclick="if(event.target===this) closeSrEditModal()">
+      <div class="modal-box" style="max-width:560px;">
+        <button class="modal-close" onclick="closeSrEditModal()">✕</button>
+        <div class="modal-title">Edit Site Review</div>
+        <div class="f-group"><label>Category</label>
+          <select id="sr-edit-category">
+            <option value="courses">Courses</option>
+            <option value="development">Development</option>
+            <option value="projects">Projects</option>
+            <option value="internship">Internship</option>
+          </select>
+        </div>
+        <div class="f-group"><label>Name</label><input id="sr-edit-name" type="text" placeholder="Reviewer name"></div>
+        <div class="f-group"><label>Rating</label>
+          <select id="sr-edit-rating">
+            <option value="1">1 star</option>
+            <option value="2">2 stars</option>
+            <option value="3">3 stars</option>
+            <option value="4">4 stars</option>
+            <option value="5">5 stars</option>
+          </select>
+        </div>
+        <div class="f-group"><label>Title</label><input id="sr-edit-title" type="text" placeholder="Review title"></div>
+        <div class="f-group"><label>Comment</label><textarea id="sr-edit-comment" rows="5" placeholder="Review text"></textarea></div>
+        <div class="f-group"><label>Admin note <span style="font-weight:400;color:var(--txt4)">(internal only)</span></label><input id="sr-edit-note" type="text" placeholder="Internal note"></div>
+        <div id="sr-edit-media" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem;"></div>
+        <div class="modal-actions">
+          <button class="action-btn" type="button" onclick="saveSrEdit()">Save Changes</button>
+          <button class="action-btn danger" type="button" onclick="closeSrEditModal()">Cancel</button>
         </div>
       </div>
     </div>
@@ -3876,7 +3946,7 @@ function loadSection(sec) {
     batches: loadBatches, payments: loadPayments, emi: loadEmi,
     pricing: loadPricing, discounts: loadDiscounts, referrals: loadReferrals,
     reports: loadReports, recordings: loadRecordings, schedules: loadSchedules,
-    reviews: loadReviews, forms: loadFormsSection, inquiries: loadInquiries,
+    reviews: loadReviews, 'site-reviews': loadSiteReviews, forms: loadFormsSection, inquiries: loadInquiries,
     feedback: loadFeedback, interests: loadInterested,
     holidays: loadHolidays,
     internships: loadInternships,
@@ -5815,6 +5885,154 @@ async function saveReviewEdit() {
 
   closeReviewEditModal();
   loadReviews();
+}
+
+/* ===== SITE REVIEWS (Courses / Development / Projects / Internship) ===== */
+let _srItems = [];
+let _currentSrEdit = null;
+const SR_CAT_LABELS = { courses:'Courses', development:'Development', projects:'Projects', internship:'Internship' };
+const SR_STATUS_BADGE = { pending:'badge-yellow', approved:'badge-green', rejected:'badge-red' };
+
+async function loadSiteReviews() {
+  const tbody = document.getElementById('sr-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading…</td></tr>';
+  try {
+    const statusFilter = document.getElementById('sr-status-filter')?.value ?? 'pending';
+    const catFilter = document.getElementById('sr-cat-filter')?.value ?? '';
+
+    let q = db.client.from('site_reviews').select('*');
+    if (statusFilter) q = q.eq('status', statusFilter);
+    if (catFilter) q = q.eq('category', catFilter);
+
+    const { data, error } = await q.order('created_at', { ascending: false }).limit(200);
+    if (error) throw new Error(error.message);
+
+    _srItems = data || [];
+
+    tbody.innerHTML = _srItems.map(r => {
+      const stars = '★'.repeat(r.rating || 0) + '☆'.repeat(5 - (r.rating || 0));
+      const commentPreview = _adm_esc((r.comment || '').slice(0, 90)) + ((r.comment || '').length > 90 ? '…' : '');
+      const mediaCount = (r.image_urls || []).length + (r.video_url ? 1 : 0);
+      const mediaBadge = mediaCount
+        ? `<span class="badge badge-blue">${(r.image_urls||[]).length ? '🖼 ' + r.image_urls.length : ''}${r.video_url ? ' 🎬' : ''}</span>`
+        : '<span style="color:var(--txt4);font-size:.78rem">—</span>';
+      const actionBtns = r.status === 'approved'
+        ? `<button type="button" class="action-btn" onclick="rejectSiteReview('${r.id}')">Unapprove</button>`
+        : `<button type="button" class="action-btn" onclick="approveSiteReview('${r.id}')">✓ Approve</button>`;
+      const rejectBtn = r.status !== 'rejected'
+        ? `<button type="button" class="action-btn" onclick="rejectSiteReview('${r.id}')">✕ Reject</button>`
+        : '';
+      const featureBtn = `<button type="button" class="action-btn" onclick="toggleSrFeatured('${r.id}', ${!r.is_featured})">${r.is_featured ? '★ Unfeature' : '☆ Feature'}</button>`;
+      return `<tr>
+        <td style="font-weight:600">${_adm_esc(r.name)}${r.email ? `<br><span style="font-size:.72rem;color:var(--txt4)">${_adm_esc(r.email)}</span>` : ''}</td>
+        <td>${SR_CAT_LABELS[r.category] || r.category}</td>
+        <td style="color:#f59e0b;letter-spacing:1px">${stars}</td>
+        <td style="max-width:260px">${r.title ? `<strong>${_adm_esc(r.title)}</strong><br>` : ''}${commentPreview}</td>
+        <td>${mediaBadge}</td>
+        <td><span class="${SR_STATUS_BADGE[r.status] || 'badge-gray'}">${r.status}</span></td>
+        <td style="font-size:.78rem">${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
+        <td class="action-btns">
+          ${actionBtns}
+          ${rejectBtn}
+          ${featureBtn}
+          <button type="button" class="action-btn" onclick="openSrEditModal('${r.id}')">Edit</button>
+          <button type="button" class="action-btn danger" onclick="deleteSiteReview('${r.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" class="table-empty">No site reviews found</td></tr>';
+
+    refreshSiteReviewBadge();
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" class="table-empty">Failed to load: ${_adm_esc(err.message)}</td></tr>`;
+    console.error('loadSiteReviews error:', err);
+  }
+}
+
+async function refreshSiteReviewBadge() {
+  const { count } = await db.client.from('site_reviews').select('id', { count: 'exact', head: true }).eq('status', 'pending');
+  const badge = document.getElementById('site-review-badge');
+  if (badge) { const n = count || 0; badge.textContent = n; badge.style.display = n > 0 ? '' : 'none'; }
+}
+
+async function approveSiteReview(id) {
+  const { data: { user } } = await db.client.auth.getUser();
+  const { error } = await db.client.from('site_reviews').update({
+    status: 'approved', reviewed_by: user?.id || null, reviewed_at: new Date().toISOString()
+  }).eq('id', id);
+  if (error) { await _adminModal({title:'Error',message:'Failed to approve review: ' + error.message,type:'info'}); return; }
+  _showAdminToast('✓ Review approved and now visible publicly.', 'success');
+  loadSiteReviews();
+}
+
+async function rejectSiteReview(id) {
+  const { data: { user } } = await db.client.auth.getUser();
+  const { error } = await db.client.from('site_reviews').update({
+    status: 'rejected', reviewed_by: user?.id || null, reviewed_at: new Date().toISOString()
+  }).eq('id', id);
+  if (error) { await _adminModal({title:'Error',message:'Failed to reject review: ' + error.message,type:'info'}); return; }
+  _showAdminToast('Review rejected.', 'success');
+  loadSiteReviews();
+}
+
+async function toggleSrFeatured(id, featured) {
+  const { error } = await db.client.from('site_reviews').update({ is_featured: featured }).eq('id', id);
+  if (error) { await _adminModal({title:'Error',message:'Failed to update: ' + error.message,type:'info'}); return; }
+  loadSiteReviews();
+}
+
+async function deleteSiteReview(id) {
+  if (!(await _adminModal({title:'Confirm',message:'Delete this review? This cannot be undone.',type:'danger'}))) return;
+  const { error } = await db.client.from('site_reviews').delete().eq('id', id);
+  if (error) { await _adminModal({title:'Error',message:'Failed to delete review: ' + error.message,type:'info'}); return; }
+  loadSiteReviews();
+}
+
+function openSrEditModal(id) {
+  const item = _srItems.find(x => x.id === id);
+  if (!item) return;
+  _currentSrEdit = item;
+  document.getElementById('sr-edit-category').value = item.category;
+  document.getElementById('sr-edit-name').value = item.name || '';
+  document.getElementById('sr-edit-rating').value = item.rating || 5;
+  document.getElementById('sr-edit-title').value = item.title || '';
+  document.getElementById('sr-edit-comment').value = item.comment || '';
+  document.getElementById('sr-edit-note').value = item.admin_note || '';
+
+  const mediaEl = document.getElementById('sr-edit-media');
+  mediaEl.innerHTML = '';
+  (item.image_urls || []).forEach(url => {
+    mediaEl.innerHTML += `<a href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"></a>`;
+  });
+  if (item.video_url) {
+    mediaEl.innerHTML += `<a href="${item.video_url}" target="_blank" rel="noopener" class="action-btn" style="font-size:.74rem">▶ View video</a>`;
+  }
+
+  document.getElementById('sr-edit-modal-overlay').classList.add('open');
+}
+
+function closeSrEditModal() {
+  _currentSrEdit = null;
+  document.getElementById('sr-edit-modal-overlay').classList.remove('open');
+}
+
+async function saveSrEdit() {
+  if (!_currentSrEdit) return;
+  const category = document.getElementById('sr-edit-category').value;
+  const name = document.getElementById('sr-edit-name').value.trim();
+  const rating = parseInt(document.getElementById('sr-edit-rating').value, 10) || 5;
+  const title = document.getElementById('sr-edit-title').value.trim() || null;
+  const comment = document.getElementById('sr-edit-comment').value.trim();
+  const adminNote = document.getElementById('sr-edit-note').value.trim() || null;
+  if (!name || !comment) { await _adminModal({title:'Error',message:'Name and comment are required.',type:'info'}); return; }
+
+  const { error } = await db.client.from('site_reviews').update({
+    category, name, rating, title, comment, admin_note: adminNote
+  }).eq('id', _currentSrEdit.id);
+
+  if (error) { await _adminModal({title:'Error',message:'Failed to save changes: ' + error.message,type:'info'}); return; }
+
+  closeSrEditModal();
+  loadSiteReviews();
 }
 
 let _inqAll = [];
@@ -9577,6 +9795,7 @@ function initRealtime() {
     referral_codes:           [{ sec: 'referrals',            fn: loadReferrals }],
     referral_logs:            [{ sec: 'referrals',            fn: loadReferrals }],
     reviews:                  [{ sec: 'reviews',              fn: loadReviews }],
+    site_reviews:             [{ sec: 'site-reviews',         fn: loadSiteReviews }],
     feedback:                 [{ sec: 'feedback',             fn: loadFeedback },
                                { sec: 'forms',                fn: loadFormsSection }],
     form_submissions:         [{ sec: 'forms',                fn: loadFormsSection }],

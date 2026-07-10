@@ -1039,132 +1039,213 @@
           <style>
             /* ── Paid internship detail panel ── */
             .itn-paid-detail-grid {
-              display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.6rem;
+              display:grid; grid-template-columns:repeat(auto-fill,minmax(min(310px,100%),1fr)); gap:clamp(1.1rem,1rem + 1vw,1.75rem);
             }
-            @media(max-width:640px) { .itn-paid-detail-grid { grid-template-columns:1fr; } }
+            @media(max-width:680px) { .itn-paid-detail-grid { grid-template-columns:1fr; gap:1.1rem; } }
+
+            @keyframes itnPdcIn {
+              from { opacity:0; transform:translateY(36px) scale(.94); filter:blur(6px); }
+              to   { opacity:1; transform:none; filter:blur(0); }
+            }
+            @keyframes itnPdcBadgeShine { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+            @keyframes itnPdcPriceGlow {
+              0%,100% { box-shadow:inset 0 0 0 1px rgba(245,158,11,.28); }
+              50%     { box-shadow:0 0 22px 2px rgba(245,158,11,.28), inset 0 0 0 1px rgba(245,158,11,.45); }
+            }
+            @keyframes itnPdcCrownFloat { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-2px) rotate(-6deg)} }
 
             .itn-paid-detail-card {
-              position:relative; border-radius:24px; overflow:hidden; cursor:pointer;
-              background:linear-gradient(160deg,rgba(245,158,11,.1) 0%,var(--bg2) 50%,rgba(16,185,129,.05) 100%);
-              border:1.5px solid rgba(245,158,11,.32);
-              box-shadow:0 2px 20px rgba(0,0,0,.06);
+              position:relative; border-radius:26px; overflow:hidden; cursor:pointer; isolation:isolate;
+              background:linear-gradient(160deg,rgba(245,158,11,.09) 0%,var(--bg2) 46%,rgba(16,185,129,.05) 100%);
+              border:1.5px solid rgba(245,158,11,.28);
+              box-shadow:0 4px 24px rgba(0,0,0,.08);
               display:flex; flex-direction:column;
-              opacity:0; transform:translateY(28px);
-              transition:all .45s cubic-bezier(.22,1,.36,1);
+              opacity:0; transform:translateY(36px) scale(.94);
+              transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s cubic-bezier(.22,1,.36,1), border-color .5s;
+              --mx:50%; --my:0%;
             }
-            .itn-paid-detail-card.itn-in { opacity:1; transform:none; animation:itnCardIn .58s cubic-bezier(.22,1,.36,1) both; }
+            .itn-paid-detail-card.itn-in { opacity:1; transform:none; animation:itnPdcIn .62s cubic-bezier(.22,1,.36,1) both; }
             .itn-paid-detail-card::before {
-              content:''; position:absolute; top:0; left:0; right:0; height:4px; z-index:2;
-              background:linear-gradient(90deg,#f59e0b 0%,#fbbf24 38%,#10b981 75%,#fbbf24 100%);
-              border-radius:24px 24px 0 0;
+              content:''; position:absolute; top:0; left:0; right:0; height:4px; z-index:3;
+              background:linear-gradient(90deg,#f59e0b 0%,#fbbf24 30%,#10b981 60%,#fbbf24 85%,#f59e0b 100%);
+              background-size:220% 100%;
+              border-radius:26px 26px 0 0;
+              animation:itnShimmer 5s linear infinite;
             }
+            .itn-paid-detail-card::after {
+              content:''; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:0;
+              background:radial-gradient(420px circle at var(--mx) var(--my), rgba(245,158,11,.16), transparent 60%);
+              transition:opacity .35s ease;
+            }
+            .itn-paid-detail-card:hover::after { opacity:1; }
             .itn-paid-detail-card:hover {
-              transform:translateY(-12px);
-              border-color:rgba(245,158,11,.65);
-              box-shadow:0 28px 72px rgba(245,158,11,.12),0 0 0 1px rgba(245,158,11,0.3);
+              transform:translateY(-10px) scale(1.012);
+              border-color:rgba(245,158,11,.6);
+              box-shadow:0 30px 70px rgba(245,158,11,.16),0 0 0 1px rgba(245,158,11,.32);
+            }
+            :root[data-theme="light"] .itn-paid-detail-card:hover {
+              box-shadow:0 24px 54px rgba(245,158,11,.14),0 0 0 1px rgba(245,158,11,.28);
             }
             .itn-paid-detail-card > * { position:relative; z-index:1; }
 
             /* Card header */
             .itn-pdc-header {
-              padding:1.5rem 1.5rem .7rem;
+              padding:1.6rem 1.6rem .7rem;
               display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem;
             }
             .itn-pdc-title-group { flex:1; min-width:0; }
-            .itn-pdc-title { font-size:1.08rem; font-weight:900; color:var(--txt); line-height:1.28; margin-bottom:.3rem; letter-spacing:-.018em; }
+            .itn-pdc-title {
+              font-size:clamp(1rem,.93rem + .3vw,1.18rem); font-weight:900; color:var(--txt); line-height:1.28;
+              margin-bottom:.32rem; letter-spacing:-.02em; transition:color .3s;
+            }
+            .itn-paid-detail-card:hover .itn-pdc-title { color:#f59e0b; }
+            :root[data-theme="light"] .itn-paid-detail-card:hover .itn-pdc-title { color:#b45309; }
             .itn-pdc-subtitle { font-size:.78rem; color:var(--txt3); font-weight:600; }
             .itn-pdc-premium-badge {
               flex-shrink:0;
-              display:inline-flex; align-items:center; gap:.3rem;
-              padding:.24rem .72rem; border-radius:999px; font-size:.65rem; font-weight:800; letter-spacing:.06em;
-              background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(251,191,36,.15));
-              border:1px solid rgba(245,158,11,.42); color:#fbbf24;
-              box-shadow:0 0 14px rgba(245,158,11,.22);
+              display:inline-flex; align-items:center; gap:.32rem;
+              padding:.28rem .78rem; border-radius:999px; font-size:.63rem; font-weight:800; letter-spacing:.07em;
+              background:linear-gradient(110deg,rgba(245,158,11,.22) 0%,rgba(251,191,36,.42) 45%,rgba(245,158,11,.22) 100%);
+              background-size:220% 100%;
+              animation:itnPdcBadgeShine 3.2s linear infinite;
+              border:1px solid rgba(245,158,11,.45); color:#fbbf24;
+              box-shadow:0 0 16px rgba(245,158,11,.25);
             }
-            :root[data-theme="light"] .itn-pdc-premium-badge { color:#92400e; background:rgba(245,158,11,.1); }
+            .itn-pdc-premium-badge svg { animation:itnPdcCrownFloat 2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+            :root[data-theme="light"] .itn-pdc-premium-badge {
+              color:#92400e; background:linear-gradient(110deg,rgba(245,158,11,.12),rgba(251,191,36,.3),rgba(245,158,11,.12)); background-size:220% 100%;
+            }
 
             /* Price row */
             .itn-pdc-price-row {
-              padding:.4rem 1.5rem .9rem;
+              padding:.4rem 1.6rem .9rem;
               display:flex; align-items:center; justify-content:space-between; gap:.8rem; flex-wrap:wrap;
             }
             .itn-pdc-price-box {
-              display:inline-flex; align-items:baseline; gap:.3rem;
-              padding:.42rem .95rem; border-radius:12px;
+              display:inline-flex; align-items:baseline; gap:.32rem;
+              padding:.44rem 1rem; border-radius:12px;
               background:linear-gradient(135deg,rgba(245,158,11,.14),rgba(251,191,36,.09));
               border:1px solid rgba(245,158,11,.28);
+              animation:itnPdcPriceGlow 3.6s ease-in-out infinite;
             }
-            .itn-pdc-price-amt { font-size:1.5rem; font-weight:900; color:#fbbf24; letter-spacing:-.03em; }
+            .itn-pdc-price-amt { font-size:clamp(1.2rem,1.05rem + .5vw,1.5rem); font-weight:900; color:#fbbf24; letter-spacing:-.03em; }
             :root[data-theme="light"] .itn-pdc-price-amt { color:#92400e; }
             .itn-pdc-price-note { font-size:.72rem; color:var(--txt3); font-weight:600; }
-            .itn-pdc-stipend-chip {
-              display:inline-flex; align-items:center; gap:.3rem;
-              padding:.28rem .72rem; border-radius:999px; font-size:.7rem; font-weight:700;
-              background:rgba(16,185,129,.1); color:var(--itn-emerald); border:1px solid rgba(16,185,129,.22);
+            .itn-pdc-stipend-chip, .itn-pdc-contact-chip {
+              display:inline-flex; align-items:center; gap:.32rem;
+              padding:.3rem .76rem; border-radius:999px; font-size:.7rem; font-weight:700;
+              flex-shrink:0; white-space:nowrap; transition:transform .25s;
             }
+            .itn-pdc-stipend-chip { background:rgba(16,185,129,.1); color:var(--itn-emerald); border:1px solid rgba(16,185,129,.22); }
+            .itn-pdc-contact-chip { background:rgba(245,158,11,.1); color:var(--itn-gold); border:1px solid rgba(245,158,11,.22); }
+            :root[data-theme="light"] .itn-pdc-contact-chip { color:#92400e; }
+            .itn-paid-detail-card:hover .itn-pdc-stipend-chip,
+            .itn-paid-detail-card:hover .itn-pdc-contact-chip { transform:translateY(-2px); }
 
             /* Description */
             .itn-pdc-desc {
-              font-size:.82rem; color:var(--txt2); line-height:1.68;
-              padding:0 1.5rem .8rem;
-              display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+              font-size:.83rem; color:var(--txt2); line-height:1.7;
+              padding:0 1.6rem .8rem;
+              max-height:calc(1.7em * 3); overflow:hidden; word-break:break-word;
+              display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
             }
 
             /* Feature bullets */
             .itn-pdc-features {
-              padding:.1rem 1.5rem .9rem;
+              padding:.1rem 1.6rem .9rem;
             }
             .itn-pdc-features-title {
-              font-size:.7rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase;
-              color:var(--txt3); margin-bottom:.55rem;
+              font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+              color:var(--txt3); margin-bottom:.6rem;
             }
             .itn-pdc-feat-list {
-              display:flex; flex-direction:column; gap:.38rem; list-style:none; margin:0; padding:0;
+              display:flex; flex-direction:column; gap:.4rem; list-style:none; margin:0; padding:0;
             }
             .itn-pdc-feat-list li {
               display:flex; align-items:flex-start; gap:.55rem;
               font-size:.79rem; color:var(--txt2); line-height:1.5;
+              transition:transform .35s cubic-bezier(.22,1,.36,1);
             }
+            .itn-paid-detail-card:hover .itn-pdc-feat-list li { transform:translateX(3px); }
+            .itn-paid-detail-card:hover .itn-pdc-feat-list li:nth-child(2) { transition-delay:.04s; }
+            .itn-paid-detail-card:hover .itn-pdc-feat-list li:nth-child(3) { transition-delay:.08s; }
+            .itn-paid-detail-card:hover .itn-pdc-feat-list li:nth-child(4) { transition-delay:.12s; }
             .itn-pdc-feat-dot {
               flex-shrink:0; width:6px; height:6px; border-radius:50%;
               background:var(--itn-gold); margin-top:.38rem;
               box-shadow:0 0 6px rgba(245,158,11,.5);
+              transition:box-shadow .3s, transform .3s;
             }
+            .itn-paid-detail-card:hover .itn-pdc-feat-dot { box-shadow:0 0 10px rgba(245,158,11,.85); transform:scale(1.3); }
 
             /* Tags */
-            .itn-pdc-tags { display:flex; flex-wrap:nowrap; gap:.28rem; padding:0 1.5rem .7rem; overflow-x:auto; scrollbar-width:none; }
+            .itn-pdc-tags { display:flex; flex-wrap:nowrap; gap:.32rem; padding:0 1.6rem .75rem; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
             .itn-pdc-tags::-webkit-scrollbar { display:none; }
-            .itn-pdc-tag { padding:.18rem .6rem; border-radius:999px; font-size:.64rem; font-weight:700; background:rgba(245,158,11,.1); color:var(--itn-gold); border:1px solid rgba(245,158,11,.22); }
+            .itn-pdc-tag {
+              flex-shrink:0; white-space:nowrap; padding:.2rem .65rem; border-radius:999px; font-size:.65rem; font-weight:700;
+              background:rgba(245,158,11,.1); color:var(--itn-gold); border:1px solid rgba(245,158,11,.22);
+              transition:transform .22s, background .22s;
+            }
+            .itn-pdc-tag:hover { transform:translateY(-2px) scale(1.05); background:rgba(245,158,11,.2); }
 
             /* Meta row */
-            .itn-pdc-meta { display:flex; flex-wrap:wrap; gap:.45rem; padding:.8rem 1.5rem 0; border-top:1px solid var(--border); margin-top:auto; }
-            .itn-pdc-meta-item { display:inline-flex; align-items:center; gap:.32rem; font-size:.72rem; font-weight:600; padding:.2rem .6rem; border-radius:999px; }
+            .itn-pdc-meta { display:flex; flex-wrap:wrap; gap:.5rem; padding:.85rem 1.6rem 0; border-top:1px solid var(--border); margin-top:auto; }
+            .itn-pdc-meta-item { display:inline-flex; align-items:center; gap:.34rem; font-size:.72rem; font-weight:600; padding:.22rem .65rem; border-radius:999px; transition:transform .22s; }
+            .itn-pdc-meta-item:hover { transform:translateY(-2px); }
 
             /* Action button */
-            .itn-pdc-action { padding:.9rem 1.5rem 1.4rem; }
+            .itn-pdc-action { padding:1rem 1.6rem 1.5rem; }
             .itn-pdc-btn {
-              display:flex; align-items:center; justify-content:center; gap:.5rem;
-              width:100%; padding:.72rem 1.2rem; border-radius:12px;
-              font-size:.86rem; font-weight:700; cursor:pointer;
+              display:flex; align-items:center; justify-content:center; gap:.55rem;
+              width:100%; padding:.78rem 1.2rem; border-radius:13px;
+              font-size:.87rem; font-weight:700; cursor:pointer;
               font-family:inherit; position:relative; overflow:hidden;
               background:linear-gradient(135deg,#f59e0b,#d97706);
               color:#fff; border:none;
               box-shadow:0 4px 18px rgba(245,158,11,.38);
-              transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s;
+              transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s;
             }
             .itn-pdc-btn::after {
               content:''; position:absolute; top:0; left:-100%; width:55%; height:100%;
-              background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
-              transition:left .48s ease; pointer-events:none;
+              background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+              transition:left .5s ease; pointer-events:none;
             }
             .itn-pdc-btn:hover::after { left:150%; }
-            .itn-pdc-btn:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(245,158,11,.52); }
-            .itn-pdc-btn:active { transform:scale(.97); }
+            .itn-pdc-btn:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(245,158,11,.55); }
+            .itn-pdc-btn:active { transform:scale(.96); }
+            .itn-pdc-btn svg { transition:transform .3s cubic-bezier(.22,1,.36,1); }
+            .itn-pdc-btn:hover svg { transform:translateX(3px) scale(1.08); }
             .itn-pdc-btn-login {
               background:linear-gradient(135deg,var(--v1),var(--v2));
               box-shadow:0 4px 16px rgba(124,92,252,.35);
             }
-            .itn-pdc-btn-login:hover { box-shadow:0 10px 28px rgba(124,92,252,.5); }
+            .itn-pdc-btn-login:hover { box-shadow:0 12px 32px rgba(124,92,252,.55); }
+
+            @media(max-width:600px) {
+              .itn-pdc-header { padding:1.35rem 1.25rem .6rem; }
+              .itn-pdc-price-row { padding:.35rem 1.25rem .8rem; }
+              .itn-pdc-desc { padding:0 1.25rem .7rem; }
+              .itn-pdc-features { padding:.1rem 1.25rem .8rem; }
+              .itn-pdc-tags { padding:0 1.25rem .6rem; }
+              .itn-pdc-meta { padding:.7rem 1.25rem 0; }
+              .itn-pdc-action { padding:.85rem 1.25rem 1.25rem; }
+            }
+            @media(max-width:360px) {
+              .itn-pdc-price-row { flex-direction:column; align-items:flex-start; }
+              .itn-pdc-header { flex-wrap:wrap; }
+              .itn-pdc-premium-badge { order:-1; }
+            }
+            @media (hover:none) {
+              .itn-paid-detail-card:hover { transform:none; }
+              .itn-paid-detail-card::after { display:none; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .itn-paid-detail-card, .itn-paid-detail-card::before,
+              .itn-pdc-premium-badge, .itn-pdc-premium-badge svg, .itn-pdc-price-box {
+                animation:none !important;
+              }
+              .itn-paid-detail-card.itn-in { opacity:1; transform:none; }
+            }
           </style>
 
           <div class="itn-paid-detail-grid" id="itn-paid-grid">
@@ -1803,6 +1884,14 @@
     _renderPaidDetailGrid('itn-paid-grid', paid, 'itn-count-paid');
   }
 
+  /* ── Cursor spotlight for premium cards ── */
+  function _itnPdcSpot(e) {
+    const card = e.currentTarget;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+  }
+
   /* ── Paid detail grid renderer ── */
   function _renderPaidDetailGrid(gridId, items, countId) {
     const el = document.getElementById(gridId);
@@ -1837,7 +1926,7 @@
         : `onclick="window.profileNav&&window.profileNav.openLoginModal()"`;
 
       return `
-        <div class="itn-paid-detail-card">
+        <div class="itn-paid-detail-card" onmousemove="_itnPdcSpot(event)">
           <div class="itn-pdc-header">
             <div class="itn-pdc-title-group">
               <div class="itn-pdc-title">${_itnEsc(p.project_name)}</div>
@@ -1850,10 +1939,15 @@
           </div>
 
           <div class="itn-pdc-price-row">
+            ${p.payment_amount ? `
             <div class="itn-pdc-price-box">
-              <span class="itn-pdc-price-amt">${p.payment_amount ? '₹' + Number(p.payment_amount).toLocaleString('en-IN') : '–'}</span>
-              <span class="itn-pdc-price-note">${p.payment_amount ? '/ programme' : 'contact'}</span>
-            </div>
+              <span class="itn-pdc-price-amt">₹${Number(p.payment_amount).toLocaleString('en-IN')}</span>
+              <span class="itn-pdc-price-note">/ programme</span>
+            </div>` : `
+            <span class="itn-pdc-contact-chip">
+              <svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor"><path d="M2 3h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm0 1.4V5.6L8 9l6-3.6V4.4L8 8 2 4.4z"/></svg>
+              Contact us
+            </span>`}
             <span class="itn-pdc-stipend-chip">
               <svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm.75 10.25h-1.5V10h1.5v1.25zm0-2.5h-1.5V4.75h1.5v4z"/></svg>
               Stipend included

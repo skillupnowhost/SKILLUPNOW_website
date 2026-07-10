@@ -767,95 +767,70 @@
       transition:transform .2s, box-shadow .2s;
     }
     .pam-rv-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,92,252,.48); }
-    .pam-rv-filters { display:flex; gap:.45rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .pam-rv-filters { position:relative; display:flex; gap:.45rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .pam-rv-glide {
+      position:absolute; top:0; height:100%; border-radius:999px;
+      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
+      box-shadow:0 4px 12px rgba(124,92,252,.32);
+      transition:left .4s cubic-bezier(.34,1.56,.64,1), width .4s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+      z-index:0; pointer-events:none; opacity:0;
+    }
+    .pam-rv-glide.ready { opacity:1; }
     .pam-rv-filter {
+      position:relative; z-index:1;
       display:inline-flex; align-items:center; gap:.38rem;
       padding:.32rem .88rem; border-radius:999px;
       border:1.5px solid var(--border); background:transparent;
       font-size:.74rem; font-weight:700; color:var(--txt3);
-      cursor:pointer; font-family:inherit; transition:all .2s;
+      cursor:pointer; font-family:inherit;
+      transition:color .2s cubic-bezier(.4,0,.2,1), border-color .2s cubic-bezier(.4,0,.2,1), transform .2s cubic-bezier(.4,0,.2,1);
     }
-    .pam-rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); }
-    .pam-rv-filter.active {
-      background:linear-gradient(135deg,#7c5cfc,#3d6bff);
-      border-color:transparent; color:#fff;
-      box-shadow:0 4px 12px rgba(124,92,252,.32);
-    }
-    .pam-rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; }
-    .pam-rv-filt-ico svg { width:13px; height:13px; flex-shrink:0; overflow:visible; }
+    .pam-rv-filter:hover { border-color:rgba(124,92,252,.4); color:var(--txt); transform:translateY(-1px); }
+    .pam-rv-filter:active { transform:translateY(0) scale(.96); }
+    .pam-rv-filter.active { border-color:transparent; color:#fff; }
+    .pam-rv-filt-ico { display:inline-flex; align-items:center; flex-shrink:0; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+    .pam-rv-filt-ico svg { width:13px; height:13px; flex-shrink:0; overflow:visible; transition:filter .25s; }
+    .pam-rv-filter:hover .pam-rv-filt-ico { transform:scale(1.2) translateY(-1px); }
+    .pam-rv-filter:hover .pam-rv-filt-ico svg { filter:drop-shadow(0 0 5px color-mix(in srgb, currentColor 85%, transparent)); }
     .pam-ico-violet  { stroke:#7c5cfc; } .pam-ico-amber   { stroke:#f59e0b; }
     .pam-ico-cyan    { stroke:#06b6d4; } .pam-ico-emerald { stroke:#10b981; }
-    .pam-rv-filter.active .pam-rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; }
+    .pam-rv-filter.active .pam-rv-filt-ico svg { stroke:rgba(255,255,255,.95) !important; filter:drop-shadow(0 0 4px rgba(255,255,255,.55)); }
     .pam-rv-empty {
       text-align:center; padding:2.5rem 1rem;
       border:1.5px dashed rgba(124,92,252,.2); border-radius:18px;
       color:var(--txt4); font-size:.88rem; line-height:1.65; display:none;
     }
     .pam-rv-empty.show { display:block; }
-    .pam-rv-carousel-outer { position:relative; margin-bottom:1rem; }
-    .pam-rv-clip {
-      overflow:hidden; padding:.5rem .2rem 1rem; margin:0 44px;
+    .pam-rv-grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1.15rem;
     }
-    .pam-rv-track {
-      display:flex; gap:1.15rem;
-      transition:transform .45s cubic-bezier(.4,0,.2,1);
-      will-change:transform;
+    @media(max-width:640px) { .pam-rv-grid { grid-template-columns:1fr; gap:1rem; } }
+    .pam-rv-more-wrap { text-align:center; margin-top:1.5rem; }
+    .pam-rv-more-wrap.hidden { display:none; }
+    .pam-rv-more-btn {
+      display:inline-flex; align-items:center; gap:.55rem;
+      padding:.65rem 1.6rem; border-radius:14px;
+      background:var(--panel); border:1.5px solid var(--border);
+      color:var(--txt2); font-size:.85rem; font-weight:700; cursor:pointer;
+      font-family:inherit; transition:all .22s;
     }
-    .pam-rv-nav {
-      position:absolute; top:50%; transform:translateY(-50%);
-      z-index:10; width:40px; height:40px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
-      backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-      box-shadow:0 4px 16px rgba(124,92,252,.15), inset 0 1px 0 rgba(255,255,255,.12);
-      cursor:pointer; color:rgba(255,255,255,.85);
-      transition:all .28s cubic-bezier(.34,1.56,.64,1);
-    }
-    :root[data-theme="light"] .pam-rv-nav {
-      background:rgba(255,255,255,.8); border-color:rgba(124,92,252,.2);
-      box-shadow:0 4px 16px rgba(0,0,0,.1); color:var(--txt2);
-    }
-    .pam-rv-nav:hover:not(:disabled) {
-      background:rgba(124,92,252,.2); border-color:rgba(124,92,252,.5);
-      transform:translateY(-50%) scale(1.1); color:#fff;
-    }
-    .pam-rv-nav:disabled { opacity:.25; pointer-events:none; }
-    .pam-rv-prev { left:0; } .pam-rv-next { right:0; }
-    .pam-rv-nav svg { width:15px; height:15px; }
-    .pam-rv-dots { display:flex; justify-content:center; align-items:center; gap:0; margin-top:.5rem; }
-    .pam-rv-dot {
-      width:12px; height:20px; border-radius:0;
-      background:transparent; border:none; padding:0; cursor:pointer;
-      -webkit-appearance:none; appearance:none;
-      display:flex; align-items:center; justify-content:center;
-      flex-shrink:0; outline:none;
-    }
-    .pam-rv-dot::before {
-      content:''; display:block;
-      width:6px; height:6px; border-radius:50%;
-      background:var(--v4);
-      transition:all .32s cubic-bezier(.4,0,.2,1);
-    }
-    .pam-rv-dot:not(.active):hover::before { background:var(--v3); transform:scale(1.35); }
-    .pam-rv-dot.active::before {
-      width:18px; height:6px; border-radius:3px;
-      background:var(--v1);
-      box-shadow:0 2px 8px rgba(124,92,252,.4);
-    }
+    .pam-rv-more-btn:hover { border-color:var(--v1); color:var(--v1); transform:translateY(-2px); }
     @keyframes pamRvCardIn {
-      from { opacity:0; transform:translateX(18px) scale(.97); }
-      to   { opacity:1; transform:translateX(0) scale(1); }
+      from { opacity:0; transform:translateY(16px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
     }
     @keyframes pamRvStarPulse {
       0%,70%,100% { filter:none; transform:scale(1); }
       85% { filter:drop-shadow(0 0 5px rgba(251,191,36,.85)); transform:scale(1.2); }
     }
     .pam-rv-card {
-      flex:0 0 300px; background:var(--panel); border:1.5px solid var(--border);
+      background:linear-gradient(160deg,rgba(124,92,252,.055) 0%,var(--panel) 45%,rgba(6,182,212,.035) 100%);
+      border:1.5px solid var(--border);
       border-radius:22px; padding:1.5rem 1.4rem 1.3rem;
       display:flex; flex-direction:column; position:relative; overflow:hidden;
-      animation:pamRvCardIn .4s both;
-      transition:transform .28s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
+      opacity:0; transform:translateY(16px) scale(.97);
+      animation:pamRvCardIn .5s cubic-bezier(.22,1,.36,1) both;
+      transition:transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s;
       cursor:default;
     }
     .pam-rv-card::before {
@@ -968,16 +943,14 @@
       .pam-rv-section { padding: 2rem 4vw 2.5rem; }
       .pam-rv-title { font-size:1.4rem; }
       .pam-rv-header { flex-direction:column; align-items:flex-start; gap:.9rem; }
-      .pam-rv-card { flex:0 0 min(260px, calc(100vw - 88px)); }
-      .pam-rv-clip { margin:0 36px; }
-      .pam-rv-nav { width:34px; height:34px; }
-      .pam-rv-nav svg { width:14px; height:14px; }
+      .pam-rv-filters { gap:.35rem; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:.15rem; }
+      .pam-rv-filters::-webkit-scrollbar { display:none; }
+      .pam-rv-filter { flex-shrink:0; white-space:nowrap; }
+      .pam-rv-card { padding:1.2rem 1.1rem 1.05rem; }
       #pam-rv-modal-box { padding:1.8rem 1.2rem 1.5rem; }
     }
     @media(max-width:380px) {
-      .pam-rv-card { flex:0 0 calc(100vw - 64px); }
-      .pam-rv-clip { margin:0 26px; }
-      .pam-rv-nav { width:28px; height:28px; }
+      .pam-rv-more-btn { font-size:.8rem; padding:.55rem 1.3rem; }
     }
   </style>
 </head>
@@ -1129,6 +1102,7 @@
       </div>
 
       <div class="pam-rv-filters" id="pam-rv-filters">
+        <span class="pam-rv-glide" id="pam-rv-glide" aria-hidden="true"></span>
         <button type="button" class="pam-rv-filter active" data-cat="all">
           <span class="pam-rv-filt-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pam-ico-violet">
@@ -1185,18 +1159,14 @@
         <p>💬 No reviews yet — be the first to share your experience.</p>
       </div>
 
-      <div class="pam-rv-carousel-outer" id="pam-rv-outer">
-        <button type="button" class="pam-rv-nav pam-rv-prev" id="pam-rv-prev" onclick="pamRvNav(-1)" aria-label="Previous" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="pam-rv-clip">
-          <div class="pam-rv-track" id="pam-rv-track"></div>
-        </div>
-        <button type="button" class="pam-rv-nav pam-rv-next" id="pam-rv-next" onclick="pamRvNav(1)" aria-label="Next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      <div class="pam-rv-grid" id="pam-rv-grid"></div>
+
+      <div class="pam-rv-more-wrap hidden" id="pam-rv-more-wrap">
+        <button type="button" class="pam-rv-more-btn" id="pam-rv-more-btn" onclick="pamRvShowMore()">
+          Show more reviews
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
         </button>
       </div>
-      <div class="pam-rv-dots" id="pam-rv-dots"></div>
     </div>
   </section>
 
@@ -1860,8 +1830,8 @@ async function loadPopupStudents(courseId, mentorUserId) {
 
 // ══ STUDENT REVIEWS CAROUSEL ══════════════════════════════════════════════════
 (function() {
-  let _all = [], _filtered = [], _idx = 0, _cat = 'all';
-  const CARD_W = 300, GAP = 20;
+  let _all = [], _filtered = [], _cat = 'all', _visibleCount = 6;
+  const PAGE_SIZE = 6;
   const _pamGrads = [
     'linear-gradient(135deg,#7c5cfc,#3d6bff)',
     'linear-gradient(135deg,#06b6d4,#0284c7)',
@@ -1881,15 +1851,6 @@ async function loadPopupStudents(courseId, mentorUserId) {
   const _pamTypeLabels  = { course:'Course', mentor:'Mentor', website:'Website', admin:'Admin', general:'General' };
   const _pamModalStore  = {};
 
-  function _getPerPage() {
-    const clip = document.querySelector('.pam-rv-clip');
-    if (!clip) return 1;
-    return Math.max(1, Math.floor((clip.offsetWidth + GAP) / (CARD_W + GAP)));
-  }
-  function _cardStep() {
-    const card = document.querySelector('#pam-rv-track .pam-rv-card');
-    return (card && card.offsetWidth > 0 ? card.offsetWidth : CARD_W) + GAP;
-  }
   function _esc(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -1967,50 +1928,44 @@ async function loadPopupStudents(courseId, mentorUserId) {
     document.body.style.overflow = '';
   };
   document.addEventListener('keydown', e => { if (e.key==='Escape') pamRvCloseModal(); });
+  function _moveGlide() {
+    const group = document.getElementById('pam-rv-filters');
+    const glide = document.getElementById('pam-rv-glide');
+    const active = group?.querySelector('.pam-rv-filter.active');
+    if (!group || !glide || !active) return;
+    glide.style.left = active.offsetLeft + 'px';
+    glide.style.width = active.offsetWidth + 'px';
+    glide.classList.add('ready');
+  }
   function _render() {
-    const t = document.getElementById('pam-rv-track');
-    if (t) t.innerHTML = _filtered.map((d,i) => _buildCard(d,i)).join('');
+    const g = document.getElementById('pam-rv-grid');
+    if (!g) return;
+    const visible = _filtered.slice(0, _visibleCount);
+    g.innerHTML = visible.map((d,i) => _buildCard(d,i)).join('');
+    const moreWrap = document.getElementById('pam-rv-more-wrap');
+    if (moreWrap) moreWrap.classList.toggle('hidden', _visibleCount >= _filtered.length);
   }
-  function _update() {
-    const t = document.getElementById('pam-rv-track');
-    if (!t) return;
-    const pp = _getPerPage();
-    const maxIdx = Math.max(0, _filtered.length - pp);
-    _idx = Math.min(_idx, maxIdx);
-    t.style.transform = `translateX(${-_idx * _cardStep()}px)`;
-    const prev = document.getElementById('pam-rv-prev');
-    const next = document.getElementById('pam-rv-next');
-    if (prev) prev.disabled = _idx <= 0;
-    if (next) next.disabled = _idx >= maxIdx;
-    const totalDots = Math.ceil(_filtered.length / Math.max(1, pp));
-    const activeDot = Math.min(Math.floor(_idx / Math.max(1, pp)), totalDots - 1);
-    const dotsEl = document.getElementById('pam-rv-dots');
-    if (dotsEl) dotsEl.innerHTML = Array.from({length:totalDots}, (_,i) =>
-      `<button type="button" class="pam-rv-dot${i===activeDot?' active':''}" onclick="pamRvPage(${i})" aria-label="Page ${i+1}"></button>`
-    ).join('');
-  }
-  window.pamRvNav = function(dir) {
-    const maxIdx = Math.max(0, _filtered.length - _getPerPage());
-    _idx = Math.max(0, Math.min(_idx + dir, maxIdx));
-    _update();
-  };
-  window.pamRvPage = function(page) {
-    _idx = page * _getPerPage();
-    _update();
+  window.pamRvShowMore = function() {
+    _visibleCount += PAGE_SIZE;
+    _render();
   };
   window.pamRvFilter = function(cat, btn) {
-    _cat = cat; _idx = 0;
+    _cat = cat; _visibleCount = PAGE_SIZE;
     document.querySelectorAll('.pam-rv-filter').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
     _filtered = cat === 'all' ? [..._all] : _all.filter(d => {
       const t = d.feedback_type || (d.source === 'review' ? 'course' : 'general');
       return t === cat;
     });
-    _render(); _update();
+    _render(); _moveGlide();
   };
   document.querySelectorAll('.pam-rv-filter').forEach(b => {
     b.addEventListener('click', () => pamRvFilter(b.dataset.cat, b));
   });
-  window.addEventListener('resize', _update);
+  window.addEventListener('resize', () => {
+    clearTimeout(window._pamRvGlideResizeT);
+    window._pamRvGlideResizeT = setTimeout(_moveGlide, 120);
+  });
+  _moveGlide();
 
   async function loadPamReviews() {
     let tries = 0;
@@ -2038,12 +1993,13 @@ async function loadPopupStudents(courseId, mentorUserId) {
       if (!_all.length) {
         const e = document.getElementById('pam-rv-empty');
         if (e) e.classList.add('show');
-        const o = document.getElementById('pam-rv-outer');
-        if (o) o.style.display = 'none';
+        document.getElementById('pam-rv-filters')?.style.setProperty('display', 'none');
+        document.getElementById('pam-rv-grid')?.style.setProperty('display', 'none');
         return;
       }
       _filtered = [..._all];
-      _render(); _update();
+      _render();
+      requestAnimationFrame(_moveGlide);
     } catch(e) { /* leave empty state */ }
   }
   loadPamReviews();
