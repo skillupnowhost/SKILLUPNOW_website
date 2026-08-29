@@ -96,7 +96,6 @@ VALUES (
 3. Register test account:
    - Name: Test Admin
    - Email: testadmin2@gmail.com (or similar)
-   - Phone: 9999999999
    - Password: Test@1234
 4. Click "Create Account"
 5. Should see: "Account created! Please verify your email"
@@ -162,7 +161,6 @@ Test that data saves to database:
 2. Fill form:
    - Name: Test Lead
    - Email: lead@test.com
-   - Phone: 8888888888
    - Course: Any
 3. Click Submit
 4. Should see: "Thank you for your enquiry!"

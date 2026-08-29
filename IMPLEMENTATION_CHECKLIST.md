@@ -127,7 +127,6 @@ VALUES (
 - [ ] Fill registration form:
   - [ ] Name: Test User
   - [ ] Email: testuser@example.com
-  - [ ] Phone: 9999999999
   - [ ] Interest: Web Development
   - [ ] Password: Test123456
 - [ ] Click "Create Account" button
@@ -165,7 +164,6 @@ VALUES (
 - [ ] Fill out form:
   - [ ] Full Name: Test Lead
   - [ ] Email: testlead@example.com
-  - [ ] Phone: 8888888888
   - [ ] Course Interested: Web Development
   - [ ] Budget: 20000-30000
   - [ ] Message: Test enquiry from admin testing

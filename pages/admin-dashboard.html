@@ -12408,7 +12408,7 @@ async function generateStudentReport(enrollId, studentName, projectName, teamNam
   }
 
   doc.setFontSize(6); doc.setTextColor(140);
-  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com  |  Confidential', pw/2, phR-4, { align:'center' });
+  doc.text('Skill-Up Now Private Limited  |  skillupnow.off@gmail.com  |  Confidential', pw/2, phR-4, { align:'center' });
 
   doc.save(`intern-report-${studentName.replace(/\s+/g,'-')}-admin.pdf`);
   _showAdminToast('PDF generated!','success');
@@ -12938,7 +12938,7 @@ function exportTrackingPDF(){
   rows.forEach(tr=>{
     if(y>ph-10){
       doc.setFontSize(6);doc.setTextColor(140);
-      doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
+      doc.text('Skill-Up Now Private Limited  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
       doc.addPage();y=8;rowIdx=0;
     }
     const cells=[...tr.querySelectorAll('td')].filter((_,i)=>i>0);
@@ -12960,7 +12960,7 @@ function exportTrackingPDF(){
   });
 
   doc.setFontSize(6);doc.setTextColor(140);
-  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
+  doc.text('Skill-Up Now Private Limited  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
   doc.save('intern-tracking.pdf');
   _showAdminToast('Tracking PDF exported!','success');
 }
@@ -14142,7 +14142,7 @@ async function exportDetailedReport(){
   function footer(){
     const ph=297;
     doc.setFontSize(6); doc.setTextColor(...txt3);
-    doc.text('SkillUpNow Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com  |  CONFIDENTIAL',pw/2,ph-4,{align:'center'});
+    doc.text('SkillUpNow Private Limited  |  skillupnow.off@gmail.com  |  CONFIDENTIAL',pw/2,ph-4,{align:'center'});
   }
   function checkPage(need=10){
     if(y+need>280){ footer(); doc.addPage(); header(); }
@@ -14937,7 +14937,7 @@ function exportStudentDetail(fmt){
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(200,190,255);
   doc.text(`${name}  |  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}`,pw/2,20,{align:'center'});
   doc.setFontSize(7);doc.setTextColor(180,170,220);
-  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877',pw/2,26,{align:'center'});
+  doc.text('Skill-Up Now Private Limited',pw/2,26,{align:'center'});
   y=35;
 
   const totalWork=filtSess.reduce((s,x)=>s+(x.total_work_mins||0),0);
@@ -15013,7 +15013,7 @@ function exportStudentDetail(fmt){
   }
 
   doc.setFontSize(6);doc.setTextColor(140);
-  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
+  doc.text('Skill-Up Now Private Limited  |  skillupnow.off@gmail.com',pw/2,ph-4,{align:'center'});
   doc.save(`Student-Report-${name.replace(/\s+/g,'_')}.pdf`);
   _showAdminToast('PDF exported!','success');
 }
@@ -15119,7 +15119,7 @@ function exportAdminDayReport(dateStr,fmt){
   }
 
   doc.setFontSize(6.5);doc.setTextColor(140);doc.setFont('helvetica','normal');
-  doc.text('Skill-Up Now Private Limited  |  +91 93618 05877  |  skillupnow.off@gmail.com',pw/2,290,{align:'center'});
+  doc.text('Skill-Up Now Private Limited  |  skillupnow.off@gmail.com',pw/2,290,{align:'center'});
   doc.save(`Day-${sess.day_number||dateStr}-${name.replace(/\s+/g,'_')}.pdf`);
   _showAdminToast('Day PDF exported!','success');
 }
@@ -15428,7 +15428,7 @@ function exportAdminDayReport(dateStr,fmt){
     </div>
     <div class="f-group">
       <label>Phone (optional)</label>
-      <input type="text" id="ns-phone" placeholder="+91 98765 43210">
+      <input type="text" id="ns-phone">
     </div>
     <div class="f-group">
       <label>Temporary Password *</label>

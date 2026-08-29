@@ -555,24 +555,6 @@ class ProfileNavigationManager {
             </a>
           </div>
           <div class="pn-f-contact-row" style="flex-direction:column;gap:.25rem;align-items:flex-start;">
-            <a href="tel:+916383633054" class="footer-contact-link pn-f-3d-link" style="font-size:.79rem;white-space:nowrap;display:flex;align-items:center;gap:.45rem;">
-              <span class="pn-f-3d-icon pn-f-phone-icon" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1-.24 1.1.36 2.3.56 3.56.56.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.29 21 3 13.71 3 4.5c0-.55.45-1 1-1H7.5c.55 0 1 .45 1 1 0 1.25.2 2.45.56 3.56.12.35.03.74-.22 1L6.6 10.8z"/></svg>
-              </span>
-              +91 63836 33054
-            </a>
-            <a href="tel:+916381721061" class="footer-contact-link pn-f-3d-link" style="font-size:.79rem;white-space:nowrap;display:flex;align-items:center;gap:.45rem;">
-              <span class="pn-f-3d-icon pn-f-phone-icon" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1-.24 1.1.36 2.3.56 3.56.56.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.29 21 3 13.71 3 4.5c0-.55.45-1 1-1H7.5c.55 0 1 .45 1 1 0 1.25.2 2.45.56 3.56.12.35.03.74-.22 1L6.6 10.8z"/></svg>
-              </span>
-              +91 63817 21061
-            </a>
-            <a href="tel:+918754470742" class="footer-contact-link pn-f-3d-link" style="font-size:.79rem;white-space:nowrap;display:flex;align-items:center;gap:.45rem;">
-              <span class="pn-f-3d-icon pn-f-phone-icon" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1-.24 1.1.36 2.3.56 3.56.56.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.29 21 3 13.71 3 4.5c0-.55.45-1 1-1H7.5c.55 0 1 .45 1 1 0 1.25.2 2.45.56 3.56.12.35.03.74-.22 1L6.6 10.8z"/></svg>
-              </span>
-              +91 87544 70742
-            </a>
             <span class="footer-contact-link pn-f-3d-link" style="font-size:.79rem;display:flex;align-items:center;gap:.45rem;cursor:default;">
               <span class="pn-f-3d-icon pn-f-loc-icon" aria-hidden="true">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>
@@ -1424,7 +1406,7 @@ class ProfileNavigationManager {
           <!-- Row 3: Phone -->
           <div class="pn-field">
             <label>Phone Number <span class="pn-req">*</span> <span style="font-size:.62rem;color:#9ca3af;text-transform:none;letter-spacing:0;">(10-digit Indian mobile)</span></label>
-            <input type="tel" id="pn-ss-phone" placeholder="9876543210" autocomplete="tel" maxlength="10" oninput="window._pnValidateField(this,'phone')">
+            <input type="tel" id="pn-ss-phone" autocomplete="tel" maxlength="10" oninput="window._pnValidateField(this,'phone')">
             <div class="pn-field-hint" id="pn-ss-phone-h"></div>
           </div>
 
@@ -1500,7 +1482,7 @@ class ProfileNavigationManager {
             <div class="pn-field"><label>Last Name <span class="pn-req">*</span></label><input type="text" id="pn-sm-lname" placeholder="Last name" autocomplete="family-name" oninput="window._pnValidateField(this,'text')"></div>
           </div>
           <div class="pn-field"><label>Email Address <span class="pn-req">*</span></label><input type="email" id="pn-sm-email" placeholder="you@example.com" autocomplete="email" oninput="window._pnValidateField(this,'email')"></div>
-          <div class="pn-field"><label>Phone Number <span class="pn-req">*</span> <span style="font-size:.62rem;color:#9ca3af;text-transform:none;letter-spacing:0;">(10-digit Indian mobile)</span></label><input type="tel" id="pn-sm-phone" placeholder="9876543210" autocomplete="tel" maxlength="10" oninput="window._pnValidateField(this,'phone')"></div>
+          <div class="pn-field"><label>Phone Number <span class="pn-req">*</span> <span style="font-size:.62rem;color:#9ca3af;text-transform:none;letter-spacing:0;">(10-digit Indian mobile)</span></label><input type="tel" id="pn-sm-phone" autocomplete="tel" maxlength="10" oninput="window._pnValidateField(this,'phone')"></div>
           <div class="pn-field"><label>Primary Expertise <span class="pn-req">*</span></label>
             <select id="pn-sm-expertise">
               <option value="">Select your main domain…</option>
